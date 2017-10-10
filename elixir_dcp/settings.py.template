@@ -1,0 +1,27 @@
+class Config(object):
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # name of the application
+    TITLE = 'ELIXIR Data and Computation Platform'
+    DEBUG = False
+    SECRET_KEY = b''
+    SQLALCHEMY_DATABASE_URI = "sqlite:///elixir-dcp.db"
+
+
+class ProdConfig(Config):
+    SECRET_KEY = b''
+
+
+class DevConfig(Config):
+    DEBUG = True
+    SQLALCHEMY_ECHO = True
+
+
+class TestConfig(Config):
+    DEBUG = True
+    # use in memory database for testing
+    SQLALCHEMY_ECHO = False
+    ASSETS_DEBUG = True
+    TESTING = True
+    CACHE_CONFIG = {'CACHE_TYPE': 'null'}
+    WTF_CSRF_ENABLED = False
+    SQLALCHEMY_DATABASE_URI = "sqlite://"

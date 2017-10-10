@@ -1,0 +1,23 @@
+{
+  "name": "elixir_dcp",
+  "version": "0.0.1-dev",
+  "description": "Elixir Luxembourg - Data and Computing Platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git-r3lab.uni.lu/elixir/elixir-dcp"
+  },
+  "author": "Valentin Grouès",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap-material-design": "0.x.x",
+    "chart.js": "2.x.x",
+    "handlebars": "^4.0.6",
+    "jquery-ui-dist": "1.x.x",
+    "typeahead.js": "^0.11.1",
+    "x-editable": "1.x.x"
+  }
+}
