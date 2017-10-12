@@ -4,64 +4,80 @@
 @alternative-color: @orange-100;
 @labels-color: @blue-grey-300;
 @footer-color: white;
+@background-color: #eee;
+@brand-primary-shadow: rgba(239, 117, 3, 0.21);
+body, html {
+  height: 100%;
+}
 
 header {
-  height: 120px;
   margin-bottom: 30px;
   margin-top: 5px;
-  display: inline-block;
-  position: relative;
 }
 
 header h1 {
-  vertical-align: middle;
-  display: inline-block;
-
+  font-size: 2.2em;
+  margin-top: 35px;
 }
 
-header img {
-  vertical-align: middle;
-  margin-right: 20px;
-
+header #login-buttons {
+  margin-top: 25px;
 }
+
+#home-links {
+  margin-top: 350px;
+}
+
 footer {
+  position: relative;
+  margin-top: -250px;
+  height: 250px;
+  clear: both;
+  padding-top: 20px;
   text-align: center;
+}
+
+#home-users p {
+  padding: 0;
+}
+
+.block {
+  border: 1px solid #999;
+  background-color: white;
+  padding: 19px;
+  margin-bottom: 20px;
+}
+
+.block h2 {
+  padding: 0;
+  margin: 0 0 20px;
+}
+
+#dp-link {
+  margin-bottom: 50px;
+  font-size: 1.8em;
+  display: block;
+}
+
+#home-description > div > p {
+  font-size: 1.8em;
+}
+
+#home-description {
+  border-radius: 10px 2px 2px 2px;
+}
+
+#sidebar .block:first-child {
+  border-radius: 2px 10px 2px 2px;
+
+}
+
+#wrap {
+  min-height: 100%;
 }
 
 .label.label-default .label.label-primary {
   background-color: @labels-color;
-}
-
-.left-side-bar {
-  //background-color: rgb(255, 248, 226);;
-  //box-shadow: 0 0px 17px 0 rgba(0, 0, 0, 0.2), 0 0px 20px 0 rgba(0, 0, 0, 0.19);
-  //border-radius: 2px;
-  //border: 1px solid orange;
-  margin: 0;
-  padding: 0;
-}
-
-.left-side-bar h2 {
-  padding-left: 10px;
-}
-
-.left-side-bar ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.left-side-bar li:hover, .left-side-bar li.selected {
-  background-color: rgba(119, 158, 146, 0.25);
-  border-right: 1px solid rgba(119, 158, 146, 1);
-}
-
-.left-side-bar li {
-  box-shadow: 0 0px 0 0 rgba(0, 0, 0, 0.2), 0 2px 0 0 rgba(119, 158, 146, 0.25);
-  padding-left: 30px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-
 }
 
 .pagination > .active > a, .pagination > .active > a:hover {
@@ -71,18 +87,6 @@ footer {
 
 .pagination > li > a {
   color: @brand-primary;
-}
-
-.dataset-card {
-  column-count: 3;
-  -moz-column-count: 3;
-  -webkit-column-count: 3;
-  list-style: none;
-}
-
-.panel-dataset h3 {
-  margin-top: 0;
-
 }
 
 .facets {

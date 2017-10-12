@@ -32,19 +32,20 @@
 <body>
 
 
-{% block container %}
-
-    <div class="container" id="main-container">
-        {% block header %}
-            {% with active_page=active_page %}
-                {% include 'header.html' %}
-            {% endwith %}
-        {% endblock %}
-        {{ macros.show_flashes() }}
-        {% block content %}{% endblock %}
-        {% block footer %}{% include 'footer.html' %}{% endblock %}
-    </div>
-{% endblock %}
+<div id="wrap">
+    {% block container %}
+        <div class="container" id="main-container">
+            {% block header %}
+                {% with active_page=active_page %}
+                    {% include 'header.html' %}
+                {% endwith %}
+            {% endblock %}
+            {{ macros.show_flashes() }}
+            {% block content %}{% endblock %}
+        </div>
+    {% endblock %}
+</div>
+{% block footer %}{% include 'footer.html' %}{% endblock %}
 {% block extra_content %}{% endblock %}
 {% block js %}
     {% assets "common_js" %}
