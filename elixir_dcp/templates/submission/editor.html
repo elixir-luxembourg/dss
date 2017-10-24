@@ -1,0 +1,44 @@
+
+{% import "bootstrap/wtf.html" as wtf %}
+{% extends "base.html" %}
+{% block title %}
+    {% if add_submission %}
+        Add Submission
+    {% else %}
+        Edit submission
+    {% endif %}
+{% endblock %}
+{% block body %}
+    <div class="content-section">
+        <div class="outer">
+            <div class="middle">
+                <div class="inner">
+                    <div class="center">
+                        {% if add_department %}
+                            <h1>Add Department</h1>
+                        {% else %}
+                            <h1>Edit Department</h1>
+                        {% endif %}
+                        <br/>
+                        <form action="{{ url_for('add_entry') }}" method="post">
+                            {{ form.hidden_tag() }}
+                            <dl>
+                                <dt>{{ form.id.label }}:
+                                <dd>{{ form.id }}
+                                <dt>{{ form.name.label }}:
+                                <dd>{{ form.name(rows=5, cols=40) }}
+
+                                <dd>{{ form.submit }}
+                            </dl>
+                        </form>
+
+
+                      ##  {{ wtf.quick_form(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
