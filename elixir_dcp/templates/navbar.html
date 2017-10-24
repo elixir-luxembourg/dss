@@ -1,0 +1,52 @@
+{% set navigation_bar = config.get('SECTIONS',[
+                    ('home', 'Home'),
+                    ('list_submissions', 'Submissions'),
+                    ('', 'Access Requests'),
+                ]) -%}
+{% set active_page = active_page|default('home') -%}
+<div class="row">
+    <div class="navbar navbar-info">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                {#                            <a class="navbar-brand" href="/">Navigation</a>#}
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    {% for controller, label in navigation_bar %}
+                        <li{% if controller == active_page %} class="active"{% endif %}><a
+                                href="
+
+
+                                        {% if controller %}{{ url_for(controller) }}{% endif %} ">{{ label|e }}</a>
+                        </li>
+                    {% endfor %}
+
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+
+                    <li class="dropdown ">
+                        <a href="#admin" data-target="#admin" class="dropdown-toggle"
+                           data-toggle="dropdown">Admin
+                            <b class="caret"></b>
+                            <div class="ripple-container"></div>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Manage submissions</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

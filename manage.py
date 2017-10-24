@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
+from datetime import datetime
+
 from flask_assets import ManageAssets
 from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell
 
 from elixir_dcp import app, db
-from datetime import datetime
 from elixir_dcp.models import Submission
 
 manager = Manager(app)
@@ -18,7 +19,8 @@ def init_db():
     db.create_all()
 
     sub1 = Submission(name='OncoTrack', description='Submission of Oncotrack data', created=datetime.today())
-    sub2 = Submission(name='Predict-TB', description='Submission of Predict-TB preclinical data', created=datetime.today())
+    sub2 = Submission(name='Predict-TB', description='Submission of Predict-TB preclinical data',
+                      created=datetime.today())
 
     db.session.add(sub1)
     db.session.add(sub2)
