@@ -41,6 +41,7 @@ $(document).ready(function () {
     });
     $('.start-collapsed').collapse('hide');
     $('.start-visible').collapse('show');
+    $('table.datatable').dataTable();
 
 })
 ;

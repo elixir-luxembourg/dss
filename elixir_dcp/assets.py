@@ -7,11 +7,13 @@ typeahead_js = Bundle('vendor/node_modules/typeahead.js/dist/typeahead.bundle.js
 handlebars_js = Bundle('vendor/node_modules/handlebars/dist/handlebars.js')
 jqueryui_css = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.css')
 jqueryui_js = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.js')
-
+datatables_js = 'vendor/datatables/datatables.min.js'
+datatables_css = 'vendor/datatables/datatables.min.css'
 common_css = Bundle(
     'vendor/node_modules/bootstrap/dist/css/bootstrap.css',
     'vendor/node_modules/bootstrap-material-design/dist/css/ripples.css',
     jqueryui_css,
+    datatables_css,
     Bundle(
         'css/layout.less',
         filters='less'
@@ -24,6 +26,7 @@ common_js = Bundle(
     'vendor/node_modules/bootstrap-material-design/dist/js/ripples.js',
     'vendor/node_modules/bootstrap-material-design/dist/js/material.js',
     jqueryui_js,
+    datatables_js,
     handlebars_js,
     typeahead_js,
     'js/main.js',
