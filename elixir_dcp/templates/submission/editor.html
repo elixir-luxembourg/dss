@@ -1,43 +1,36 @@
-{% import "bootstrap/wtf.html" as wtf %}
-{% extends "base.html" %}
-{% block title %}
-    {% if add_submission %}
-        Add Submission
-    {% else %}
-        Edit submission
-    {% endif %}
-{% endblock %}
-{% block body %}
-    <div class="content-section">
-        <div class="outer">
-            <div class="middle">
-                <div class="inner">
-                    <div class="center">
-                        {% if add_department %}
-                            <h1>Add Department</h1>
-                        {% else %}
-                            <h1>Edit Department</h1>
-                        {% endif %}
-                        <br/>
-                        <form action="{{ url_for('add_entry') }}" method="post">
-                            {{ form.hidden_tag() }}
-                            <dl>
-                                <dt>{{ form.id.label }}:
-                                <dd>{{ form.id }}
-                                <dt>{{ form.name.label }}:
-                                <dd>{{ form.name(rows=5, cols=40) }}
-
-                                <dd>{{ form.submit }}
-                            </dl>
-                        </form>
+{% extends "layout.html" %}
+{% set active_page = "submissions" %}
+{% block title %}Submission Editor{% endblock %}
 
 
-                        ## {{ wtf.quick_form(form) }}
-                    </div>
-                </div>
+{% block content %}
+    <form id="form_submission_editor"
+          method="POST"
+          action="{{ url_for('add_edit_submission',sub_id=form.id.data) }}"
+          role="form">
+        <div>
+            <div>
+                <h1>{% block h1 %}Create a new submission{% endblock %}</h1>
+                {{ form.csrf_token }}
+                <div>CSRF: {{ form.csrf_token }}</div>
+                <div>{{ form.id.label }}: {{ form.id}}</div>
+                <div>{{ form.name.label }}: {{ form.name }}</div>
+                <div>{{ form.description.label }}: {{ form.description }}</div>
+                <div>{{ form.created.label }}:  {{ form.created(class='datepicker') }}</div>
             </div>
         </div>
-    </div>
+        <div class="row">
+            <div class="col-md-2">
+                <a href="{% block cancel_link %}{{ url_for('list_submissions') }}{% endblock %}"
+                   class="cancel btn btn-raised btn-danger">Cancel
+                </a>
+            </div>
+            <div class="text-right col-md-2 col-md-offset-8">
+                <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+            </div>
+        </div>
+    </form>
 {% endblock %}
+
 
 

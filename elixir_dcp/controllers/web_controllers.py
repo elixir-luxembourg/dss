@@ -1,9 +1,11 @@
 # coding=utf-8
-from flask import render_template
+from flask import flash, redirect, render_template, request, url_for
 
 import elixir_dcp.forms as forms
 import elixir_dcp.models as models
-from elixir_dcp import app
+import sys
+
+from elixir_dcp import app, db
 
 __author__ = 'Valentin Grouès'
 
@@ -23,12 +25,20 @@ def list_submissions():
                            submissions=submissions, title="Data Submissions to ELIXIR DCP")
 
 
-@app.route('/submissions/add', methods=['GET', 'POST'])
-def add_submission():
-    """
-   Add a submission to the database
-   """
+@app.route('/submissions/<sub_id>/edit', methods=['GET', 'POST'])
+def add_edit_submission(sub_id):
 
     form = forms.SubmissionForm()
-    return render_template('submission/editor.html',
-                           form=form, title="Create new submission")
+    if sub_id == -1:
+
+        form.id = sub_id
+        # form.pi_field.choices = [(e.id, e.full_name) for e in
+        #                Employee.query.filter_by(is_pi=False).order_by(Employee.first_name).all()]
+    else:
+        submission = models.Submission.query.get_or_404(sub_id)
+
+        form.id = submission.id
+        form.name = submission.name
+        form.description = submission.description
+
+    return render_template('submission/editor.html', form=form)
