@@ -2,7 +2,10 @@ import os
 
 from flask import Flask
 from flask_assets import Environment
+from flask_babel import Babel
+from flask_mail import Mail
 from flask_migrate import Migrate
+from flask_security import SQLAlchemyUserDatastore, Security
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
@@ -33,6 +36,19 @@ for name, bundle in assets_loader.load_bundles().items():
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# Setup Flask-Babel
+
+babel = Babel(app)
+
+# Setup Flask-Mail
+mail = Mail(app)
+
+# Setup Flask-Security
+from elixir_dcp.models import Role, User
+
+user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, user_datastore)
 
 
 @app.template_filter('dt')
