@@ -1,8 +1,6 @@
 from elixir_dcp import db
 
 
-# ..... Basic bean definitions....
-
 class Submission(db.Model):
     __tablename__ = 'submissions'
 
@@ -13,6 +11,3 @@ class Submission(db.Model):
 
     def __repr__(self):
         return '<Submission: {}>'.format(self.name)
-
-
-        # ..... End of bean definitions....
