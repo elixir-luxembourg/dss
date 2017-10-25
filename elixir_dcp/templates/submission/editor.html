@@ -10,13 +10,12 @@
           role="form">
         <div>
             <div>
-                <h1>{% block h1 %}Create a new submission{% endblock %}</h1>
+                <h1>{% block h1 %}Submission: {% endblock %}</h1>
                 {{ form.csrf_token }}
-                <div>CSRF: {{ form.csrf_token }}</div>
-                <div>{{ form.id.label }}: {{ form.id}}</div>
+                {{ form.id}}
                 <div>{{ form.name.label }}: {{ form.name }}</div>
                 <div>{{ form.description.label }}: {{ form.description }}</div>
-                <div>{{ form.created.label }}:  {{ form.created(class='datepicker') }}</div>
+                <div>{{ form.created.label }}:  {{ form.created }}</div>
             </div>
         </div>
         <div class="row">
