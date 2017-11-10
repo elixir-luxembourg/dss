@@ -36,3 +36,11 @@ common_js = Bundle(
 select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/select2.sortable.js')
 
 select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
+
+
+submission_js = Bundle(
+    Bundle(
+        'js/submission.js',
+        filters='closure_js'
+    ),
+    output='public/js/submission.min.js')

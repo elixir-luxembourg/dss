@@ -3,6 +3,7 @@
 {% set active_page = 'list_submissions' %}
 
 {% block title %}{{ title }}{% endblock %}
+
 {% block content %}
     <div class="row">
         {% if submissions %}
@@ -24,10 +25,10 @@
                         <td> {{ submission.description }} </td>
                         <td> {{ submission.created }} </td>
                         <td>
-                            <a href="#">
+                            <a name="submission_listing_edit" href="{{ url_for('add_edit_submission',sub_id=submission.id)}}">
                                 <i class="text-info material-icons">edit</i>
                             </a>
-                            <a href="#">
+                            <a name="submission_listing_delete" href="#">
                                 <i class="text-danger material-icons">delete</i>
                             </a>
                         </td>

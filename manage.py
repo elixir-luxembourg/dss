@@ -7,7 +7,7 @@ from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell
 
 from elixir_dcp import app, db
-from elixir_dcp.models import Submission
+from elixir_dcp.models import Submission, SubmissionContact
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
@@ -22,6 +22,10 @@ def init_db():
     sub2 = Submission(name='Predict-TB', description='Submission of Predict-TB preclinical data',
                       created=datetime.today())
 
+    contact1 = SubmissionContact(name='Pinar Alper', is_primary=True)
+    sub1.contacts.append(contact1)
+    contact2 = SubmissionContact(name='Valentin Grouès', is_primary=True)
+    sub2.contacts.append(contact2)
     db.session.add(sub1)
     db.session.add(sub2)
     db.session.commit()
