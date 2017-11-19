@@ -3,6 +3,18 @@ $(document).ready(function () {
     $("#created").datepicker();
 
 
+
+
+    $(function () {
+        if ($("#tabs").attr('page-mode') == 'create')
+        {
+            $("#tabs").tabs( { disabled: [1, 2] } );
+
+        }else{
+            $("#tabs").tabs();
+        }
+    });
+
     function getSubmissionContacts(){
         $.ajax({
             url: $("#contacts").attr('data-url'),
@@ -15,16 +27,6 @@ $(document).ready(function () {
             }
         });
     }
-
-    $(function () {
-        if ($("#tabs").attr('page-mode') == 'create')
-        {
-            $("#tabs").tabs( { disabled: [1] } );
-
-        }else{
-            $("#tabs").tabs();
-        }
-    });
 
     $("#contacts").on('click', 'a#submission_contact_listing_delete', function() {
         $.ajax({
@@ -49,6 +51,56 @@ $(document).ready(function () {
         });
     });
 
+    function getSubmissionAttachments(){
+        $.ajax({
+            url: $("#attachments").attr('data-url'),
+            type: "get",
+            success: function (result) {
+                $("#attachments").html(result);
+            },
+            error: function () {
+                alert('An error occurred while loading the Attachments section of this page');
+            }
+        });
+    }
+
+    $("#attachments").on('click', 'a#submission_attachment_listing_delete', function() {
+        $.ajax({
+            url: $(this).attr('data-url'),
+            type: "delete",
+            success: getSubmissionAttachments,
+            error: function () {
+                alert('An error occurred while deleting Attachment');
+            }
+        });
+    });
+
+    $("#attachments").on('click', 'a#submission_attachment_add', function() {
+
+        var files= $("#file-select")[0].files;
+
+        var formData = new FormData($("#form_submission_attachment")[0]);
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            console.log(file.name);
+
+            // Add the file to the request.
+            formData.append('attachments[]', file, file.name);
+        }
+
+        $.ajax({
+            url: $('#form_submission_attachment').attr('data-url'),
+            type: 'post',
+            cache: false,
+            contentType: false,
+            processData: false,
+            enctype: 'multipart/form-data',
+            data : formData,
+            success: getSubmissionAttachments,
+            error: getSubmissionAttachments
+        });
+    });
 
     getSubmissionContacts();
+    getSubmissionAttachments();
 });

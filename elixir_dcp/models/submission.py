@@ -9,7 +9,7 @@ class Submission(db.Model):
     description = db.Column(db.String(250))
     created = db.Column(db.Date)
     contacts = db.relationship("SubmissionContact")
-
+    attachments = db.relationship("SubmissionAttachment")
     def __repr__(self):
         return '<Submission: {}>'.format(self.name)
 
@@ -23,3 +23,14 @@ class SubmissionContact(db.Model):
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'))
 
     # TODO: there also needs to be a FK that points to ELIXIR DCP registered Users table
+
+
+class SubmissionAttachment(db.Model):
+    __tablename__ = 'submission_attachments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    note = db.Column(db.String, nullable=False)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'))
+    server_path = db.Column(db.String, nullable=False)
+    file_names = db.Column(db.String, nullable=False)
+

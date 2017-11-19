@@ -34,9 +34,7 @@
 
 <hr size="2px"/>
 
-<form id="form_submission_contact"
-      method="POST"
-      data-url="{{ url_for('add_submission_contact') }}">
+<form id="form_submission_contact" data-url="{{ url_for('add_submission_contact') }}">
     {{ contct_form.hidden_tag() }}
     <div>{{ contct_form.name.label }}</div>
     <div>{{ contct_form.name }}</div>

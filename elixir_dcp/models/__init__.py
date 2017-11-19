@@ -1,6 +1,7 @@
 # coding=utf-8
-from elixir_dcp.models.submission import Submission
-from elixir_dcp.models.submission import SubmissionContact
-__author__ = 'Valentin Grouès'
+from elixir_dcp.models.submission import Submission, SubmissionContact, SubmissionAttachment
 
-__all__ = [Submission, SubmissionContact]
+
+__author__ = 'Valentin Grouès, Pinar Alper'
+
+__all__ = [Submission, SubmissionContact, SubmissionAttachment]

@@ -18,7 +18,8 @@
     <div id="tabs" page-mode="{{ page_mode }}">
         <ul>
             <li><a href="#basicinfo">Basic Info & DISH</a></li>
-            <li><a href="#contacts">Submission Contacts</a></li>
+            <li><a href="#contacts">Contacts</a></li>
+            <li><a href="#attachments">Attachments</a></li>
         </ul>
         <div id="basicinfo">
             <form id="form_submission_editor"
@@ -38,6 +39,8 @@
         </div>
 
         <div id="contacts" data-url="{{ url_for('list_submission_contacts',sub_id=submsn_form.id.data) }}">
+        </div>
+        <div id="attachments" data-url="{{ url_for('list_submission_attachments',sub_id=submsn_form.id.data) }}">
         </div>
     </div>
 
