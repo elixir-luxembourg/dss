@@ -168,9 +168,6 @@ def add_submission_attachment():
                 flash("File is not of allowed type", "error")
                 return "", 400
     else:
-        print("============", file=sys.stderr)
-        print(form.errors, file=sys.stderr)
-        print("============", file=sys.stderr)
         flash("Please check the validity of your input in highlighted places", "error")
         return "", 400
     attachments_folder = str(uuid.uuid4())

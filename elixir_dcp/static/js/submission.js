@@ -77,17 +77,7 @@ $(document).ready(function () {
 
     $("#attachments").on('click', 'a#submission_attachment_add', function() {
 
-        var files= $("#file-select")[0].files;
-
         var formData = new FormData($("#form_submission_attachment")[0]);
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            console.log(file.name);
-
-            // Add the file to the request.
-            formData.append('attachments[]', file, file.name);
-        }
-
         $.ajax({
             url: $('#form_submission_attachment').attr('data-url'),
             type: 'post',
