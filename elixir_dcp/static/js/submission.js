@@ -64,6 +64,11 @@ $(document).ready(function () {
         });
     }
 
+
+    function getSubmissionAttachmentsEdit(result){
+       $("#attachments").html(result);
+    }
+
     $("#attachments").on('click', 'a#submission_attachment_listing_delete', function() {
         $.ajax({
             url: $(this).attr('data-url'),
@@ -87,8 +92,10 @@ $(document).ready(function () {
             enctype: 'multipart/form-data',
             data : formData,
             success: getSubmissionAttachments,
-            error: getSubmissionAttachments
-        });
+            error: function (xhr, status, error) {
+                $("#attachments").html(xhr.responseText);
+            }
+            });
     });
 
     getSubmissionContacts();

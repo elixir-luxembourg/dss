@@ -1,5 +1,5 @@
 # coding=utf-8
-import calendar
+
 
 from flask import flash, redirect, render_template, request, url_for
 
@@ -8,6 +8,7 @@ import elixir_dcp.models as models
 import sys
 import os
 import uuid
+import shutil
 from elixir_dcp import app, db
 from werkzeug.utils import secure_filename
 
@@ -153,44 +154,46 @@ def is_allowed_type(filename):
 @app.route('/submission_attachment', methods=['POST'])
 def add_submission_attachment():
     form = forms.AttachmentForm(request.form)
-    if form.validate_on_submit():
-        if 'attachments[]' not in request.files:
-            flash('No file part')
-            return "", 400
-        requestfiles = request.files.getlist('attachments[]')
-        for file in requestfiles:
-            # if user does not select file, browser also
-            # submit an empty part without filename
-            if file.filename == '':
-                flash('No selected file')
-                return "", 400
-            if not is_allowed_type(file.filename):
-                flash("File is not of allowed type", "error")
-                return "", 400
+    file_validation = True
+    form_validation = form.validate_on_submit()
+    request_files = request.files.getlist(form.file_attachments.name)
+    for file in request_files:
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            file_validation = False
+            form.file_attachments.errors.append('No file(s) selected.')
+        if not is_allowed_type(file.filename):
+            file_validation = False
+            form.file_attachments.errors.append('File {} is not of allowed type.'.format(file.filename))
+    if (not file_validation) or (not form_validation ):
+        flash("Please check the validity of your input in highlighted fields.", "error")
+        attachments = models.SubmissionAttachment.query.filter_by(submission_id=form.submission_id.data)
+        return render_template('submission/attachmentsInline.html', attachments=attachments,
+                               attachment_form=form), 400
     else:
-        flash("Please check the validity of your input in highlighted places", "error")
-        return "", 400
-    attachments_folder = str(uuid.uuid4())
-    path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachments_folder)
-    os.makedirs(path_on_server)
-    attachment = models.SubmissionAttachment()
-    attachment.note = form.note.data
-    attachment.submission_id = form.submission_id.data
-    attachment.server_path = path_on_server
-    attachment.file_names = ''
-    for file in requestfiles:
-        secured_file_name = secure_filename(file.filename)
-        attachment.file_names += secured_file_name + ' '
-        file.save(os.path.join(path_on_server, secured_file_name))
-    db.session.add(attachment)
-    db.session.commit()
-    flash("Submission Attachment(s) added", "info")
-    return "", 204
+        attachments_folder = str(uuid.uuid4())
+        path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachments_folder)
+        os.makedirs(path_on_server)
+        attachment = models.SubmissionAttachment()
+        attachment.note = form.note.data
+        attachment.submission_id = form.submission_id.data
+        attachment.server_path = path_on_server
+        attachment.file_names = ''
+        for file in request_files:
+            secured_file_name = secure_filename(file.filename)
+            attachment.file_names += secured_file_name + ' '
+            file.save(os.path.join(path_on_server, secured_file_name))
+        db.session.add(attachment)
+        db.session.commit()
+        flash("Submission Attachment(s) added", "info")
+        return "", 204
 
 
 @app.route('/submission_attachment/<int:sub_attach_id>', methods=['DELETE'])
 def delete_submission_attachment(sub_attach_id):
     submission_attachment = models.SubmissionAttachment.query.get_or_404(sub_attach_id)
+    shutil.rmtree(submission_attachment.server_path)
     db.session.delete(submission_attachment)
     db.session.commit()
     flash("Submission Attachment deleted", "info")

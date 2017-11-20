@@ -38,9 +38,13 @@
     {{ attachment_form.hidden_tag() }}
     <div>{{ attachment_form.note.label }}</div>
     <div>{{ attachment_form.note }}</div>
+    {{ macros.show_field_errors(attachment_form.note) }}
+
+    <div>{{ attachment_form.file_attachments.label }}</div>
     <div>
-        <input type=file id="file-select" name="attachments[]" multiple>
+        <input type=file id="file_attachments" name="file_attachments" multiple>
     </div>
+    {{ macros.show_field_errors(attachment_form.file_attachments) }}
 </form>
-</form>
+
 <a id="submission_attachment_add" class="save btn btn-raised btn-primary" role="button">Add Attachment(s)</a>

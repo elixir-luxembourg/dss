@@ -37,13 +37,11 @@
                 <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
             </form>
         </div>
-
         <div id="contacts" data-url="{{ url_for('list_submission_contacts',sub_id=submsn_form.id.data) }}">
         </div>
         <div id="attachments" data-url="{{ url_for('list_submission_attachments',sub_id=submsn_form.id.data) }}">
         </div>
     </div>
-
 {% endblock %}
 
 

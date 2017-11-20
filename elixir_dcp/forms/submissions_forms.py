@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired
 from wtforms.fields.html5 import DateField
-
+from flask_wtf.file import FileField, FileRequired
 
 class AttachmentForm(FlaskForm):
     """
@@ -11,7 +11,10 @@ class AttachmentForm(FlaskForm):
     id = HiddenField('Id', default='0')
     note = StringField('Attachment Note', validators=[DataRequired()])
     submission_id = HiddenField('Submission Id')
-
+    file_attachments = StringField('File(s)')
+    # wtf FileField does not support multiple uploads.
+    # we have a hard-coded field in own
+    # We keep it as dummy to attach validation errors
 
 class ContactForm(FlaskForm):
     """
