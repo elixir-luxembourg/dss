@@ -110,6 +110,7 @@ def add_submission_contact():
         contact = models.SubmissionContact()
         contact.name = form.name.data
         contact.is_primary = form.is_primary.data
+        contact.category_id = form.category_id.data
         contact.submission_id = form.submission_id.data
         db.session.add(contact)
         db.session.commit()

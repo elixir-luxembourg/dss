@@ -20,9 +20,18 @@ class SubmissionContact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     is_primary = db.Column(db.Boolean, nullable=False)
     name = db.Column(db.String, nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('contact_types.id'), nullable=False)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'))
+    contact_category = db.relationship('ContactType')
 
     # TODO: there also needs to be a FK that points to ELIXIR DCP registered Users table
+
+
+class ContactType(db.Model):
+    __tablename__ = 'contact_types'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, unique=True, nullable=False)
 
 
 class SubmissionAttachment(db.Model):

@@ -8,6 +8,7 @@
             <th style="display:none;">ID</th>
             <th width="75%">Name</th>
             <th width="15%">Is Primary</th>
+            <th width="15%">Type</th>
             <th width="10%">Actions</th>
         </tr>
         </thead>
@@ -16,6 +17,7 @@
                 <td style="display:none;">{{ contact.id }}</td>
                 <td>{{ contact.name }}</td>
                 <td>{{ contact.is_primary }}</td>
+                <td>{{ contact.contact_category.name }}</td>
                 <td>
                     <a id="submission_contact_listing_delete"
                        data-url="{{ url_for('delete_submission_contact',sub_contact_id=contact.id) }}">
@@ -38,6 +40,8 @@
     {{ contct_form.hidden_tag() }}
     <div>{{ contct_form.name.label }}</div>
     <div>{{ contct_form.name }}</div>
+    <div>{{ contct_form.category_id.label }}</div>
+    <div>{{ contct_form.category_id }}</div>
     <div>{{ contct_form.is_primary.label }}</div>
     <div>{{ contct_form.is_primary }}</div>
 </form>
