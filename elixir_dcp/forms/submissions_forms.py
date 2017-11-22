@@ -24,7 +24,11 @@ class ContactForm(FlaskForm):
     submission_id = HiddenField('Submission Id')
     name = StringField('Contact Name')
     is_primary = BooleanField('Is Primary?', default=False)
-    category_id = SelectField('Contact Type', choices=[(c.id, c.name) for c in ContactType.query.all()], coerce=int)
+    category_id = SelectField('Contact Type', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(ContactForm, self).__init__(*args, **kwargs)
+        self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
 
 
 class SubmissionForm(FlaskForm):
