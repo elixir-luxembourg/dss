@@ -1,0 +1,43 @@
+{% macro render_field_with_errors(field) %}
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
+        {{ field.label(class="col-md-3 control-label") }}
+        <div class="col-md-6">
+            {{ field(class="form-control") }}
+            {% if field.errors %}
+                {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_select_field(field) %}
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
+        {{ field.label(class="col-md-3 control-label") }}
+        <div class="col-md-6">
+            {{ field( class="form-control" ) }}
+            {% if field.errors %}
+                {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_checkbox_field(field) %}
+    <div class="form-group">
+        {{ field.label(class="col-md-3 control-label") }}
+        <div class="col-md-6 checkbox">
+            <label><input id="{{ field.name }}" name="{{ field.name }}"
+                          type="checkbox" {% if field.data %}checked="checked"{% endif %}"/>
+            </label>
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro render_field(field) %}
+    <p>{{ field(**kwargs)|safe }}</p>
+{% endmacro %}
+
+{% macro render_button_field(field) %}
+    {{ field( class="btn btn-raised btn-primary" ) }}
+{% endmacro %}
+
