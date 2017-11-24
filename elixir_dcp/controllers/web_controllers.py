@@ -1,11 +1,9 @@
 # coding=utf-8
-
-
 from flask import flash, redirect, render_template, request, url_for
-
+from flask_login import login_user
 import elixir_dcp.forms as forms
 import elixir_dcp.models as models
-import sys
+import elixir_dcp.exceptions as exceptions
 import os
 import uuid
 import shutil
@@ -15,9 +13,37 @@ from werkzeug.utils import secure_filename
 __author__ = 'Valentin Grouès, Pinar Alper'
 
 
+logger = app.logger
+
 @app.route('/', methods=['GET'])
 def home():
     return render_template('home.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = forms.LoginForm()
+    if form.validate_on_submit():
+        email = form.username.data
+        password = form.password.data
+        try:
+            authentication = app.config['authentication']
+            if authentication.authenticate_user(email, password):
+                user = models.ElixirDcpUser.query.filter_by(elixir_reg_id=email).one_or_none()
+                if user is None:
+                    form.username.errors.append('User not found')
+                else:
+                    login_user(user, remember=form.remember.data)
+                    flash('Logged in successfully.', 'success')
+                    return form.redirect()
+            else:
+                message = 'Wrong username / password combination'
+                form.username.errors.append(message)
+                form.password.errors.append(message)
+        except exceptions.AuthenticationException as e:
+            flash(e, 'error')
+
+    return render_template('login.html', form=form)
 
 
 """------------------------------------"""
@@ -61,14 +87,12 @@ def add_edit_submission(sub_id):
         if form.validate_on_submit():
             if int(form.id.data) == 0:
                 submission_rec = models.Submission()
+                form.populate_obj(submission_rec)
 
-                # We do not call form.populate_obj in this case because it sets the
-                # id to 0 and this gets persisted. If id is not set SQLAlchemy auto assigns.
-                # TODO: its ugly, fix it
-
-                submission_rec.created = form.created.data
-                submission_rec.name = form.name.data
-                submission_rec.description = form.description.data
+                # id is set to 0 from the form
+                # we reset it in order to allow SQL alchemy
+                # to auto assign an id to this fresh record
+                submission_rec.id = None
 
                 db.session.add(submission_rec)
                 db.session.commit()
@@ -82,9 +106,8 @@ def add_edit_submission(sub_id):
 
             return redirect(url_for('list_submissions'))
         else:
-            print(form.errors, file=sys.stderr)
             flash("Please check the validity of your input in highlighted places", "error")
-            return render_template('submission/editor.html', form=form)
+            return render_template('submission/editor.html', submsn_form=form)
 
 
 """----------------------------------------------------"""

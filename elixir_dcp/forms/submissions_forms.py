@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField
+from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField
 from wtforms.validators import DataRequired
-from wtforms.fields.html5 import DateField
-from elixir_dcp.models import ContactType
+from elixir_dcp.models.submission import ContactType
+
 
 class AttachmentForm(FlaskForm):
     """
@@ -15,6 +15,7 @@ class AttachmentForm(FlaskForm):
     # wtf FileField does not support multiple uploads.
     # we use a hard-coded string field here
     # We keep it as dummy to attach validation errors
+
 
 class ContactForm(FlaskForm):
     """
@@ -39,7 +40,8 @@ class SubmissionForm(FlaskForm):
     id = HiddenField('Id',  default='0')
     name = StringField('Name', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
-    created = DateField('Created On', validators=[DataRequired()], format='%d/%m/%Y')
+    created_on = DateField('Created On', validators=[DataRequired()], format='%d/%m/%Y')
+    joint_providers = BooleanField('Joint Providers', default=False)
 
 
 

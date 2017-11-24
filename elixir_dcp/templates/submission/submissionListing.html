@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+
+{% set active_page = 'list_submissions' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        {% if submissions %}
+            <table class="datatable table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for submission in submissions %}
+                    <tr>
+                        <td> {{ submission.id }} </td>
+                        <td> {{ submission.name }} </td>
+                        <td> {{ submission.description }} </td>
+                        <td> {{ submission.created }} </td>
+                        <td>
+                            <a name="submission_listing_edit" href="{{ url_for('add_edit_submission',sub_id=submission.id)}}">
+                                <i class="text-info material-icons">edit</i>
+                            </a>
+                            <a name="submission_listing_delete" href="#">
+                                <i class="text-danger material-icons">delete</i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="text-center">
+                <h3> No submissions have been added. </h3>
+                <hr class="intro-divider">
+            </div>
+        {% endif %}
+        <a href="#" class="btn btn-info" role="button">Add New</a>
+    </div>
+{% endblock %}

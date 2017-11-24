@@ -1,9 +1,6 @@
 $(document).ready(function () {
 
-    $("#created").datepicker();
-
-
-
+    $("#created").datepicker({ dateFormat: 'dd/mm/yy' });
 
     $(function () {
         if ($("#tabs").attr('page-mode') == 'create')

@@ -7,12 +7,27 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_security import SQLAlchemyUserDatastore, Security
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 
 import elixir_dcp.assets as assets
 
 __VERSION__ = "0.0.1-dev"
+
+
+def configure_authentication_system():
+    from .authentication.config_authentication import ConfigAuthentication
+    from .authentication.aai_authentication import AAIAuthentication
+
+    authentication_method = app.config.get('AUTHENTICATION_METHOD', 'CONFIG')
+    if authentication_method == 'CONFIG':
+        authentication = ConfigAuthentication(app.config.get('AUTHENTICATION_DICT', {}))
+    elif authentication_method == 'AAI':
+        authentication = AAIAuthentication()
+    else:
+        raise ValueError("Unsupported authentication method")
+    app.config['authentication'] = authentication
 
 
 def create_application():
@@ -25,6 +40,10 @@ def create_application():
 
 
 app = create_application()
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+login_manager.login_message_category = "error"
 
 csrf = CSRFProtect()
 csrf.init_app(app)
@@ -36,19 +55,19 @@ for name, bundle in assets_loader.load_bundles().items():
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+configure_authentication_system()
 
 # Setup Flask-Babel
-
 babel = Babel(app)
 
 # Setup Flask-Mail
 mail = Mail(app)
 
 # Setup Flask-Security
-from elixir_dcp.models import Role, User
+#from elixir_dcp.models import Role, User
 
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)
+#user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+#security = Security(app, user_datastore)
 
 
 @app.template_filter('dt')
