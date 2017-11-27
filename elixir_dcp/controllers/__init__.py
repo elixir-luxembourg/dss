@@ -5,7 +5,7 @@ from flask_login.config import EXEMPT_METHODS
 from flask_login import current_user
 
 
-def app_authorization(*role_names):
+def app_authorization(**options):
     def wrapper(func):
         @wraps(func)
         def decorated_view(*args, **kwargs):
@@ -15,7 +15,7 @@ def app_authorization(*role_names):
                 return func(*args, **kwargs)
             elif not current_user.is_authenticated:
                 return current_app.login_manager.unauthorized()
-            elif not current_user.has_role(*role_names):
+            elif not current_user.has_overlapping_role(options.get('allowed_roles')):
                 return render_template('error.html', message="Error 403 - Unauthorized", show_home_link=True), 403
             return func(*args, **kwargs)
 

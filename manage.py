@@ -6,7 +6,7 @@ from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell
 from elixir_dcp import app, db
 from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, SubmissionContact
-from elixir_dcp.models import User, Role
+from elixir_dcp.models.security import User, Role, UsersRoles
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
@@ -21,7 +21,7 @@ def init_db():
     for name_contact_type in names_contact_types:
         db.session.add(ContactType(name=name_contact_type))
 
-    names_roles= ['admin', 'provider', 'consumer', 'steward']
+    names_roles= ['provider', 'consumer', 'steward', 'dac']
     for name_role in names_roles:
         db.session.add(Role(name=name_role))
 
@@ -46,6 +46,16 @@ def init_db():
                                  phone_code='352', phone_no='123456789', active_user=True))
     db.session.add(User(first_name='Alice', last_name='White', elixir_reg_id='pi@some.uni',
                                  phone_code='44', phone_no='123456789', active_user=True))
+    db.session.commit()
+
+    db.session.add(UsersRoles(user_id=User.query.filter_by(first_name='Pinar').one_or_none().id,
+                              role_id=Role.query.filter_by(name='steward').one_or_none().id,
+                              assigned_on=datetime.today()))
+
+    db.session.add(UsersRoles(user_id=User.query.filter_by(first_name='Alice').one_or_none().id,
+                              role_id=Role.query.filter_by(name='provider').one_or_none().id,
+                              assigned_on=datetime.today()))
+
     db.session.commit()
 
     return
