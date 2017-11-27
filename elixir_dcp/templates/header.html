@@ -5,13 +5,18 @@
     <h1 class="col-md-6">
         ELIXIR-LU Data and
         Computing Platform</h1>
-    <p id="login-buttons" class="col-md-4">
-        <a href="
+    <p><b>[ {{ current_user.first_name }} {{ current_user.last_name}} ]</b></p>
+    {% if active_page =='login' %}
 
-                {{ url_for_security('register') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}"
-           class="btn btn-primary btn-raised">Sign-Up</a>
-        <a href="
-                {{ url_for_security('login') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}"
-           class="btn btn-default btn-raised">Sign-In (ELIXIR AAI)</a>
-    </p>
+    {% else %}
+        <p id="login-buttons" class="col-md-4">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="
+            {{ url_for('login') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}"
+                   class="btn btn-default btn-raised">Sign-In (ELIXIR AAI)</a>
+            {% endif %}
+        </p>
+    {% endif %}
 </header>

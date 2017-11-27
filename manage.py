@@ -6,7 +6,7 @@ from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell
 from elixir_dcp import app, db
 from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, SubmissionContact
-from elixir_dcp.models import ElixirDcpUser, UserRoleEnum
+from elixir_dcp.models import User, Role
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
@@ -20,6 +20,10 @@ def init_db():
     names_contact_types = ['PI', 'Researcher', 'Data Manager', 'Data Protection Officer', 'Legal Representative', 'Other']
     for name_contact_type in names_contact_types:
         db.session.add(ContactType(name=name_contact_type))
+
+    names_roles= ['admin', 'provider', 'consumer', 'steward']
+    for name_role in names_roles:
+        db.session.add(Role(name=name_role))
 
     db.session.add(DataSizeCategory(code='elx_s', label='Less than 10GB'))
     db.session.add(DataSizeCategory(code='elx_m', label='Between 10 and 100GB'))
@@ -38,10 +42,10 @@ def init_db():
     db.session.add(sub2)
     db.session.commit()
 
-    db.session.add(ElixirDcpUser(first_name='Pinar', last_name='Alper', elixir_reg_id='pinar.alper@uni.lu',
-                                 phone_code='352', phone_no='123456789', usr_role=UserRoleEnum.steward))
-    db.session.add(ElixirDcpUser(first_name='Alice', last_name='White', elixir_reg_id='pi@some.uni',
-                                 phone_code='44', phone_no='123456789'))
+    db.session.add(User(first_name='Pinar', last_name='Alper', elixir_reg_id='pinar.alper@uni.lu',
+                                 phone_code='352', phone_no='123456789', active_user=True))
+    db.session.add(User(first_name='Alice', last_name='White', elixir_reg_id='pi@some.uni',
+                                 phone_code='44', phone_no='123456789', active_user=True))
     db.session.commit()
 
     return

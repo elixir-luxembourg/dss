@@ -10,8 +10,6 @@ from wtforms.validators import Email, DataRequired
 __author__ = 'Valentin Grouès'
 
 
-
-
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
@@ -41,12 +39,11 @@ class RedirectForm(FlaskForm):
         return redirect(target or '/')
 
 class LoginForm(RedirectForm):
-    username = EmailField('Username', [DataRequired(), Email("This field requires a valid email address")],
-                          render_kw={"placeholder": "email@uni.lux"})
+    elixir_reg_id = EmailField('Username', [DataRequired(), Email("This field requires the email address which is your ELIXIR AAI identity.")],
+                          render_kw={"placeholder": "email@uni.lu"})
     password = PasswordField('Password', [DataRequired()],
-                             render_kw={"placeholder": "UL password"})
+                             render_kw={"placeholder": "Password"})
     remember = BooleanField('Remember me')
-
 
 __all__ = [SubmissionForm, ContactForm, AttachmentForm, LoginForm]
 

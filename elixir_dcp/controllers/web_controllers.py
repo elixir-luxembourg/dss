@@ -1,17 +1,19 @@
 # coding=utf-8
 from flask import flash, redirect, render_template, request, url_for
-from flask_login import login_user
+from flask_login import login_user, login_required, logout_user
 import elixir_dcp.forms as forms
+from elixir_dcp import login_manager
 import elixir_dcp.models as models
 import elixir_dcp.exceptions as exceptions
+from sqlalchemy.exc import OperationalError
 import os
 import uuid
 import shutil
 from elixir_dcp import app, db
 from werkzeug.utils import secure_filename
+from . import app_authorization
 
 __author__ = 'Valentin Grouès, Pinar Alper'
-
 
 logger = app.logger
 
@@ -19,31 +21,48 @@ logger = app.logger
 def home():
     return render_template('home.html')
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash('You have logged out of ELIXIR DCP.', 'success')
+    return render_template('home.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = forms.LoginForm()
     if form.validate_on_submit():
-        email = form.username.data
+        elixir_reg_id = form.elixir_reg_id.data
         password = form.password.data
         try:
             authentication = app.config['authentication']
-            if authentication.authenticate_user(email, password):
-                user = models.ElixirDcpUser.query.filter_by(elixir_reg_id=email).one_or_none()
+            if authentication.authenticate_user(elixir_reg_id, password):
+                user = models.User.query.filter_by(elixir_reg_id=elixir_reg_id, active_user=True).one_or_none()
                 if user is None:
-                    form.username.errors.append('User not found')
+                    form.username.errors.append('User not found!')
                 else:
-                    login_user(user, remember=form.remember.data)
+                    login_user(user, remember=False)
                     flash('Logged in successfully.', 'success')
                     return form.redirect()
             else:
-                message = 'Wrong username / password combination'
-                form.username.errors.append(message)
+                message = 'Wrong username / password combination!'
+                form.elixir_reg_id.errors.append(message)
                 form.password.errors.append(message)
         except exceptions.AuthenticationException as e:
             flash(e, 'error')
 
-    return render_template('login.html', form=form)
+    return render_template('security/login_user.html', login_user_form=form)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    app.logger.info('INFO: Load User with ID: %s', user_id)
+    try:
+        return models.User.query.get(int(user_id))
+    except OperationalError as e:
+        app.logger.error('Error: %s', e)
+        return None
 
 
 """------------------------------------"""
@@ -52,6 +71,7 @@ def login():
 
 
 @app.route('/submissions', methods=['GET'])
+@app_authorization('steward')
 def list_submissions():
     """
     List all submissions
@@ -222,3 +242,6 @@ def delete_submission_attachment(sub_attach_id):
     db.session.commit()
     flash("Submission Attachment deleted", "info")
     return "", 204
+
+
+

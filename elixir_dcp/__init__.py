@@ -4,14 +4,14 @@ from flask import Flask
 from flask_assets import Environment
 from flask_babel import Babel
 from flask_mail import Mail
+#from flask_security import SQLAlchemyUserDatastore, Security
 from flask_migrate import Migrate
-from flask_security import SQLAlchemyUserDatastore, Security
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
-
 import elixir_dcp.assets as assets
+
 
 __VERSION__ = "0.0.1-dev"
 
@@ -58,10 +58,10 @@ migrate = Migrate(app, db)
 configure_authentication_system()
 
 # Setup Flask-Babel
-babel = Babel(app)
+#babel = Babel(app)
 
 # Setup Flask-Mail
-mail = Mail(app)
+#mail = Mail(app)
 
 # Setup Flask-Security
 #from elixir_dcp.models import Role, User
@@ -101,7 +101,7 @@ def inject_now():
 
 from . import controllers
 
-__all__ = [controllers, assets, app]
+__all__ = [controllers, assets, app, db]
 # db.create_all()
 if __name__ == '__main__':
     app.run()

@@ -1,42 +1,70 @@
 # coding=utf-8
 import enum
 from elixir_dcp import db
-from flask_login import UserMixin
+from flask_login._compat import text_type
+from sqlalchemy.sql import expression
 from . import submission
 
-__author__ = 'Valentin Grouès'
-
-# many to many intermediate tables
-roles_users = db.Table('roles_users',
-                       db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-                       db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
-
-from elixir_dcp.models.role import Role
-from elixir_dcp.models.submission import Submission
-from elixir_dcp.models.user import User
-
-__all__ = [Submission, User, Role, roles_users]
-
-class UserRoleEnum(enum.Enum):
-    steward = '1'
-    user = '2'
-    # TODO can there be other roles?
+__author__ = 'Valentin Grouès, Pinar Alper'
 
 
-class ElixirDcpUser(db.Model, UserMixin):
-    __tablename__ = 'elixir_dcp_users'
+class User(db.Model):
+    __tablename__ = 'users'
 
+    active_user = db.Column(db.Boolean, nullable=False)
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)     # ['Mr', 'Ms', 'Prof', 'Dr']
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
     elixir_reg_id = db.Column(db.String, unique=True)
+    assigned_roles = db.relationship('Role', secondary='users_roles')
     phone_code = db.Column(db.String)
     phone_no = db.Column(db.String)
-    usr_role = db.Column(db.Enum(UserRoleEnum), default=UserRoleEnum.user, nullable=False)
+
+    def is_active(self):
+        return self.active_user
+
+    def is_authenticated(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        try:
+            return text_type(self.id)
+        except AttributeError:
+            raise NotImplementedError('No `id` attribute - override `get_id`')
+
+    def has_role(self, *roles):
+        if self.assigned_roles is None:
+            return False
+        else:
+            role_names = []
+            for role in self.assigned_roles:
+                role_names.append(role.name)
+        if len(set(*roles).intersection(role_names)) > 0:
+            return True
+        else:
+            return False
 
 
-__all__ = [submission, ElixirDcpUser, UserRoleEnum]
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+    description = db.Column(db.String(255))
+
+
+class UsersRoles(db.Model):
+    __tablename__ = 'users_roles'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), primary_key=True)
+    assigned_on = db.Column('assigned_on', db.Date())
+
+__all__ = [submission, User, Role, UsersRoles]
 
 
 
