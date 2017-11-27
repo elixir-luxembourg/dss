@@ -3,19 +3,19 @@ from flask import flash, redirect, render_template, request, url_for
 from flask_login import login_user, login_required, logout_user
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
-import elixir_dcp.models as models
+from elixir_dcp.models.security import User
+from elixir_dcp.models.submission import Submission, SubmissionAttachment, SubmissionContact, SubmissionDish
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 import os
 import uuid
 import shutil
+from datetime import datetime
 from elixir_dcp import app, db
 from werkzeug.utils import secure_filename
 from . import app_authorization
 
 __author__ = 'Valentin Grouès, Pinar Alper'
-
-logger = app.logger
 
 @app.route('/', methods=['GET'])
 def home():
@@ -38,7 +38,7 @@ def login():
         try:
             authentication = app.config['authentication']
             if authentication.authenticate_user(elixir_reg_id, password):
-                user = models.User.query.filter_by(elixir_reg_id=elixir_reg_id, active_user=True).one_or_none()
+                user = User.query.filter_by(elixir_reg_id=elixir_reg_id, active_user=True).one_or_none()
                 if user is None:
                     form.username.errors.append('User not found!')
                 else:
@@ -59,7 +59,7 @@ def login():
 def load_user(user_id):
     app.logger.info('INFO: Load User with ID: %s', user_id)
     try:
-        return models.User.query.get(int(user_id))
+        return User.query.get(int(user_id))
     except OperationalError as e:
         app.logger.error('Error: %s', e)
         return None
@@ -70,64 +70,53 @@ def load_user(user_id):
 """------------------------------------"""
 
 
-@app.route('/submissions', methods=['GET'])
-@app_authorization('steward')
+@app.route('/submission', methods=['GET'])
+@app_authorization(allowed_roles=['steward', 'provider'])
 def list_submissions():
     """
     List all submissions
     """
-    submissions = models.Submission.query.all()
-    return render_template('submission/listing.html',
-                           submissions=submissions, title="Data Submissions to ELIXIR DCP")
+    submissions = Submission.query.all()
+    return render_template('submission/submissionListing.html',
+                           submissions=submissions, submsn_create_form=forms.SubmissionForm())
 
+@app.route('/submission/create', methods=['POST'])
+@app_authorization(allowed_roles=['steward'])
+def create_submission():
+    creation_form = forms.SubmissionForm(request.form)
+    submission_rec = Submission()
+    submission_rec.name = creation_form.name.data
+    submission_rec.description = creation_form.description.data
+    submission_rec.created_on = datetime.today()
+    db.session.add(submission_rec)
+    db.session.commit()
+    flash('New submission created. Further information can be supplied through the editor.', 'info')
+    return redirect(url_for('edit_submission', sub_id=submission_rec.id))
 
-@app.route('/submissions/edit/<int:sub_id>', methods=['GET', 'POST'])
-def add_edit_submission(sub_id):
-    """
-    I used the id -> 0 to differentiate between CREATE and EDIT mode
-    """
-    # TODO: Find a more elegant way to determine page mode both for templates and controllers
+@app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
+def edit_submission(sub_id):
 
+    app.logger.info('INFO: Edit submission SUB-ID: %s', sub_id)
     if request.method == 'GET':
 
-        if sub_id == 0:
-            #  an empty form
-            empty_sub_form = forms.SubmissionForm()
-            return render_template('submission/editor.html', submsn_form=empty_sub_form)
+        submission_rec = Submission.query.get_or_404(sub_id)
+        sub_form = forms.SubmissionForm(obj=submission_rec)
 
-        else:
-            #  a form filled  with info from the db
-            submission_rec = models.Submission.query.get_or_404(sub_id)
-            sub_form = forms.SubmissionForm(obj=submission_rec)
-
-        return render_template('submission/editor.html', submsn_form=sub_form)
+        return render_template('submission/submissionEditor.html', submsn_form=sub_form, page_mode='edit')
 
     elif request.method == 'POST':
         form = forms.SubmissionForm(request.form)
         if form.validate_on_submit():
-            if int(form.id.data) == 0:
-                submission_rec = models.Submission()
-                form.populate_obj(submission_rec)
+            submission_rec = Submission.query.filter_by(id=form.id.data).first()
+            form.populate_obj(submission_rec)
+            db.session.add(submission_rec)
+            db.session.commit()
+            flash('Submission updated successfully', 'info')
 
-                # id is set to 0 from the form
-                # we reset it in order to allow SQL alchemy
-                # to auto assign an id to this fresh record
-                submission_rec.id = None
-
-                db.session.add(submission_rec)
-                db.session.commit()
-                flash('Submission created successfully', 'info')
-            else:
-                submission_rec = models.Submission.query.filter_by(id=form.id.data).first()
-                form.populate_obj(submission_rec)
-                db.session.add(submission_rec)
-                db.session.commit()
-                flash('Submission updated successfully', 'info')
-
-            return redirect(url_for('list_submissions'))
+            return redirect(url_for('submission'))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
-            return render_template('submission/editor.html', submsn_form=form)
+            return render_template('submission/submissionEditor.html', submsn_form=form, page_mode='edit')
 
 
 """----------------------------------------------------"""
@@ -140,7 +129,7 @@ def list_submission_contacts(sub_id):
     if sub_id == 0:
         contacts = None
     else:
-        contacts = models.SubmissionContact.query.filter_by(submission_id=sub_id)
+        contacts = SubmissionContact.query.filter_by(submission_id=sub_id)
     contct_form = forms.ContactForm()
     contct_form.submission_id.data = sub_id
     return render_template('submission/contactsInline.html', contacts=contacts, contct_form=contct_form)
@@ -150,7 +139,7 @@ def list_submission_contacts(sub_id):
 def add_submission_contact():
     form = forms.ContactForm(request.form)
     if form.validate_on_submit():
-        contact = models.SubmissionContact()
+        contact = SubmissionContact()
         contact.name = form.name.data
         contact.is_primary = form.is_primary.data
         contact.category_id = form.category_id.data
@@ -166,7 +155,7 @@ def add_submission_contact():
 
 @app.route('/submission_contact/<int:sub_contact_id>', methods=['DELETE'])
 def delete_submission_contact(sub_contact_id):
-    submission_contact = models.SubmissionContact.query.get_or_404(sub_contact_id)
+    submission_contact = SubmissionContact.query.get_or_404(sub_contact_id)
     db.session.delete(submission_contact)
     db.session.commit()
     flash("Submission Contact deleted", "info")
@@ -183,7 +172,7 @@ def list_submission_attachments(sub_id):
     if sub_id == 0:
         attachments = None
     else:
-        attachments = models.SubmissionAttachment.query.filter_by(submission_id=sub_id)
+        attachments = SubmissionAttachment.query.filter_by(submission_id=sub_id)
     attachment_form = forms.AttachmentForm()
     attachment_form.submission_id.data = sub_id
     return render_template('submission/attachmentsInline.html', attachments=attachments,
@@ -212,14 +201,14 @@ def add_submission_attachment():
             form.file_attachments.errors.append('File {} is not of allowed type.'.format(file.filename))
     if (not file_validation) or (not form_validation ):
         flash("Please check the validity of your input in highlighted fields.", "error")
-        attachments = models.SubmissionAttachment.query.filter_by(submission_id=form.submission_id.data)
+        attachments = SubmissionAttachment.query.filter_by(submission_id=form.submission_id.data)
         return render_template('submission/attachmentsInline.html', attachments=attachments,
                                attachment_form=form), 400
     else:
         attachments_folder = str(uuid.uuid4())
         path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachments_folder)
         os.makedirs(path_on_server)
-        attachment = models.SubmissionAttachment()
+        attachment = SubmissionAttachment()
         attachment.note = form.note.data
         attachment.submission_id = form.submission_id.data
         attachment.server_path = path_on_server
@@ -236,7 +225,7 @@ def add_submission_attachment():
 
 @app.route('/submission_attachment/<int:sub_attach_id>', methods=['DELETE'])
 def delete_submission_attachment(sub_attach_id):
-    submission_attachment = models.SubmissionAttachment.query.get_or_404(sub_attach_id)
+    submission_attachment = SubmissionAttachment.query.get_or_404(sub_attach_id)
     shutil.rmtree(submission_attachment.server_path)
     db.session.delete(submission_attachment)
     db.session.commit()

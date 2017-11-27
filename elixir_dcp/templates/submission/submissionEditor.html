@@ -1,15 +1,10 @@
 {% extends "layout.html" %}
-{% set active_page = "submissions" %}
-{% if submsn_form.id.data == "0"  %}
-    {% set page_mode = 'create' %}
-{% else %}
-    {% set page_mode = 'edit' %}
-{% endif %}
+{% set active_page = "submission" %}
 {% block title %}Submission Editor{% endblock %}
 {% block js %}
     {{ super() }}
 
-    {% assets "submission_js" %}
+    {% assets "submission_editor_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
 
@@ -34,15 +29,15 @@
         <div id="basicinfo">
             <form id="form_submission_editor"
                   method="POST"
-                  action="{{ url_for('add_edit_submission',sub_id=submsn_form.id.data) }}">
+                  action="{{ url_for('edit_submission',sub_id=submsn_form.id.data) }}">
                 <div class="row">
                     {{ submsn_form.hidden_tag() }}
                     <div>{{ submsn_form.name.label }}</div>
                     <div>{{ submsn_form.name }}</div>
                     <div>{{ submsn_form.description.label }}</div>
                     <div>{{ submsn_form.description }}</div>
-                    <div>{{ submsn_form.created.label }}</div>
-                    <div>{{ submsn_form.created }}</div>
+                    <div>{{ submsn_form.created_on.label }}</div>
+                    <div>{{ submsn_form.created_on }}</div>
                     <div>{{ submsn_form.joint_providers.label }}</div>
                     <div>{{ submsn_form.joint_providers() }}</div>
                 </div>

@@ -37,7 +37,7 @@ class SubmissionForm(FlaskForm):
     Form for creating or updating submissions
     """
 
-    id = HiddenField('Id',  default='0')
+    id = HiddenField('Id')
     name = StringField('Name', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     created_on = DateField('Created On', validators=[DataRequired()], format='%d/%m/%Y')

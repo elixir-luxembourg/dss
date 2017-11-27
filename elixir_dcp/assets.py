@@ -38,9 +38,16 @@ select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/sele
 select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
 
 
-submission_js = Bundle(
+submission_editor_js = Bundle(
     Bundle(
-        'js/submission.js',
+        'js/submission_editor.js',
         filters='closure_js'
     ),
-    output='public/js/submission.min.js')
+    output='public/js/submission_editor.min.js')
+
+submission_listing_js = Bundle(
+    Bundle(
+        'js/submission_listing.js',
+        filters='closure_js'
+    ),
+    output='public/js/submission_listing.min.js')

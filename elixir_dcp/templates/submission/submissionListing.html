@@ -2,30 +2,36 @@
 
 {% set active_page = 'list_submissions' %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %} Submissions List {% endblock %}
 
+{% block js %}
+{{ super() }}
+
+{% assets "submission_listing_js" %}
+    <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+{% endblock %}
 {% block content %}
     <div class="row">
         {% if submissions %}
             <table class="datatable table table-striped table-bordered">
                 <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Name</th>
                     <th>Description</th>
-                    <th>Created</th>
+                    <th>Created_On</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for submission in submissions %}
                     <tr>
-                        <td> {{ submission.id }} </td>
                         <td> {{ submission.name }} </td>
                         <td> {{ submission.description }} </td>
                         <td> {{ submission.created }} </td>
                         <td>
-                            <a name="submission_listing_edit" href="{{ url_for('add_edit_submission',sub_id=submission.id)}}">
+                            <a name="submission_listing_edit" href="{{ url_for('edit_submission',sub_id=submission.id)}}">
                                 <i class="text-info material-icons">edit</i>
                             </a>
                             <a name="submission_listing_delete" href="#">
@@ -42,6 +48,37 @@
                 <hr class="intro-divider">
             </div>
         {% endif %}
-        <a href="#" class="btn btn-info" role="button">Add New</a>
+            <div class="modal fade" id="submission_create_modal" tabindex="-1" role="dialog" aria-labelledby="submission_create_modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myModalLabel-2">Create New Submission</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form id="form_submission_create"
+                                  method="POST"
+                                  action="{{ url_for('create_submission') }}">
+                                <div>
+                                    {{ submsn_create_form.hidden_tag() }}
+                                    <div>{{ submsn_create_form.name.label }}</div>
+                                    <div>{{ submsn_create_form.name }}</div>
+                                    <div>{{ submsn_create_form.description.label }}</div>
+                                    <div>{{ submsn_create_form.description }}</div>
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+                                    <button type="button" class="btn btn-dialog" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                         </div>
+
+
+                    </div><!-- modal-content -->
+                </div><!-- modal-dialog -->
+            </div><!-- modal -->
+        <a id="button_submission_create" href="#" class="btn btn-info" data-toggle="modal" data-target="#submission_create_modal">Add New</a>
     </div>
+
+
+
 {% endblock %}

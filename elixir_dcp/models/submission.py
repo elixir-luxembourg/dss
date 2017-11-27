@@ -42,7 +42,7 @@ class Submission(db.Model):
     name = db.Column(db.String(60), index=True, unique=True, nullable=False)
     description = db.Column(db.String(650))
     created_on = db.Column(db.Date, nullable=False)
-    joint_providers = db.Column(db.Boolean, nullable=False)
+    joint_providers = db.Column(db.Boolean, default=False, nullable=False)
 
     contacts = db.relationship("SubmissionContact")
     attachments = db.relationship("SubmissionAttachment")
@@ -86,5 +86,9 @@ class SubmissionDish(db.Model):
     collaboration_required = db.Column(db.Boolean, nullable=False, default=False)
     irb_approval_required = db.Column(db.Boolean, nullable=False, default=False)
     use_for_non_profit_only = db.Column(db.Boolean, nullable=False, default=False)
+
+
+def share_submission(self):
+    return True
 
 
