@@ -5,7 +5,7 @@ from flask_assets import ManageAssets
 from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell
 from elixir_dcp import app, db
-from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, SubmissionContact
+from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, SubmissionContact, SubmissionStatusEnum
 from elixir_dcp.models.security import User, Role, UsersRoles
 
 manager = Manager(app)
@@ -31,9 +31,9 @@ def init_db():
     db.session.commit()
 
     sub1 = Submission(name='OncoTrack', description='Submission of Oncotrack data', created_on=datetime.today(),
-                      joint_providers=True)
+                      current_status=SubmissionStatusEnum.draft)
     sub2 = Submission(name='Predict-TB', description='Submission of Predict-TB preclinical data',
-                      created_on=datetime.today(), joint_providers=False)
+                      created_on=datetime.today(), current_status=SubmissionStatusEnum.draft)
     contact1 = SubmissionContact(name='Pinar Alper', category_id=3, is_primary=True)
     sub1.contacts.append(contact1)
     contact2 = SubmissionContact(name='Valentin Grouès', category_id=1,  is_primary=True)

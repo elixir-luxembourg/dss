@@ -1,5 +1,5 @@
 # coding=utf-8
-from elixir_dcp.forms.submissions_forms import SubmissionForm, ContactForm, AttachmentForm
+from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, StudyDishForm
 from wtforms import PasswordField, HiddenField, BooleanField
 from wtforms.fields.html5 import EmailField
 from flask_wtf import FlaskForm
@@ -24,6 +24,7 @@ def get_redirect_target():
         if is_safe_url(target):
             return target
 
+
 class RedirectForm(FlaskForm):
     next = HiddenField()
 
@@ -38,6 +39,7 @@ class RedirectForm(FlaskForm):
         target = get_redirect_target()
         return redirect(target or '/')
 
+
 class LoginForm(RedirectForm):
     elixir_reg_id = EmailField('Username', [DataRequired(), Email("This field requires the email address which is your ELIXIR AAI identity.")],
                           render_kw={"placeholder": "email@uni.lu"})
@@ -45,7 +47,7 @@ class LoginForm(RedirectForm):
                              render_kw={"placeholder": "Password"})
     remember = BooleanField('Remember me')
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, LoginForm]
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, LoginForm, StudyDishForm]
 
 
 

@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField
 from wtforms.validators import DataRequired
-from elixir_dcp.models.submission import ContactType
+from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSizeCategory, DeIdentificationTypeEnum, \
+    SubmissionStatusEnum
 
 
 class AttachmentForm(FlaskForm):
@@ -41,7 +42,38 @@ class SubmissionForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     created_on = DateField('Created On', validators=[DataRequired()], format='%d/%m/%Y')
-    joint_providers = BooleanField('Joint Providers', default=False)
+    current_status = SelectField('Current Status', choices=SubmissionStatusEnum.choices())
 
+
+class StudyDishForm(FlaskForm):
+
+    """
+    Form for creating or updating DISH for each study within a submission
+    """
+    id = HiddenField('Id')
+    submission_id = HiddenField('Submission Id')
+    study_name = StringField('Study Name', validators=[DataRequired()])
+    joint_providers = BooleanField('Joint Providers', default=False)
+    estimate_data_size = SelectField('Estimated Data Size', validators=[DataRequired()])
+
+    ethics_approval_exists = BooleanField('Ethics Approval Exists', default=False)
+
+    subjects_minors = BooleanField('Minors', default=False)
+    subjects_vulnerable = BooleanField('Those Unable To Consent', default=False)
+    subjects_unable_to_consent = BooleanField('Vulnerable', default=False)
+
+    consent_status = SelectField('Consent Status', choices=ConsentStatusEnum.choices())
+    de_identification_type = SelectField('Consent Status', choices=DeIdentificationTypeEnum.choices())
+
+    storage_end_date = DateField('Storage End', validators=[DataRequired()], format='%d/%m/%Y')
+    embargo_end_date = DateField('Embargo Until', validators=[DataRequired()], format='%d/%m/%Y')
+
+    collaboration_required = BooleanField('Collaboration Required', default=False)
+    irb_approval_required = BooleanField('IRB Approval Required', default=False)
+    use_for_non_profit_only = BooleanField('Use for non-profit only', default=False)
+
+    def __init__(self, *args, **kwargs):
+        super(StudyDishForm, self).__init__(*args, **kwargs)
+        self.estimate_data_size.choices = [(c.code, c.label) for c in DataSizeCategory.query.all()]
 
 

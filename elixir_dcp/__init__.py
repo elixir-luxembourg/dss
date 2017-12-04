@@ -11,6 +11,7 @@ from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 import elixir_dcp.assets as assets
+import elixir_dcp.exceptions as exceptions
 
 
 __VERSION__ = "0.0.1-dev"
@@ -101,7 +102,7 @@ def inject_now():
 
 from . import controllers
 
-__all__ = [controllers, assets, app, db]
+__all__ = [controllers, assets, app, db, exceptions]
 # db.create_all()
 if __name__ == '__main__':
     app.run()

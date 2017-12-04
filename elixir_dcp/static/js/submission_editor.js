@@ -1,15 +1,10 @@
 $(document).ready(function () {
 
-    $("#created").datepicker({ dateFormat: 'dd/mm/yy' });
+    $(".elx-date").datepicker({ dateFormat: 'dd/mm/yy' });
 
     $(function () {
-        if ($("#tabs").attr('page-mode') == 'create')
-        {
-            $("#tabs").tabs( { disabled: [1, 2] } );
+        $("#tabs").tabs();
 
-        }else{
-            $("#tabs").tabs();
-        }
     });
 
     function getSubmissionContacts(){
@@ -62,10 +57,6 @@ $(document).ready(function () {
     }
 
 
-    function getSubmissionAttachmentsEdit(result){
-       $("#attachments").html(result);
-    }
-
     $("#attachments").on('click', 'a#submission_attachment_listing_delete', function() {
         $.ajax({
             url: $(this).attr('data-url'),
@@ -95,6 +86,20 @@ $(document).ready(function () {
             });
     });
 
+    function getSubmissionDishes(){
+        $.ajax({
+            url: $("#dishes").attr('data-url'),
+            type: "get",
+            success: function (result) {
+                $("#dishes").html(result);
+            },
+            error: function () {
+                alert('An error occurred while loading the Study Info section of this page');
+            }
+        });
+    }
+
     getSubmissionContacts();
     getSubmissionAttachments();
+    getSubmissionDishes();
 });

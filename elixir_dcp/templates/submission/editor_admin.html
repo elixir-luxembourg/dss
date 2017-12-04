@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block title %}Submission Editor{% endblock %}
+{% block js %}
+    {{ super() }}
+
+    {% assets "submission_editor_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+
+{% block content %}
+
+    <div id="tabs">
+        <ul>
+            <li><a href="#basicinfo">Basics</a></li>
+            <li><a href="#contacts">Contacts</a></li>
+            <li><a href="#attachments">Attachments</a></li>
+            <li><a href="#dishes">Study Info</a></li>
+        </ul>
+        <div id="basicinfo" class="container">
+                    <form id="form_submission_editor"
+                          method="POST"
+                          action="{{ url_for('edit_submission',sub_id=submsn_form.id.data) }}">
+                        {{ submsn_form.hidden_tag() }}
+                        <div class="form-group row">
+                           <div class="col-sm-2 col-form-label" > {{ submsn_form.name.label }}</div>
+                           <div class="col-sm-10">{{ submsn_form.name() }}</div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-2 col-form-label" > {{ submsn_form.description.label }}</div>
+                            <div class="col-sm-10">{{ submsn_form.description(rows='15',cols='100') }}</div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-2 col-form-label" > {{ submsn_form.created_on.label }}</div>
+                            <div class="col-sm-10">{{ submsn_form.created_on(class_="elx-date") }}</div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-2 col-form-label" > {{ submsn_form.current_status.label }}</div>
+                            <div class="col-sm-10">{{ submsn_form.current_status() }}</div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-10">
+                                <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+                            </div>
+                        </div>
+                    </form>
+
+        </div>
+        <div id="contacts" data-url="{{ url_for('list_submission_contacts',sub_id=submsn_form.id.data) }}">
+            <!-- ...... filled in dynamically via ajax -->
+        </div>
+        <div id="attachments" data-url="{{ url_for('list_submission_attachments',sub_id=submsn_form.id.data) }}">
+            <!-- ...... filled in dynamically via ajax -->
+        </div>
+        <div id="dishes" data-url="{{ url_for('list_submission_dishes',sub_id=submsn_form.id.data) }}">
+            <!-- ...... filled in dynamically via ajax -->
+        </div>
+    </div>
+
+{% endblock %}
+

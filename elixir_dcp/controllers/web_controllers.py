@@ -4,7 +4,8 @@ from flask_login import login_user, login_required, logout_user
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
-from elixir_dcp.models.submission import Submission, SubmissionAttachment, SubmissionContact, SubmissionDish
+from elixir_dcp.models.submission import Submission, SubmissionAttachment, SubmissionContact, SubmissionStudyDish, \
+    delete_submission
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 import os
@@ -20,6 +21,7 @@ __author__ = 'Valentin Grouès, Pinar Alper'
 @app.route('/', methods=['GET'])
 def home():
     return render_template('home.html')
+
 
 @app.route("/logout")
 @login_required
@@ -70,15 +72,57 @@ def load_user(user_id):
 """------------------------------------"""
 
 
-@app.route('/submission', methods=['GET'])
-@app_authorization(allowed_roles=['steward', 'provider'])
+@app_authorization(allowed_roles=['steward'])
+@app.route('/api/submission/<int:sub_id>', methods=['POST', 'DELETE'])
+def api_submission(sub_id):
+    if request.method == 'DELETE':
+        try:
+            delete_submission(sub_id)
+            app.logger.info('INFO: Deleted submission SUB-ID: %s', sub_id)
+            flash("Submission deleted!", "info")
+        except exceptions.RecordLifecycleException as e:
+            app.logger.error('ERROR %s', e)
+            flash("Unable to delete submission", 'error')
+        redirect(url_for('list_submissions'))
+    elif request.method == 'POST':
+        app.logger.info('SOme custom command targeted for a submission')
+        redirect(url_for('list_submissions'))
+
+
+
+@app.route('/submissions', methods=['GET'])
+@app_authorization(allowed_roles=['steward'])
 def list_submissions():
     """
     List all submissions
     """
     submissions = Submission.query.all()
-    return render_template('submission/submissionListing.html',
+    return render_template('submission/submissions.html',
                            submissions=submissions, submsn_create_form=forms.SubmissionForm())
+
+
+@app.route('/my_submissions', methods=['GET'])
+@app_authorization(allowed_roles=['provider'])
+def list_my_submissions():
+    """
+    List the submissions that have been shared with the LOGGED IN  user!!
+    !!!!!!
+    """
+    submissions = Submission.query.all()
+    return render_template('submission/my_submissions.html',
+                           my_submissions=submissions)
+
+
+@app.route('/submission/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['steward', 'provider'])
+def get_submission(sub_id):
+    #
+    # We need to check here whether the user in the provider role has access to this submission
+    #
+    submission_rec = Submission.query.get_or_404(sub_id)
+    app.logger.info('INFO: Get submission SUB-ID: %s', sub_id)
+    return render_template('submission/viewer.html', submission=submission_rec)
+
 
 @app.route('/submission/create', methods=['POST'])
 @app_authorization(allowed_roles=['steward'])
@@ -93,30 +137,40 @@ def create_submission():
     flash('New submission created. Further information can be supplied through the editor.', 'info')
     return redirect(url_for('edit_submission', sub_id=submission_rec.id))
 
-@app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
-def edit_submission(sub_id):
 
+@app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
+@app_authorization(allowed_roles=['steward'])
+def edit_submission(sub_id):
     app.logger.info('INFO: Edit submission SUB-ID: %s', sub_id)
     if request.method == 'GET':
-
         submission_rec = Submission.query.get_or_404(sub_id)
+        app.logger.info('Sub REC: %s', submission_rec)
         sub_form = forms.SubmissionForm(obj=submission_rec)
-
-        return render_template('submission/submissionEditor.html', submsn_form=sub_form, page_mode='edit')
-
+        return render_template('submission/editor_admin.html', submsn_form=sub_form)
     elif request.method == 'POST':
         form = forms.SubmissionForm(request.form)
+        submission_rec = Submission.query.filter_by(id=form.id.data).first()
         if form.validate_on_submit():
-            submission_rec = Submission.query.filter_by(id=form.id.data).first()
             form.populate_obj(submission_rec)
             db.session.add(submission_rec)
             db.session.commit()
             flash('Submission updated successfully', 'info')
-
-            return redirect(url_for('submission'))
+            return redirect(url_for('list_submissions'))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
-            return render_template('submission/submissionEditor.html', submsn_form=form, page_mode='edit')
+            return render_template('submission/editor_admin.html',  submsn_form=form)
+
+
+@app.route('/submission/dish/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['provider'])
+def dish_submission(sub_id):
+
+    app.logger.info('INFO: DISH submission SUB-ID: %s', sub_id)
+    #
+    # We need to check here whether the user in the provider role has access to this submission
+    #
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/editor_provider.html', submission=submission_rec)
 
 
 """----------------------------------------------------"""
@@ -234,3 +288,27 @@ def delete_submission_attachment(sub_attach_id):
 
 
 
+"""----------------------------------------------------"""
+"""AJAX Endpoints for managing a Submission's DISHs."""
+"""----------------------------------------------------"""
+
+
+@app.route('/submission_dishes/<int:sub_id>', methods=['GET'])
+def list_submission_dishes(sub_id):
+    if sub_id == 0:
+        dishes = None
+    else:
+        dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
+    dish_form = forms.StudyDishForm()
+    dish_form.submission_id.data = sub_id
+    return render_template('submission/dishInline.html', dishes=dishes, dish_form=dish_form)
+
+
+@app.route('/submission_dish', methods=['POST'])
+def add_submission_dish():
+    return "", 204
+
+
+@app.route('/submission_dish/<int:sub_dish_id>', methods=['DELETE'])
+def delete_submission_dish(sub_dish_id):
+    return "", 204

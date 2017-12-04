@@ -1,0 +1,115 @@
+{% extends 'layout.html' %}
+{% set active_page = 'submissions' %}
+{% block title %} Submissions List {% endblock %}
+{% block js %}
+    {{ super() }}
+    {% assets "submission_listing_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        {% if submissions %}
+            <table class="datatable table table-striped table-bordered" id="submission_list_table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Created_On</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for submission in submissions %}
+                    <tr>
+                        <td> {{ submission.name }} </td>
+                        <td> {{ submission.created_on }} </td>
+                        <td> {{ submission.current_status.value }} </td>
+                        <td>
+                            <a name="button_submission_listing_edit"
+                               href="{{ url_for('edit_submission',sub_id=submission.id) }}">
+                                <i class="text-info material-icons">edit</i>
+                            </a>
+                            <a name="button_submission_listing_view"
+                               data-url="{{ url_for('get_submission',sub_id=submission.id) }}" role="button">
+                                <i class="text-info material-icons">visibility</i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="text-center">
+                <h3> No submissions have been added. </h3>
+                <hr class="intro-divider">
+            </div>
+        {% endif %}
+
+        {% if current_user.is_steward %}
+            <div>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#submission_create_modal">Add
+                    New Submission
+                </button>
+                <a id="button_submission_create" href="#" class="btn btn-info" data-toggle="modal"
+                   data-target="#submission_create_modal">Add New Submission</a>
+                <div class="modal fade" id="submission_create_modal" tabindex="-1" role="dialog"
+                     aria-labelledby="submission_create_modal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Create New Submission</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form id="form_submission_create"
+                                      method="POST"
+                                      action="{{ url_for('create_submission') }}">
+                                    <div>
+                                        {{ submsn_create_form.hidden_tag() }}
+                                        <div>{{ submsn_create_form.name.label }}</div>
+                                        <div>{{ submsn_create_form.name }}</div>
+                                        <div>{{ submsn_create_form.description.label }}</div>
+                                        <div>{{ submsn_create_form.description }}</div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+                                        <button type="button" class="btn btn-dialog" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div><!-- modal-content -->
+                    </div><!-- modal-dialog -->
+                </div><!-- modal Add New-->
+        {% endif %}
+            <div class="modal fade" id="submission_view_modal" tabindex="-1" role="dialog"
+                 aria-labelledby="submission_create_modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">View Submission</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <div id="submission_view_modal_body">
+
+                                <!-- ...... modal content filled in dynamically via ajax -->
+                                <!-- see viewer.html -->
+                            </div>
+
+
+                            <div id="submission-command-dialog" title="Confirm" class="ui-dialog" style="display:none;">
+                                <!-- Fragment displayed within a JQuery UI Dialog  -->
+                                <p>
+                                 You are about to <b id="submission-dialog-text">--</b> this submission!
+                                </p>
+                            </div>
+
+
+                        </div><!-- modal body -->
+                    </div><!-- modal-content -->
+                </div><!-- modal-dialog -->
+            </div><!-- Modal used as for Submission Preview-->
+        </div>
+    </div>
+
+{% endblock %}

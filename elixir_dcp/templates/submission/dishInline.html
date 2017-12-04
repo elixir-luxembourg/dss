@@ -1,10 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% import 'macros.html' as macros %}
+{{ macros.show_flashes() }}
 
-</body>
-</html>
+{% if dishes %}
+    <table id="submission_dish_list" style="width:400px" class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th width="75%">Study Name</th>
+            <th width="15%">De-Identification</th>
+            <th width="15%">Special Subjects?</th>
+            <th width="10%">Consent</th>
+        </tr>
+        </thead>
+        {% for dish in dishes %}
+            <tr>
+                <td>{{ dish.study_name }}</td>
+                <td>{{ dish.de_identification_type }}</td>
+                <td>{{ dish.special_subjects_status }}</td>
+                <td>{{ dish.consent_status }}</td>
+                <td>
+                    <a id="submission_contact_listing_delete"
+                       data-url="{{ url_for('delete_submission_dish',sub_dish_id=dish.id) }}">
+                        <i class="material-icons">delete</i>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <div class="text-center">
+        <h3> No Study Information has been added. </h3>
+        <hr class="intro-divider">
+    </div>
+{% endif %}
+
+<hr size="2px"/>
+
+<form id="form_submission_dish" data-url="{{ url_for('add_submission_dish') }}">
+    {{ dish_form.hidden_tag() }}
+    <div>{{ dish_form.study_name.label }}</div>
+    <div>{{ dish_form.study_name }}</div>
+    <div>{{ dish_form.joint_providers.label }}</div>
+    <div>{{ dish_form.joint_providers }}</div>
+    <div>{{ dish_form.estimate_data_size.label }}</div>
+    <div>{{ dish_form.estimate_data_size }}</div>
+    <div>{{ dish_form.ethics_approval_exists.label }}</div>
+    <div>{{ dish_form.ethics_approval_exists }}</div>
+    <div>{{ dish_form.subjects_minors.label }}</div>
+    <div>{{ dish_form.subjects_minors }}</div>
+    <div>{{ dish_form.subjects_vulnerable.label }}</div>
+    <div>{{ dish_form.subjects_vulnerable }}</div>
+    <div>{{ dish_form.subjects_unable_to_consent.label }}</div>
+    <div>{{ dish_form.subjects_unable_to_consent }}</div>
+    <div>{{ dish_form.consent_status.label }}</div>
+    <div>{{ dish_form.consent_status }}</div>
+    <div>{{ dish_form.de_identification_type.label }}</div>
+    <div>{{ dish_form.de_identification_type }}</div>
+    <div>{{ dish_form.storage_end_date.label }}</div>
+    <div>{{ dish_form.storage_end_date(class_="elx-date") }}</div>
+    <div>{{ dish_form.embargo_end_date.label }}</div>
+    <div>{{ dish_form.embargo_end_date }}</div>
+    <div>{{ dish_form.collaboration_required.label }}</div>
+    <div>{{ dish_form.collaboration_required }}</div>
+    <div>{{ dish_form.irb_approval_required.label }}</div>
+    <div>{{ dish_form.irb_approval_required }}</div>
+    <div>{{ dish_form.use_for_non_profit_only.label }}</div>
+    <div>{{ dish_form.use_for_non_profit_only }}</div>
+</form>
+<a id="submission_dish_add" class="save btn btn-raised btn-primary" role="button">Add Study Information</a>

@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+{% set active_page = 'my_submissions' %}
+{% block title %} My Submissions{% endblock %}
+{% block js %}
+    {{ super() }}
+    {% assets "submission_listing_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        {% if my_submissions %}
+            <table class="datatable table table-striped table-bordered" id="submission_list_table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Created_On</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for submission in my_submissions %}
+                    <tr>
+                        <td> {{ submission.name }} </td>
+                        <td> {{ submission.created_on }} </td>
+                        <td> {{ submission.current_status.value }} </td>
+                        <td>
+                            <a name="button_submission_listing_edit"
+                               href="{{ url_for('dish_submission',sub_id=submission.id) }}">
+                                <i class="text-info material-icons">edit</i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="text-center">
+                <h3> No submissions requiring your input. </h3>
+                <hr class="intro-divider">
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}

@@ -43,5 +43,5 @@ $(document).ready(function () {
     $('.start-visible').collapse('show');
     $('table.datatable').dataTable();
 
-})
-;
+});
+
