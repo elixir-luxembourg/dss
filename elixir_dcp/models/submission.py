@@ -27,6 +27,12 @@ class SubmissionAttachment(db.Model):
     server_path = db.Column(db.String, nullable=False)
     file_names = db.Column(db.String, nullable=False)
 
+    def get_file_paths(self):
+        result = []
+        for name in self.file_names:
+            result.append(server_path)
+
+
 
 class DeIdentificationTypeEnum(enum.Enum):
     a = 'anonymized'
@@ -65,8 +71,6 @@ class Submission(db.Model):
     attachments = db.relationship("SubmissionAttachment")
     dishes = db.relationship("SubmissionStudyDish")
 
-    # def __repr__(self):
-    #     return '<Submission: {}>'.format(self.name)
     def deleteable(self):
         return self.current_status == SubmissionStatusEnum.draft
 

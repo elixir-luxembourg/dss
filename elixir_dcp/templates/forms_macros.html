@@ -1,7 +1,7 @@
 {% macro render_field_with_errors(field) %}
-    <div class="form-group {% if field.errors %}has-error{% endif %}">
-        {{ field.label(class="col-md-3 control-label") }}
-        <div class="col-md-6">
+    <div class="form-group row {% if field.errors %}has-error{% endif %}">
+        {{ field.label(class="col-md-2 control-label") }}
+        <div class="col-md-8">
             {{ field(class="form-control") }}
             {% if field.errors %}
                 {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
@@ -10,10 +10,11 @@
     </div>
 {% endmacro %}
 
+
 {% macro render_select_field(field) %}
-    <div class="form-group {% if field.errors %}has-error{% endif %}">
-        {{ field.label(class="col-md-3 control-label") }}
-        <div class="col-md-6">
+    <div class="form-group row {% if field.errors %}has-error{% endif %}">
+        {{ field.label(class="col-md-2 control-label") }}
+        <div class="col-md-3">
             {{ field( class="form-control" ) }}
             {% if field.errors %}
                 {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
@@ -23,15 +24,40 @@
 {% endmacro %}
 
 {% macro render_checkbox_field(field) %}
-    <div class="form-group">
-        {{ field.label(class="col-md-3 control-label") }}
-        <div class="col-md-6 checkbox">
-            <label><input id="{{ field.name }}" name="{{ field.name }}"
-                          type="checkbox" {% if field.data %}checked="checked"{% endif %}"/>
-            </label>
+    <div class="form-group row">
+        {{ field.label(class="col-md-2 control-label") }}
+        <div class="col-md-4">
+                <input id="{{ field.name }}" name="{{ field.name }}" class="form-control" type="checkbox"
+                        {% if field.data %} checked="checked" {% endif %}><br>
         </div>
     </div>
 {% endmacro %}
+
+{% macro render_date_field(field) %}
+    <div class="form-group row {% if field.errors %}has-error{% endif %}">
+        {{ field.label(class="col-md-2 control-label") }}
+        <div class="col-md-3">
+            {{ field(class_="form-control elx-date") }}
+            <!-- <input id="{{ field.name }}" name="{{ field.name }}" class="form-control elx-date"><br>  -->
+            {% if field.errors %}
+                {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+{% macro render_textarea_field(field) %}
+    <div class="form-group row">
+        {{ field.label(class="col-md-2 control-label") }}
+        <div class="col-md-8">
+           <textarea id="{{ field.name }}" name="{{ field.name }}" class="form-control" rows="10" >
+           </textarea>
+            {% if field.errors %}
+                {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
 
 {% macro render_field(field) %}
     <p>{{ field(**kwargs)|safe }}</p>

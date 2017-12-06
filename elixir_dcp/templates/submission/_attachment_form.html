@@ -1,0 +1,20 @@
+
+{% import "forms_macros.html" as fmacros%}
+<form id="form_submission_attachment"  enctype="multipart/form-data">
+        {{ attachment_form.hidden_tag() }}
+        {{ fmacros.render_field_with_errors(attachment_form.note) }}
+        <div>
+            {{ attachment_form.file_attachments.label(class="col-md-2 control-label") }}
+            <div class="col-md-8">
+                <input type=file id="file_attachments" name="file_attachments" multiple>
+                {% if attachment_form.file_attachments.errors %}
+                    {% for error in attachment_form.file_attachments.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+</form>
+<div class="row">
+</div>
+<a id="submission_attachment_add" class="save btn btn-raised btn-primary" role="button">Add Attachment(s)</a>
+

@@ -27,7 +27,7 @@
                         <td> {{ submission.current_status.value }} </td>
                         <td>
                             <a name="button_submission_listing_edit"
-                               href="{{ url_for('edit_submission',sub_id=submission.id) }}">
+                               href="{{ url_for('edit_submission',sub_id=submission.id) }}" role="button">
                                 <i class="text-info material-icons">edit</i>
                             </a>
                             <a name="button_submission_listing_view"

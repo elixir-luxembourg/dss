@@ -1,8 +1,4 @@
-{% set navigation_bar = config.get('SECTIONS',[
-                    ('home', 'Home'),
-                    ('list_submissions', 'Submissions'),
-                    ('', 'Access Requests'),
-                ]) -%}
+{% set navigation_bar = config.get('SECTIONS') -%}
 {% set active_page = active_page|default('home') -%}
 <div class="row">
     <div class="navbar navbar-info">
@@ -19,19 +15,48 @@
                 {#                            <a class="navbar-brand" href="/">Navigation</a>#}
             </div>
 
+
+
+
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
+                    <li class="active">
+                        <a href="{{ url_for('home') }}">
+                            <span class="glyphicon glyphicon-home"></span> Home
+                        </a>
+                    </li>
                     {% for controller, label in navigation_bar %}
                         <li{% if controller == active_page %} class="active"{% endif %}><a
-                                href="
-
-
-                                        {% if controller %}{{ url_for(controller) }}{% endif %} ">{{ label|e }}</a>
+                                href="{% if controller %}{{ url_for(controller) }}{% endif %} ">{{ label|e }}</a>
                         </li>
                     {% endfor %}
 
                 </ul>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-user"></span>
+                            {% if current_user.is_authenticated %} 
+                                <strong>{{ current_user.first_name }} {{ current_user.last_name}}</strong>
+                            {% else %}
+                                <strong>Anonymous</strong>
+                            {% endif %}
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% if current_user.is_authenticated %}
+                            <li><a href="#">My Info</a></li>
+                            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                            {% else %}
+                                <li><a href="{{ url_for('login') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">Login</a></li>
+                            {% endif %}
+                        </ul>
+
+                    </li>
+                </ul>
+            <!--
                 <ul class="nav navbar-nav navbar-right">
 
                     <li class="dropdown ">
@@ -46,6 +71,7 @@
                     </li>
 
                 </ul>
+                -->
             </div>
         </div>
     </div>

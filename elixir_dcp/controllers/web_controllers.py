@@ -146,7 +146,7 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info('Sub REC: %s', submission_rec)
         sub_form = forms.SubmissionForm(obj=submission_rec)
-        return render_template('submission/editor_admin.html', submsn_form=sub_form)
+        return render_template('submission/editor_admin.html', submsn_form=sub_form, submission=submission_rec)
     elif request.method == 'POST':
         form = forms.SubmissionForm(request.form)
         submission_rec = Submission.query.filter_by(id=form.id.data).first()
@@ -158,19 +158,7 @@ def edit_submission(sub_id):
             return redirect(url_for('list_submissions'))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
-            return render_template('submission/editor_admin.html',  submsn_form=form)
-
-
-@app.route('/submission/dish/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['provider'])
-def dish_submission(sub_id):
-
-    app.logger.info('INFO: DISH submission SUB-ID: %s', sub_id)
-    #
-    # We need to check here whether the user in the provider role has access to this submission
-    #
-    submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/editor_provider.html', submission=submission_rec)
+            return render_template('submission/editor_admin.html',  submsn_form=form, submission=submission_rec)
 
 
 """----------------------------------------------------"""
@@ -179,37 +167,54 @@ def dish_submission(sub_id):
 
 
 @app.route('/submission_contacts/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['steward'])
 def list_submission_contacts(sub_id):
-    if sub_id == 0:
-        contacts = None
-    else:
-        contacts = SubmissionContact.query.filter_by(submission_id=sub_id)
-    contct_form = forms.ContactForm()
-    contct_form.submission_id.data = sub_id
-    return render_template('submission/contactsInline.html', contacts=contacts, contct_form=contct_form)
+    contacts = SubmissionContact.query.filter_by(submission_id=sub_id)
+    return render_template('submission/_contact_columns.html', contacts=contacts)
 
 
+@app.route('/submission_contact/<int:contact_id>', methods=['GET', 'POST'])
 @app.route('/submission_contact', methods=['POST'])
-def add_submission_contact():
-    form = forms.ContactForm(request.form)
-    if form.validate_on_submit():
-        contact = SubmissionContact()
-        contact.name = form.name.data
-        contact.is_primary = form.is_primary.data
-        contact.category_id = form.category_id.data
-        contact.submission_id = form.submission_id.data
-        db.session.add(contact)
-        db.session.commit()
-        flash("Submission Contact added", "info")
-        return "", 204
+@app_authorization(allowed_roles=['steward'])
+def add_edit_submission_contact(contact_id=None):
+
+    if contact_id is None:
+        mode = 'create'
     else:
-        flash("Please check the validity of your input in highlighted places", "error")
-        return "", 400
+        mode = 'edit'
+    if request.method == 'GET':
+        contact_rec = SubmissionContact.query.get_or_404(contact_id)
+        result_form = forms.ContactForm(obj=contact_rec)
+        return render_template('submission/_contact_form.html', contact_form=result_form)
+    elif request.method == 'POST':
+        posted_form = forms.ContactForm(request.form)
+        if posted_form.validate_on_submit():
+            if mode == 'edit':
+                contact_rec = SubmissionContact.query.get_or_404(contact_id)
+                posted_form.populate_obj(contact_rec)
+            else:
+                contact_rec = SubmissionContact()
+                posted_form.populate_obj(contact_rec)
+                contact_rec.id = None
+            db.session.add(contact_rec)
+            db.session.commit()
+            msg = "updated" if mode == 'create' else "added"
+            flash("Submission Contact {}.".format(msg), "info")
+
+            sid = posted_form.submission_id.data
+
+            return render_template('submission/_contact_form.html', contact_form=forms.ContactForm(formdata=None,
+                                                                                                   obj=None,
+                                                                                                   sub_id=sid)), 200
+        else:
+            flash("Please check the validity of your input in highlighted places", "error")
+            return render_template('submission/_contact_form.html', contact_form=posted_form), 400
 
 
-@app.route('/submission_contact/<int:sub_contact_id>', methods=['DELETE'])
-def delete_submission_contact(sub_contact_id):
-    submission_contact = SubmissionContact.query.get_or_404(sub_contact_id)
+@app.route('/submission_contact/<int:contact_id>', methods=['DELETE'])
+@app_authorization(allowed_roles=['steward'])
+def delete_submission_contact(contact_id):
+    submission_contact = SubmissionContact.query.get_or_404(contact_id)
     db.session.delete(submission_contact)
     db.session.commit()
     flash("Submission Contact deleted", "info")
@@ -222,15 +227,11 @@ def delete_submission_contact(sub_contact_id):
 
 
 @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['steward', 'provider'])
 def list_submission_attachments(sub_id):
-    if sub_id == 0:
-        attachments = None
-    else:
-        attachments = SubmissionAttachment.query.filter_by(submission_id=sub_id)
-    attachment_form = forms.AttachmentForm()
-    attachment_form.submission_id.data = sub_id
-    return render_template('submission/attachmentsInline.html', attachments=attachments,
-                           attachment_form=attachment_form)
+    attachments = SubmissionAttachment.query.filter_by(submission_id=sub_id)
+    return render_template('submission/_attachment_columns.html', attachments=attachments)
+
 
 def is_allowed_type(filename):
     allowed_extensions = set(['txt', 'pdf', 'png'])
@@ -239,6 +240,7 @@ def is_allowed_type(filename):
 
 
 @app.route('/submission_attachment', methods=['POST'])
+@app_authorization(allowed_roles=['steward', 'provider'])
 def add_submission_attachment():
     form = forms.AttachmentForm(request.form)
     file_validation = True
@@ -255,9 +257,7 @@ def add_submission_attachment():
             form.file_attachments.errors.append('File {} is not of allowed type.'.format(file.filename))
     if (not file_validation) or (not form_validation ):
         flash("Please check the validity of your input in highlighted fields.", "error")
-        attachments = SubmissionAttachment.query.filter_by(submission_id=form.submission_id.data)
-        return render_template('submission/attachmentsInline.html', attachments=attachments,
-                               attachment_form=form), 400
+        return render_template('submission/_attachment_form.html', attachment_form=form), 400
     else:
         attachments_folder = str(uuid.uuid4())
         path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachments_folder)
@@ -274,18 +274,21 @@ def add_submission_attachment():
         db.session.add(attachment)
         db.session.commit()
         flash("Submission Attachment(s) added", "info")
-        return "", 204
+        sid = form.submission_id.data
+        return render_template('submission/_attachment_form.html', attachment_form=forms.AttachmentForm(formdata=None,
+                                                                                        obj=None,
+                                                                                        sub_id=sid)), 200
 
 
-@app.route('/submission_attachment/<int:sub_attach_id>', methods=['DELETE'])
-def delete_submission_attachment(sub_attach_id):
-    submission_attachment = SubmissionAttachment.query.get_or_404(sub_attach_id)
+@app.route('/submission_attachment/<int:attach_id>', methods=['DELETE'])
+@app_authorization(allowed_roles=['steward', 'provider'])
+def delete_submission_attachment(attach_id):
+    submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
     shutil.rmtree(submission_attachment.server_path)
     db.session.delete(submission_attachment)
     db.session.commit()
     flash("Submission Attachment deleted", "info")
     return "", 204
-
 
 
 """----------------------------------------------------"""
@@ -294,21 +297,55 @@ def delete_submission_attachment(sub_attach_id):
 
 
 @app.route('/submission_dishes/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['steward', 'provider'])
 def list_submission_dishes(sub_id):
-    if sub_id == 0:
-        dishes = None
-    else:
-        dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
-    dish_form = forms.StudyDishForm()
-    dish_form.submission_id.data = sub_id
-    return render_template('submission/dishInline.html', dishes=dishes, dish_form=dish_form)
+    dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
+    return render_template('submission/_dish_columns.html', dishes=dishes)
 
 
+@app.route('/submission_dish/<int:dish_id>', methods=['GET', 'POST'])
 @app.route('/submission_dish', methods=['POST'])
-def add_submission_dish():
+@app_authorization(allowed_roles=['steward', 'provider'])
+def add_edit_submission_dish(dish_id=None):
+    if dish_id is None:
+        mode = 'create'
+    else:
+        mode = 'edit'
+    if request.method == 'GET':
+        dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
+        result_form = forms.StudyDishForm(obj=dish_rec)
+        return render_template('submission/_dish_form.html', dish_form=result_form), 200
+    elif request.method == 'POST':
+        posted_form = forms.StudyDishForm(request.form)
+        if posted_form.validate_on_submit():
+            if mode == 'edit':
+                dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
+                posted_form.populate_obj(dish_rec)
+            else:
+                dish_rec = SubmissionStudyDish()
+                posted_form.populate_obj(dish_rec)
+                dish_rec.id = None
+            db.session.add(dish_rec)
+            db.session.commit()
+            msg = "updated" if mode == 'create' else "added"
+            flash("Submission Study Info {}.".format(msg), "info")
+
+            sid = posted_form.submission_id.data
+
+            return render_template('submission/_dish_form.html', dish_form=forms.StudyDishForm(formdata=None,
+                                                                                                   obj=None,
+                                                                                                   sub_id=sid)), 200
+        else:
+            flash("Please check the validity of your input in highlighted places", "error")
+            return render_template('submission/_dish_form.html', dish_form=posted_form), 400
+
+
+@app.route('/submission_dish/<int:dish_id>', methods=['DELETE'])
+def delete_submission_dish(dish_id):
+    dish = SubmissionStudyDish.query.get_or_404(dish_id)
+    db.session.delete(dish)
+    db.session.commit()
+    flash("Submission Study Info deleted", "info")
     return "", 204
 
 
-@app.route('/submission_dish/<int:sub_dish_id>', methods=['DELETE'])
-def delete_submission_dish(sub_dish_id):
-    return "", 204
