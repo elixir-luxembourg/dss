@@ -51,3 +51,7 @@ submission_listing_js = Bundle(
         filters='closure_js'
     ),
     output='public/js/submission_listing.min.js')
+
+jquery_multiselect_js = Bundle('vendor/multiselect/jquery.multiselect.js')
+jquery_multiselect_css = Bundle('vendor/multiselect/jquery.multiselect.css')
+

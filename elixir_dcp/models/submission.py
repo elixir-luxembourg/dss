@@ -11,6 +11,15 @@ class ContactType(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
 
 
+class GA4GHCodes(db.Model):
+    __tablename__ = 'ga4gh_codes'
+
+    code = db.Column(db.String, primary_key=True)
+    name = db.Column(db.String, unique=True, nullable=False)
+    description = db.Column(db.String, unique=True, nullable=False)
+
+
+
 class DataSizeCategory(db.Model):
     __tablename__ = 'data_size_category'
 
@@ -18,19 +27,15 @@ class DataSizeCategory(db.Model):
     label = db.Column(db.String, nullable=False)
 
 
+
 class SubmissionAttachment(db.Model):
     __tablename__ = 'submission_attachments'
 
     id = db.Column(db.Integer, primary_key=True)
     note = db.Column(db.String, nullable=False)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'))
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     server_path = db.Column(db.String, nullable=False)
     file_names = db.Column(db.String, nullable=False)
-
-    def get_file_paths(self):
-        result = []
-        for name in self.file_names:
-            result.append(server_path)
 
 
 
@@ -40,6 +45,8 @@ class DeIdentificationTypeEnum(enum.Enum):
     @classmethod
     def choices(cls):
         return [(choice.name, choice.value) for choice in cls]
+
+
 
 
 class ConsentStatusEnum(enum.Enum):
@@ -67,9 +74,10 @@ class Submission(db.Model):
     description = db.Column(db.String(650))
     created_on = db.Column(db.Date, nullable=False)
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
-    contacts = db.relationship("SubmissionContact")
-    attachments = db.relationship("SubmissionAttachment")
-    dishes = db.relationship("SubmissionStudyDish")
+    contacts = db.relationship("SubmissionContact", cascade="all, delete-orphan")
+    attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
+    dishes = db.relationship("SubmissionStudyDish", cascade="all, delete-orphan")
+    use_conditions = db.relationship("SubmissionUseConditionGroup", cascade="all, delete-orphan")
 
     def deleteable(self):
         return self.current_status == SubmissionStatusEnum.draft
@@ -86,8 +94,29 @@ class SubmissionContact(db.Model):
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True)
     category_id = db.Column(db.Integer, db.ForeignKey('contact_types.id'), nullable=False)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'))
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'),  nullable=False)
     contact_category = db.relationship('ContactType')
+
+
+class DUCCodeInstance(db.Model):
+
+    __tablename__ = 'duc_code_instances'
+
+    id = db.Column(db.Integer, primary_key=True)
+    ga4gh_code = db.Column(db.String, db.ForeignKey('ga4gh_codes.code'), nullable=False)
+    note = db.Column(db.String(150))
+    duc_group_id = db.Column(db.Integer, db.ForeignKey('consent_groups.id'), nullable=False)
+    duc_group = db.relationship("SubmissionUseConditionGroup", back_populates="duc_codes")
+
+
+class SubmissionUseConditionGroup(db.Model):
+
+    __tablename__ = 'consent_groups'
+
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    group_name = db.Column(db.String, nullable=False)
+    duc_codes = db.relationship("DUCCodeInstance", back_populates="duc_group",  cascade="all, delete-orphan")
 
 
 class SubmissionStudyDish(db.Model):
@@ -107,18 +136,10 @@ class SubmissionStudyDish(db.Model):
 
     # Data Protection
     consent_status = db.Column(db.Enum(ConsentStatusEnum), nullable=False, default=ConsentStatusEnum.hmg)
-    # heterogeneous/homogeneous
-    # if heterogeneous we would need to keep all consent group descriptions for this study.
-
     de_identification_type = db.Column(db.Enum(DeIdentificationTypeEnum), nullable=False,
                                        default=DeIdentificationTypeEnum.p)
     storage_end_date = db.Column(db.Date, nullable=True)
     embargo_end_date = db.Column(db.Date, nullable=True)
-
-    # Use Conditions
-    collaboration_required = db.Column(db.Boolean, nullable=False, default=False)
-    irb_approval_required = db.Column(db.Boolean, nullable=False, default=False)
-    use_for_non_profit_only = db.Column(db.Boolean, nullable=False, default=False)
 
     def special_subjects_status(self):
         if self.subjects_unable_to_consent or self.subjects_vulnerable or self.subjects_minors:
@@ -169,7 +190,6 @@ def share_submission(submission_id, user_id):
             share.user_id = user_id
             share.access_granted_on = datetime.now()
             db.session.add(share)
-
             db.session.commit()
 
     else:

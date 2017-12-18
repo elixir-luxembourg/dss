@@ -1,0 +1,147 @@
+{% extends "layout.html" %}
+{% import "forms_macros.html" as fmacros%}
+{% block title %}Submission Editor{% endblock %}
+{% block js %}
+    {{ super() }}
+    {% assets "submission_editor_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
+    {% assets "jquery_multiselect_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+{% block css %}
+    {{ super() }}
+    {% assets "jquery_multiselect_css" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+{% endblock %}
+{% block content %}
+
+
+        <div class="row bs-wizard" style="border-bottom:0;">
+
+            <div class="col-xs-3 bs-wizard-step complete">
+                <div class="text-center bs-wizard-stepnum">1 - Inititation</div>
+                <div class="progress"><div class="progress-bar"></div></div>
+                <a href="#" class="bs-wizard-dot"></a>
+                <div class="bs-wizard-info text-center">Data Steward creates a submission and shares it with data provider.</div>
+            </div>
+
+            <div class="col-xs-3 bs-wizard-step complete"><!-- complete -->
+                <div class="text-center bs-wizard-stepnum">2 - Study Registration</div>
+                <div class="progress"><div class="progress-bar"></div></div>
+                <a href="#" class="bs-wizard-dot"></a>
+                <div class="bs-wizard-info text-center">Data Provider registers the studies within the submission and the data use conditions. </div>
+            </div>
+
+            <div class="col-xs-3 bs-wizard-step active"><!-- complete -->
+                <div class="text-center bs-wizard-stepnum">3 - Upload</div>
+                <div class="progress"><div class="progress-bar"></div></div>
+                <a href="#" class="bs-wizard-dot"></a>
+                <div class="bs-wizard-info text-center">Data Provider uploads data and metadata.</div>
+            </div>
+
+            <div class="col-xs-3 bs-wizard-step disabled"><!-- active -->
+                <div class="text-center bs-wizard-stepnum">4 - Completion</div>
+                <div class="progress"><div class="progress-bar"></div></div>
+                <a href="#" class="bs-wizard-dot"></a>
+                <div class="bs-wizard-info text-center">Data Steward confirms the receipt and validity of data and metadata.</div>
+            </div>
+        </div>
+
+
+    <div class="span">
+        <!-- empty has no content per se, but using spacer to prevent collapse -->
+        <div class="spacer10"></div>
+    </div>
+
+
+    {{ macros.show_flashes() }}
+
+
+    <div id="tabs">
+        <ul>
+            <li><a href="#basicinfo">Description</a></li>
+            <li><a href="#contacts">Contacts</a></li>
+            <li><a href="#attachments">Attachments</a></li>
+            <li><a href="#dishes">Studies</a></li>
+            <li><a href="#ducs">Data Use Conditions</a></li>
+        </ul>
+        <div id="basicinfo" class="container">
+            <form id="form_submission_editor"
+                  method="POST"
+                  action="{{ url_for('edit_submission',sub_id=submsn_form.id.data) }}">
+                {{ submsn_form.hidden_tag() }}
+                {{ fmacros.render_field_with_errors(submsn_form.name) }}
+                {{ fmacros.render_textarea_field(submsn_form.description) }}
+                {{ fmacros.render_date_field(submsn_form.created_on) }}
+                {{ fmacros.render_select_field(submsn_form.current_status) }}
+                <div class="form-group row">
+                    <div class="col-sm-10">
+                        <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+        <div id="contacts">
+            {% with %}
+                {% set contacts = submission.contacts %}
+                {% set contact_form =  submsn_form.child_contact_form() %}
+                <div id="contacts_inline_list"  data-url="{{ url_for('list_submission_contacts',sub_id=submission.id) }}">
+                    {% include 'submission/_contact_columns.html' %}
+                </div>
+                <hr size="2px"/>
+                <div id="contacts_inline_editor" data-url="{{ url_for('add_edit_submission_contact') }}">
+                    {% include 'submission/_contact_form.html' %}
+                </div>
+            {% endwith %}
+        </div>
+
+        <div id="attachments">
+            {% with %}
+                {% set attachments = submission.attachments %}
+                {% set attachment_form =  submsn_form.child_attachment_form() %}
+                <div id="attachments_inline_list"  data-url="{{ url_for('list_submission_attachments',sub_id=submission.id) }}">
+                    {% include 'submission/_attachment_columns.html' %}
+                </div>
+                <hr size="2px"/>
+
+                <!--class="container" -->
+                <div id="attachments_inline_editor" data-url="{{ url_for('add_submission_attachment') }}">
+                    {% include 'submission/_attachment_form.html' %}
+                </div>
+            {% endwith %}
+        </div>
+        <div id="dishes">
+            {% with %}
+                {% set dishes = submission.dishes %}
+                {% set dish_form =  submsn_form.child_dish_form() %}
+                <div id="dishes_inline_list" data-url="{{ url_for('list_submission_dishes',sub_id=submission.id) }}">
+                    {% include 'submission/_dish_columns.html' %}
+                </div>
+                <hr size="2px"/>
+                <div id="dishes_inline_editor" data-url="{{ url_for('add_edit_submission_dish') }}">
+                    {% include 'submission/_dish_form.html' %}
+                </div>
+            {% endwith %}
+        </div>
+        <div id="ducs">
+            {% with %}
+                {% set ducs = submission.use_conditions %}
+                {% set duc_form =  submsn_form.child_duc_form() %}
+                <div id="ducs_inline_list" data-url="{{ url_for('list_submission_ducs',sub_id=submission.id) }}">
+                    {% include 'submission/_duc_columns.html' %}
+                </div>
+                <hr size="2px"/>
+                <div id="ducs_inline_editor" data-url="{{ url_for('add_edit_submission_duc') }}">
+                    {% include 'submission/_duc_form.html' %}
+                </div>
+            {% endwith %}
+        </div>
+    </div>
+
+{% endblock %}
+

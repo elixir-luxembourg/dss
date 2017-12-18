@@ -10,6 +10,10 @@ class AuthenticationException(ElixirDCPException):
     pass
 
 
+class RecordNotExistsException(ElixirDCPException):
+    pass
+
+
 class RecordLifecycleException(ElixirDCPException):
     pass
 

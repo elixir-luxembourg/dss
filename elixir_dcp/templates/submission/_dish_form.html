@@ -1,19 +1,34 @@
 {% import "forms_macros.html" as fmacros%}
-<form id="form_submission_dish">
-    {{ dish_form.hidden_tag() }}
-    {{ fmacros.render_field_with_errors(dish_form.study_name) }}
-    {{ fmacros.render_checkbox_field(dish_form.joint_providers) }}
-    {{ fmacros.render_select_field(dish_form.estimate_data_size) }}
-    {{ fmacros.render_checkbox_field(dish_form.ethics_approval_exists) }}
-    {{ fmacros.render_checkbox_field(dish_form.subjects_minors) }}
-    {{ fmacros.render_checkbox_field(dish_form.subjects_vulnerable) }}
-    {{ fmacros.render_checkbox_field(dish_form.subjects_unable_to_consent) }}
-    {{ fmacros.render_select_field(dish_form.consent_status) }}
-    {{ fmacros.render_select_field(dish_form.de_identification_type) }}
-    {{ fmacros.render_date_field(dish_form.storage_end_date) }}
-    {{ fmacros.render_date_field(dish_form.embargo_end_date) }}
-    {{ fmacros.render_checkbox_field(dish_form.collaboration_required) }}
-    {{ fmacros.render_checkbox_field(dish_form.irb_approval_required) }}
-    {{ fmacros.render_checkbox_field(dish_form.use_for_non_profit_only) }}
-</form>
-<a id="submission_dish_save" class="save btn btn-raised btn-primary" role="button">Save Study Data Information</a>
+
+<div class="panel panel-default">
+
+    <div class="panel-body">{% if dish_form.id.data %}Update  {% else %}Create New {% endif %}Study Information</div>
+
+    <form id="form_submission_dish">
+        {{ dish_form.hidden_tag() }}
+        {{ fmacros.render_field_with_errors(dish_form.study_name) }}
+        {{ fmacros.render_checkbox_field(dish_form.joint_providers) }}
+        {{ fmacros.render_select_field(dish_form.estimate_data_size) }}
+        <div class="panel panel-default">
+            <div class="panel-heading">Ethics</div>
+            <div class="panel-body">
+                {{ fmacros.render_checkbox_field(dish_form.ethics_approval_exists) }}
+                {{ fmacros.render_checkbox_field(dish_form.subjects_minors) }}
+                {{ fmacros.render_checkbox_field(dish_form.subjects_vulnerable) }}
+                {{ fmacros.render_checkbox_field(dish_form.subjects_unable_to_consent) }}
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Data Protection</div>
+            <div class="panel-body">
+                {{ fmacros.render_select_field(dish_form.consent_status) }}
+                {{ fmacros.render_select_field(dish_form.de_identification_type) }}
+                {{ fmacros.render_date_field(dish_form.storage_end_date) }}
+                {{ fmacros.render_date_field(dish_form.embargo_end_date) }}
+            </div>
+        </div>
+    </form>
+
+    <a id="submission_dish_save" class="save btn btn-raised btn-primary" role="button">Save Study Information</a>
+
+</div>

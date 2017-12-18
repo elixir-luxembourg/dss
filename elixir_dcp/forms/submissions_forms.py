@@ -1,9 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField
-from wtforms.validators import DataRequired, Email
+from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField, SelectMultipleField, \
+    FormField, FieldList, IntegerField
 from wtforms.fields.html5 import EmailField
+from wtforms.validators import DataRequired, Email, Optional
+from wtforms.widgets import HiddenInput
+
 from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSizeCategory, DeIdentificationTypeEnum, \
-    SubmissionStatusEnum
+    SubmissionStatusEnum, GA4GHCodes, DUCCodeInstance
 
 
 class AttachmentForm(FlaskForm):
@@ -41,6 +44,55 @@ class ContactForm(FlaskForm):
             self.submission_id.data = kwargs['sub_id']
         self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
 
+class ModelFieldList(FieldList):
+    def __init__(self, *args, **kwargs):
+        self.model = kwargs.pop("model", None)
+        super(ModelFieldList, self).__init__(*args, **kwargs)
+        if not self.model:
+            raise ValueError("ModelFieldList requires model to be set")
+
+    def populate_obj(self, obj, name):
+        while len(getattr(obj, name)) < len(self.entries):
+            newModel = self.model()
+            db.session.add(newModel)
+            getattr(obj, name).append(newModel)
+        while len(getattr(obj, name)) > len(self.entries):
+            db.session.delete(getattr(obj, name).pop())
+        super(ModelFieldList, self).populate_obj(obj, name)
+
+
+class UseConditionCodeForm(FlaskForm):
+    """
+    Form for creating an instance of a Ga4GH code to be included in a DUC group
+    """
+    ga4gh_code = SelectField('GA4GH Code')
+    note = StringField('Note')
+
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+        self.ga4gh_code.choices = [(c.code, c.code + " - " + c.name) for c in GA4GHCodes.query.all()]
+
+
+class UseConditionGroupForm(FlaskForm):
+    """
+    Form for creating or updating Data Use Condition (DUC) Groups
+    """
+
+    id = IntegerField('UseConditionGroup_Id', widget=HiddenInput(), validators=[Optional()])
+
+    submission_id = HiddenField('Submission Id')
+    group_name = StringField('Name', validators=[DataRequired()])
+    duc_codes = FieldList(FormField(UseConditionCodeForm, default=lambda: DUCCodeInstance()),  min_entries=1, label='Data Use Conditions')
+    #applies_to_studies = SelectMultipleField('Applies to Studies')
+
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+        if 'sub_id' in kwargs:
+            self.submission_id.data = kwargs['sub_id']
+            #self.applies_to_studies.choices = [('22', 'study 1'), ('23', 'study 2')]
+            # TODO read from db using kwargs['sub_id']
+
+
 
 class SubmissionForm(FlaskForm):
     """
@@ -51,7 +103,7 @@ class SubmissionForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     created_on = DateField('Created On', validators=[DataRequired()], format='%d/%m/%Y', render_kw={"placeholder": "DD/MM/YYYY"})
-    current_status = SelectField('Current Status', choices=SubmissionStatusEnum.choices())
+    current_status = SelectField('Status', choices=SubmissionStatusEnum.choices())
 
 
 
@@ -66,6 +118,10 @@ class SubmissionForm(FlaskForm):
         return AttachmentForm(formdata=None, obj=None, sub_id=self.id.data)
 
 
+    def child_duc_form(self, *args, **kwargs):
+        return UseConditionGroupForm(formdata=None, obj=None, sub_id=self.id.data)
+
+
 class StudyDishForm(FlaskForm):
 
     """
@@ -74,24 +130,22 @@ class StudyDishForm(FlaskForm):
     id = HiddenField('DISH_Id')
     submission_id = HiddenField('Submission Id')
     study_name = StringField('Study Name', validators=[DataRequired()])
+
     joint_providers = BooleanField('Joint Providers', default=False)
     estimate_data_size = SelectField('Estimated Data Size', validators=[DataRequired()])
 
     ethics_approval_exists = BooleanField('Ethics Approval Exists', default=False)
 
-    subjects_minors = BooleanField('Minors', default=False)
-    subjects_vulnerable = BooleanField('Those Unable To Consent', default=False)
-    subjects_unable_to_consent = BooleanField('Vulnerable', default=False)
+    subjects_minors = BooleanField('Subjects Minors', default=False)
+    subjects_vulnerable = BooleanField('Subjects Those Unable To Consent', default=False)
+    subjects_unable_to_consent = BooleanField('Vulnerable Subjects', default=False)
 
     consent_status = SelectField('Consent Status', choices=ConsentStatusEnum.choices())
-    de_identification_type = SelectField('Consent Status', choices=DeIdentificationTypeEnum.choices())
+    de_identification_type = SelectField('De-Identification Type', choices=DeIdentificationTypeEnum.choices())
 
     storage_end_date = DateField('Storage End', validators=[DataRequired()], format='%d/%m/%Y', render_kw={"placeholder": "DD/MM/YYYY"})
     embargo_end_date = DateField('Embargo Until', validators=[DataRequired()], format='%d/%m/%Y', render_kw={"placeholder": "DD/MM/YYYY"})
 
-    collaboration_required = BooleanField('Collaboration Required', default=False)
-    irb_approval_required = BooleanField('IRB Approval Required', default=False)
-    use_for_non_profit_only = BooleanField('Use for non-profit only', default=False)
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)

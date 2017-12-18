@@ -1,0 +1,39 @@
+{% import "forms_macros.html" as fmacros%}
+<div class="panel panel-default">
+
+    <div class="panel-body">{% if duc_form.id.data %}Update  {% else %}Create New {% endif %}DUC Group</div>
+
+    <form id="form_submission_duc">
+        {{ duc_form.hidden_tag() }}
+        {{ fmacros.render_field_with_errors(duc_form.group_name) }}
+
+        <div class="form-group row {% if duc_form.duc_codes.errors %}has-error{% endif %}">
+            {{ duc_form.duc_codes.label(class="col-md-2 control-label") }}
+            <div class="col-md-8">
+                <div data-toggle="fieldset" id="duc-codes-fieldset">
+                    <button type="button" data-toggle="fieldset-add-row" data-target="#duc-codes-fieldset">+</button>
+                    <table>
+                        <tr>
+                            <th>GA4GH Code</th>
+                            <th>Note</th>
+                            <th></th>
+                        </tr>
+                        {% for duc_code_instance in duc_form.duc_codes %}
+                            <tr data-toggle="fieldset-entry">
+                                <td>{{ duc_code_instance.ga4gh_code }}</td>
+                                <td>{{ duc_code_instance.note }}</td>
+                                <td><button type="button" data-toggle="fieldset-remove-row" id="duc-code-{{loop.index0}}-remove">-</button></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                {% if duc_form.duc_codes.errors %}
+                    {% for error in duc_form.duc_codes.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+
+    </form>
+    <a id="submission_duc_save" class="save btn btn-raised btn-primary" role="button">Save DUC Group</a>
+</div>

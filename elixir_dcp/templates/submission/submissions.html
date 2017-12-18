@@ -48,67 +48,67 @@
 
         {% if current_user.is_steward %}
             <div>
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#submission_create_modal">Add
-                    New Submission
-                </button>
-                <a id="button_submission_create" href="#" class="btn btn-info" data-toggle="modal"
-                   data-target="#submission_create_modal">Add New Submission</a>
-                <div class="modal fade" id="submission_create_modal" tabindex="-1" role="dialog"
-                     aria-labelledby="submission_create_modal">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title">Create New Submission</h4>
-                            </div>
-                            <div class="modal-body">
-                                <form id="form_submission_create"
-                                      method="POST"
-                                      action="{{ url_for('create_submission') }}">
-                                    <div>
-                                        {{ submsn_create_form.hidden_tag() }}
-                                        <div>{{ submsn_create_form.name.label }}</div>
-                                        <div>{{ submsn_create_form.name }}</div>
-                                        <div>{{ submsn_create_form.description.label }}</div>
-                                        <div>{{ submsn_create_form.description }}</div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
-                                        <button type="button" class="btn btn-dialog" data-dismiss="modal">Cancel</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div><!-- modal-content -->
-                    </div><!-- modal-dialog -->
-                </div><!-- modal Add New-->
-        {% endif %}
-            <div class="modal fade" id="submission_view_modal" tabindex="-1" role="dialog"
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#submission_create_modal">Add
+                New Submission
+            </button>
+            <a id="button_submission_create" href="#" class="btn btn-info" data-toggle="modal"
+               data-target="#submission_create_modal">Add New Submission</a>
+            <div class="modal fade" id="submission_create_modal" tabindex="-1" role="dialog"
                  aria-labelledby="submission_create_modal">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h4 class="modal-title">View Submission</h4>
+                            <h4 class="modal-title">Create New Submission</h4>
                         </div>
                         <div class="modal-body">
-
-                            <div id="submission_view_modal_body">
-
-                                <!-- ...... modal content filled in dynamically via ajax -->
-                                <!-- see viewer.html -->
-                            </div>
-
-
-                            <div id="submission-command-dialog" title="Confirm" class="ui-dialog" style="display:none;">
-                                <!-- Fragment displayed within a JQuery UI Dialog  -->
-                                <p>
-                                 You are about to <b id="submission-dialog-text">--</b> this submission!
-                                </p>
-                            </div>
-
-
-                        </div><!-- modal body -->
+                            <form id="form_submission_create"
+                                  method="POST"
+                                  action="{{ url_for('create_submission') }}">
+                                <div>
+                                    {{ submsn_create_form.hidden_tag() }}
+                                    <div>{{ submsn_create_form.name.label }}</div>
+                                    <div>{{ submsn_create_form.name }}</div>
+                                    <div>{{ submsn_create_form.description.label }}</div>
+                                    <div>{{ submsn_create_form.description }}</div>
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+                                    <button type="button" class="btn btn-dialog" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
                     </div><!-- modal-content -->
                 </div><!-- modal-dialog -->
-            </div><!-- Modal used as for Submission Preview-->
+            </div><!-- modal Add New-->
+        {% endif %}
+        <div class="modal fade" id="submission_view_modal" tabindex="-1" role="dialog"
+             aria-labelledby="submission_create_modal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">View Submission</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div id="submission_view_modal_body">
+
+                            <!-- ...... modal content filled in dynamically via ajax -->
+                            <!-- see viewer.html -->
+                        </div>
+
+
+                        <div id="submission-command-dialog" title="Confirm" class="ui-dialog" style="display:none;">
+                            <!-- Fragment displayed within a JQuery UI Dialog  -->
+                            <p>
+                                You are about to <b id="submission-dialog-text">--</b> this submission!
+                            </p>
+                        </div>
+
+
+                    </div><!-- modal body -->
+                </div><!-- modal-content -->
+            </div><!-- modal-dialog -->
+        </div><!-- Modal used as for Submission Preview-->
         </div>
     </div>
 

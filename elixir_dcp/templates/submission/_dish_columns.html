@@ -7,7 +7,7 @@
             <th width="55%">Study Name</th>
             <th width="10%">De-Identification</th>
             <th width="10%">Special Subjects?</th>
-            <th width="10%">Consent</th>
+            <th width="10%">Use Conditions Status</th>
             <th width="15%">Actions</th>
         </tr>
         </thead>
@@ -18,7 +18,6 @@
                 <td>{{ dish.special_subjects_status() }}</td>
                 <td>{{ dish.consent_status.value }}</td>
                 <td>
-
                     <a id="submission_dish_listing_delete"
                        data-url="{{ url_for('delete_submission_dish',dish_id=dish.id) }}" role="button">
                         <i class="material-icons">delete</i>
@@ -33,7 +32,6 @@
     </table>
 {% else %}
     <div class="text-center">
-        <h3> No Study Data Information has been added. </h3>
-        <hr class="intro-divider">
+        <h3> No Study has been added.</h3>
     </div>
 {% endif %}

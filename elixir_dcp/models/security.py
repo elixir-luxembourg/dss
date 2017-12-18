@@ -1,5 +1,7 @@
 from elixir_dcp import db
 from flask_login._compat import text_type
+from datetime import datetime
+from exceptions import RecordNotExistsException
 
 
 class User(db.Model):
@@ -30,7 +32,7 @@ class User(db.Model):
         except AttributeError:
             raise NotImplementedError('No `id` attribute - override `get_id`')
 
-    def has_overlapping_role(self, role_list):
+    def has_role_from(self, role_list):
         if self.assigned_roles is None:
             return False
         else:
@@ -41,6 +43,20 @@ class User(db.Model):
             return True
         else:
             return False
+
+    def assign_role(self, role_name):
+
+        role = Role.query.filter_by(name=role_name).one_or_none()
+        if role:
+            if not self.has_role_from([role_name]):
+                new_role_assignment = UsersRoles()
+                new_role_assignment.user_id = self.id
+                new_role_assignment.role_id = role.id
+                new_role_assignment.assigned_on = datetime.now()
+                db.session.add(new_role_assignment)
+                db.session.commit()
+        else:
+            raise RecordNotExistsException("Role with specified name does not exist.")
 
 
 class Role(db.Model):
@@ -57,4 +73,6 @@ class UsersRoles(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), primary_key=True)
     assigned_on = db.Column('assigned_on', db.Date())
+
+
 

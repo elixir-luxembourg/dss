@@ -1,5 +1,5 @@
 # coding=utf-8
-from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, StudyDishForm
+from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, StudyDishForm, UseConditionGroupForm
 from wtforms import PasswordField, HiddenField, BooleanField
 from wtforms.fields.html5 import EmailField
 from flask_wtf import FlaskForm
@@ -47,7 +47,7 @@ class LoginForm(RedirectForm):
                              render_kw={"placeholder": "Password"})
     remember = BooleanField('Remember me')
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, LoginForm, StudyDishForm]
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, LoginForm, StudyDishForm, UseConditionGroupForm]
 
 
 
