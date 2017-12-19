@@ -1,35 +1,98 @@
 $(document).ready(function () {
 
-    $(".elx-date").datepicker({ dateFormat: 'dd/mm/yy' });
+    function bind_description_tab_widgets(){
 
-    $('select[multiple]').multiselect({
-        columns  : 2,
-        search   : true,
-        selectAll: true,
-        texts    : {
-            placeholder: 'Select one or more Studies',
-        }
-    });
+        $(".elx-date").datepicker({ dateFormat: 'dd/mm/yy' });
+
+    }
+    function bind_study_tab_widgets(){
+
+        $(".elx-date").datepicker({ dateFormat: 'dd/mm/yy' });
+
+        $('select[multiple]').multiselect({
+            columns  : 2,
+            search   : true,
+            selectAll: true,
+            texts    : {
+                placeholder: 'Select one or more Studies',
+            }
+        });
+    }
+    function bind_duc_tab_widgets() {
+
+        $("div[data-toggle=fieldset]").each(function() {
+            var $this = $(this);
+
+            //Add new entry
+            $this.find("button[data-toggle=fieldset-add-row]").click(function() {
+                var target = $($(this).data("target"))
+                console.log(target);
+                var oldrow = target.find("[data-toggle=fieldset-entry]:last");
+                var row = oldrow.clone(true, true);
+                console.log(row.find(":input")[0]);
+                var elem_id = row.find(":input")[0].id;
+                var elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1')) + 1;
+                row.attr('data-id', elem_num);
+                row.find(":input").each(function() {
+                    console.log(this);
+                    var id = $(this).attr('id').replace('-' + (elem_num - 1) + '-', '-' + (elem_num) + '-');
+                    $(this).attr('name', id).attr('id', id).val('').removeAttr("checked");
+                });
+                oldrow.after(row);
+            }); //End add new entry
+
+            //Remove row
+            $this.find("button[data-toggle=fieldset-remove-row]").click(function() {
+                if($this.find("[data-toggle=fieldset-entry]").length > 1) {
+                    var thisRow = $(this).closest("[data-toggle=fieldset-entry]");
+                    thisRow.remove();
+                }
+            }); //End remove row
+        });
+    }
+
 
     $(function () {
         $("#tabs").tabs();
 
     });
 
-    function refresh_contacts_list(){
+
+    function refresh_bean_list(bean_name){
+
+        var bean_label = $("div[id='tabs']").find("a[href='#" + bean_name+"']").text();
+
         $.ajax({
-            url: $("#contacts_inline_list").attr('data-url'),
+            url: $("#" + bean_name + "_inline_list").attr('data-url'),
             type: "get",
             success: function (result) {
-                $("#contacts_inline_list").html(result);
+                $("#"+ bean_name + "_inline_list").html(result);
             },
             error: function () {
-                alert('An error occurred while loading the Contacts section of this page');
+                alert('An error occurred while loading the ' + bean_label + ' section of this page');
             }
         });
     }
+
+    function bean_list_delete_handler(data_url, bean_name){
+        $.ajax({
+            url: data_url,
+            type: "delete",
+            success: function () {
+                refresh_bean_list(bean_name);
+            },
+            error: function () {
+                alert('An error occurred during delete');
+            }
+        });
+    }
+
     /**
+     *
+     *
      * Contacts Inline Editor button handlers.
+     *
+     *
      */
 
 
@@ -42,22 +105,17 @@ $(document).ready(function () {
             type: 'post',
             data : $('#form_submission_contact').serialize(),
             success: function(result){
-                refresh_contacts_list();
+                refresh_bean_list("contacts");
                 $("#contacts_inline_editor").html(result);
             },
             error: function (xhr, status, error) {
-                refresh_contacts_list();
+                refresh_bean_list("contacts");
                 $("#contacts_inline_editor").html(xhr.responseText);
             }
         });
     });
     $("#contacts_inline_list").on('click', 'a#submission_contact_listing_delete', function() {
-        $.ajax({
-            url: $(this).attr('data-url'),
-            type: "delete",
-            success: refresh_contacts_list,
-            error: refresh_contacts_list
-        });
+        bean_list_delete_handler($(this).attr('data-url'), "contacts");
     });
 
     $("#contacts_inline_list").on('click', 'a#submission_contact_listing_edit', function() {
@@ -74,32 +132,17 @@ $(document).ready(function () {
     });
 
     /**
+     *
+     *
+     *
      * Attachments Inline Editor button handlers.
+     *
+     *
+     *
      */
 
-    function refresh_attachments_list(){
-        $.ajax({
-            url: $("#attachments_inline_list").attr('data-url'),
-            type: "get",
-            success: function (result) {
-                $("#attachments_inline_list").html(result);
-            },
-            error: function () {
-                alert('An error occurred while loading the Attachments section of this page');
-            }
-        });
-    }
-
-
     $("#attachments_inline_list").on('click', 'a#submission_attachment_listing_delete', function() {
-        $.ajax({
-            url: $(this).attr('data-url'),
-            type: "delete",
-            success: refresh_attachments_list,
-            error: function () {
-                alert('An error occurred while deleting Attachment');
-            }
-        });
+        bean_list_delete_handler($(this).attr('data-url'), "attachments");
     });
 
     $("#attachments_inline_editor").on('click', 'a#submission_attachment_add', function() {
@@ -114,31 +157,27 @@ $(document).ready(function () {
             enctype: 'multipart/form-data',
             data : formData,
             success: function(result){
-                refresh_attachments_list();
+                refresh_bean_list("attachments");
                 $("#attachments_inline_editor").html(result);
             },
             error: function (xhr, status, error) {
-                refresh_attachments_list();
+                refresh_bean_list("attachments");
                 $("#attachments_inline_editor").html(xhr.responseText);
             }
         });
     });
+
     /**
+     *
+     *
+     *
      * DISH Inline Editor button handlers.
+     *
+     *
+     *
+     *
      */
 
-    function refresh_dishes_list(){
-        $.ajax({
-            url: $("#dishes_inline_list").attr('data-url'),
-            type: "get",
-            success: function (result) {
-                $("#dishes_inline_list").html(result);
-            },
-            error: function () {
-                alert('An error occurred while loading the Study Info section of this page');
-            }
-        });
-    }
 
     $("#dishes_inline_editor").on('click', 'a#submission_dish_save', function() {
 
@@ -149,25 +188,21 @@ $(document).ready(function () {
             type: 'post',
             data : $('#form_submission_dish').serialize(),
             success: function(result){
-                refresh_dishes_list();
+                refresh_bean_list("dishes");
                 $("#dishes_inline_editor").html(result);
-
+                bind_study_tab_widgets();
             },
             error: function (xhr, status, error) {
-                refresh_dishes_list();
+                refresh_bean_list("dishes");
                 $("#dishes_inline_editor").html(xhr.responseText);
+                bind_study_tab_widgets();
             }
         });
     });
-    $("#dishes_inline_list").on('click', 'a#submission_dish_listing_delete', function() {
-        $.ajax({
-            url: $(this).attr('data-url'),
-            type: "delete",
-            success: refresh_dishes_list,
-            error: refresh_dishes_list
-        });
-    });
 
+    $("#dishes_inline_list").on('click', 'a#submission_dish_listing_delete', function() {
+        bean_list_delete_handler($(this).attr('data-url'), "dishes");
+    });
 
 
     $("#dishes_inline_list").on('click', 'a#submission_dish_listing_edit', function() {
@@ -176,6 +211,7 @@ $(document).ready(function () {
             type: "get",
             success: function(result){
                 $("#dishes_inline_editor").html(result);
+                bind_study_tab_widgets();
             },
             error: function () {
                 alert('An error occurred while loading the selected study information');
@@ -183,21 +219,19 @@ $(document).ready(function () {
         });
     });
 
+
     /**
+     *
+     *
+     *
+     *
      * Data Use Condition Inline Editor button handlers.
+     *
+     *
+     *
+     *
      */
-    function refresh_ducs_list(){
-        $.ajax({
-            url: $("#ducs_inline_list").attr('data-url'),
-            type: "get",
-            success: function (result) {
-                $("#ducs_inline_list").html(result);
-            },
-            error: function () {
-                alert('An error occurred while loading the Use Conditions section of this page');
-            }
-        });
-    }
+
 
     $("#ducs_inline_editor").on('click', 'a#submission_duc_save', function() {
 
@@ -208,24 +242,22 @@ $(document).ready(function () {
             type: 'post',
             data : $('#form_submission_duc').serialize(),
             success: function(result){
-                refresh_ducs_list();
+                refresh_bean_list("ducs");
                 $("#ducs_inline_editor").html(result);
-
+                bind_duc_tab_widgets();
             },
             error: function (xhr, status, error) {
-                refresh_ducs_list();
+                refresh_bean_list("ducs");
+                //TODO check the type of error here,
+                //only in csae of validation errors we should update the html
                 $("#ducs_inline_editor").html(xhr.responseText);
+                bind_duc_tab_widgets();
             }
         });
     });
 
     $("#ducs_inline_list").on('click', 'a#submission_duc_listing_delete', function() {
-        $.ajax({
-            url: $(this).attr('data-url'),
-            type: "delete",
-            success: refresh_ducs_list,
-            error: refresh_ducs_list
-        });
+        bean_list_delete_handler($(this).attr('data-url'), "ducs");
     });
 
 
@@ -236,6 +268,7 @@ $(document).ready(function () {
             type: "get",
             success: function(result){
                 $("#ducs_inline_editor").html(result);
+                bind_duc_tab_widgets();
             },
             error: function () {
                 alert('An error occurred while loading the selected data use condition group');
@@ -243,33 +276,7 @@ $(document).ready(function () {
         });
     });
 
-    $("div[data-toggle=fieldset]").each(function() {
-        var $this = $(this);
-
-        //Add new entry
-        $this.find("button[data-toggle=fieldset-add-row]").click(function() {
-            var target = $($(this).data("target"))
-            console.log(target);
-            var oldrow = target.find("[data-toggle=fieldset-entry]:last");
-            var row = oldrow.clone(true, true);
-            console.log(row.find(":input")[0]);
-            var elem_id = row.find(":input")[0].id;
-            var elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1')) + 1;
-            row.attr('data-id', elem_num);
-            row.find(":input").each(function() {
-                console.log(this);
-                var id = $(this).attr('id').replace('-' + (elem_num - 1) + '-', '-' + (elem_num) + '-');
-                $(this).attr('name', id).attr('id', id).val('').removeAttr("checked");
-            });
-            oldrow.after(row);
-        }); //End add new entry
-
-        //Remove row
-        $this.find("button[data-toggle=fieldset-remove-row]").click(function() {
-            if($this.find("[data-toggle=fieldset-entry]").length > 1) {
-                var thisRow = $(this).closest("[data-toggle=fieldset-entry]");
-                thisRow.remove();
-            }
-        }); //End remove row
-    });
+    bind_description_tab_widgets();
+    bind_study_tab_widgets();
+    bind_duc_tab_widgets();
 });

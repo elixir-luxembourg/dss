@@ -46,8 +46,7 @@ def init_db():
                    ['RS-[XX]', 'other research-specific restrictions',
                     'Use of the data is limited to studies of [research type] (e.g., pediatric research).'],
                    ['RUO', 'research use only',
-                    'Use of data is limited to research purposes (e.g., does not include its use in clinical care).'],
-                   ['NMDS', 'no “general methods” research',
+                    'Use of data is limited to research purposes (e.g., does not include its use in clinical care).'], ['NMDS', 'no \"general methods\" research',
                     'Use of the data includes methods development research (e.g., development of software or algorithms) ONLY within the bounds of other data use limitations.'],
                    ['GSO', 'genetic studies only',
                     'Use of the data is limited to genetic studies only (i.e., no research using only the phenotype data).'],
@@ -78,15 +77,15 @@ def init_db():
                       current_status=SubmissionStatusEnum.draft)
     sub2 = Submission(name='Predict-TB', description='Submission of Predict-TB preclinical data',
                       created_on=datetime.today(), current_status=SubmissionStatusEnum.draft)
-    contact1 = SubmissionContact(name='Pinar Alper', category_id=3, is_primary=True)
+    contact1 = SubmissionContact(name='P\u0131nar Alper', category_id=3, is_primary=True)
     sub1.contacts.append(contact1)
-    contact2 = SubmissionContact(name='Valentin Grouès', category_id=1, is_primary=True)
+    contact2 = SubmissionContact(name='Valentin Grou\u00E8s', category_id=1, is_primary=True)
     sub2.contacts.append(contact2)
     db.session.add(sub1)
     db.session.add(sub2)
     db.session.commit()
 
-    db.session.add(User(first_name='Pinar', last_name='Alper', elixir_reg_id='pinar.alper@uni.lu',
+    db.session.add(User(first_name='P\u0131nar', last_name='Alper', elixir_reg_id='pinar.alper@uni.lu',
                         phone_code='352', phone_no='123456789', active_user=True))
     db.session.add(User(first_name='Alice', last_name='White', elixir_reg_id='alice@kcl.ac.uk',
                         phone_code='44', phone_no='123456789', active_user=True))
@@ -100,7 +99,9 @@ def init_db():
 
 @manager.command
 def get_all_DUC_groups():
-    app.logger.info(SubmissionUseConditionGroup.query)
+    groups = SubmissionUseConditionGroup.query.all()
+    for group in groups:
+        app.logger.info(group)
     return
 
 

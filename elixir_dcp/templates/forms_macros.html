@@ -15,7 +15,8 @@
     <div class="form-group row {% if field.errors %}has-error{% endif %}">
         {{ field.label(class="col-md-2 control-label") }}
         <div class="col-md-3">
-            {{ field( class="form-control" ) }}
+
+            {{ field( class_="form-control" ) }}
             {% if field.errors %}
                 {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
             {% endif %}

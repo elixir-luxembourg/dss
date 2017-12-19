@@ -1,7 +1,7 @@
 from elixir_dcp import db
 from flask_login._compat import text_type
 from datetime import datetime
-from exceptions import RecordNotExistsException
+from elixir_dcp.exceptions import RecordNotExistsException
 
 
 class User(db.Model):

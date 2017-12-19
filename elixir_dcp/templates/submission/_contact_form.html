@@ -1,7 +1,7 @@
 {% import "forms_macros.html" as fmacros%}
 <div class="panel panel-default">
 
-    <div class="panel-body">{% if contact_form.id.data %}Update  {% else %}Create New {% endif %}Contact</div>
+    <div class="panel-body">{% if contact_form.id.data %}Update  {% else %}Add New {% endif %}Contact</div>
 
     <form id="form_submission_contact">
         {{ contact_form.hidden_tag() }}

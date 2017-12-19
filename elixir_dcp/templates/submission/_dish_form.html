@@ -2,7 +2,7 @@
 
 <div class="panel panel-default">
 
-    <div class="panel-body">{% if dish_form.id.data %}Update  {% else %}Create New {% endif %}Study Information</div>
+    <div class="panel-body">{% if dish_form.id.data %}Update {% else %}Add New {% endif %}Study</div>
 
     <form id="form_submission_dish">
         {{ dish_form.hidden_tag() }}
@@ -29,6 +29,6 @@
         </div>
     </form>
 
-    <a id="submission_dish_save" class="save btn btn-raised btn-primary" role="button">Save Study Information</a>
+    <a id="submission_dish_save" class="save btn btn-raised btn-primary" role="button">Save Study</a>
 
 </div>

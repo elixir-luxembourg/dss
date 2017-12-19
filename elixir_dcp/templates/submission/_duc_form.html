@@ -1,7 +1,7 @@
 {% import "forms_macros.html" as fmacros%}
 <div class="panel panel-default">
 
-    <div class="panel-body">{% if duc_form.id.data %}Update  {% else %}Create New {% endif %}DUC Group</div>
+    <div class="panel-body">{% if duc_form.id.data %}Update  {% else %}Add New {% endif %}DUC Group</div>
 
     <form id="form_submission_duc">
         {{ duc_form.hidden_tag() }}
