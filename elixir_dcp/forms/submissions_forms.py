@@ -33,10 +33,11 @@ class ContactForm(FlaskForm):
     """
     id = HiddenField('Contact_Id')
     submission_id = HiddenField('Submission Id')
-    name = StringField('Contact', validators=[DataRequired()], render_kw={"placeholder": "Name SURNAME"})
+    name = StringField('Name', validators=[DataRequired()], render_kw={"placeholder": "Name"})
+    surname = StringField('Surname', validators=[DataRequired()], render_kw={"placeholder": "SURNAME"})
     is_primary = BooleanField('Is Primary?', default=False)
     category_id = SelectField('Type', coerce=int)
-    email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")], render_kw={"placeholder": "email@uni.lu"})
+    email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")], render_kw={"placeholder": "Your institutional e-mail"})
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)

@@ -77,9 +77,9 @@ def init_db():
                       current_status=SubmissionStatusEnum.draft)
     sub2 = Submission(name='Predict-TB', description='Submission of Predict-TB preclinical data',
                       created_on=datetime.today(), current_status=SubmissionStatusEnum.draft)
-    contact1 = SubmissionContact(name='P\u0131nar Alper', category_id=3, is_primary=True)
+    contact1 = SubmissionContact(name='P\u0131nar', surname='Alper', category_id=3, is_primary=True)
     sub1.contacts.append(contact1)
-    contact2 = SubmissionContact(name='Valentin Grou\u00E8s', category_id=1, is_primary=True)
+    contact2 = SubmissionContact(name='Valentin', surname='Grou\u00E8s', category_id=1, is_primary=True)
     sub2.contacts.append(contact2)
     db.session.add(sub1)
     db.session.add(sub2)

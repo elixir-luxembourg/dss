@@ -92,10 +92,14 @@ class SubmissionContact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     is_primary = db.Column(db.Boolean, nullable=False)
     name = db.Column(db.String, nullable=False)
+    surname = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True)
     category_id = db.Column(db.Integer, db.ForeignKey('contact_types.id'), nullable=False)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'),  nullable=False)
     contact_category = db.relationship('ContactType')
+
+    def fullname(self):
+        return self.name + " " + self.surname.upper()
 
 
 class DUCCodeInstance(db.Model):
