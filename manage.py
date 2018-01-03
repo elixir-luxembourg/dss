@@ -73,9 +73,9 @@ def init_db():
         db.session.add(GA4GHCodes(code=code_triple[0], name=code_triple[1], description=code_triple[2]))
     db.session.commit()
 
-    sub1 = Submission(name='OncoTrack', description='Submission of Oncotrack data', created_on=datetime.today(),
+    sub1 = Submission(ref_name='ELX_LU_SUB-1', title='Submission of Oncotrack data', created_on=datetime.today(),
                       current_status=SubmissionStatusEnum.draft)
-    sub2 = Submission(name='Predict-TB', description='Submission of Predict-TB preclinical data',
+    sub2 = Submission(ref_name='ELX_LU_SUB-2', title='Submission of Predict-TB preclinical data',
                       created_on=datetime.today(), current_status=SubmissionStatusEnum.draft)
     contact1 = SubmissionContact(name='P\u0131nar', surname='Alper', category_id=3, is_primary=True)
     sub1.contacts.append(contact1)

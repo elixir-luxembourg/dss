@@ -1,8 +1,13 @@
+
+
+
 {% macro render_field_with_errors(field) %}
+    {% set div_col_class = kwargs.pop('div_col_class', "col-md-8") %}
+    {% set clazz = "form-control " + kwargs.pop('clazz',"") %}
     <div class="form-group row {% if field.errors %}has-error{% endif %}">
         {{ field.label(class="col-md-2 control-label") }}
-        <div class="col-md-8">
-            {{ field(class="form-control") }}
+        <div class="{{ div_col_class }}">
+                {{ field(class= clazz, **kwargs)|safe }}
             {% if field.errors %}
                 {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
             {% endif %}
@@ -10,51 +15,13 @@
     </div>
 {% endmacro %}
 
-
-{% macro render_select_field(field) %}
-    <div class="form-group row {% if field.errors %}has-error{% endif %}">
-        {{ field.label(class="col-md-2 control-label") }}
-        <div class="col-md-3">
-
-            {{ field( class_="form-control" ) }}
-            {% if field.errors %}
-                {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
-            {% endif %}
-        </div>
-    </div>
-{% endmacro %}
 
 {% macro render_checkbox_field(field) %}
     <div class="form-group row">
         {{ field.label(class="col-md-2 control-label") }}
-        <div class="col-md-4">
+        <div class="col-md-1">
                 <input id="{{ field.name }}" name="{{ field.name }}" class="form-control" type="checkbox"
-                        {% if field.data %} checked="checked" {% endif %}><br>
-        </div>
-    </div>
-{% endmacro %}
-
-{% macro render_date_field(field) %}
-    <div class="form-group row {% if field.errors %}has-error{% endif %}">
-        {{ field.label(class="col-md-2 control-label") }}
-        <div class="col-md-3">
-            {{ field(class_="form-control elx-date") }}
-            <!-- <input id="{{ field.name }}" name="{{ field.name }}" class="form-control elx-date"><br>  -->
-            {% if field.errors %}
-                {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
-            {% endif %}
-        </div>
-    </div>
-{% endmacro %}
-{% macro render_textarea_field(field) %}
-    <div class="form-group row">
-        {{ field.label(class="col-md-2 control-label") }}
-        <div class="col-md-8">
-           <textarea id="{{ field.name }}" name="{{ field.name }}" class="form-control" rows="10" >
-           </textarea>
-            {% if field.errors %}
-                {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
-            {% endif %}
+                        {% if field.data %} checked="checked" {% endif %}/>
         </div>
     </div>
 {% endmacro %}

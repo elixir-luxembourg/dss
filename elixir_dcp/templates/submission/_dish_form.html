@@ -8,7 +8,7 @@
         {{ dish_form.hidden_tag() }}
         {{ fmacros.render_field_with_errors(dish_form.study_name) }}
         {{ fmacros.render_checkbox_field(dish_form.joint_providers) }}
-        {{ fmacros.render_select_field(dish_form.estimate_data_size) }}
+        {{ fmacros.render_field_with_errors(dish_form.estimate_data_size, div_col_class="col-md-2", clazz="elx-select") }}
         <div class="panel panel-default">
             <div class="panel-heading">Ethics</div>
             <div class="panel-body">
@@ -21,10 +21,10 @@
         <div class="panel panel-default">
             <div class="panel-heading">Data Protection</div>
             <div class="panel-body">
-                {{ fmacros.render_select_field(dish_form.consent_status) }}
-                {{ fmacros.render_select_field(dish_form.de_identification_type) }}
-                {{ fmacros.render_date_field(dish_form.storage_end_date) }}
-                {{ fmacros.render_date_field(dish_form.embargo_end_date) }}
+                {{ fmacros.render_field_with_errors(dish_form.consent_status, div_col_class="col-md-2", clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dish_form.de_identification_type, div_col_class="col-md-2", clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dish_form.storage_end_date, div_col_class="col-md-3", clazz="elx-date") }}
+                {{ fmacros.render_field_with_errors(dish_form.embargo_end_date, div_col_class="col-md-3", clazz="elx-date") }}
             </div>
         </div>
     </form>

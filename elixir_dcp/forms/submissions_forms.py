@@ -45,21 +45,7 @@ class ContactForm(FlaskForm):
             self.submission_id.data = kwargs['sub_id']
         self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
 
-class ModelFieldList(FieldList):
-    def __init__(self, *args, **kwargs):
-        self.model = kwargs.pop("model", None)
-        super(ModelFieldList, self).__init__(*args, **kwargs)
-        if not self.model:
-            raise ValueError("ModelFieldList requires model to be set")
 
-    def populate_obj(self, obj, name):
-        while len(getattr(obj, name)) < len(self.entries):
-            newModel = self.model()
-            db.session.add(newModel)
-            getattr(obj, name).append(newModel)
-        while len(getattr(obj, name)) > len(self.entries):
-            db.session.delete(getattr(obj, name).pop())
-        super(ModelFieldList, self).populate_obj(obj, name)
 
 
 class UseConditionCodeForm(FlaskForm):
@@ -97,13 +83,13 @@ class UseConditionGroupForm(FlaskForm):
 
 class SubmissionForm(FlaskForm):
     """
-    Form for creating or updating submissions
+    Form for updating submission header info
     """
 
     id = HiddenField('Submission_Id')
-    name = StringField('Name', validators=[DataRequired()])
-    description = TextAreaField('Description', validators=[DataRequired()])
-    created_on = DateField('Created On', validators=[DataRequired()], format='%d/%m/%Y', render_kw={"placeholder": "DD/MM/YYYY"})
+    ref_name = StringField('Reference No')
+    title = StringField('Title', validators=[DataRequired()])
+    created_on = DateField('Created On', format='%d/%m/%Y')
     current_status = SelectField('Status', choices=SubmissionStatusEnum.choices())
 
 

@@ -8,7 +8,7 @@
         {{ fmacros.render_field_with_errors(contact_form.name) }}
         {{ fmacros.render_field_with_errors(contact_form.surname) }}
         {{ fmacros.render_field_with_errors(contact_form.email) }}
-        {{ fmacros.render_select_field(contact_form.category_id) }}
+        {{ fmacros.render_field_with_errors(contact_form.category_id,  div_col_class="col-md-2", clazz="elx-select") }}
         {{ fmacros.render_checkbox_field(contact_form.is_primary) }}
     </form>
 

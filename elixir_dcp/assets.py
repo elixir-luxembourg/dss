@@ -34,7 +34,6 @@ common_js = Bundle(
     output='public/js/common.min.js', debug=False)
 
 select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/select2.sortable.js')
-
 select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
 
 
@@ -54,4 +53,6 @@ submission_listing_js = Bundle(
 
 jquery_multiselect_js = Bundle('vendor/multiselect/jquery.multiselect.js')
 jquery_multiselect_css = Bundle('vendor/multiselect/jquery.multiselect.css')
+
+
 

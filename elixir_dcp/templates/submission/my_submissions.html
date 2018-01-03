@@ -13,7 +13,8 @@
             <table class="datatable table table-striped table-bordered" id="submission_list_table">
                 <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>Ref No</th>
+                    <th>Title</th>
                     <th>Created_On</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -22,7 +23,8 @@
                 <tbody>
                 {% for submission in my_submissions %}
                     <tr>
-                        <td> {{ submission.name }} </td>
+                        <td> {{ submission.ref_name }} </td>
+                        <td> {{ submission.title }} </td>
                         <td> {{ submission.created_on }} </td>
                         <td> {{ submission.current_status.value }} </td>
                         <td>

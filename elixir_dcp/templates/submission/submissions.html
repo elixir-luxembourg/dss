@@ -13,7 +13,8 @@
             <table class="datatable table table-striped table-bordered" id="submission_list_table">
                 <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>Reference No</th>
+                    <th>Title</th>
                     <th>Created_On</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -22,7 +23,8 @@
                 <tbody>
                 {% for submission in submissions %}
                     <tr>
-                        <td> {{ submission.name }} </td>
+                        <td> {{ submission.ref_name }} </td>
+                        <td> {{ submission.title }} </td>
                         <td> {{ submission.created_on }} </td>
                         <td> {{ submission.current_status.value }} </td>
                         <td>
@@ -46,13 +48,11 @@
             </div>
         {% endif %}
 
-        {% if current_user.is_steward %}
+
             <div>
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#submission_create_modal">Add
                 New Submission
             </button>
-            <a id="button_submission_create" href="#" class="btn btn-info" data-toggle="modal"
-               data-target="#submission_create_modal">Add New Submission</a>
             <div class="modal fade" id="submission_create_modal" tabindex="-1" role="dialog"
                  aria-labelledby="submission_create_modal">
                 <div class="modal-dialog" role="document">
@@ -66,10 +66,8 @@
                                   action="{{ url_for('create_submission') }}">
                                 <div>
                                     {{ submsn_create_form.hidden_tag() }}
-                                    <div>{{ submsn_create_form.name.label }}</div>
-                                    <div>{{ submsn_create_form.name }}</div>
-                                    <div>{{ submsn_create_form.description.label }}</div>
-                                    <div>{{ submsn_create_form.description }}</div>
+                                    <div>{{ submsn_create_form.title.label }}</div>
+                                    <div>{{ submsn_create_form.title }}</div>
                                 </div>
                                 <div class="modal-footer">
                                     <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
@@ -80,7 +78,7 @@
                     </div><!-- modal-content -->
                 </div><!-- modal-dialog -->
             </div><!-- modal Add New-->
-        {% endif %}
+
         <div class="modal fade" id="submission_view_modal" tabindex="-1" role="dialog"
              aria-labelledby="submission_create_modal">
             <div class="modal-dialog" role="document">

@@ -1,13 +1,14 @@
 $(document).ready(function () {
 
-    function bind_description_tab_widgets(){
 
-        $(".elx-date").datepicker({ dateFormat: 'dd/mm/yy' });
-
-    }
     function bind_study_tab_widgets(){
 
         $(".elx-date").datepicker({ dateFormat: 'dd/mm/yy' });
+
+       // $('.elx-select').select2();
+        $('.elx-select').select2({
+            minimumResultsForSearch: -1
+        });
 
         $('select[multiple]').multiselect({
             columns  : 2,
@@ -276,7 +277,7 @@ $(document).ready(function () {
         });
     });
 
-    bind_description_tab_widgets();
+
     bind_study_tab_widgets();
     bind_duc_tab_widgets();
 });

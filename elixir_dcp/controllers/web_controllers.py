@@ -4,7 +4,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
-from elixir_dcp.models.submission import delete_submission, Submission, SubmissionAccess, SubmissionAttachment, \
+from elixir_dcp.models.submission import  create_sub, delete_sub, Submission, SubmissionAccess, SubmissionAttachment, \
     SubmissionContact, SubmissionStatusEnum, SubmissionStudyDish, SubmissionUseConditionGroup
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
@@ -112,7 +112,7 @@ def list_my_submissions():
                                                    current_user.elixir_reg_id).join(SubmissionAccess,
                                                                                     SubmissionAccess.user_id ==
                                                                                     User.id).join(Submission,
-                                                                                                  Submission.id == SubmissionAccess.submission_id).filter(Submission.current_status == SubmissionStatusEnum.in_progress)
+                                                                                                  Submission.id == SubmissionAccess.submission_id).filter(Submission.current_status == SubmissionStatusEnum.in_progress_metadata)
 
     return render_template('submission/my_submissions.html',
                            my_submissions=my_submissions)
@@ -133,14 +133,9 @@ def get_submission(sub_id):
 @app_authorization(allowed_roles=['admin'])
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
-    submission_rec = Submission()
-    submission_rec.name = creation_form.name.data
-    submission_rec.description = creation_form.description.data
-    submission_rec.created_on = datetime.today()
-    db.session.add(submission_rec)
-    db.session.commit()
-    flash('New submission created. Further information can be supplied through the editor.', 'info')
-    return redirect(url_for('edit_submission', sub_id=submission_rec.id))
+    submission_rec = create_sub(creation_form.title.data)
+    flash('New submission {} created'.format(submission_rec.ref_name), 'info')
+    return redirect(url_for('list_submissions'))
 
 
 @app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
@@ -151,7 +146,7 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info('Sub REC: %s', submission_rec)
         sub_form = forms.SubmissionForm(obj=submission_rec)
-        return render_template('submission/editor.html', submsn_form=sub_form, submission=submission_rec)
+        return render_template('submission/submission.html', submsn_form=sub_form, submission=submission_rec)
     elif request.method == 'POST':
         form = forms.SubmissionForm(request.form)
         submission_rec = Submission.query.filter_by(id=form.id.data).first()
@@ -163,7 +158,7 @@ def edit_submission(sub_id):
             return redirect(url_for('list_submissions'))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
-            return render_template('submission/editor.html', submsn_form=form, submission=submission_rec)
+            return render_template('submission/submission.html', submsn_form=form, submission=submission_rec)
 
 
 """----------------------------------------------------"""

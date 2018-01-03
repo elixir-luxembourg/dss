@@ -27,6 +27,6 @@ def app_authorization(**options):
 from . import errors
 from . import web_controllers
 
-__author__ = 'Valentin Grouès'
+__author__ = 'Valentin Grouès, Pinar Alper'
 
 __all__ = [errors, web_controllers]
