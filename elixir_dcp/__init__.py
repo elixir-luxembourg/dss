@@ -12,6 +12,7 @@ from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 import elixir_dcp.assets as assets
 import elixir_dcp.exceptions as exceptions
+from flask_oidc import OpenIDConnect
 
 
 __VERSION__ = "0.0.1-dev"
@@ -48,6 +49,9 @@ login_manager.login_message_category = "error"
 
 csrf = CSRFProtect()
 csrf.init_app(app)
+
+oidc = OpenIDConnect()
+oidc.init_app(app)
 
 assets_env = Environment(app)
 assets_loader = PythonAssetsLoader(assets)
@@ -94,6 +98,13 @@ def pluralize(number, singular='', plural='s'):
     else:
         return plural
 
+@app.template_filter('pluralize')
+def _submission_view_mode(user_role, submission_status):
+    app.logger.debug(number)
+    if number == 1:
+        return singular
+    else:
+        return plural
 
 @app.context_processor
 def inject_now():
@@ -102,7 +113,7 @@ def inject_now():
 
 from . import controllers
 
-__all__ = [controllers, assets, app, db, exceptions]
+__all__ = [controllers, assets, app, db, exceptions, oidc]
 # db.create_all()
 if __name__ == '__main__':
     app.run()

@@ -1,20 +1,22 @@
 # coding=utf-8
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for,g
 from flask_login import current_user, login_user, login_required, logout_user
+
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
-from elixir_dcp.models.submission import  create_sub, delete_sub, Submission, SubmissionAccess, SubmissionAttachment, \
+from elixir_dcp.models.submission import create_sub, delete_sub, Submission, SubmissionAccess, SubmissionAttachment, \
     SubmissionContact, SubmissionStatusEnum, SubmissionStudyDish, SubmissionUseConditionGroup
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 import os
 import uuid
 import shutil
-from datetime import datetime
-from elixir_dcp import app, db
+from elixir_dcp import app, db, oidc
 from werkzeug.utils import secure_filename
 from . import app_authorization
+import httplib2
+
 
 __author__ = 'Valentin Grouès, Pinar Alper'
 
@@ -26,13 +28,43 @@ def home():
 @app.route("/logout")
 @login_required
 def logout():
-    logout_user()
+
     flash('You have logged out of ELIXIR DCP.', 'success')
     return render_template('home.html')
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/<int:contact_id>', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET'])
+@oidc.require_login
 def login():
+
+    #variable=foo
+
+    """return oidc.redirect_to_auth_server(request.url)
+
+    info = oidc.user_getinfo(['preferred_username', 'email', 'sub', 'bona_fide_status'])
+    # We need to figure out why attributes other than sub are None after the initial authentication
+
+    app.logger.info(info)
+
+    #from oauth2client.client import OAuth2Credentials
+    #credentials = OAuth2Credentials.from_json(oidc.credentials_store[info.get('sub')])
+    #app.logger.info(credentials)
+    
+    
+    
+        return render_template('/security/oidc.html',
+                           sub=oidc.user_getfield("sub"),
+                           preferred_username=oidc.user_getfield("preferred_username"),
+                           email=oidc.user_getfield("email"),
+                           bona_fide_status=oidc.user_getfield("bona_fide_status",),
+                           groupNames=oidc.user_getfield("groupNames"),
+                           token=None)
+   """
+
+
+
+def old_login():
     form = forms.LoginForm()
     if form.validate_on_submit():
         elixir_reg_id = form.elixir_reg_id.data
@@ -57,6 +89,43 @@ def login():
     return render_template('security/login_user.html', login_user_form=form)
 
 
+@app.route('/signup', methods=['GET', 'POST'])
+@oidc.require_login
+def sign_up():
+    if request.method == 'GET':
+        info = oidc.user_getinfo(['name', 'email', 'sub', 'bona_fide_status'])
+
+        # We need to figure out why attributes other than sub are None after the initial authentication
+        # elixir_oidc_email = oidc.user_getfield("email", g.oidc_id_token)
+        existing_user = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
+        ## Kullanici aktif mi degil mi diye kontrol et
+        if existing_user is None:
+            name_surname = get_names_from_oidc(info.get("name"))
+            new_user = User(elixir_sub_id=info.get("sub"), first_name=name_surname[0], last_name=name_surname[1], email=info.get('email'))
+            form = forms.SignupForm(obj=new_user)
+
+            return render_template('/security/signup.html', register_new=True)
+        else:
+            form = forms.SignupForm(obj=existing_user)
+            return render_template('/security/signup.html', register_new=False)
+    elif request.method == 'POST':
+        form = forms.SignupForm(request.form)
+        if form.validate_on_submit():
+            # update user info in DB
+            flash('Your profile  information has been recorded within ELIXIR-LU. You may now login', 'success')
+            return form.redirect()
+        return render_template('security/login_user.html', signup_form=form)
+
+def get_names_from_oidc(oidc_name):
+    result = ['', '']
+
+    if oidc_name is not None:
+         if " " in oidc_name:
+             name_list = oidc_name.split(" ")
+             result[0] = name_list[0]
+             if len(name_list) > 1:
+                 result[1] = name_list[1]
+    return result
 @login_manager.user_loader
 def load_user(user_id):
     app.logger.info('INFO: Load User with ID: %s', user_id)
@@ -72,12 +141,12 @@ def load_user(user_id):
 """------------------------------------"""
 
 
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 @app.route('/api/submission/<int:sub_id>', methods=['POST', 'DELETE'])
 def api_submission(sub_id):
     if request.method == 'DELETE':
         try:
-            delete_submission(sub_id)
+            delete_sub(sub_id)
             app.logger.info('INFO: Deleted submission SUB-ID: %s', sub_id)
             flash("Submission deleted!", "info")
         except exceptions.RecordLifecycleException as e:
@@ -91,7 +160,8 @@ def api_submission(sub_id):
 
 
 @app.route('/submissions', methods=['GET'])
-@app_authorization(allowed_roles=['admin'])
+#@oidc.require_login
+#@app_authorization(allowed_roles=['admin'])
 def list_submissions():
     """
     List all submissions
@@ -102,7 +172,8 @@ def list_submissions():
 
 
 @app.route('/my_submissions', methods=['GET'])
-@app_authorization(allowed_roles=['provider','admin'])
+@login_required
+@app_authorization(allowed_roles=['data_provider')
 def list_my_submissions():
     """
     List the submissions that have been shared with the LOGGED IN  user
@@ -119,7 +190,7 @@ def list_my_submissions():
 
 
 @app.route('/submission/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'provider'])
+#@app_authorization(allowed_roles=['admin', 'provider'])
 def get_submission(sub_id):
     #
     # We need to check here whether the user in the provider role has access to this submission
@@ -130,7 +201,7 @@ def get_submission(sub_id):
 
 
 @app.route('/submission/create', methods=['POST'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
     submission_rec = create_sub(creation_form.title.data)
@@ -139,22 +210,24 @@ def create_submission():
 
 
 @app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def edit_submission(sub_id):
     app.logger.info('INFO: Edit submission SUB-ID: %s', sub_id)
     if request.method == 'GET':
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info('Sub REC: %s', submission_rec)
         sub_form = forms.SubmissionForm(obj=submission_rec)
+
         return render_template('submission/submission.html', submsn_form=sub_form, submission=submission_rec)
     elif request.method == 'POST':
         form = forms.SubmissionForm(request.form)
         submission_rec = Submission.query.filter_by(id=form.id.data).first()
         if form.validate_on_submit():
-            form.populate_obj(submission_rec)
+            submission_rec.title = form.title.data
+            #form.populate_obj(submission_rec)
             db.session.add(submission_rec)
             db.session.commit()
-            flash('Submission updated successfully', 'info')
+            flash('Submission updated', 'info')
             return redirect(url_for('list_submissions'))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
@@ -167,7 +240,7 @@ def edit_submission(sub_id):
 
 
 @app.route('/submission_contacts/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def list_submission_contacts(sub_id):
     contacts = SubmissionContact.query.filter_by(submission_id=sub_id)
     return render_template('submission/_contact_columns.html', contacts=contacts)
@@ -175,7 +248,7 @@ def list_submission_contacts(sub_id):
 
 @app.route('/submission_contact/<int:contact_id>', methods=['GET', 'POST'])
 @app.route('/submission_contact', methods=['POST'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def add_edit_submission_contact(contact_id=None):
 
     if contact_id is None:
@@ -212,7 +285,7 @@ def add_edit_submission_contact(contact_id=None):
 
 
 @app.route('/submission_contact/<int:contact_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def delete_submission_contact(contact_id):
     submission_contact = SubmissionContact.query.get_or_404(contact_id)
     db.session.delete(submission_contact)
@@ -227,7 +300,7 @@ def delete_submission_contact(contact_id):
 
 
 @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'provider'])
+#@app_authorization(allowed_roles=['admin', 'provider'])
 def list_submission_attachments(sub_id):
     attachments = SubmissionAttachment.query.filter_by(submission_id=sub_id)
     return render_template('submission/_attachment_columns.html', attachments=attachments)
@@ -240,7 +313,7 @@ def is_allowed_type(filename):
 
 
 @app.route('/submission_attachment', methods=['POST'])
-@app_authorization(allowed_roles=['admin', 'provider'])
+#@app_authorization(allowed_roles=['admin', 'provider'])
 def add_submission_attachment():
     form = forms.AttachmentForm(request.form)
     file_validation = True
@@ -276,12 +349,12 @@ def add_submission_attachment():
         flash("Submission Attachment(s) added", "info")
         sid = form.submission_id.data
         return render_template('submission/_attachment_form.html', attachment_form=forms.AttachmentForm(formdata=None,
-                                                                                        obj=None,
-                                                                                        sub_id=sid)), 200
+                                                                                                        obj=None,
+                                                                                                        sub_id=sid)), 200
 
 
 @app.route('/submission_attachment/<int:attach_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def delete_submission_attachment(attach_id):
     submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
     shutil.rmtree(submission_attachment.server_path)
@@ -297,7 +370,7 @@ def delete_submission_attachment(attach_id):
 
 
 @app.route('/submission_dishes/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def list_submission_dishes(sub_id):
     dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
     return render_template('submission/_dish_columns.html', dishes=dishes)
@@ -305,7 +378,7 @@ def list_submission_dishes(sub_id):
 
 @app.route('/submission_dish/<int:dish_id>', methods=['GET', 'POST'])
 @app.route('/submission_dish', methods=['POST'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def add_edit_submission_dish(dish_id=None):
     if dish_id is None:
         mode = 'create'
@@ -333,8 +406,8 @@ def add_edit_submission_dish(dish_id=None):
             sid = posted_form.submission_id.data
 
             return render_template('submission/_dish_form.html', dish_form=forms.StudyDishForm(formdata=None,
-                                                                                                   obj=None,
-                                                                                                   sub_id=sid)), 200
+                                                                                               obj=None,
+                                                                                               sub_id=sid)), 200
         else:
             flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_dish_form.html', dish_form=posted_form), 400
@@ -355,7 +428,7 @@ def delete_submission_dish(dish_id):
 
 
 @app.route('/submission_ducs/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def list_submission_ducs(sub_id):
     ducs = SubmissionUseConditionGroup.query.filter_by(submission_id=sub_id)
     return render_template('submission/_duc_columns.html', ducs=ducs)
@@ -363,7 +436,7 @@ def list_submission_ducs(sub_id):
 
 @app.route('/submission_duc/<int:duc_id>', methods=['GET', 'POST'])
 @app.route('/submission_duc', methods=['POST'])
-@app_authorization(allowed_roles=['admin'])
+#@app_authorization(allowed_roles=['admin'])
 def add_edit_submission_duc(duc_id=None):
     mode = "create" if duc_id is None else "edit"
     if request.method == 'GET':

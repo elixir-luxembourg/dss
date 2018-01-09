@@ -1,23 +1,27 @@
 $(document).ready(function () {
 
 
-    function bind_study_tab_widgets(){
+    function bind_widgets(){
 
         $(".elx-date").datepicker({ dateFormat: 'dd/mm/yy' });
 
-       // $('.elx-select').select2();
         $('.elx-select').select2({
             minimumResultsForSearch: -1
         });
 
-        $('select[multiple]').multiselect({
-            columns  : 2,
-            search   : true,
-            selectAll: true,
-            texts    : {
-                placeholder: 'Select one or more Studies',
-            }
+        $('.elx-select-readonly').select2({
+            readonly: true
         });
+
+
+        /*       $('select[multiple]').multiselect({
+                    columns  : 2,
+                    search   : true,
+                    selectAll: true,
+                    texts    : {
+                        placeholder: 'Select one or more Studies',
+                    }
+                });*/
     }
     function bind_duc_tab_widgets() {
 
@@ -108,6 +112,7 @@ $(document).ready(function () {
             success: function(result){
                 refresh_bean_list("contacts");
                 $("#contacts_inline_editor").html(result);
+                bind_widgets();
             },
             error: function (xhr, status, error) {
                 refresh_bean_list("contacts");
@@ -125,6 +130,7 @@ $(document).ready(function () {
             type: "get",
             success: function(result){
                 $("#contacts_inline_editor").html(result);
+                bind_widgets();
             },
             error: function () {
                 alert('An error occurred while loading the selected contact');
@@ -191,12 +197,12 @@ $(document).ready(function () {
             success: function(result){
                 refresh_bean_list("dishes");
                 $("#dishes_inline_editor").html(result);
-                bind_study_tab_widgets();
+                bind_widgets();;
             },
             error: function (xhr, status, error) {
                 refresh_bean_list("dishes");
                 $("#dishes_inline_editor").html(xhr.responseText);
-                bind_study_tab_widgets();
+                bind_widgets();;
             }
         });
     });
@@ -212,7 +218,7 @@ $(document).ready(function () {
             type: "get",
             success: function(result){
                 $("#dishes_inline_editor").html(result);
-                bind_study_tab_widgets();
+                bind_widgets();
             },
             error: function () {
                 alert('An error occurred while loading the selected study information');
@@ -245,14 +251,14 @@ $(document).ready(function () {
             success: function(result){
                 refresh_bean_list("ducs");
                 $("#ducs_inline_editor").html(result);
-                bind_duc_tab_widgets();
+                bind_widgets();;
             },
             error: function (xhr, status, error) {
                 refresh_bean_list("ducs");
                 //TODO check the type of error here,
                 //only in csae of validation errors we should update the html
                 $("#ducs_inline_editor").html(xhr.responseText);
-                bind_duc_tab_widgets();
+                bind_widgets();;
             }
         });
     });
@@ -269,7 +275,7 @@ $(document).ready(function () {
             type: "get",
             success: function(result){
                 $("#ducs_inline_editor").html(result);
-                bind_duc_tab_widgets();
+                bind_widgets();
             },
             error: function () {
                 alert('An error occurred while loading the selected data use condition group');
@@ -278,6 +284,7 @@ $(document).ready(function () {
     });
 
 
-    bind_study_tab_widgets();
+
     bind_duc_tab_widgets();
+    bind_widgets();
 });

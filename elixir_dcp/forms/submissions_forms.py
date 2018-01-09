@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField, SelectMultipleField, \
     FormField, FieldList, IntegerField
 from wtforms.fields.html5 import EmailField
-from wtforms.validators import DataRequired, Email, Optional
+from wtforms.validators import DataRequired, Email, Optional, Regexp, Length
 from wtforms.widgets import HiddenInput
 
 from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSizeCategory, DeIdentificationTypeEnum, \
@@ -88,10 +88,17 @@ class SubmissionForm(FlaskForm):
 
     id = HiddenField('Submission_Id')
     ref_name = StringField('Reference No')
-    title = StringField('Title', validators=[DataRequired()])
-    created_on = DateField('Created On', format='%d/%m/%Y')
-    current_status = SelectField('Status', choices=SubmissionStatusEnum.choices())
+    title = StringField('Title', validators=[DataRequired(),
+                                             Regexp('\w+', message="Title must contain only letters numbers or underscore"),
+                                             Length(min=15, max=75, message="Title must be between 5 & 25 characters")])
 
+    created_on = DateField('Created On', format='%d/%m/%Y')
+
+    """
+   We only have the Optional Validator here because in our submission editor we have the
+   status select field disabled, this results in value None to be submitted
+    """
+    current_status = SelectField('Current Status', validators=[Optional()], choices=SubmissionStatusEnum.choices())
 
 
     def child_contact_form(self, *args, **kwargs):

@@ -13,15 +13,17 @@ def app_authorization(**options):
                 return func(*args, **kwargs)
             elif current_app.login_manager._login_disabled:
                 return func(*args, **kwargs)
-            elif not current_user.is_authenticated:
-                return current_app.login_manager.unauthorized()
-            elif not current_user.has_role_from(options.get('allowed_roles')):
+            elif  not current_user.has_role_from(options.get('allowed_roles')):
                 return render_template('error.html', message="Error 403 - Unauthorized", show_home_link=True), 403
             return func(*args, **kwargs)
 
         return decorated_view
 
     return wrapper
+
+#not current_user.is_authenticated:
+#    return current_app.login_manager.unauthorized()
+#elif
 
 
 from . import errors

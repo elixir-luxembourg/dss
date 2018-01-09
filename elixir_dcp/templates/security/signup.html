@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% from "forms_macros.html" import render_field_with_errors %}
+{% block content %}
+    <div class="container">
+        <h1 class="text-center">Register</h1>
+        <form class="form-horizontal" action="{{ url_for('sign_up') }}" method="POST">
+            {{ signup_form.hidden_tag() }}
+            {{ render_field_with_errors(signup_form.email) }}
+            {{ render_field_with_errors(signup_form.first_name) }}
+            {{ render_field_with_errors(signup_form.last_name) }}
+           <!-- {{ signup_form.recaptcha }} -->
+
+            <button class="col-md-2 col-md-offset-5" >Sign Up</button>
+        </form>
+    </div>
+
+{% endblock %}
+

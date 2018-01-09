@@ -3,13 +3,14 @@ from datetime import datetime
 
 from flask_assets import ManageAssets
 from flask_migrate import MigrateCommand
-from flask_script import Manager, Shell
+from flask_script import Manager, Shell, Server
 from elixir_dcp import app, db
 from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, SubmissionContact, \
     SubmissionStatusEnum, GA4GHCodes, SubmissionUseConditionGroup
 from elixir_dcp.models.security import User, Role
 
 manager = Manager(app)
+manager.add_command("runserver", Server(host="127.0.0.1", port=5000))
 manager.add_command('db', MigrateCommand)
 
 
@@ -85,14 +86,15 @@ def init_db():
     db.session.add(sub2)
     db.session.commit()
 
-    db.session.add(User(first_name='P\u0131nar', last_name='Alper', elixir_reg_id='pinar.alper@uni.lu',
-                        phone_code='352', phone_no='123456789', active_user=True))
-    db.session.add(User(first_name='Alice', last_name='White', elixir_reg_id='alice@kcl.ac.uk',
-                        phone_code='44', phone_no='123456789', active_user=True))
+    db.session.add(User(first_name='P\u0131nar', last_name='Alper', elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org', email='pinar.alper@uni.lu',
+                        phone_icc='352', phone_no='123456789', active_user=True))
+    #db.session.add(User(first_name='Alice', last_name='White', elixir_reg_id='alice@kcl.ac.uk',
+    #                    phone_icc='44', phone_no='123456789', active_user=True))
     db.session.commit()
 
-    User.query.filter_by(elixir_reg_id='pinar.alper@uni.lu').one_or_none().assign_role('admin')
-    User.query.filter_by(elixir_reg_id='alice@kcl.ac.uk').one_or_none().assign_role('data_provider')
+    User.query.filter_by(elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org').one_or_none().assign_role('admin')
+    User.query.filter_by(elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org').one_or_none().assign_role('data_provider')
+    #User.query.filter_by(elixir_reg_id='alice@kcl.ac.uk').one_or_none().assign_role('data_provider')
     db.session.commit()
 
     return

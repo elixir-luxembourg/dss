@@ -1,8 +1,8 @@
 # coding=utf-8
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, StudyDishForm, UseConditionGroupForm
-from wtforms import PasswordField, HiddenField, BooleanField
+from wtforms import PasswordField, HiddenField, BooleanField, StringField
 from wtforms.fields.html5 import EmailField
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm#, RecaptchaField
 from flask import redirect, request
 from urllib.parse import urlparse, urljoin
 from wtforms.validators import Email, DataRequired
@@ -46,6 +46,15 @@ class LoginForm(RedirectForm):
     password = PasswordField('Password', [DataRequired()],
                              render_kw={"placeholder": "Password"})
     remember = BooleanField('Remember me')
+
+
+class SignupForm(FlaskForm):
+    elixir_sub_id = HiddenField('Elixir Sub ID')
+    first_name = StringField('First Name')
+    last_name = StringField('Last Name')
+    email = EmailField('Username', [DataRequired(), Email("This field requires the email address which is your ELIXIR AAI identity.")],
+                               render_kw={"placeholder": "email@uni.lu"})
+    #recaptcha = RecaptchaField()
 
 __all__ = [SubmissionForm, ContactForm, AttachmentForm, LoginForm, StudyDishForm, UseConditionGroupForm]
 

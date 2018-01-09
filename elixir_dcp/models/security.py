@@ -6,16 +6,16 @@ from elixir_dcp.exceptions import RecordNotExistsException
 
 class User(db.Model):
     __tablename__ = 'users'
-
-    active_user = db.Column(db.Boolean, nullable=False)
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String)     # ['Mr', 'Ms', 'Prof', 'Dr']
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
-    elixir_reg_id = db.Column(db.String, unique=True)
-    assigned_roles = db.relationship('Role', secondary='users_roles')
-    phone_code = db.Column(db.String)
+    elixir_sub_id = db.Column(db.String, nullable=False, unique=True)
+    email = db.Column(db.String, unique=True)
+    phone_icc = db.Column(db.String)
     phone_no = db.Column(db.String)
+    assigned_roles = db.relationship('Role', secondary='users_roles')
+
+    active_user = db.Column(db.Boolean, nullable=False)
 
     def is_active(self):
         return self.active_user
@@ -31,6 +31,14 @@ class User(db.Model):
             return text_type(self.id)
         except AttributeError:
             raise NotImplementedError('No `id` attribute - override `get_id`')
+
+
+    def roles_name_list(self):
+        result = []
+        for role in self.assigned_roles:
+            result.append(role.name)
+        return result
+
 
     def has_role_from(self, role_list):
         if self.assigned_roles is None:
@@ -57,6 +65,9 @@ class User(db.Model):
                 db.session.commit()
         else:
             raise RecordNotExistsException("Role with specified name does not exist.")
+
+    def is_admin(self):
+        return self.has_role_from(['admin'])
 
 
 class Role(db.Model):

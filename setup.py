@@ -10,7 +10,7 @@ requirements = [
     'Flask', 'Flask-Assets', 'Flask-SQLAlchemy', 'Flask-Script', 'Jinja2', 'SQLAlchemy', 'Werkzeug', 'closure',
     'cssmin', 'webassets', 'Flask-Testing', 'requests',
     'Flask-Cache',
-    'Flask-Login', 'Flask-WTF', 'Flask-Migrate',
+    'Flask-Login', 'Flask-WTF', 'Flask-Migrate', 'flask-oidc',
     'sqlalchemy-utils', 'Flask-Security', 'Flask-Mail', 'Flask-Babel'
 ]
 
