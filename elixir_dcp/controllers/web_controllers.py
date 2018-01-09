@@ -5,7 +5,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
-from elixir_dcp.models.submission import create_sub, delete_sub, Submission, SubmissionAccess, SubmissionAttachment, \
+from elixir_dcp.models.submission import create_sub, delete_sub, share_sub, Submission, SubmissionAccess, SubmissionAttachment, \
     SubmissionContact, SubmissionStatusEnum, SubmissionStudyDish, SubmissionUseConditionGroup
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
@@ -15,12 +15,13 @@ import shutil
 from elixir_dcp import app, db, oidc
 from werkzeug.utils import secure_filename
 from . import app_authorization
-import httplib2
+
 
 
 __author__ = 'Valentin Grouès, Pinar Alper'
 
 @app.route('/', methods=['GET'])
+@login_required
 def home():
     return render_template('home.html')
 
@@ -28,104 +29,94 @@ def home():
 @app.route("/logout")
 @login_required
 def logout():
-
+    logout_user()
     flash('You have logged out of ELIXIR DCP.', 'success')
     return render_template('home.html')
 
 
-@app.route('/login/<int:contact_id>', methods=['GET', 'POST'])
-@app.route('/login', methods=['GET'])
+@app.route('/oidc_login', methods=['GET', 'POST'])
 @oidc.require_login
-def login():
+def oidc_login():
 
-    #variable=foo
+    app.logger.info('Debug in oidc_login')
+    app.logger.info(g.oidc_id_token)
+    if not current_user.is_anonymous:
+        return redirect(url_for('home'))
+    info = oidc.user_getinfo(['name', 'email', 'sub', 'bona_fide_status'])
+    app.logger.info("User Info:" + info.__str__())
 
-    """return oidc.redirect_to_auth_server(request.url)
+    elixir_sub_id = oidc.user_getfield("sub")
+    if elixir_sub_id is None:
+        flash('AAI Authentication failed.')
+        return redirect(url_for('home'))
 
-    info = oidc.user_getinfo(['preferred_username', 'email', 'sub', 'bona_fide_status'])
     # We need to figure out why attributes other than sub are None after the initial authentication
+    # elixir_oidc_email = oidc.user_getfield("email")
+    existing_user = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
 
-    app.logger.info(info)
+    if not existing_user:
+        name_surname = get_names_from_oidc(info.get("name"))
+        new_user = User(elixir_sub_id=info.get("sub"), first_name=name_surname[0], last_name=name_surname[1], email=info.get('email'))
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user, remember=True)
+    else:
+        login_user(existing_user, remember=True)
 
-    #from oauth2client.client import OAuth2Credentials
-    #credentials = OAuth2Credentials.from_json(oidc.credentials_store[info.get('sub')])
-    #app.logger.info(credentials)
-    
-    
-    
-        return render_template('/security/oidc.html',
-                           sub=oidc.user_getfield("sub"),
-                           preferred_username=oidc.user_getfield("preferred_username"),
-                           email=oidc.user_getfield("email"),
-                           bona_fide_status=oidc.user_getfield("bona_fide_status",),
-                           groupNames=oidc.user_getfield("groupNames"),
-                           token=None)
-   """
+    return redirect(url_for('home'))
 
+#return render_template('/security/oidc.html',
+#                       sub=oidc.user_getfield("sub"),
+#                       preferred_username=oidc.user_getfield("preferred_username"),
+#                       email=oidc.user_getfield("email"),
+#                       bona_fide_status=oidc.user_getfield("bona_fide_status"),
+#                       groupNames=oidc.user_getfield("groupNames"),
+#                       token=None)
 
-
-def old_login():
-    form = forms.LoginForm()
-    if form.validate_on_submit():
-        elixir_reg_id = form.elixir_reg_id.data
-        password = form.password.data
-        try:
-            authentication = app.config['authentication']
-            if authentication.authenticate_user(elixir_reg_id, password):
-                user = User.query.filter_by(elixir_reg_id=elixir_reg_id, active_user=True).one_or_none()
-                if user is None:
-                    form.username.errors.append('User not found!')
-                else:
-                    login_user(user, remember=False)
-                    flash('Logged in successfully.', 'success')
-                    return form.redirect()
-            else:
-                message = 'Wrong username / password combination!'
-                form.elixir_reg_id.errors.append(message)
-                form.password.errors.append(message)
-        except exceptions.AuthenticationException as e:
-            flash(e, 'error')
-
-    return render_template('security/login_user.html', login_user_form=form)
+#return redirect(url_for('home'))
+#next = flask.request.args.get('next')
+# is_safe_url should check if the url is safe for redirects.
+# See http://flask.pocoo.org/snippets/62/ for an example.
+#if not is_safe_url(next):
+#return flask.abort(400)
 
 
-@app.route('/signup', methods=['GET', 'POST'])
-@oidc.require_login
-def sign_up():
-    if request.method == 'GET':
-        info = oidc.user_getinfo(['name', 'email', 'sub', 'bona_fide_status'])
+"""return oidc.redirect_to_auth_server(request.url)
 
-        # We need to figure out why attributes other than sub are None after the initial authentication
-        # elixir_oidc_email = oidc.user_getfield("email", g.oidc_id_token)
-        existing_user = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
-        ## Kullanici aktif mi degil mi diye kontrol et
-        if existing_user is None:
-            name_surname = get_names_from_oidc(info.get("name"))
-            new_user = User(elixir_sub_id=info.get("sub"), first_name=name_surname[0], last_name=name_surname[1], email=info.get('email'))
-            form = forms.SignupForm(obj=new_user)
+info = oidc.user_getinfo(['preferred_username', 'email', 'sub', 'bona_fide_status'])
+# We need to figure out why attributes other than sub are None after the initial authentication
 
-            return render_template('/security/signup.html', register_new=True)
-        else:
-            form = forms.SignupForm(obj=existing_user)
-            return render_template('/security/signup.html', register_new=False)
-    elif request.method == 'POST':
-        form = forms.SignupForm(request.form)
-        if form.validate_on_submit():
-            # update user info in DB
-            flash('Your profile  information has been recorded within ELIXIR-LU. You may now login', 'success')
-            return form.redirect()
-        return render_template('security/login_user.html', signup_form=form)
+app.logger.info(info)
+
+#from oauth2client.client import OAuth2Credentials
+#credentials = OAuth2Credentials.from_json(oidc.credentials_store[info.get('sub')])
+#app.logger.info(credentials)
+
+
+
+    return render_template('/security/oidc.html',
+                       sub=oidc.user_getfield("sub"),
+                       preferred_username=oidc.user_getfield("preferred_username"),
+                       email=oidc.user_getfield("email"),
+                       bona_fide_status=oidc.user_getfield("bona_fide_status",),
+                       groupNames=oidc.user_getfield("groupNames"),
+                       token=None)
+"""
+
+
+
 
 def get_names_from_oidc(oidc_name):
     result = ['', '']
 
     if oidc_name is not None:
-         if " " in oidc_name:
-             name_list = oidc_name.split(" ")
-             result[0] = name_list[0]
-             if len(name_list) > 1:
-                 result[1] = name_list[1]
+        if " " in oidc_name:
+            name_list = oidc_name.split(" ")
+            result[0] = name_list[0]
+            if len(name_list) > 1:
+                result[1] = name_list[1]
     return result
+
 @login_manager.user_loader
 def load_user(user_id):
     app.logger.info('INFO: Load User with ID: %s', user_id)
@@ -139,29 +130,36 @@ def load_user(user_id):
 """------------------------------------"""
 """Endpoints for managing  Submissions."""
 """------------------------------------"""
+@app_authorization(allowed_roles=['admin'])
+@app.route('/share/submission/<int:sub_id>', methods=['POST'])
+def share_submission(sub_id):
+
+    submission_rec = Submission.query.get_or_404(sub_id)
+    #request.data
+    share_sub(submission_rec)
+    return redirect(url_for('list_submissions'))
+
+@app_authorization(allowed_roles=['admin'])
+@app.route('/submission/<int:sub_id>', methods=['DELETE'])
+def delete_submission(sub_id):
+    try:
+        delete_sub(sub_id)
+        app.logger.info('INFO: Deleted submission SUB-ID: %s', sub_id)
+        flash("Submission deleted!", "info")
+        return "", 204
+    except exceptions.RecordLifecycleException as e:
+        app.logger.error('ERROR %s', e)
+        flash("Unable to delete submission", 'error')
+        return "",400
 
 
-#@app_authorization(allowed_roles=['admin'])
-@app.route('/api/submission/<int:sub_id>', methods=['POST', 'DELETE'])
-def api_submission(sub_id):
-    if request.method == 'DELETE':
-        try:
-            delete_sub(sub_id)
-            app.logger.info('INFO: Deleted submission SUB-ID: %s', sub_id)
-            flash("Submission deleted!", "info")
-        except exceptions.RecordLifecycleException as e:
-            app.logger.error('ERROR %s', e)
-            flash("Unable to delete submission", 'error')
-        redirect(url_for('list_submissions'))
-    elif request.method == 'POST':
-        app.logger.info('SOme custom command targeted for a submission')
-        redirect(url_for('list_submissions'))
-
-
+@app_authorization(allowed_roles=['admin'])
+@app.route('/archive/submission/<int:sub_id>', methods=['GET'])
+def archive_submission(sub_id):
+    pass
 
 @app.route('/submissions', methods=['GET'])
-#@oidc.require_login
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def list_submissions():
     """
     List all submissions
@@ -173,7 +171,7 @@ def list_submissions():
 
 @app.route('/my_submissions', methods=['GET'])
 @login_required
-@app_authorization(allowed_roles=['data_provider')
+@app_authorization(allowed_roles=['data_provider'])
 def list_my_submissions():
     """
     List the submissions that have been shared with the LOGGED IN  user
@@ -190,7 +188,7 @@ def list_my_submissions():
 
 
 @app.route('/submission/<int:sub_id>', methods=['GET'])
-#@app_authorization(allowed_roles=['admin', 'provider'])
+#@app_authorization(allowed_roles=['admin', 'data_provider'])
 def get_submission(sub_id):
     #
     # We need to check here whether the user in the provider role has access to this submission
@@ -300,7 +298,7 @@ def delete_submission_contact(contact_id):
 
 
 @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
-#@app_authorization(allowed_roles=['admin', 'provider'])
+#@app_authorization(allowed_roles=['admin', 'data_provider'])
 def list_submission_attachments(sub_id):
     attachments = SubmissionAttachment.query.filter_by(submission_id=sub_id)
     return render_template('submission/_attachment_columns.html', attachments=attachments)
@@ -313,7 +311,7 @@ def is_allowed_type(filename):
 
 
 @app.route('/submission_attachment', methods=['POST'])
-#@app_authorization(allowed_roles=['admin', 'provider'])
+#@app_authorization(allowed_roles=['admin', 'data_provider'])
 def add_submission_attachment():
     form = forms.AttachmentForm(request.form)
     file_validation = True

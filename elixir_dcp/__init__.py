@@ -44,7 +44,7 @@ def create_application():
 app = create_application()
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = "login"
+login_manager.login_view = "oidc_login"
 login_manager.login_message_category = "error"
 
 csrf = CSRFProtect()

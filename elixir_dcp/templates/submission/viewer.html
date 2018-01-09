@@ -7,8 +7,7 @@
     </div>
 
     <div class="btn-group">
-        <button id="submission-delete" type="button" class="btn btn-primary" data-url="{{ url_for('api_submission', sub_id=submission.id) }}">Delete</button>
-        <button id="submission-share" type="button" class="btn btn-primary" data-url="{{ url_for('api_submission', sub_id=submission.id) }}">Share</button>
+        <button id="submission-archive" type="button" class="btn btn-primary" data-url="{{ url_for('archive_submission', sub_id=submission.id) }}">Archive</button>
     </div>
 
 {% endif %}
