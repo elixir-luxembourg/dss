@@ -57,11 +57,18 @@ $(document).ready(function () {
     });
 
     $("#submission_list_table").on('click', 'a[name="button_submission_listing_share"]', function () {
+        var endpoint = $(this).attr('data-url');
+
         $.ajax({
-            url: $(this).attr('data-url'),
+            url: endpoint,
             type: "get",
             success: function (result) {
                 $("#submission_share_modal_body").html(result);
+                $('.elx-select').select2({
+                    placeholder: "Select a User",
+                    allowClear: true,
+                    width: '192px'
+                });
                 $("#submission_share_modal").modal('show');
             },
             error: function () {

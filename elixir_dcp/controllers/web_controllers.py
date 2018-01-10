@@ -5,10 +5,11 @@ from flask_login import current_user, login_user, login_required, logout_user
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
-from elixir_dcp.models.submission import create_sub, delete_sub, share_sub, Submission, SubmissionAccess, SubmissionAttachment, \
+from elixir_dcp.models.submission import create_sub, delete_sub, share_sub, Submission, SubmissionAttachment, \
     SubmissionContact, SubmissionStatusEnum, SubmissionStudyDish, SubmissionUseConditionGroup
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
+from sqlalchemy import and_, or_
 import os
 import uuid
 import shutil
@@ -29,7 +30,12 @@ def home():
 @app.route("/logout")
 @login_required
 def logout():
+    #Flask Login Logout
     logout_user()
+
+    # The below OIDC logout does not work!
+    #TODO: Find a way to soign out of AAI
+    oidc.logout()
     flash('You have logged out of ELIXIR DCP.', 'success')
     return render_template('home.html')
 
@@ -131,13 +137,16 @@ def load_user(user_id):
 """Endpoints for managing  Submissions."""
 """------------------------------------"""
 @app_authorization(allowed_roles=['admin'])
-@app.route('/share/submission/<int:sub_id>', methods=['POST'])
+@app.route('/share/submission/<int:sub_id>', methods=['GET','POST'])
 def share_submission(sub_id):
-
-    submission_rec = Submission.query.get_or_404(sub_id)
-    #request.data
-    share_sub(submission_rec)
-    return redirect(url_for('list_submissions'))
+    if request.method == 'GET':
+        submission_rec = Submission.query.get_or_404(sub_id)
+        access_form = forms.SubmissionAccessForm(obj=submission_rec)
+        return render_template('submission/_submission_share.html', submsn_access_form=access_form)
+    elif request.method == 'POST':
+        #do stuff
+        #share_sub(submission_rec)
+        return "", 204
 
 @app_authorization(allowed_roles=['admin'])
 @app.route('/submission/<int:sub_id>', methods=['DELETE'])
@@ -158,6 +167,11 @@ def delete_submission(sub_id):
 def archive_submission(sub_id):
     pass
 
+
+"""------------------------------------"""
+"""------------------------------------"""
+"""------------------------------------"""
+
 @app.route('/submissions', methods=['GET'])
 @app_authorization(allowed_roles=['admin'])
 def list_submissions():
@@ -174,21 +188,19 @@ def list_submissions():
 @app_authorization(allowed_roles=['data_provider'])
 def list_my_submissions():
     """
-    List the submissions that have been shared with the LOGGED IN  user
+    List the submissions that have been shared with the LOGGED IN  user (with the data provider role)
     """
 
-    my_submissions = db.session.query(User).filter(User.id ==
-                                                   current_user.elixir_reg_id).join(SubmissionAccess,
-                                                                                    SubmissionAccess.user_id ==
-                                                                                    User.id).join(Submission,
-                                                                                                  Submission.id == SubmissionAccess.submission_id).filter(Submission.current_status == SubmissionStatusEnum.in_progress_metadata)
+    my_submissions = db.session.query(Submission).filter(and_(Submission.provider_user_id == current_user.id,
+                                                              or_(Submission.current_status==SubmissionStatusEnum.in_progress_metadata,
+                                                                  Submission.current_status==SubmissionStatusEnum.in_progress_data)))
 
     return render_template('submission/my_submissions.html',
                            my_submissions=my_submissions)
 
 
 @app.route('/submission/<int:sub_id>', methods=['GET'])
-#@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def get_submission(sub_id):
     #
     # We need to check here whether the user in the provider role has access to this submission
@@ -199,7 +211,7 @@ def get_submission(sub_id):
 
 
 @app.route('/submission/create', methods=['POST'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
     submission_rec = create_sub(creation_form.title.data)
@@ -208,7 +220,7 @@ def create_submission():
 
 
 @app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def edit_submission(sub_id):
     app.logger.info('INFO: Edit submission SUB-ID: %s', sub_id)
     if request.method == 'GET':
@@ -238,7 +250,7 @@ def edit_submission(sub_id):
 
 
 @app.route('/submission_contacts/<int:sub_id>', methods=['GET'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def list_submission_contacts(sub_id):
     contacts = SubmissionContact.query.filter_by(submission_id=sub_id)
     return render_template('submission/_contact_columns.html', contacts=contacts)
@@ -246,9 +258,8 @@ def list_submission_contacts(sub_id):
 
 @app.route('/submission_contact/<int:contact_id>', methods=['GET', 'POST'])
 @app.route('/submission_contact', methods=['POST'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def add_edit_submission_contact(contact_id=None):
-
     if contact_id is None:
         mode = 'create'
     else:
@@ -283,7 +294,7 @@ def add_edit_submission_contact(contact_id=None):
 
 
 @app.route('/submission_contact/<int:contact_id>', methods=['DELETE'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def delete_submission_contact(contact_id):
     submission_contact = SubmissionContact.query.get_or_404(contact_id)
     db.session.delete(submission_contact)
@@ -298,7 +309,7 @@ def delete_submission_contact(contact_id):
 
 
 @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
-#@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def list_submission_attachments(sub_id):
     attachments = SubmissionAttachment.query.filter_by(submission_id=sub_id)
     return render_template('submission/_attachment_columns.html', attachments=attachments)
@@ -311,7 +322,7 @@ def is_allowed_type(filename):
 
 
 @app.route('/submission_attachment', methods=['POST'])
-#@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def add_submission_attachment():
     form = forms.AttachmentForm(request.form)
     file_validation = True
@@ -352,7 +363,7 @@ def add_submission_attachment():
 
 
 @app.route('/submission_attachment/<int:attach_id>', methods=['DELETE'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def delete_submission_attachment(attach_id):
     submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
     shutil.rmtree(submission_attachment.server_path)
@@ -368,7 +379,7 @@ def delete_submission_attachment(attach_id):
 
 
 @app.route('/submission_dishes/<int:sub_id>', methods=['GET'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def list_submission_dishes(sub_id):
     dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
     return render_template('submission/_dish_columns.html', dishes=dishes)
@@ -376,7 +387,7 @@ def list_submission_dishes(sub_id):
 
 @app.route('/submission_dish/<int:dish_id>', methods=['GET', 'POST'])
 @app.route('/submission_dish', methods=['POST'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def add_edit_submission_dish(dish_id=None):
     if dish_id is None:
         mode = 'create'
@@ -426,7 +437,7 @@ def delete_submission_dish(dish_id):
 
 
 @app.route('/submission_ducs/<int:sub_id>', methods=['GET'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def list_submission_ducs(sub_id):
     ducs = SubmissionUseConditionGroup.query.filter_by(submission_id=sub_id)
     return render_template('submission/_duc_columns.html', ducs=ducs)
@@ -434,7 +445,7 @@ def list_submission_ducs(sub_id):
 
 @app.route('/submission_duc/<int:duc_id>', methods=['GET', 'POST'])
 @app.route('/submission_duc', methods=['POST'])
-#@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin'])
 def add_edit_submission_duc(duc_id=None):
     mode = "create" if duc_id is None else "edit"
     if request.method == 'GET':

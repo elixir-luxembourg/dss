@@ -6,6 +6,15 @@
     {% assets "submission_listing_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
+    {% assets "select2_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+{% block css %}
+    {{ super() }}
+    {% assets "select2_css" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+    {% endassets %}
 {% endblock %}
 {% block content %}
     <div class="row">
@@ -32,10 +41,16 @@
                                href="{{ url_for('edit_submission',sub_id=submission.id) }}" role="button">
                                 <i class="text-info material-icons">edit</i>
                             </a>
+                            <a name="button_submission_listing_share"
+                               data-url="{{ url_for('share_submission',sub_id=submission.id) }}" role="button">
+                                <i class="text-info material-icons">assignment_ind</i>
+                            </a>
+                            <!--
                             <a name="button_submission_listing_view"
                                data-url="{{ url_for('get_submission',sub_id=submission.id) }}" role="button">
                                 <i class="text-info material-icons">visibility</i>
                             </a>
+                            -->
                             <a name="button_submission_listing_delete"
                                data-url="{{ url_for('delete_submission',sub_id=submission.id) }}" role="button">
                                 <i class="text-info material-icons">delete</i>
@@ -53,7 +68,7 @@
         {% endif %}
 
 
-            <div>
+        <div>
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#submission_create_modal">Add
                 New Submission
             </button>
@@ -83,62 +98,60 @@
                 </div><!-- modal-dialog -->
             </div><!-- modal Add New-->
 
-        <div class="modal fade" id="submission_view_modal" tabindex="-1" role="dialog"
-             aria-labelledby="submission_create_modal">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">View Submission</h4>
-                    </div>
-                    <div class="modal-body">
-
-                        <div id="submission_view_modal_body">
-
-                            <!-- ...... modal content filled in dynamically via ajax -->
-                            <!-- see viewer.html -->
+            <div class="modal fade" id="submission_archive_modal" tabindex="-1" role="dialog"
+                 aria-labelledby="submission_archive_modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Archive Submission</h4>
                         </div>
+                        <div class="modal-body">
 
+                            <div id="submission_view_modal_body">
 
-                        <div id="submission-command-dialog" title="Confirm" class="ui-dialog" style="display:none;">
-                            <!-- Fragment displayed within a JQuery UI Dialog  -->
-                            <p>
-                                You are about to <b id="submission-dialog-text">--</b> this submission!
-                            </p>
-                        </div>
-
-
-                    </div><!-- modal body -->
-                </div><!-- modal-content -->
-            </div><!-- modal-dialog -->
-        </div><!-- Modal used as for Submission Preview-->
-                <div class="modal fade" id="submission_share_modal" tabindex="-1" role="dialog"
-                     aria-labelledby="submission_share_modal">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title">View Submission</h4>
+                                <!-- ...... modal content filled in dynamically via ajax -->
+                                <!-- see _submission_archive.html -->
                             </div>
-                            <div class="modal-body">
-
-                                <div id="submission_share_modal_body">
-
-                                    <!-- ...... modal content filled in dynamically via ajax -->
-                                    <!-- see viewer.html -->
-                                </div>
 
 
-                                <div id="submission-command-dialog" title="Share" class="ui-dialog" style="display:none;">
-                                    <!-- Fragment displayed within a JQuery UI Dialog  -->
-                                    <p>
-                                        You are about to <b id="submission-dialog-text">--</b> this submission!
-                                    </p>
-                                </div>
+                            <div id="submission-command-dialog" title="Confirm" class="ui-dialog" style="display:none;">
+                                <!-- Fragment displayed within a JQuery UI Dialog  -->
+                                <p>
+                                    You are about to <b id="submission-dialog-text">--</b> this submission!
+                                </p>
+                            </div>
 
 
-                            </div><!-- modal body -->
-                        </div><!-- modal-content -->
-                    </div><!-- modal-dialog -->
-                </div><!-- Modal used as for Submission Preview-->
+                        </div><!-- modal body -->
+                    </div><!-- modal-content -->
+                </div><!-- modal-dialog -->
+            </div><!-- Modal used as for Submission Preview prior to Archival-->
+
+
+            <div class="modal fade" id="submission_share_modal" tabindex="-1" role="dialog"
+                 aria-labelledby="submission_share_modal">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Share Submission with Data Provider</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="submission_share_modal_body">
+
+                                <!-- ...... modal content filled in dynamically via ajax -->
+                                <!-- see _submission_share.html -->
+                            </div>
+
+                            <div id="submission-command-dialog" title="Share" class="ui-dialog" style="display:none;">
+                                <!-- Fragment displayed within a JQuery UI Dialog  -->
+                                <p>
+                                    You are about to <b id="submission-dialog-text">--</b> this submission!
+                                </p>
+                            </div>
+                        </div><!-- modal body -->
+                    </div><!-- modal-content -->
+                </div><!-- modal-dialog -->
+            </div><!-- Modal used to share a selected submission with a user-->
         </div>
     </div>
 

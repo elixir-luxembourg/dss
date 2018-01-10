@@ -4,10 +4,9 @@ from wtforms import StringField, HiddenField, BooleanField, TextAreaField, Selec
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Email, Optional, Regexp, Length
 from wtforms.widgets import HiddenInput
-
 from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSizeCategory, DeIdentificationTypeEnum, \
     SubmissionStatusEnum, GA4GHCodes, DUCCodeInstance
-
+from elixir_dcp.models.security import User
 
 class AttachmentForm(FlaskForm):
     """
@@ -80,6 +79,21 @@ class UseConditionGroupForm(FlaskForm):
             # TODO read from db using kwargs['sub_id']
 
 
+class SubmissionAccessForm(FlaskForm):
+    """
+    Form for sharing a submission with a data provider user.
+    """
+
+    id = HiddenField('Submission_Id')
+    ref_name = StringField('Submission Reference No')
+    title = StringField('Submission Title')
+    provider_user_id = SelectField('Shared With', validators=[DataRequired()])
+
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+        users = [(usr.id, usr.first_name + usr.last_name) for usr in User.query.all()]
+        self.provider_user_id.choices = [("", "")] +users
+
 
 class SubmissionForm(FlaskForm):
     """
@@ -91,7 +105,6 @@ class SubmissionForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(),
                                              Regexp('\w+', message="Title must contain only letters numbers or underscore"),
                                              Length(min=15, max=75, message="Title must be between 5 & 25 characters")])
-
     created_on = DateField('Created On', format='%d/%m/%Y')
 
     """

@@ -4,7 +4,7 @@ from elixir_dcp import db
 from elixir_dcp.exceptions import RecordLifecycleException
 import enum
 from datetime import datetime
-
+from .security import User
 
 class ContactType(db.Model):
     __tablename__ = 'contact_types'
@@ -94,6 +94,7 @@ class Submission(db.Model):
     ref_name = db.Column(db.String(45), index=True, unique=True, nullable=False, default=uniqid())
     title = db.Column(db.String(75))
     created_on = db.Column(db.Date, nullable=False)
+    provider_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
     contacts = db.relationship("SubmissionContact", cascade="all, delete-orphan")
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
@@ -168,19 +169,9 @@ class SubmissionStudyDish(db.Model):
             return "NO"
 
 
-class SubmissionAccess(db.Model):
-
-    __tablename__ = 'submission_access'
-
-    id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-    access_granted_on = db.Column(db.DateTime, nullable=False)
-
-
 def delete_sub(submission_id):
-    submission = Submission.query.get_or_404(submission_id)
-    if submission.current_status == SubmissionStatusEnum.draft:
+    submission = Submission.query.one_or_none()
+    if (submission is not None) & (submission.current_status == SubmissionStatusEnum.draft):
         db.session.delete(submission)
         db.session.commit()
         return True
@@ -190,30 +181,23 @@ def delete_sub(submission_id):
 
 def share_sub(submission_id, user_id):
 
-    submission = Submission.query.get_or_404(submission_id)
-    if submission.current_status is not (SubmissionStatusEnum.completed or SubmissionStatusEnum.archived):
+    submission = Submission.query.filter_by(id=submission_id).one_or_none()
 
-        existing_share = SubmissionAccess.query.filter_by(submission_id=submission_id, user_id=user_id). \
-            one_or_none()
+    if ((submission is not None)
+            & (submission.current_status is not SubmissionStatusEnum.completed)
+            & (submission.current_status is not SubmissionStatusEnum.archived)):
 
-        if existing_share is not None:
-            existing_share.user_id = user_id
-            existing_share.access_granted_on = datetime.now()
-            db.session.add(existing_share)
-            db.session.commit()
-        else:
-            share = SubmissionAccess()
-            share.submission_id = submission_id
-            share.user_id = user_id
-            share.access_granted_on = datetime.now()
-            db.session.add(share)
-            db.session.commit()
+        provider_user = User.query.get_or_404(user_id)
+        submission.provider_user_id = provider_user.id
+        db.session.add(submission)
+        db.session.commit()
+
     else:
         raise RecordLifecycleException("Submission cannot be shared")
 
 
 def steer_sub(submission_id):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = Submission.query.filter_by(id=submission_id).one_or_none()
     new_state = submission.current_status.next_state()
 
     if new_state is not None:

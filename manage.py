@@ -88,8 +88,8 @@ def init_db():
 
     db.session.add(User(first_name='P\u0131nar', last_name='Alper', elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org', email='pinar.alper@uni.lu',
                         phone_icc='352', phone_no='123456789', active_user=True))
-    #db.session.add(User(first_name='Alice', last_name='White', elixir_reg_id='alice@kcl.ac.uk',
-    #                    phone_icc='44', phone_no='123456789', active_user=True))
+    db.session.add(User(first_name='Alice', last_name='White', elixir_sub_id='12345678eece42e2108f6c3c146745b41db21234@elixir-europe.org', email='alice@kcl.ac.uk',
+                        phone_icc='44', phone_no='123456789', active_user=True))
     db.session.commit()
 
     User.query.filter_by(elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org').one_or_none().assign_role('admin')
