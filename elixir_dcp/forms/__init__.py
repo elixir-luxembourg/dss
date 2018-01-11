@@ -5,7 +5,7 @@ from wtforms.fields.html5 import EmailField
 from flask_wtf import FlaskForm#, RecaptchaField
 from flask import redirect, request
 from urllib.parse import urlparse, urljoin
-from wtforms.validators import Email, DataRequired
+from wtforms.validators import Email, DataRequired, Length, Regexp
 
 __author__ = 'Valentin Grouès'
 
@@ -40,21 +40,12 @@ class RedirectForm(FlaskForm):
         return redirect(target or '/')
 
 
-class LoginForm(RedirectForm):
-    elixir_reg_id = EmailField('Username', [DataRequired(), Email("This field requires the email address which is your ELIXIR AAI identity.")],
-                          render_kw={"placeholder": "email@uni.lu"})
-    password = PasswordField('Password', [DataRequired()],
-                             render_kw={"placeholder": "Password"})
-    remember = BooleanField('Remember me')
-
-
-
 class SignupForm(FlaskForm):
     elixir_sub_id = HiddenField('Elixir Sub ID')
-    first_name = StringField('First Name')
-    last_name = StringField('Last Name')
-    email = EmailField('Username', [DataRequired(), Email("This field requires the email address which is your ELIXIR AAI identity.")],
-                               render_kw={"placeholder": "email@uni.lu"})
+    first_name = StringField('First Name', [DataRequired(), Regexp('\w+', message="Names can contain only letters numbers or underscore"), Length(min=2, max=20, message="First name must be between 2 & 20 characters")])
+    last_name = StringField('Last Name', [DataRequired(), Regexp('\w+', message="Names can contain only letters numbers or underscore"), Length(min=2, max=20, message="Last name must be between 2 & 20 characters")])
+    email = EmailField('E-Mail', [DataRequired()],
+                               render_kw={"placeholder": "Email address associated ELIXIR AAI identity"})
     #recaptcha = RecaptchaField()
 
 __all__ = [SubmissionForm, ContactForm, AttachmentForm, LoginForm, StudyDishForm, UseConditionGroupForm, SubmissionAccessForm]

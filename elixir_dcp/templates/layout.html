@@ -40,12 +40,12 @@
                     {% include 'header.html' %}
                 {% endwith %}
             {% endblock %}
-            {{ macros.show_flashes() }}
             {% block navbar %}
                 {% with active_page=active_page %}
                     {% include 'navbar.html' %}
                 {% endwith %}
             {% endblock %}
+            {{ macros.show_flashes() }}
             {% block content %}{% endblock %}
         </div>
     {% endblock %}

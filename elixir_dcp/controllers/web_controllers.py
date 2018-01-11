@@ -22,6 +22,7 @@ from . import app_authorization
 __author__ = 'Valentin Grouès, Pinar Alper'
 
 @app.route('/', methods=['GET'])
+@oidc.require_login
 @login_required
 def home():
     return render_template('home.html')
@@ -34,7 +35,7 @@ def logout():
     logout_user()
 
     # The below OIDC logout does not work!
-    #TODO: Find a way to soign out of AAI
+    #TODO: Find a way to sign out of AAI
     oidc.logout()
     flash('You have logged out of ELIXIR DCP.', 'success')
     return render_template('home.html')
@@ -46,30 +47,44 @@ def oidc_login():
 
     app.logger.info('Debug in oidc_login')
     app.logger.info(g.oidc_id_token)
-    if not current_user.is_anonymous:
-        return redirect(url_for('home'))
-    info = oidc.user_getinfo(['name', 'email', 'sub', 'bona_fide_status'])
-    app.logger.info("User Info:" + info.__str__())
+    app.logger.info("User Info:" + oidc.user_getinfo(['name', 'email', 'sub', 'bona_fide_status']).__str__())
+    # TODO  We need to figure out why attributes other than sub are None after the initial authentication
+    # Such as:  elixir_oidc_email = oidc.user_getfield("email")
 
-    elixir_sub_id = oidc.user_getfield("sub")
-    if elixir_sub_id is None:
-        flash('AAI Authentication failed.')
-        return redirect(url_for('home'))
+    if request.method == 'GET':
+        existing_user_record = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
+        if (existing_user_record is not None) & current_user.is_anonymous:
+            login_user(existing_user_record, remember=True)
+            #next = flask.request.args.get('next')
+            # is_safe_url should check if the url is safe for redirects.
+            # See http://flask.pocoo.org/snippets/62/ for an example.
+            #if not is_safe_url(next):
+            #return flask.abort(400)
 
-    # We need to figure out why attributes other than sub are None after the initial authentication
-    # elixir_oidc_email = oidc.user_getfield("email")
-    existing_user = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
+            return redirect(url_for('home'))
+        else:
+            empty_form = forms.SignupForm(elixir_sub_id=oidc.user_getfield("sub"))
+            return render_template('security/signup.html', signup_form=empty_form)
+    elif request.method == 'POST':
+        posted_form = forms.SignupForm(request.form)
+        if posted_form.validate_on_submit():
+            new_user_record = User(elixir_sub_id=posted_form.elixir_sub_id.data,
+                            first_name=posted_form.first_name.data,
+                            last_name=posted_form.last_name.data,
+                            email=posted_form.email.data,
+                            active_user=True)
+            db.session.add(new_user_record)
+            db.session.commit()
+            User.query.filter_by(elixir_sub_id=posted_form.elixir_sub_id.data).one_or_none().assign_role('data_provider')
+            login_user(new_user_record, remember=True)
+            flash('You have been signed up to the ELIXIR-LU Data Submission system.', 'info')
+            return redirect(url_for('home'))
+        else:
+            flash("Please check the validity of your input in highlighted places", "error")
+            return render_template('submission/submission.html', signup_form=posted_form)
 
-    if not existing_user:
-        name_surname = get_names_from_oidc(info.get("name"))
-        new_user = User(elixir_sub_id=info.get("sub"), first_name=name_surname[0], last_name=name_surname[1], email=info.get('email'))
-        db.session.add(new_user)
-        db.session.commit()
-        login_user(new_user, remember=True)
-    else:
-        login_user(existing_user, remember=True)
 
-    return redirect(url_for('home'))
+
 
 #return render_template('/security/oidc.html',
 #                       sub=oidc.user_getfield("sub"),
@@ -80,11 +95,6 @@ def oidc_login():
 #                       token=None)
 
 #return redirect(url_for('home'))
-#next = flask.request.args.get('next')
-# is_safe_url should check if the url is safe for redirects.
-# See http://flask.pocoo.org/snippets/62/ for an example.
-#if not is_safe_url(next):
-#return flask.abort(400)
 
 
 """return oidc.redirect_to_auth_server(request.url)
@@ -144,9 +154,20 @@ def share_submission(sub_id):
         access_form = forms.SubmissionAccessForm(obj=submission_rec)
         return render_template('submission/_submission_share.html', submsn_access_form=access_form)
     elif request.method == 'POST':
-        #do stuff
-        #share_sub(submission_rec)
-        return "", 204
+        posted_form = forms.SubmissionAccessForm(request.form)
+        if posted_form.validate_on_submit():
+            try:
+                shared_sub = share_sub(posted_form.id.data, posted_form.provider_user_id.data)
+                flash('Submission {} shared with {}'.format(shared_sub.ref_name, shared_sub.provider_user.display_name()), "success")
+                return redirect(url_for('list_submissions'))
+            except exceptions.RecordLifecycleException as e:
+                app.logger.error('ERROR %s', e)
+                flash("The submission is not shareable due to its status", "error")
+                return redirect(url_for('list_submissions'))
+        else:
+            flash("Unable to share submission with the information provided", "error")
+            return redirect(url_for('list_submissions'))
+
 
 @app_authorization(allowed_roles=['admin'])
 @app.route('/submission/<int:sub_id>', methods=['DELETE'])
@@ -154,7 +175,7 @@ def delete_submission(sub_id):
     try:
         delete_sub(sub_id)
         app.logger.info('INFO: Deleted submission SUB-ID: %s', sub_id)
-        flash("Submission deleted!", "info")
+        flash("Submission deleted!", "success")
         return "", 204
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
@@ -215,7 +236,7 @@ def get_submission(sub_id):
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
     submission_rec = create_sub(creation_form.title.data)
-    flash('New submission {} created'.format(submission_rec.ref_name), 'info')
+    flash('New submission {} created'.format(submission_rec.ref_name), 'success')
     return redirect(url_for('list_submissions'))
 
 
@@ -237,7 +258,7 @@ def edit_submission(sub_id):
             #form.populate_obj(submission_rec)
             db.session.add(submission_rec)
             db.session.commit()
-            flash('Submission updated', 'info')
+            flash('Submission updated', 'success')
             return redirect(url_for('list_submissions'))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
@@ -281,7 +302,7 @@ def add_edit_submission_contact(contact_id=None):
             db.session.add(contact_rec)
             db.session.commit()
             msg = "updated" if mode == 'create' else "added"
-            flash("Submission Contact {}.".format(msg), "info")
+            flash("Submission Contact {}.".format(msg), "success")
 
             sid = posted_form.submission_id.data
 
@@ -355,7 +376,7 @@ def add_submission_attachment():
             file.save(os.path.join(path_on_server, secured_file_name))
         db.session.add(attachment)
         db.session.commit()
-        flash("Submission Attachment(s) added", "info")
+        flash("Submission Attachment(s) added", "success")
         sid = form.submission_id.data
         return render_template('submission/_attachment_form.html', attachment_form=forms.AttachmentForm(formdata=None,
                                                                                                         obj=None,
@@ -369,7 +390,7 @@ def delete_submission_attachment(attach_id):
     shutil.rmtree(submission_attachment.server_path)
     db.session.delete(submission_attachment)
     db.session.commit()
-    flash("Submission Attachment deleted", "info")
+    flash("Submission Attachment deleted", "success")
     return "", 204
 
 
@@ -410,7 +431,7 @@ def add_edit_submission_dish(dish_id=None):
             db.session.add(dish_rec)
             db.session.commit()
             msg = "created" if mode == 'create' else "updated"
-            flash("Study {}.".format(msg), "info")
+            flash("Study {}.".format(msg), "success")
 
             sid = posted_form.submission_id.data
 
@@ -427,7 +448,7 @@ def delete_submission_dish(dish_id):
     dish = SubmissionStudyDish.query.get_or_404(dish_id)
     db.session.delete(dish)
     db.session.commit()
-    flash("Study deleted", "info")
+    flash("Study deleted", "success")
     return "", 204
 
 
@@ -464,7 +485,7 @@ def add_edit_submission_duc(duc_id=None):
                 duc_rec.id = None
             db.session.add(duc_rec)
             db.session.commit()
-            flash("Data Use Condition Group {}.".format("created" if mode == 'create' else "updated"), "info")
+            flash("Data Use Condition Group {}.".format("created" if mode == 'create' else "updated"), "success")
 
             sid = posted_form.submission_id.data
 
@@ -481,5 +502,5 @@ def delete_submission_duc(duc_id):
     duc = SubmissionUseConditionGroup.query.get_or_404(duc_id)
     db.session.delete(duc)
     db.session.commit()
-    flash("Use Condition Group deleted", "info")
+    flash("Use Condition Group deleted", "success")
     return "", 204

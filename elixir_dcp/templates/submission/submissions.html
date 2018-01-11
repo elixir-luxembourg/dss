@@ -26,6 +26,7 @@
                     <th>Title</th>
                     <th>Created_On</th>
                     <th>Status</th>
+                    <th>Data Provider</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -36,6 +37,11 @@
                         <td> {{ submission.title }} </td>
                         <td> {{ submission.created_on }} </td>
                         <td> {{ submission.current_status.value }} </td>
+                        {% if submission.provider_user %}
+                            <td> {{ submission.provider_user.display_name() }} </td>
+                        {% else %}
+                            <td>  --- </td>
+                        {% endif %}
                         <td>
                             <a name="button_submission_listing_edit"
                                href="{{ url_for('edit_submission',sub_id=submission.id) }}" role="button">

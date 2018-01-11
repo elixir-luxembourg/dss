@@ -69,6 +69,9 @@ class User(db.Model):
     def is_admin(self):
         return self.has_role_from(['admin'])
 
+    def display_name(self):
+        return self.first_name + " " + self.last_name
+
 
 class Role(db.Model):
     __tablename__ = 'roles'

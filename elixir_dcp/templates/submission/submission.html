@@ -52,7 +52,7 @@
             <div class="row block" id="button-group">
                 <div class="row ">
                     <p class="col-md-offset-1 col-sm-offset-1  col-xs-offset-1 col-xs-5 col-md-5 col-sm-5">
-                        <button class="save btn btn-raised btn-primary" form="form_submission_basics" >SAVE & <br/> RETURN LATER</button>
+                        <button class="save btn btn-raised btn-primary" form="form_submission_basics" >CLOSE & <br/> RETURN LATER</button>
                     </p>
 
                 </div>
@@ -138,7 +138,6 @@
                     </div>
                     <hr size="2px"/>
                     <div id="ducs_inline_editor" data-url="{{ url_for('add_edit_submission_duc') }}">
-                        {% include 'submission/_duc_form.html' %}
                         {% include 'submission/_duc_form.html' %}
                     </div>
                 {% endwith %}

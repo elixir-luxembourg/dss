@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField, SelectMultipleField, \
     FormField, FieldList, IntegerField
 from wtforms.fields.html5 import EmailField
-from wtforms.validators import DataRequired, Email, Optional, Regexp, Length
+from wtforms.validators import DataRequired, Email, Optional, Regexp, Length, NumberRange
 from wtforms.widgets import HiddenInput
 from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSizeCategory, DeIdentificationTypeEnum, \
     SubmissionStatusEnum, GA4GHCodes, DUCCodeInstance
@@ -87,12 +87,11 @@ class SubmissionAccessForm(FlaskForm):
     id = HiddenField('Submission_Id')
     ref_name = StringField('Submission Reference No')
     title = StringField('Submission Title')
-    provider_user_id = SelectField('Shared With', validators=[DataRequired()])
+    provider_user_id = SelectField('Shared With', validators=[DataRequired(), NumberRange(min=1)], coerce=int)
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
-        users = [(usr.id, usr.first_name + usr.last_name) for usr in User.query.all()]
-        self.provider_user_id.choices = [("", "")] +users
+        self.provider_user_id.choices = [(-1, " -- ")] + [(usr.id, usr.display_name()) for usr in User.query.all()]
 
 
 class SubmissionForm(FlaskForm):

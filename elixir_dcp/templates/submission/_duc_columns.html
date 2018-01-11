@@ -5,12 +5,15 @@
     <table style="width:700px"  class="table table-striped table-bordered">
         <thead>
         <tr>
-            <th width="30%">Group Name</th>
+            <th width="15%">Group Name</th>
+            <th width="70%">Use Conditions of This Group</th>
+            <th width="15%">Actions</th>
         </tr>
         </thead>
         {% for duc in ducs %}
             <tr>
                 <td>{{ duc.group_name }}</td>
+                <td>{{ duc.duc_codes_display() }}</td>
                 <td>
                     <a id="submission_duc_listing_delete"
                        data-url="{{ url_for('delete_submission_duc',duc_id=duc.id) }}" role="button">
