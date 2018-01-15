@@ -16,6 +16,19 @@
 {% endmacro %}
 
 
+
+{% macro render_string_field_readonly(field_label, field_data) %}
+    {% set div_col_class = kwargs.pop('div_col_class', "col-md-8") %}
+    <div class="form-group row">
+        <div class="col-md-2 control-label">
+            <p> {{ field_label }}</p>
+        </div>
+        <div class="{{ div_col_class }}">
+            <p> {{ field_data }}</p>
+        </div>
+    </div>
+{% endmacro %}
+
 {% macro render_checkbox_field(field) %}
     <div class="form-group row">
         {{ field.label(class="col-md-2 control-label") }}

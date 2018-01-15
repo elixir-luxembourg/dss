@@ -48,7 +48,7 @@ class SignupForm(FlaskForm):
                                render_kw={"placeholder": "Email address associated ELIXIR AAI identity"})
     #recaptcha = RecaptchaField()
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, LoginForm, StudyDishForm, UseConditionGroupForm, SubmissionAccessForm]
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, UseConditionGroupForm, SubmissionAccessForm]
 
 
 

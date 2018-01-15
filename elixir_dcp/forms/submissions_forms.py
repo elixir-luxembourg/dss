@@ -44,8 +44,15 @@ class ContactForm(FlaskForm):
             self.submission_id.data = kwargs['sub_id']
         self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
 
-
-
+class UploadInfoForm(FlaskForm):
+    """
+    Form for creating records containing name of uplaoded files and their checksum at the client.
+    This information is used by the data steward to check data integrity after receiving files.
+    """
+    id = HiddenField('SubmissionUploadInfo_Id')
+    submission_id = HiddenField('Submission Id')
+    file_name = StringField('Name', validators=[DataRequired()], render_kw={"placeholder": "Only the name of the file without folder information."})
+    md5_checksum_at_provider = StringField('File Checksum', validators=[DataRequired()], render_kw={"placeholder": "32 Characters checksum."})
 
 class UseConditionCodeForm(FlaskForm):
     """
@@ -96,22 +103,15 @@ class SubmissionAccessForm(FlaskForm):
 
 class SubmissionForm(FlaskForm):
     """
-    Form for updating submission header info
+    Form for updating a submission's title and
+     detail info found in releated beans.
     """
 
     id = HiddenField('Submission_Id')
-    ref_name = StringField('Reference No')
+
     title = StringField('Title', validators=[DataRequired(),
                                              Regexp('\w+', message="Title must contain only letters numbers or underscore"),
                                              Length(min=15, max=75, message="Title must be between 5 & 25 characters")])
-    created_on = DateField('Created On', format='%d/%m/%Y')
-
-    """
-   We only have the Optional Validator here because in our submission editor we have the
-   status select field disabled, this results in value None to be submitted
-    """
-    current_status = SelectField('Current Status', validators=[Optional()], choices=SubmissionStatusEnum.choices())
-
 
     def child_contact_form(self, *args, **kwargs):
         return ContactForm(formdata=None, obj=None, sub_id=self.id.data)
@@ -127,6 +127,8 @@ class SubmissionForm(FlaskForm):
     def child_duc_form(self, *args, **kwargs):
         return UseConditionGroupForm(formdata=None, obj=None, sub_id=self.id.data)
 
+    def child_uploadinfo_form(self, *args, **kwargs):
+        return UploadInfoForm(formdata=None, obj=None, sub_id=self.id.data)
 
 class StudyDishForm(FlaskForm):
 

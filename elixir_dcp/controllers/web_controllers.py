@@ -5,8 +5,8 @@ from flask_login import current_user, login_user, login_required, logout_user
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
-from elixir_dcp.models.submission import create_sub, delete_sub, share_sub, Submission, SubmissionAttachment, \
-    SubmissionContact, SubmissionStatusEnum, SubmissionStudyDish, SubmissionUseConditionGroup
+from elixir_dcp.models.submission import create_sub, delete_sub, share_sub, Submission, SubmissionAttachment, steer_sub,\
+    SubmissionContact, SubmissionStatusEnum, SubmissionStudyDish, SubmissionUseConditionGroup, SubmissionUploadInfo
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import and_, or_
@@ -157,7 +157,9 @@ def share_submission(sub_id):
         posted_form = forms.SubmissionAccessForm(request.form)
         if posted_form.validate_on_submit():
             try:
-                shared_sub = share_sub(posted_form.id.data, posted_form.provider_user_id.data)
+                submission_rec = Submission.query.get_or_404(sub_id)
+                provider_user = User.query.get_or_404(posted_form.provider_user_id.data)
+                shared_sub = share_sub(submission_rec, provider_user)
                 flash('Submission {} shared with {}'.format(shared_sub.ref_name, shared_sub.provider_user.display_name()), "success")
                 return redirect(url_for('list_submissions'))
             except exceptions.RecordLifecycleException as e:
@@ -187,6 +189,19 @@ def delete_submission(sub_id):
 @app.route('/archive/submission/<int:sub_id>', methods=['GET'])
 def archive_submission(sub_id):
     pass
+
+
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app.route('/steer/submission/<int:sub_id>', methods=['GET','POST'])
+def steer_submission(sub_id):
+    if request.method == 'GET':
+        submission_rec = Submission.query.get_or_404(sub_id)
+
+        # Check if all info is supplied so that submission can be steered
+        #flash("The submission is not shareable due to its status", "error")
+        steer_sub(submission_rec)
+        return redirect(url_for('edit_submission',  sub_id=submission_rec.id))
+
 
 
 """------------------------------------"""
@@ -241,7 +256,7 @@ def create_submission():
 
 
 @app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def edit_submission(sub_id):
     app.logger.info('INFO: Edit submission SUB-ID: %s', sub_id)
     if request.method == 'GET':
@@ -255,7 +270,6 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.filter_by(id=form.id.data).first()
         if form.validate_on_submit():
             submission_rec.title = form.title.data
-            #form.populate_obj(submission_rec)
             db.session.add(submission_rec)
             db.session.commit()
             flash('Submission updated', 'success')
@@ -265,13 +279,15 @@ def edit_submission(sub_id):
             return render_template('submission/submission.html', submsn_form=form, submission=submission_rec)
 
 
+
+
 """----------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's Contacts."""
 """----------------------------------------------------"""
 
 
 @app.route('/submission_contacts/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def list_submission_contacts(sub_id):
     contacts = SubmissionContact.query.filter_by(submission_id=sub_id)
     return render_template('submission/_contact_columns.html', contacts=contacts)
@@ -279,7 +295,7 @@ def list_submission_contacts(sub_id):
 
 @app.route('/submission_contact/<int:contact_id>', methods=['GET', 'POST'])
 @app.route('/submission_contact', methods=['POST'])
-@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def add_edit_submission_contact(contact_id=None):
     if contact_id is None:
         mode = 'create'
@@ -315,7 +331,7 @@ def add_edit_submission_contact(contact_id=None):
 
 
 @app.route('/submission_contact/<int:contact_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def delete_submission_contact(contact_id):
     submission_contact = SubmissionContact.query.get_or_404(contact_id)
     db.session.delete(submission_contact)
@@ -384,7 +400,7 @@ def add_submission_attachment():
 
 
 @app.route('/submission_attachment/<int:attach_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def delete_submission_attachment(attach_id):
     submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
     shutil.rmtree(submission_attachment.server_path)
@@ -400,7 +416,7 @@ def delete_submission_attachment(attach_id):
 
 
 @app.route('/submission_dishes/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def list_submission_dishes(sub_id):
     dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
     return render_template('submission/_dish_columns.html', dishes=dishes)
@@ -408,7 +424,7 @@ def list_submission_dishes(sub_id):
 
 @app.route('/submission_dish/<int:dish_id>', methods=['GET', 'POST'])
 @app.route('/submission_dish', methods=['POST'])
-@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def add_edit_submission_dish(dish_id=None):
     if dish_id is None:
         mode = 'create'
@@ -444,6 +460,7 @@ def add_edit_submission_dish(dish_id=None):
 
 
 @app.route('/submission_dish/<int:dish_id>', methods=['DELETE'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def delete_submission_dish(dish_id):
     dish = SubmissionStudyDish.query.get_or_404(dish_id)
     db.session.delete(dish)
@@ -458,7 +475,7 @@ def delete_submission_dish(dish_id):
 
 
 @app.route('/submission_ducs/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def list_submission_ducs(sub_id):
     ducs = SubmissionUseConditionGroup.query.filter_by(submission_id=sub_id)
     return render_template('submission/_duc_columns.html', ducs=ducs)
@@ -466,7 +483,7 @@ def list_submission_ducs(sub_id):
 
 @app.route('/submission_duc/<int:duc_id>', methods=['GET', 'POST'])
 @app.route('/submission_duc', methods=['POST'])
-@app_authorization(allowed_roles=['admin'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def add_edit_submission_duc(duc_id=None):
     mode = "create" if duc_id is None else "edit"
     if request.method == 'GET':
@@ -498,9 +515,70 @@ def add_edit_submission_duc(duc_id=None):
 
 
 @app.route('/submission_duc/<int:duc_id>', methods=['DELETE'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
 def delete_submission_duc(duc_id):
     duc = SubmissionUseConditionGroup.query.get_or_404(duc_id)
     db.session.delete(duc)
     db.session.commit()
     flash("Use Condition Group deleted", "success")
     return "", 204
+
+
+"""----------------------------------------------------"""
+"""AJAX Endpoints for managing a Submission's Upload Info Records."""
+"""----------------------------------------------------"""
+
+
+@app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+def list_submission_uploadinfos(sub_id):
+    uploadinfos = SubmissionUploadInfo.query.filter_by(submission_id=sub_id)
+    return render_template('submission/_uploadinfo_columns.html', uploadinfos=uploadinfos)
+
+
+@app.route('/submission_uploadinfo/<int:uplaodinfo_id>', methods=['GET', 'POST'])
+@app.route('/submission_uploadinfo', methods=['POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+def add_edit_submission_uploadinfo(uploadinfo_id=None):
+    if uploadinfo_id is None:
+        mode = 'create'
+    else:
+        mode = 'edit'
+    if request.method == 'GET':
+        uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
+        result_form = forms.UploadInfoForm(obj=uploadinfo_rec)
+        return render_template('submission/_uploadinfo_form.html', uploadinfo_form=result_form)
+    elif request.method == 'POST':
+        posted_form = forms.UploadInfoForm(request.form)
+        if posted_form.validate_on_submit():
+            if mode == 'edit':
+                uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
+                posted_form.populate_obj(uploadinfo_rec)
+            else:
+                uploadinfo_rec = SubmissionUploadInfo()
+                posted_form.populate_obj(uploadinfo_rec)
+                uploadinfo_rec.id = None
+            db.session.add(uploadinfo_rec)
+            db.session.commit()
+            msg = "updated" if mode == 'create' else "added"
+            flash("Submission Upload Info {}.".format(msg), "success")
+
+            sid = posted_form.submission_id.data
+
+            return render_template('submission/_uploadinfo_form.html', uploadinfo_form=forms.UploadInfoForm(formdata=None,
+                                                                                                   obj=None,
+                                                                                                   sub_id=sid)), 200
+        else:
+            flash("Please check the validity of your input in highlighted places", "error")
+            return render_template('submission/_uploadinfo_form.html', uploadinfo_form=posted_form), 400
+
+
+@app.route('/submission_uploadinfo/<int:uploadinfo_id>', methods=['DELETE'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+def delete_submission_uploadinfo(uploadinfo_id):
+    submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
+    db.session.delete(submission_uploadinfo)
+    db.session.commit()
+    flash("Submission Upload Info deleted", "info")
+    return "", 204
+

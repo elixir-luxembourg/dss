@@ -58,16 +58,17 @@ class ConsentStatusEnum(enum.Enum):
 
 
 
-transition_handlers = {}
-transition_handler = lambda f: transition_handlers.setdefault(f.__name__, f)
-
-@transition_handler
-def transition_s0_to_s1():
+def transition_0_to_1():
     app.logger.info(" Debug in P1")
 
-@transition_handler
-def transition_s1_to_s2():
+def transition_1_to_2():
     app.logger.info(" Debug in P2")
+
+def transition_2_to_3():
+    app.logger.info(" Debug in P3")
+
+def transition_3_to_4():
+    app.logger.info(" Debug in P4")
 
 
 class SubmissionStatusEnum(enum.Enum):
@@ -95,15 +96,13 @@ class SubmissionStatusEnum(enum.Enum):
                 SubmissionStatusEnum.completed:3,
                 SubmissionStatusEnum.archived:4}.get(self)
 
-    @classmethod
-    def choices(cls):
-        return [(choice.name, choice.value) for choice in cls]
 
 
     def get_transition_handler(self):
-        return {SubmissionStatusEnum.draft:transition_handlers['transition_s0_to_s1'],
-                SubmissionStatusEnum.in_progress_metadata:transition_handlers['transition_s1_to_s2']
-                }.get(self)
+        return {SubmissionStatusEnum.draft:transition_0_to_1,
+                SubmissionStatusEnum.in_progress_metadata:transition_1_to_2,
+                SubmissionStatusEnum.in_progress_data:transition_2_to_3,
+                SubmissionStatusEnum.completed:transition_3_to_4}.get(self)
 
 
 def uniqid():
@@ -125,6 +124,7 @@ class Submission(db.Model):
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
     dishes = db.relationship("SubmissionStudyDish", cascade="all, delete-orphan")
     use_conditions = db.relationship("SubmissionUseConditionGroup", cascade="all, delete-orphan")
+    uploadinfos = db.relationship("SubmissionUploadInfo", cascade="all, delete-orphan")
 
     def is_shareable(self):
         return ((self.current_status is not SubmissionStatusEnum.completed)
@@ -135,16 +135,25 @@ class SubmissionContact(db.Model):
     __tablename__ = 'submission_contacts'
 
     id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'),  nullable=False)
     is_primary = db.Column(db.Boolean, nullable=False)
     name = db.Column(db.String, nullable=False)
     surname = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True)
     category_id = db.Column(db.Integer, db.ForeignKey('contact_types.id'), nullable=False)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'),  nullable=False)
     contact_category = db.relationship('ContactType')
 
     def fullname(self):
         return self.name + " " + self.surname.upper()
+
+
+class SubmissionUploadInfo(db.Model):
+    __tablename__ = 'submission_upload_info'
+
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'),  nullable=False)
+    file_name = db.Column(db.String(45), nullable=False)
+    md5_checksum_at_provider = db.Column(db.String(32), nullable=False)
 
 
 class DUCCodeInstance(db.Model):
@@ -212,19 +221,15 @@ def delete_sub(submission_id):
         raise RecordLifecycleException("Submission cannot be deleted")
 
 
-def share_sub(submission_id, user_id):
-
-    submission = Submission.query.filter_by(id=submission_id).one_or_none()
-
+def share_sub(submission, provider_user):
     if ((submission is not None) & submission.is_shareable()):
 
-        provider_user = User.query.get_or_404(user_id)
         submission.provider_user_id = provider_user.id
         db.session.add(submission)
         db.session.commit()
 
         if submission.current_status is SubmissionStatusEnum.draft:
-            return steer_sub(submission.id)
+            return steer_sub(submission)
         else:
             return submission
 
@@ -234,9 +239,8 @@ def share_sub(submission_id, user_id):
 
 
 
-def steer_sub(submission_id):
+def steer_sub(submission):
     try:
-        submission = Submission.query.filter_by(id=submission_id).one_or_none()
         submission.current_status.get_transition_handler()()
         new_state = submission.current_status.next_state()
         submission.current_status = new_state

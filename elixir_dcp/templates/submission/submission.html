@@ -33,35 +33,39 @@
     {{ macros.show_flashes() }}
 
     <div class="row">
-        <div class="col-md-10 block" >
+        <div class="col-md-9 block" >
             <div id="basicinfo" class="container">
                 <form id="form_submission_basics"
                       method="POST"
                       action="{{ url_for('edit_submission',sub_id=submsn_form.id.data) }}">
                     {{ submsn_form.hidden_tag() }}
-                    {{ fmacros.render_field_with_errors(submsn_form.ref_name, readonly=true) }}
+                    {{ fmacros.render_string_field_readonly('Reference No', submission.ref_name) }}
                     {{ fmacros.render_field_with_errors(submsn_form.title) }}
-                    {{ fmacros.render_field_with_errors(submsn_form.created_on, div_col_class="col-md-2", readonly=true) }}
-                    {{ fmacros.render_field_with_errors(submsn_form.current_status, div_col_class="col-md-2", clazz="elx-select", disabled=true) }}
+                    {{ fmacros.render_string_field_readonly('Created On', submission.created_on) }}
+                    {{ fmacros.render_string_field_readonly('Status', submission.current_status.value) }}
 
                 </form>
             </div>
         </div>
         {#    SIDEBAR     #}
-        <div class="col-md-2" id="sidebar">
+        <div class="col-md-3" id="sidebar">
             <div class="row block" id="button-group">
                 <div class="row ">
                     <p class="col-md-offset-1 col-sm-offset-1  col-xs-offset-1 col-xs-5 col-md-5 col-sm-5">
-                        <button class="save btn btn-raised btn-primary" form="form_submission_basics" >CLOSE & <br/> RETURN LATER</button>
+                        <button class="save btn btn-raised btn-primary" form="form_submission_basics" >Complete later</button>
                     </p>
 
                 </div>
-                <div class="row ">
+                <div class="row">
                     <p class="col-md-offset-1 col-sm-offset-1 col-xs-offset-1 col-xs-3 col-md-3 col-sm-3">
-                        <button class="save btn btn-raised btn-primary">PROCEED<br/>TO NEXT STEP</button>
+                        <a name="button_submission_steer" class="save btn btn-raised btn-primary"
+                           href="{{ url_for('steer_submission',sub_id=submission.id) }}" role="button">
+                            PROCEED TO NEXT STEP
+                        </a>
                     </p>
                 </div>
-                <div class="row ">
+
+                <div class="row">
                     <p class="col-md-offset-1 col-sm-offset-1 col-xs-offset-1 col-xs-3 col-md-3 col-sm-3">
                         <button class="btn btn-default btn-raised">NEED HELP ?</button>
                     </p>
@@ -82,7 +86,7 @@
                 <li><a href="#ducs">Data Use Conditions</a></li>
             {% endif %}
             {% if current_user.is_admin  or  submission.current_status.step_num() == 3 %}
-                <li><a href="#datas">Data Upload</a></li>
+                <li><a href="#uploadinfos">Data Upload Info</a></li>
             {% endif %}
         </ul>
 
@@ -144,7 +148,18 @@
             </div>
         {% endif %}
         {% if current_user.is_admin  or  submission.current_status.step_num() == 3 %}
-            <div id="datas">
+            <div id="uploadinfos">
+                {% with %}
+                    {% set uploadinfos = submission.uploadinfos %}
+                    {% set uploadinfo_form =  submsn_form.child_uploadinfo_form() %}
+                    <div id="uploadinfos_inline_list" data-url="{{ url_for('list_submission_uploadinfos',sub_id=submission.id) }}">
+                        {% include 'submission/_uploadinfo_columns.html' %}
+                    </div>
+                    <hr size="2px"/>
+                    <div id="uploadinfos_inline_editor" data-url="{{ url_for('add_edit_submission_uploadinfo') }}">
+                        {% include 'submission/_uploadinfo_form.html' %}
+                    </div>
+                {% endwith %}
             </div>
         {% endif %}
     </div>
