@@ -536,7 +536,8 @@ def list_submission_uploadinfos(sub_id):
     return render_template('submission/_uploadinfo_columns.html', uploadinfos=uploadinfos)
 
 
-@app.route('/submission_uploadinfo/<int:uplaodinfo_id>', methods=['GET', 'POST'])
+
+@app.route('/submission_uploadinfo/<int:uploadinfo_id>', methods=['GET', 'POST'])
 @app.route('/submission_uploadinfo', methods=['POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 def add_edit_submission_uploadinfo(uploadinfo_id=None):
@@ -560,9 +561,7 @@ def add_edit_submission_uploadinfo(uploadinfo_id=None):
                 uploadinfo_rec.id = None
             db.session.add(uploadinfo_rec)
             db.session.commit()
-            msg = "updated" if mode == 'create' else "added"
-            flash("Submission Upload Info {}.".format(msg), "success")
-
+            flash("Submission Upload Info {}.".format("created" if mode == 'create' else "updated"), "success")
             sid = posted_form.submission_id.data
 
             return render_template('submission/_uploadinfo_form.html', uploadinfo_form=forms.UploadInfoForm(formdata=None,
@@ -579,6 +578,6 @@ def delete_submission_uploadinfo(uploadinfo_id):
     submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
     db.session.delete(submission_uploadinfo)
     db.session.commit()
-    flash("Submission Upload Info deleted", "info")
+    flash("Submission Upload Info deleted", "success")
     return "", 204
 

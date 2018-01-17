@@ -1,8 +1,9 @@
 # coding=utf-8
-from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, StudyDishForm, UseConditionGroupForm, SubmissionAccessForm
-from wtforms import PasswordField, HiddenField, BooleanField, StringField
+from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionAccessForm, SubmissionForm, \
+    StudyDishForm, UseConditionGroupForm, UploadInfoForm
+from wtforms import HiddenField,StringField
 from wtforms.fields.html5 import EmailField
-from flask_wtf import FlaskForm#, RecaptchaField
+from flask_wtf import FlaskForm #, RecaptchaField
 from flask import redirect, request
 from urllib.parse import urlparse, urljoin
 from wtforms.validators import Email, DataRequired, Length, Regexp
@@ -45,7 +46,7 @@ class SignupForm(FlaskForm):
     first_name = StringField('First Name', [DataRequired(), Regexp('\w+', message="Names can contain only letters numbers or underscore"), Length(min=2, max=20, message="First name must be between 2 & 20 characters")])
     last_name = StringField('Last Name', [DataRequired(), Regexp('\w+', message="Names can contain only letters numbers or underscore"), Length(min=2, max=20, message="Last name must be between 2 & 20 characters")])
     email = EmailField('E-Mail', [DataRequired()],
-                               render_kw={"placeholder": "Email address associated ELIXIR AAI identity"})
+                       render_kw={"placeholder": "Email address associated ELIXIR AAI identity"})
     #recaptcha = RecaptchaField()
 
 __all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, UseConditionGroupForm, SubmissionAccessForm]

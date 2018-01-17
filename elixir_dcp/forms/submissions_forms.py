@@ -54,6 +54,12 @@ class UploadInfoForm(FlaskForm):
     file_name = StringField('Name', validators=[DataRequired()], render_kw={"placeholder": "Only the name of the file without folder information."})
     md5_checksum_at_provider = StringField('File Checksum', validators=[DataRequired()], render_kw={"placeholder": "32 Characters checksum."})
 
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+        if 'sub_id' in kwargs:
+            self.submission_id.data = kwargs['sub_id']
+
+
 class UseConditionCodeForm(FlaskForm):
     """
     Form for creating an instance of a Ga4GH code to be included in a DUC group

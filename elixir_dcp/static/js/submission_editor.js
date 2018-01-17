@@ -267,9 +267,8 @@ $(document).ready(function () {
         bean_list_delete_handler($(this).attr('data-url'), "ducs");
     });
 
-
-
     $("#ducs_inline_list").on('click', 'a#submission_duc_listing_edit', function() {
+
         $.ajax({
             url: $(this).attr('data-url'),
             type: "get",
@@ -279,6 +278,60 @@ $(document).ready(function () {
             },
             error: function () {
                 alert('An error occurred while loading the selected data use condition group');
+            }
+        });
+    });
+
+
+    /**
+     *
+     *
+     *
+     *
+     * Data Upload Info Inline Editor button handlers.
+     *
+     *
+     *
+     *
+     */
+
+    $("#uploadinfos_inline_editor").on('click', 'a#submission_uploadinfo_save', function() {
+
+        var id = $('#form_submission_uploadinfo').find( "#id" ).val();
+        var base_url  = $('#uploadinfos_inline_editor').attr('data-url');
+        $.ajax({
+            url: "".concat(base_url, (id.length>0)? "/"+id :""),
+            type: 'post',
+            data : $('#form_submission_uploadinfo').serialize(),
+            success: function(result){
+                refresh_bean_list("uploadinfos");
+                $("#uploadinfos_inline_editor").html(result);
+            },
+            error: function (xhr, status, error) {
+                refresh_bean_list("uploadinfos");
+                //TODO check the type of error here,
+                //only in csae of validation errors we should update the html
+                $("#uploadinfos_inline_editor").html(xhr.responseText);
+                bind_widgets();;
+            }
+        });
+    });
+
+    $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_delete', function() {
+        bean_list_delete_handler($(this).attr('data-url'), "uploadinfos");
+    });
+
+    $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_edit', function() {
+        alert($(this).attr('data-url'));
+        $.ajax({
+            url: $(this).attr('data-url'),
+            type: "get",
+            success: function(result){
+                $("#uploadinfos_inline_editor").html(result);
+            },
+            error: function (xhr, status, error) {
+               // alert(error);
+                alert('An error occurred while loading the selected upload information!');
             }
         });
     });
