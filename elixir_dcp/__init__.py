@@ -90,22 +90,6 @@ def _jinja2_filter_date(date, fmt=None):
     return _jinja2_filter_datetime(date, '%Y-%m-%d')
 
 
-@app.template_filter('pluralize')
-def pluralize(number, singular='', plural='s'):
-    app.logger.debug(number)
-    if number == 1:
-        return singular
-    else:
-        return plural
-
-@app.template_filter('pluralize')
-def _submission_view_mode(user_role, submission_status):
-    app.logger.debug(number)
-    if number == 1:
-        return singular
-    else:
-        return plural
-
 @app.context_processor
 def inject_now():
     return {'version': __VERSION__}

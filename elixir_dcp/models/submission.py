@@ -4,7 +4,7 @@ from elixir_dcp import db, app
 from elixir_dcp.exceptions import RecordLifecycleException
 import enum
 from datetime import datetime
-from .security import User
+
 import sys
 
 class ContactType(db.Model):

@@ -93,7 +93,6 @@ def init_db():
     db.session.commit()
 
     User.query.filter_by(elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org').one_or_none().assign_role('admin')
-    User.query.filter_by(elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org').one_or_none().assign_role('data_provider')
 
     User.query.filter_by(elixir_sub_id='a2ba8f4043649f46c91b895e8568d8b96d985284@elixir-europe.org').one_or_none().assign_role('data_provider')
     db.session.commit()
