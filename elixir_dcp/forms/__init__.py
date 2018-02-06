@@ -46,7 +46,7 @@ class SignupForm(FlaskForm):
     first_name = StringField('First Name', [DataRequired(), Regexp('\w+', message="Names can contain only letters numbers or underscore"), Length(min=2, max=20, message="First name must be between 2 & 20 characters")])
     last_name = StringField('Last Name', [DataRequired(), Regexp('\w+', message="Names can contain only letters numbers or underscore"), Length(min=2, max=20, message="Last name must be between 2 & 20 characters")])
     email = EmailField('E-Mail', [DataRequired()],
-                       render_kw={"placeholder": "Email address associated ELIXIR AAI identity"})
+                       render_kw={"placeholder": "Email address that ELIXIR LU should contact you."})
     #recaptcha = RecaptchaField()
 
 __all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, UseConditionGroupForm, SubmissionAccessForm]

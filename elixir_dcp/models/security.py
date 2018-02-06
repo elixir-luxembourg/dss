@@ -32,14 +32,6 @@ class User(db.Model):
         except AttributeError:
             raise NotImplementedError('No `id` attribute - override `get_id`')
 
-    #
-    # def roles_name_list(self):
-    #     result = []
-    #     for role in self.assigned_roles:
-    #         result.append(role.name)
-    #     return result
-
-
     def has_role_from(self, role_list):
         if self.assigned_roles is None:
             return False

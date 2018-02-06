@@ -1,11 +1,11 @@
 # coding=utf-8
-from flask import flash, redirect, render_template, request, url_for,g
+from flask import flash, redirect, render_template, request, url_for, g
 from flask_login import current_user, login_user, login_required, logout_user
 
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
-from elixir_dcp.models.submission import create_sub, delete_sub, share_sub, Submission, SubmissionAttachment, steer_sub,\
+from elixir_dcp.models.submission import create_sub, delete_sub, share_sub, Submission, SubmissionAttachment, steer_sub, \
     SubmissionContact, SubmissionStatusEnum, SubmissionStudyDish, SubmissionUseConditionGroup, SubmissionUploadInfo
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
@@ -16,13 +16,12 @@ import shutil
 from elixir_dcp import app, db, oidc
 from werkzeug.utils import secure_filename
 from . import app_authorization
-
-
+from .utils import get_names_from_oidc
 
 __author__ = 'Valentin Grouès, Pinar Alper'
 
+
 @app.route('/', methods=['GET'])
-@oidc.require_login
 @login_required
 def home():
     return render_template('home.html')
@@ -31,11 +30,11 @@ def home():
 @app.route("/logout")
 @login_required
 def logout():
-    #Flask Login Logout
+    # Flask Login Logout
     logout_user()
 
     # The below OIDC logout does not work!
-    #TODO: Find a way to sign out of AAI
+    # TODO: Find a way to sign out of AAI
     oidc.logout()
     flash('You have logged out of ELIXIR DCP.', 'success')
     return render_template('home.html')
@@ -44,38 +43,50 @@ def logout():
 @app.route('/oidc_login', methods=['GET', 'POST'])
 @oidc.require_login
 def oidc_login():
-
     app.logger.info('Debug in oidc_login')
     app.logger.info(g.oidc_id_token)
-    app.logger.info("User Info:" + oidc.user_getinfo(['name', 'email', 'sub', 'bona_fide_status']).__str__())
-    # TODO  We need to figure out why attributes other than sub are None after the initial authentication
-    # Such as:  elixir_oidc_email = oidc.user_getfield("email")
+    app.logger.info("User Info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
+    # TODO:  Ask Jacek, We need to figure out which attributes are useful. I still cannot get the name??
 
     if request.method == 'GET':
         existing_user_record = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
-        if (existing_user_record is not None) & current_user.is_anonymous:
-            login_user(existing_user_record, remember=True)
-            #next = flask.request.args.get('next')
-            # is_safe_url should check if the url is safe for redirects.
-            # See http://flask.pocoo.org/snippets/62/ for an example.
-            #if not is_safe_url(next):
-            #return flask.abort(400)
-
-            return redirect(url_for('home'))
+        if existing_user_record is None:
+            name = oidc.user_getfield("name")
+            # TODO: Ask Jacek what does the information in bona_fide_status mean
+            # researcher or not.
+            if name is not None:
+                empty_form = forms.SignupForm(elixir_sub_id=oidc.user_getfield("sub"),
+                                              first_name=get_names_from_oidc(name)[0],
+                                              last_name=get_names_from_oidc(name)[1], email=oidc.user_getfield("email"))
+                return render_template('security/signup.html', signup_form=empty_form)
+            else:
+                return render_template('error.html', message="Error 500 - {}".format(
+                    "Insufficient information the AAI User, cannot continue with signup ")), 500
         else:
-            empty_form = forms.SignupForm(elixir_sub_id=oidc.user_getfield("sub"))
-            return render_template('security/signup.html', signup_form=empty_form)
+            if not existing_user_record.is_active:
+                render_template('error.html', message="Error 500 - {}".format(
+                    "This AAI User does not have access to the application")), 500
+            else:
+                login_user(existing_user_record, remember=True)
+                # next = flask.request.args.get('next')
+                # is_safe_url should check if the url is safe for redirects.
+                # See http://flask.pocoo.org/snippets/62/ for an example.
+                # if not is_safe_url(next):
+                # return flask.abort(400)
+
+                return redirect(url_for('home'))
     elif request.method == 'POST':
         posted_form = forms.SignupForm(request.form)
         if posted_form.validate_on_submit():
             new_user_record = User(elixir_sub_id=posted_form.elixir_sub_id.data,
-                            first_name=posted_form.first_name.data,
-                            last_name=posted_form.last_name.data,
-                            email=posted_form.email.data,
-                            active_user=True)
+                                   first_name=posted_form.first_name.data,
+                                   last_name=posted_form.last_name.data,
+                                   email=posted_form.email.data,
+                                   active_user=True)
             db.session.add(new_user_record)
             db.session.commit()
-            User.query.filter_by(elixir_sub_id=posted_form.elixir_sub_id.data).one_or_none().assign_role('data_provider')
+            User.query.filter_by(elixir_sub_id=posted_form.elixir_sub_id.data).one_or_none().assign_role(
+                'data_provider')
             login_user(new_user_record, remember=True)
             flash('You have been signed up to the ELIXIR-LU Data Submission system.', 'info')
             return redirect(url_for('home'))
@@ -84,9 +95,7 @@ def oidc_login():
             return render_template('submission/submission.html', signup_form=posted_form)
 
 
-
-
-#return render_template('/security/oidc.html',
+# return render_template('/security/oidc.html',
 #                       sub=oidc.user_getfield("sub"),
 #                       preferred_username=oidc.user_getfield("preferred_username"),
 #                       email=oidc.user_getfield("email"),
@@ -94,7 +103,7 @@ def oidc_login():
 #                       groupNames=oidc.user_getfield("groupNames"),
 #                       token=None)
 
-#return redirect(url_for('home'))
+# return redirect(url_for('home'))
 
 
 """return oidc.redirect_to_auth_server(request.url)
@@ -120,19 +129,6 @@ app.logger.info(info)
 """
 
 
-
-
-def get_names_from_oidc(oidc_name):
-    result = ['', '']
-
-    if oidc_name is not None:
-        if " " in oidc_name:
-            name_list = oidc_name.split(" ")
-            result[0] = name_list[0]
-            if len(name_list) > 1:
-                result[1] = name_list[1]
-    return result
-
 @login_manager.user_loader
 def load_user(user_id):
     app.logger.info('INFO: Load User with ID: %s', user_id)
@@ -146,8 +142,10 @@ def load_user(user_id):
 """------------------------------------"""
 """Endpoints for managing  Submissions."""
 """------------------------------------"""
+
+
 @app_authorization(allowed_roles=['admin'])
-@app.route('/share/submission/<int:sub_id>', methods=['GET','POST'])
+@app.route('/share/submission/<int:sub_id>', methods=['GET', 'POST'])
 def share_submission(sub_id):
     if request.method == 'GET':
         submission_rec = Submission.query.get_or_404(sub_id)
@@ -160,7 +158,9 @@ def share_submission(sub_id):
                 submission_rec = Submission.query.get_or_404(sub_id)
                 provider_user = User.query.get_or_404(posted_form.provider_user_id.data)
                 shared_sub = share_sub(submission_rec, provider_user)
-                flash('Submission {} shared with {}'.format(shared_sub.ref_name, shared_sub.provider_user.display_name()), "success")
+                flash(
+                    'Submission {} shared with {}'.format(shared_sub.ref_name, shared_sub.provider_user.display_name()),
+                    "success")
                 return redirect(url_for('list_submissions'))
             except exceptions.RecordLifecycleException as e:
                 app.logger.error('ERROR %s', e)
@@ -182,7 +182,7 @@ def delete_submission(sub_id):
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
         flash("Unable to delete submission", 'error')
-        return "",400
+        return "", 400
 
 
 @app_authorization(allowed_roles=['admin'])
@@ -192,21 +192,21 @@ def archive_submission(sub_id):
 
 
 @app_authorization(allowed_roles=['admin', 'data_provider'])
-@app.route('/steer/submission/<int:sub_id>', methods=['GET','POST'])
+@app.route('/steer/submission/<int:sub_id>', methods=['GET', 'POST'])
 def steer_submission(sub_id):
     if request.method == 'GET':
         submission_rec = Submission.query.get_or_404(sub_id)
 
         # Check if all info is supplied so that submission can be steered
-        #flash("The submission is not shareable due to its status", "error")
+        # flash("The submission is not shareable due to its status", "error")
         steer_sub(submission_rec)
-        return redirect(url_for('edit_submission',  sub_id=submission_rec.id))
-
+        return redirect(url_for('edit_submission', sub_id=submission_rec.id))
 
 
 """------------------------------------"""
 """------------------------------------"""
 """------------------------------------"""
+
 
 @app.route('/submissions', methods=['GET'])
 @app_authorization(allowed_roles=['admin'])
@@ -228,8 +228,9 @@ def list_my_submissions():
     """
 
     my_submissions = db.session.query(Submission).filter(and_(Submission.provider_user_id == current_user.id,
-                                                              or_(Submission.current_status==SubmissionStatusEnum.in_progress_metadata,
-                                                                  Submission.current_status==SubmissionStatusEnum.in_progress_data)))
+                                                              or_(
+                                                                  Submission.current_status == SubmissionStatusEnum.in_progress_metadata,
+                                                                  Submission.current_status == SubmissionStatusEnum.in_progress_data)))
 
     return render_template('submission/my_submissions.html',
                            my_submissions=my_submissions)
@@ -277,8 +278,6 @@ def edit_submission(sub_id):
         else:
             flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/submission.html', submsn_form=form, submission=submission_rec)
-
-
 
 
 """----------------------------------------------------"""
@@ -374,7 +373,7 @@ def add_submission_attachment():
         if not is_allowed_type(file.filename):
             file_validation = False
             form.file_attachments.errors.append('File {} is not of allowed type.'.format(file.filename))
-    if (not file_validation) or (not form_validation ):
+    if (not file_validation) or (not form_validation):
         flash("Please check the validity of your input in highlighted fields.", "error")
         return render_template('submission/_attachment_form.html', attachment_form=form), 400
     else:
@@ -536,7 +535,6 @@ def list_submission_uploadinfos(sub_id):
     return render_template('submission/_uploadinfo_columns.html', uploadinfos=uploadinfos)
 
 
-
 @app.route('/submission_uploadinfo/<int:uploadinfo_id>', methods=['GET', 'POST'])
 @app.route('/submission_uploadinfo', methods=['POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
@@ -564,9 +562,10 @@ def add_edit_submission_uploadinfo(uploadinfo_id=None):
             flash("Submission Upload Info {}.".format("created" if mode == 'create' else "updated"), "success")
             sid = posted_form.submission_id.data
 
-            return render_template('submission/_uploadinfo_form.html', uploadinfo_form=forms.UploadInfoForm(formdata=None,
-                                                                                                   obj=None,
-                                                                                                   sub_id=sid)), 200
+            return render_template('submission/_uploadinfo_form.html',
+                                   uploadinfo_form=forms.UploadInfoForm(formdata=None,
+                                                                        obj=None,
+                                                                        sub_id=sid)), 200
         else:
             flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_uploadinfo_form.html', uploadinfo_form=posted_form), 400
@@ -580,4 +579,3 @@ def delete_submission_uploadinfo(uploadinfo_id):
     db.session.commit()
     flash("Submission Upload Info deleted", "success")
     return "", 204
-
