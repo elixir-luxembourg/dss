@@ -178,8 +178,11 @@ class SubmissionUseConditionGroup(db.Model):
 
     def duc_codes_display(self):
         result = ""
+        index = 0
         for duc_code in self.duc_codes:
-            result+=duc_code.ga4gh_code
+            result += ("" if index == 0 else ", ")+duc_code.ga4gh_code
+            index += 1
+
         return result
 
 class SubmissionStudyDish(db.Model):

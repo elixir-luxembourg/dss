@@ -254,11 +254,14 @@ $(document).ready(function () {
                 bind_duc_tab_widgets();
             },
             error: function (xhr, status, error) {
-                refresh_bean_list("ducs");
-                //TODO check the type of error here,
-                //only in csae of validation errors we should update the html
-                $("#ducs_inline_editor").html(xhr.responseText);
-                bind_widgets();
+                if (xhr.status =="400" ){
+                    refresh_bean_list("ducs");
+                    $("#ducs_inline_editor").html(xhr.responseText);
+                    bind_widgets();
+                }else{
+                    alert('An error occurred while saving restriction group.');
+                }
+
             }
         });
     });

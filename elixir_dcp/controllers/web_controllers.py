@@ -479,7 +479,7 @@ def add_edit_submission_duc(duc_id=None):
                 duc_rec.id = None
             db.session.add(duc_rec)
             db.session.commit()
-            flash("Data Use Condition Group {}.".format("created" if mode == 'create' else "updated"), "success")
+            flash("Restriction Group {}.".format("created" if mode == 'create' else "updated"), "success")
             sid = posted_form.submission_id.data
             return render_template('submission/_duc_form.html', duc_form=forms.UseConditionGroupForm(formdata=None,
                                                                                                      obj=None,
@@ -495,7 +495,7 @@ def delete_submission_duc(duc_id):
     duc = SubmissionUseConditionGroup.query.get_or_404(duc_id)
     db.session.delete(duc)
     db.session.commit()
-    flash("Use Condition Group deleted", "success")
+    flash("Restriction Group deleted", "success")
     return "", 204
 
 
