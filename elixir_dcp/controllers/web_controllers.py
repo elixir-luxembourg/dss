@@ -1,6 +1,7 @@
 # coding=utf-8
-from flask import flash, redirect, render_template, request, url_for, g
+from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages
 from flask_login import current_user, login_user, login_required, logout_user
+from urllib import parse
 
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
@@ -22,7 +23,6 @@ __author__ = 'Valentin Grouès, Pinar Alper'
 
 
 @app.route('/', methods=['GET'])
-@login_required
 def home():
     return render_template('home.html')
 
@@ -30,14 +30,16 @@ def home():
 @app.route("/logout")
 @login_required
 def logout():
-    # Flask Login Logout
+    # Flask Login's Logout
     logout_user()
 
-    # The below OIDC logout does not work!
+    # OIDC's logout, does not work!
     # TODO: Find a way to sign out of AAI
     oidc.logout()
+
     flash('You have logged out of ELIXIR DCP.', 'success')
     return render_template('home.html')
+
 
 
 @app.route('/oidc_login', methods=['GET', 'POST'])
@@ -46,14 +48,17 @@ def oidc_login():
     app.logger.info('Debug in oidc_login')
     app.logger.info(g.oidc_id_token)
     app.logger.info("User Info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
-    # TODO:  Ask Jacek, We need to figure out which attributes are useful. I still cannot get the name??
+    # TODO:  Ask Jacek. We need to figure out which attributes are useful. E.g. what does the information
+    # in bona_fide_status exactly mean. Are we ging to make a check whether user group in AAI and the applications we
+    # have here at ELIXIR LU
+
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
 
     if request.method == 'GET':
         existing_user_record = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
         if existing_user_record is None:
             name = oidc.user_getfield("name")
-            # TODO: Ask Jacek what does the information in bona_fide_status mean
-            # researcher or not.
             if name is not None:
                 empty_form = forms.SignupForm(elixir_sub_id=oidc.user_getfield("sub"),
                                               first_name=get_names_from_oidc(name)[0],
@@ -61,20 +66,20 @@ def oidc_login():
                 return render_template('security/signup.html', signup_form=empty_form)
             else:
                 return render_template('error.html', message="Error 500 - {}".format(
-                    "Insufficient information the AAI User, cannot continue with signup ")), 500
+                    "Insufficient information on the AAI User, cannot continue with signup ")), 500
         else:
             if not existing_user_record.is_active:
                 render_template('error.html', message="Error 500 - {}".format(
                     "This AAI User does not have access to the application")), 500
             else:
                 login_user(existing_user_record, remember=True)
-                # next = flask.request.args.get('next')
-                # is_safe_url should check if the url is safe for redirects.
-                # See http://flask.pocoo.org/snippets/62/ for an example.
-                # if not is_safe_url(next):
-                # return flask.abort(400)
-
-                return redirect(url_for('home'))
+                next = request.args.get('next')
+                #app.logger.info("NEXTTTTTTTTT"+next)
+                app.logger.info(get_flashed_messages())
+                if not is_safe_url(next):
+                    return abort(404)
+                else:
+                    return redirect(next or url_for('home'))
     elif request.method == 'POST':
         posted_form = forms.SignupForm(request.form)
         if posted_form.validate_on_submit():
@@ -92,41 +97,14 @@ def oidc_login():
             return redirect(url_for('home'))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
-            return render_template('submission/submission.html', signup_form=posted_form)
+            return render_template('security/signup.html', signup_form=posted_form)
 
 
-# return render_template('/security/oidc.html',
-#                       sub=oidc.user_getfield("sub"),
-#                       preferred_username=oidc.user_getfield("preferred_username"),
-#                       email=oidc.user_getfield("email"),
-#                       bona_fide_status=oidc.user_getfield("bona_fide_status"),
-#                       groupNames=oidc.user_getfield("groupNames"),
-#                       token=None)
-
-# return redirect(url_for('home'))
-
-
-"""return oidc.redirect_to_auth_server(request.url)
-
-info = oidc.user_getinfo(['preferred_username', 'email', 'sub', 'bona_fide_status'])
-# We need to figure out why attributes other than sub are None after the initial authentication
-
-app.logger.info(info)
-
-#from oauth2client.client import OAuth2Credentials
-#credentials = OAuth2Credentials.from_json(oidc.credentials_store[info.get('sub')])
-#app.logger.info(credentials)
-
-
-
-    return render_template('/security/oidc.html',
-                       sub=oidc.user_getfield("sub"),
-                       preferred_username=oidc.user_getfield("preferred_username"),
-                       email=oidc.user_getfield("email"),
-                       bona_fide_status=oidc.user_getfield("bona_fide_status",),
-                       groupNames=oidc.user_getfield("groupNames"),
-                       token=None)
-"""
+def is_safe_url(target):
+    ref_url = parse.urlparse(request.host_url)
+    test_url = parse.urlparse(parse.urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
 
 
 @login_manager.user_loader
@@ -209,6 +187,7 @@ def steer_submission(sub_id):
 
 
 @app.route('/submissions', methods=['GET'])
+@login_required
 @app_authorization(allowed_roles=['admin'])
 def list_submissions():
     """
@@ -502,9 +481,7 @@ def add_edit_submission_duc(duc_id=None):
             db.session.add(duc_rec)
             db.session.commit()
             flash("Data Use Condition Group {}.".format("created" if mode == 'create' else "updated"), "success")
-
             sid = posted_form.submission_id.data
-
             return render_template('submission/_duc_form.html', duc_form=forms.UseConditionGroupForm(formdata=None,
                                                                                                      obj=None,
                                                                                                      sub_id=sid)), 200
