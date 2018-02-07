@@ -5,7 +5,9 @@
     {% set div_col_class = kwargs.pop('div_col_class', "col-md-8") %}
     {% set clazz = "form-control " + kwargs.pop('clazz',"") %}
     <div class="form-group row {% if field.errors %}has-error{% endif %}">
+
         {{ field.label(class="col-md-2 control-label") }}
+
         <div class="{{ div_col_class }}">
                 {{ field(class= clazz, **kwargs)|safe }}
             {% if field.errors %}
@@ -14,7 +16,6 @@
         </div>
     </div>
 {% endmacro %}
-
 
 
 {% macro render_string_field_readonly(field_label, field_data) %}

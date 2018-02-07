@@ -38,6 +38,7 @@ class ContactForm(FlaskForm):
     category_id = SelectField('Type', coerce=int)
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")], render_kw={"placeholder": "Your institutional e-mail"})
 
+
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         if 'sub_id' in kwargs:

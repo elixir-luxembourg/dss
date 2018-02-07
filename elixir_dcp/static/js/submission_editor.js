@@ -197,12 +197,12 @@ $(document).ready(function () {
             success: function(result){
                 refresh_bean_list("dishes");
                 $("#dishes_inline_editor").html(result);
-                bind_widgets();;
+                bind_widgets();
             },
             error: function (xhr, status, error) {
                 refresh_bean_list("dishes");
                 $("#dishes_inline_editor").html(xhr.responseText);
-                bind_widgets();;
+                bind_widgets();
             }
         });
     });
@@ -251,14 +251,14 @@ $(document).ready(function () {
             success: function(result){
                 refresh_bean_list("ducs");
                 $("#ducs_inline_editor").html(result);
-                bind_widgets();;
+                bind_duc_tab_widgets();
             },
             error: function (xhr, status, error) {
                 refresh_bean_list("ducs");
                 //TODO check the type of error here,
                 //only in csae of validation errors we should update the html
                 $("#ducs_inline_editor").html(xhr.responseText);
-                bind_widgets();;
+                bind_widgets();
             }
         });
     });
@@ -274,7 +274,7 @@ $(document).ready(function () {
             type: "get",
             success: function(result){
                 $("#ducs_inline_editor").html(result);
-                bind_widgets();
+                bind_duc_tab_widgets();
             },
             error: function () {
                 alert('An error occurred while loading the selected data use condition group');
@@ -312,7 +312,7 @@ $(document).ready(function () {
                 //TODO check the type of error here,
                 //only in csae of validation errors we should update the html
                 $("#uploadinfos_inline_editor").html(xhr.responseText);
-                bind_widgets();;
+                bind_widgets();
             }
         });
     });

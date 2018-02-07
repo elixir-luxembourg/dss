@@ -1,9 +1,8 @@
 
 {% import "forms_macros.html" as fmacros%}
 <div class="panel panel-default">
-
-    <div class="panel-body">Add New Attachment</div>
-
+    <div class="panel-heading">Add New Attachment</div>
+    <div class="panel-body">
     <form id="form_submission_attachment"  enctype="multipart/form-data">
         {{ attachment_form.hidden_tag() }}
         {{ fmacros.render_field_with_errors(attachment_form.note) }}
@@ -16,8 +15,8 @@
                 {% endif %}
             </div>
         </div>
-
     </form>
     <hr>
     <a id="submission_attachment_add" class="save btn btn-raised btn-primary" role="button">Save Attachment</a>
+    </div>
 </div>

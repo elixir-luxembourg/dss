@@ -1,16 +1,15 @@
-{% import "forms_macros.html" as fmacros%}
+{% import "forms_macros.html" as fmacros %}
 <div class="panel panel-default">
-
-    <div class="panel-body">{% if contact_form.id.data %}Update  {% else %}Add New {% endif %}Contact</div>
-
-    <form id="form_submission_contact">
-        {{ contact_form.hidden_tag() }}
-        {{ fmacros.render_field_with_errors(contact_form.name) }}
-        {{ fmacros.render_field_with_errors(contact_form.surname) }}
-        {{ fmacros.render_field_with_errors(contact_form.email) }}
-        {{ fmacros.render_field_with_errors(contact_form.category_id,  div_col_class="col-md-2", clazz="elx-select") }}
-        {{ fmacros.render_checkbox_field(contact_form.is_primary) }}
-    </form>
-
-    <a id="submission_contact_save" class="save btn btn-raised btn-primary" role="button">Save Contact</a>
+    <div class="panel-heading">{% if contact_form.id.data %}Update  {% else %}Add New {% endif %}Contact</div>
+    <div class="panel-body">
+        <form id="form_submission_contact">
+            {{ contact_form.hidden_tag() }}
+            {{ fmacros.render_field_with_errors(contact_form.name) }}
+            {{ fmacros.render_field_with_errors(contact_form.surname) }}
+            {{ fmacros.render_field_with_errors(contact_form.email) }}
+            {{ fmacros.render_field_with_errors(contact_form.category_id,  div_col_class="col-md-2", clazz="elx-select") }}
+            {{ fmacros.render_checkbox_field(contact_form.is_primary) }}
+        </form>
+        <a id="submission_contact_save" class="save btn btn-raised btn-primary" role="button">Save Contact</a>
+    </div>
 </div>

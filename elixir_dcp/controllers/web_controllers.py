@@ -74,7 +74,6 @@ def oidc_login():
             else:
                 login_user(existing_user_record, remember=True)
                 next = request.args.get('next')
-                #app.logger.info("NEXTTTTTTTTT"+next)
                 app.logger.info(get_flashed_messages())
                 if not is_safe_url(next):
                     return abort(404)
