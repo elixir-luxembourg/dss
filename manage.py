@@ -6,7 +6,7 @@ from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell, Server
 from elixir_dcp import app, db
 from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, SubmissionContact, \
-    SubmissionStatusEnum, GA4GHCodes, SubmissionUseConditionGroup
+    SubmissionStatusEnum, GA4GHCodes
 from elixir_dcp.models.security import User, Role
 
 manager = Manager(app)
@@ -99,12 +99,12 @@ def init_db():
 
     return
 
-@manager.command
-def get_all_DUC_groups():
-    groups = SubmissionUseConditionGroup.query.all()
-    for group in groups:
-        app.logger.info(group)
-    return
+# @manager.command
+# def get_all_DUC_groups():
+#     groups = SubmissionUseConditionGroup.query.all()
+#     for group in groups:
+#         app.logger.info(group)
+#     return
 
 
 manager.add_command("shell", Shell(use_ipython=True, use_bpython=False))

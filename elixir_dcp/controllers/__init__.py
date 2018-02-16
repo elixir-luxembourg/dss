@@ -23,10 +23,6 @@ def app_authorization(**options):
 
     return wrapper
 
-#not current_user.is_authenticated:
-#    return current_app.login_manager.unauthorized()
-#elif
-
 
 from . import errors
 from . import web_controllers

@@ -64,10 +64,13 @@ $(document).ready(function () {
             type: "get",
             success: function (result) {
                 $("#submission_share_modal_body").html(result);
-                $('.elx-select').select2({
-                    placeholder: "Select a User",
-                    allowClear: true,
-                    width: '192px'
+                $('.elx-multi-select').select2({
+                    columns: 2,
+                    search: true,
+                    selectAll: true,
+                    texts: {
+                        placeholder: 'Select one or more Users',
+                    }
                 });
                 $("#submission_share_modal").modal('show');
             },
@@ -76,4 +79,5 @@ $(document).ready(function () {
             }
         });
     });
+
 });

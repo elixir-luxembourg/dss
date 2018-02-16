@@ -7,7 +7,8 @@
             <th width="55%">Study Name</th>
             <th width="10%">De-Identification</th>
             <th width="10%">Special Subjects?</th>
-            <th width="10%">Use Conditions Status</th>
+            <th width="10%">Consent Status</th>
+            <th width="70%">Use Conditions Codes</th>
             <th width="15%">Actions</th>
         </tr>
         </thead>
@@ -17,6 +18,7 @@
                 <td>{{ dish.de_identification_type.value }}</td>
                 <td>{{ dish.special_subjects_status_display() }}</td>
                 <td>{{ dish.consent_status.value }}</td>
+                <td>{{ dish.duc_codes_display() }}</td>
                 <td>
                     <a id="submission_dish_listing_delete"
                        data-url="{{ url_for('delete_submission_dish',dish_id=dish.id) }}" role="button">

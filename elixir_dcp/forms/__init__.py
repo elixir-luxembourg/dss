@@ -1,6 +1,6 @@
 # coding=utf-8
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionAccessForm, SubmissionForm, \
-    StudyDishForm, UseConditionGroupForm, UploadInfoForm
+    StudyDishForm, UploadInfoForm
 from wtforms import HiddenField,StringField
 from wtforms.fields.html5 import EmailField
 from flask_wtf import FlaskForm #, RecaptchaField
@@ -49,7 +49,7 @@ class SignupForm(FlaskForm):
                        render_kw={"placeholder": "Email address that ELIXIR LU should contact you."})
     #recaptcha = RecaptchaField()
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, UseConditionGroupForm, SubmissionAccessForm]
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, SubmissionAccessForm]
 
 
 

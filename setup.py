@@ -11,7 +11,7 @@ requirements = [
     'cssmin', 'webassets', 'Flask-Testing', 'requests',
     'Flask-Cache',
     'Flask-Login', 'Flask-WTF', 'Flask-Migrate', 'flask-oidc',
-    'sqlalchemy-utils', 'Flask-Security', 'Flask-Mail', 'Flask-Babel'
+    'sqlalchemy-utils', 'Flask-Mail', 'Flask-Babel'
 ]
 
 test_requirements = [

@@ -9,11 +9,6 @@ $(document).ready(function () {
             minimumResultsForSearch: -1
         });
 
-        $('.elx-select-readonly').select2({
-            readonly: true
-        });
-
-
         /*       $('select[multiple]').multiselect({
                     columns  : 2,
                     search   : true,
@@ -22,8 +17,6 @@ $(document).ready(function () {
                         placeholder: 'Select one or more Studies',
                     }
                 });*/
-    }
-    function bind_duc_tab_widgets() {
 
         $("div[data-toggle=fieldset]").each(function() {
             var $this = $(this);
@@ -227,63 +220,6 @@ $(document).ready(function () {
     });
 
 
-    /**
-     *
-     *
-     *
-     *
-     * Data Use Condition Inline Editor button handlers.
-     *
-     *
-     *
-     *
-     */
-
-
-    $("#ducs_inline_editor").on('click', 'a#submission_duc_save', function() {
-
-        var id = $('#form_submission_duc').find( "#id" ).val();
-        var base_url  = $('#ducs_inline_editor').attr('data-url');
-        $.ajax({
-            url: "".concat(base_url, (id.length>0)? "/"+id :""),
-            type: 'post',
-            data : $('#form_submission_duc').serialize(),
-            success: function(result){
-                refresh_bean_list("ducs");
-                $("#ducs_inline_editor").html(result);
-                bind_duc_tab_widgets();
-            },
-            error: function (xhr, status, error) {
-                if (xhr.status =="400" ){
-                    refresh_bean_list("ducs");
-                    $("#ducs_inline_editor").html(xhr.responseText);
-                    bind_widgets();
-                }else{
-                    alert('An error occurred while saving restriction group.');
-                }
-
-            }
-        });
-    });
-
-    $("#ducs_inline_list").on('click', 'a#submission_duc_listing_delete', function() {
-        bean_list_delete_handler($(this).attr('data-url'), "ducs");
-    });
-
-    $("#ducs_inline_list").on('click', 'a#submission_duc_listing_edit', function() {
-
-        $.ajax({
-            url: $(this).attr('data-url'),
-            type: "get",
-            success: function(result){
-                $("#ducs_inline_editor").html(result);
-                bind_duc_tab_widgets();
-            },
-            error: function () {
-                alert('An error occurred while loading the selected data use condition group');
-            }
-        });
-    });
 
 
     /**
@@ -340,7 +276,5 @@ $(document).ready(function () {
     });
 
 
-
-    bind_duc_tab_widgets();
     bind_widgets();
 });

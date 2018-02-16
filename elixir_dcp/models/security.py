@@ -13,6 +13,9 @@ class User(db.Model):
     email = db.Column(db.String, unique=True)
     phone_icc = db.Column(db.String)
     phone_no = db.Column(db.String)
+    addr_line1 = db.Column(db.String)
+    addr_line2 = db.Column(db.String)
+
     assigned_roles = db.relationship('Role', secondary='users_roles')
 
     active_user = db.Column(db.Boolean, nullable=False)

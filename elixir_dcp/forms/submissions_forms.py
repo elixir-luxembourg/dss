@@ -2,8 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField, SelectMultipleField, \
     FormField, FieldList, IntegerField
 from wtforms.fields.html5 import EmailField
-from wtforms.validators import DataRequired, Email, Optional, Regexp, Length, NumberRange
-from wtforms.widgets import HiddenInput
+from wtforms.validators import DataRequired, Email,  Regexp, Length
 from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSizeCategory, DeIdentificationTypeEnum, \
     SubmissionStatusEnum, GA4GHCodes, DUCCodeInstance
 from elixir_dcp.models.security import User
@@ -36,7 +35,7 @@ class ContactForm(FlaskForm):
     surname = StringField('Surname', validators=[DataRequired()], render_kw={"placeholder": "SURNAME"})
     is_primary = BooleanField('Is Primary?', default=False)
     category_id = SelectField('Type', coerce=int)
-    email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")], render_kw={"placeholder": "Your institutional e-mail"})
+    email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")], render_kw={"placeholder": "Institutional e-mail"})
 
 
     def __init__(self, *args, **kwargs):
@@ -73,24 +72,6 @@ class UseConditionCodeForm(FlaskForm):
         self.ga4gh_code.choices = [(c.code, c.code + " - " + c.name) for c in GA4GHCodes.query.all()]
 
 
-class UseConditionGroupForm(FlaskForm):
-    """
-    Form for creating or updating Data Use Condition (DUC) Groups
-    """
-
-    id = IntegerField('UseConditionGroup_Id', widget=HiddenInput(), validators=[Optional()])
-
-    submission_id = HiddenField('Submission Id')
-    group_name = StringField('Name', validators=[DataRequired()])
-    duc_codes = FieldList(FormField(UseConditionCodeForm, default=lambda: DUCCodeInstance()),  min_entries=1, label='Data Use Conditions')
-    #applies_to_studies = SelectMultipleField('Applies to Studies')
-
-    def __init__(self, *args, **kwargs):
-        FlaskForm.__init__(self, *args, **kwargs)
-        if 'sub_id' in kwargs:
-            self.submission_id.data = kwargs['sub_id']
-            #self.applies_to_studies.choices = [('22', 'study 1'), ('23', 'study 2')]
-            # TODO read from db using kwargs['sub_id']
 
 
 class SubmissionAccessForm(FlaskForm):
@@ -101,11 +82,12 @@ class SubmissionAccessForm(FlaskForm):
     id = HiddenField('Submission_Id')
     ref_name = StringField('Submission Reference No')
     title = StringField('Submission Title')
-    provider_user_id = SelectField('Shared With', validators=[DataRequired(), NumberRange(min=1)], coerce=int)
+    provider_user_ids = SelectMultipleField('Shared With', coerce=int)
+
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
-        self.provider_user_id.choices = [(-1, " -- ")] + [(usr.id, usr.display_name()) for usr in User.query.all()]
+        self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in User.query.all()]
 
 
 class SubmissionForm(FlaskForm):
@@ -131,11 +113,9 @@ class SubmissionForm(FlaskForm):
         return AttachmentForm(formdata=None, obj=None, sub_id=self.id.data)
 
 
-    def child_duc_form(self, *args, **kwargs):
-        return UseConditionGroupForm(formdata=None, obj=None, sub_id=self.id.data)
-
     def child_uploadinfo_form(self, *args, **kwargs):
         return UploadInfoForm(formdata=None, obj=None, sub_id=self.id.data)
+
 
 class StudyDishForm(FlaskForm):
 
@@ -146,24 +126,27 @@ class StudyDishForm(FlaskForm):
     submission_id = HiddenField('Submission Id')
     study_name = StringField('Study Name', validators=[DataRequired()])
 
-    joint_providers = BooleanField('Joint Providers', default=False)
-    estimate_data_size = SelectField('Estimated Data Size', validators=[DataRequired()])
+    joint_providers = BooleanField('Submitter and ELIXIR are Joint Controllers', default=False)
+    estimate_data_size = SelectField('Estimated Total Data Size', validators=[DataRequired()])
 
     ethics_approval_exists = BooleanField('Ethics Approval Exists', default=False)
 
-    subjects_minors = BooleanField('Subjects Minors', default=False)
-    subjects_vulnerable = BooleanField('Subjects Those Unable To Consent', default=False)
-    subjects_unable_to_consent = BooleanField('Vulnerable Subjects', default=False)
+    subjects_minors = BooleanField('Subjects include Minors?', default=False)
+    subjects_vulnerable = BooleanField('Subjects include those Unable To Consent?', default=False)
+    subjects_unable_to_consent = BooleanField('Other vulnerable Subjects?', default=False)
 
     consent_status = SelectField('Consent Status', choices=ConsentStatusEnum.choices())
+    consent_notes = TextAreaField('Note on Heterogeneous Consents', render_kw={'rows': 3})
     de_identification_type = SelectField('De-Identification Type', choices=DeIdentificationTypeEnum.choices())
 
-    storage_end_date = DateField('Storage End', validators=[DataRequired()], format='%d/%m/%Y', render_kw={"placeholder": "DD/MM/YYYY"})
-    embargo_end_date = DateField('Embargo Until', validators=[DataRequired()], format='%d/%m/%Y', render_kw={"placeholder": "DD/MM/YYYY"})
+    storage_end_date = DateField('Store Until', validators=[DataRequired()], format='%d/%m/%Y', render_kw={"placeholder": "DD/MM/YYYY"})
+
+    duc_codes = FieldList(FormField(UseConditionCodeForm, default=lambda: DUCCodeInstance()),  min_entries=1, label='Data Use Restrictions')
 
 
     def __init__(self, *args, **kwargs):
-        FlaskForm.__init__(self, *args, **kwargs)
-        if 'sub_id' in kwargs:
-            self.submission_id.data = kwargs['sub_id']
-        self.estimate_data_size.choices = [(c.code, c.label) for c in DataSizeCategory.query.all()]
+            FlaskForm.__init__(self, *args, **kwargs)
+            if 'sub_id' in kwargs:
+                self.submission_id.data = kwargs['sub_id']
+            self.estimate_data_size.choices = [(c.code, c.label) for c in DataSizeCategory.query.all()]
+

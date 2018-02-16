@@ -1,11 +1,10 @@
 from sqlalchemy import Sequence
 
 from elixir_dcp import db, app
-from elixir_dcp.exceptions import RecordLifecycleException
 import enum
-from datetime import datetime
 
-import sys
+
+
 
 class ContactType(db.Model):
     __tablename__ = 'contact_types'
@@ -56,8 +55,6 @@ class ConsentStatusEnum(enum.Enum):
 
 
 
-
-
 def transition_0_to_1():
     app.logger.info(" Debug in P1")
 
@@ -96,9 +93,7 @@ class SubmissionStatusEnum(enum.Enum):
                 SubmissionStatusEnum.completed:3,
                 SubmissionStatusEnum.archived:4}.get(self)
 
-
-
-    def get_transition_handler(self):
+    def get_steer_handler(self):
         return {SubmissionStatusEnum.draft:transition_0_to_1,
                 SubmissionStatusEnum.in_progress_metadata:transition_1_to_2,
                 SubmissionStatusEnum.in_progress_data:transition_2_to_3,
@@ -116,19 +111,34 @@ class Submission(db.Model):
     ref_name = db.Column(db.String(45), index=True, unique=True, nullable=False, default=uniqid())
     title = db.Column(db.String(75))
     created_on = db.Column(db.Date, nullable=False)
-    provider_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-
-    provider_user = db.relationship('User')
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
+
+    submission_accesses = db.relationship('SubmissionAccess',  cascade="all, delete-orphan")
     contacts = db.relationship("SubmissionContact", cascade="all, delete-orphan")
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
     dishes = db.relationship("SubmissionStudyDish", cascade="all, delete-orphan")
-    use_conditions = db.relationship("SubmissionUseConditionGroup", cascade="all, delete-orphan")
     uploadinfos = db.relationship("SubmissionUploadInfo", cascade="all, delete-orphan")
 
     def is_shareable(self):
         return ((self.current_status is not SubmissionStatusEnum.completed)
                 & (self.current_status is not SubmissionStatusEnum.archived))
+
+    def is_deletable(self):
+        return self.current_status == SubmissionStatusEnum.draft
+
+    def is_assigned(self):
+            if self.provider_users is not None:
+                return True
+            else:
+                return False
+
+    def provider_users_display(self):
+        result = ""
+        index = 0
+        for access in self.submission_accesses:
+            result += ("" if index == 0 else ", ")+ access.user.first_name + access.user.last_name
+            index += 1
+        return result
 
 
 class SubmissionContact(db.Model):
@@ -163,27 +173,11 @@ class DUCCodeInstance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ga4gh_code = db.Column(db.String, db.ForeignKey('ga4gh_codes.code'), nullable=False)
     note = db.Column(db.String(150))
-    duc_group_id = db.Column(db.Integer, db.ForeignKey('consent_groups.id'), nullable=False)
-    duc_group = db.relationship("SubmissionUseConditionGroup", back_populates="duc_codes")
+    study_id = db.Column(db.Integer, db.ForeignKey('submission_dishes.id'), nullable=False)
+    study = db.relationship("SubmissionStudyDish", back_populates="duc_codes")
 
 
-class SubmissionUseConditionGroup(db.Model):
 
-    __tablename__ = 'consent_groups'
-
-    id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-    group_name = db.Column(db.String, nullable=False)
-    duc_codes = db.relationship("DUCCodeInstance", back_populates="duc_group",  cascade="all, delete-orphan")
-
-    def duc_codes_display(self):
-        result = ""
-        index = 0
-        for duc_code in self.duc_codes:
-            result += ("" if index == 0 else ", ")+duc_code.ga4gh_code
-            index += 1
-
-        return result
 
 class SubmissionStudyDish(db.Model):
     __tablename__ = 'submission_dishes'
@@ -202,81 +196,35 @@ class SubmissionStudyDish(db.Model):
 
     # Data Protection
     consent_status = db.Column(db.Enum(ConsentStatusEnum), nullable=False, default=ConsentStatusEnum.hmg)
+    consent_notes = db.Column(db.String, nullable=False)
     de_identification_type = db.Column(db.Enum(DeIdentificationTypeEnum), nullable=False,
                                        default=DeIdentificationTypeEnum.p)
     storage_end_date = db.Column(db.Date, nullable=True)
-    embargo_end_date = db.Column(db.Date, nullable=True)
+
+    duc_codes = db.relationship("DUCCodeInstance", back_populates="study",  cascade="all, delete-orphan")
+
+    def duc_codes_display(self):
+        result = ""
+        index = 0
+        for duc_code in self.duc_codes:
+            result += ("" if index == 0 else ", ")+duc_code.ga4gh_code
+            index += 1
+        return result
 
     def special_subjects_status_display(self):
         if self.subjects_unable_to_consent or self.subjects_vulnerable or self.subjects_minors:
-            return "YES"
+            return "Y"
         else:
-            return "NO"
+            return "N"
 
 
-def delete_sub(submission_id):
-    submission = Submission.query.one_or_none()
-    if (submission is not None) & (submission.current_status == SubmissionStatusEnum.draft):
-        db.session.delete(submission)
-        db.session.commit()
-        return True
-    else:
-        raise RecordLifecycleException("Submission cannot be deleted")
+class SubmissionAccess(db.Model):
 
+    __tablename__ = 'submission_access'
 
-def share_sub(submission, provider_user):
-    if ((submission is not None) & submission.is_shareable()):
-
-        submission.provider_user_id = provider_user.id
-        db.session.add(submission)
-        db.session.commit()
-
-        if submission.current_status is SubmissionStatusEnum.draft:
-            return steer_sub(submission)
-        else:
-            return submission
-
-    else:
-        raise RecordLifecycleException("Submission cannot be shared")
-
-
-
-
-def steer_sub(submission):
-    try:
-        submission.current_status.get_transition_handler()()
-        new_state = submission.current_status.next_state()
-        submission.current_status = new_state
-        db.session.add(submission)
-        db.session.commit()
-        return submission
-    except:
-        app.logger.error(sys.exc_info()[0])
-        #TODO Better handle the exception here!
-        raise RecordLifecycleException("Submission cannot be transitioned to the next state!")
-
-
-def revert_sub(submission_id):
-    submission = Submission.query.get_or_404(submission_id)
-    new_state = submission.current_status.prev_state()
-
-    if new_state is not None:
-
-        submission.current_status = new_state
-        db.session.add(submission)
-        db.session.commit()
-
-    else:
-        raise RecordLifecycleException("Submission status cannot be changed")
-
-
-def create_sub(title):
-    new_submission = Submission()
-    new_submission.title = title
-    new_submission.created_on = datetime.today()
-    db.session.add(new_submission)
-    db.session.flush()
-    new_submission.ref_name =  "ELX_LU_SUB-{}".format(new_submission.id)
-    db.session.commit()
-    return new_submission
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    access_granted_on = db.Column(db.DateTime, nullable=False)
+    user = db.relationship("User")
 

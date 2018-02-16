@@ -1,5 +1,6 @@
 {% import "forms_macros.html" as fmacros %}
 
+
 <div class="panel panel-default">
     <div class="panel-heading">{% if dish_form.id.data %}Update {% else %}Add New {% endif %}Study</div>
     <div class="panel-body">
@@ -8,19 +9,88 @@
             {{ fmacros.render_field_with_errors(dish_form.study_name) }}
             {{ fmacros.render_checkbox_field(dish_form.joint_providers) }}
             {{ fmacros.render_field_with_errors(dish_form.estimate_data_size, div_col_class="col-md-2", clazz="elx-select") }}
+            <div class="form-group row">
+            </div>
             <fieldset>
                 <legend>Ethics</legend>
-                            {{ fmacros.render_checkbox_field(dish_form.ethics_approval_exists) }}
-                            {{ fmacros.render_checkbox_field(dish_form.subjects_minors) }}
-                            {{ fmacros.render_checkbox_field(dish_form.subjects_vulnerable) }}
-                            {{ fmacros.render_checkbox_field(dish_form.subjects_unable_to_consent) }}
+
+                <div class="form-group row">
+                    <div class="form-group col-md-3">
+                        <label class="control-label"
+                               for="ethicsApprovalExistsCheck">{{ dish_form.ethics_approval_exists.label.text }}</label>
+                        <input id="ethicsApprovalExistsCheck" class="form-control" type="checkbox"
+                                {% if dish_form.ethics_approval_exists.data %} checked="checked" {% endif %}/>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="control-label"
+                               for="subjectsMinorsCheck">{{ dish_form.subjects_minors.label.text }}</label>
+                        <input id="subjectsMinorsCheck" class="form-control" type="checkbox"
+                                {% if dish_form.subjects_minors.data %} checked="checked" {% endif %}/>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label class="control-label"
+                               for="subjectsVulnerableCheck">{{ dish_form.subjects_vulnerable.label.text }}</label>
+                        <input id="subjectsVulnerableCheck" class="form-control" type="checkbox"
+                                {% if dish_form.subjects_vulnerable.data %} checked="checked" {% endif %}/>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="control-label"
+                               for="subjectsUnableToConsentCheck">{{ dish_form.subjects_unable_to_consent.label.text }}</label>
+                        <input id="subjectsUnableToConsentCheck" class="form-control" type="checkbox"
+                                {% if dish_form.subjects_unable_to_consent.data %} checked="checked" {% endif %}/>
+                    </div>
+                </div>
+
+
+                {{ fmacros.render_field_with_errors(dish_form.consent_status, div_col_class="col-md-2", clazz="elx-select") }}
+
+                {{ fmacros.render_field_with_errors(dish_form.consent_notes) }}
+
             </fieldset>
+            <div class="form-group row">
+            </div>
             <fieldset>
                 <legend>Data Protection</legend>
-                            {{ fmacros.render_field_with_errors(dish_form.consent_status, div_col_class="col-md-2", clazz="elx-select") }}
-                            {{ fmacros.render_field_with_errors(dish_form.de_identification_type, div_col_class="col-md-2", clazz="elx-select") }}
-                            {{ fmacros.render_field_with_errors(dish_form.storage_end_date, div_col_class="col-md-3", clazz="elx-date") }}
-                            {{ fmacros.render_field_with_errors(dish_form.embargo_end_date, div_col_class="col-md-3", clazz="elx-date") }}
+                {{ fmacros.render_field_with_errors(dish_form.de_identification_type, div_col_class="col-md-2", clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dish_form.storage_end_date, div_col_class="col-md-3", clazz="elx-date") }}
+            </fieldset>
+            <div class="form-group row">
+            </div>
+
+            <fieldset>
+                <legend>Use Conditions</legend>
+                <div class="form-group row {% if dish_form.duc_codes.errors %}has-error{% endif %}">
+                    {{ dish_form.duc_codes.label(class="col-md-2 control-label") }}
+                    <div class="col-md-8">
+                        <div data-toggle="fieldset" id="duc-codes-fieldset">
+                            <button type="button" data-toggle="fieldset-add-row" data-target="#duc-codes-fieldset">+
+                            </button>
+                            <table>
+                                <tr>
+                                    <th>GA4GH Code</th>
+                                    <th>Note</th>
+                                    <th></th>
+                                </tr>
+                                {% for duc_code_instance in dish_form.duc_codes %}
+                                    <tr data-toggle="fieldset-entry">
+                                        <td>{{ duc_code_instance.ga4gh_code }}</td>
+                                        <td>{{ duc_code_instance.note }}</td>
+                                        <td>
+                                            <button type="button" data-toggle="fieldset-remove-row"
+                                                    id="duc-code-{{ loop.index0 }}-remove">-
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% if dish_form.duc_codes.errors %}
+                            {% for error in dish_form.duc_codes.errors %}<p class="help-block">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
             </fieldset>
         </form>
         <a id="submission_dish_save" class="save btn btn-raised btn-primary" role="button">Save Study</a>

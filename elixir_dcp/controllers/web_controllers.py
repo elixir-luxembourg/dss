@@ -6,8 +6,10 @@ from urllib import parse
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
-from elixir_dcp.models.submission import create_sub, delete_sub, share_sub, Submission, SubmissionAttachment, steer_sub, \
-    SubmissionContact, SubmissionStatusEnum, SubmissionStudyDish, SubmissionUseConditionGroup, SubmissionUploadInfo
+from elixir_dcp.models.services import create_sub, delete_sub, share_sub, steer_sub, revert_sub, \
+    get_submissions_shared_with_user
+from elixir_dcp.models.submission import Submission, SubmissionAttachment, SubmissionContact,  \
+    SubmissionStudyDish, SubmissionUploadInfo
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 from sqlalchemy import and_, or_
@@ -98,6 +100,8 @@ def oidc_login():
             flash("Please check the validity of your input in highlighted places", "error")
             return render_template('security/signup.html', signup_form=posted_form)
 
+##there needs tobe a method here for config login.
+## we will use it for tests.
 
 def is_safe_url(target):
     ref_url = parse.urlparse(request.host_url)
@@ -132,11 +136,9 @@ def share_submission(sub_id):
         posted_form = forms.SubmissionAccessForm(request.form)
         if posted_form.validate_on_submit():
             try:
-                submission_rec = Submission.query.get_or_404(sub_id)
-                provider_user = User.query.get_or_404(posted_form.provider_user_id.data)
-                shared_sub = share_sub(submission_rec, provider_user)
+                share_sub(sub_id, posted_form.provider_user_ids.data)
                 flash(
-                    'Submission {} shared with {}'.format(shared_sub.ref_name, shared_sub.provider_user.display_name()),
+                    'Submission {} shared'.format(posted_form.ref_name.data),
                     "success")
                 return redirect(url_for('list_submissions'))
             except exceptions.RecordLifecycleException as e:
@@ -168,16 +170,37 @@ def archive_submission(sub_id):
     pass
 
 
-@app_authorization(allowed_roles=['admin', 'data_provider'])
-@app.route('/steer/submission/<int:sub_id>', methods=['GET', 'POST'])
-def steer_submission(sub_id):
-    if request.method == 'GET':
-        submission_rec = Submission.query.get_or_404(sub_id)
 
-        # Check if all info is supplied so that submission can be steered
-        # flash("The submission is not shareable due to its status", "error")
-        steer_sub(submission_rec)
-        return redirect(url_for('edit_submission', sub_id=submission_rec.id))
+@app_authorization(allowed_roles=['admin'])
+@app.route('/datalink/submission/<int:sub_id>', methods=['GET'])
+def datalink_submission(sub_id):
+    pass
+
+
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app.route('/steer/submission/<int:sub_id>', methods=['GET'])
+def steer_submission(sub_id):
+    try:
+        sub_with_new_state = steer_sub(sub_id)
+        flash("Submission moved to next state {} !".format(sub_with_new_state.current_status), "success")
+        return "", 204
+    except exceptions.RecordLifecycleException as e:
+        app.logger.error('ERROR %s', e)
+        flash("Unable to transition submission to the next state", 'error')
+        return "", 400
+
+
+@app_authorization(allowed_roles=['admin'])
+@app.route('/steer/submission/<int:sub_id>', methods=['GET'])
+def revert_submission(sub_id):
+    try:
+        sub_with_new_state = revert_sub(sub_id)
+        flash("Submission moved to next state {} !".format(sub_with_new_state.current_status), "success")
+        return "", 204
+    except exceptions.RecordLifecycleException as e:
+        app.logger.error('ERROR %s', e)
+        flash("Unable to transition submission to the next state", 'error')
+        return "", 400
 
 
 """------------------------------------"""
@@ -202,13 +225,10 @@ def list_submissions():
 @app_authorization(allowed_roles=['data_provider'])
 def list_my_submissions():
     """
-    List the submissions that have been shared with the LOGGED IN  user (with the data provider role)
+    List the submissions that have been shared with the LOGGED IN  user
     """
 
-    my_submissions = db.session.query(Submission).filter(and_(Submission.provider_user_id == current_user.id,
-                                                              or_(
-                                                                  Submission.current_status == SubmissionStatusEnum.in_progress_metadata,
-                                                                  Submission.current_status == SubmissionStatusEnum.in_progress_data)))
+    my_submissions = get_submissions_shared_with_user(current_user.id)
 
     return render_template('submission/my_submissions.html',
                            my_submissions=my_submissions)
@@ -445,58 +465,6 @@ def delete_submission_dish(dish_id):
     flash("Study deleted", "success")
     return "", 204
 
-
-"""--------------------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's DUC/Consent Groups."""
-"""--------------------------------------------------------------"""
-
-
-@app.route('/submission_ducs/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
-def list_submission_ducs(sub_id):
-    ducs = SubmissionUseConditionGroup.query.filter_by(submission_id=sub_id)
-    return render_template('submission/_duc_columns.html', ducs=ducs)
-
-
-@app.route('/submission_duc/<int:duc_id>', methods=['GET', 'POST'])
-@app.route('/submission_duc', methods=['POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
-def add_edit_submission_duc(duc_id=None):
-    mode = "create" if duc_id is None else "edit"
-    if request.method == 'GET':
-        duc_rec = SubmissionUseConditionGroup.query.get_or_404(duc_id)
-        result_form = forms.UseConditionGroupForm(obj=duc_rec)
-        return render_template('submission/_duc_form.html', duc_form=result_form)
-    elif request.method == 'POST':
-        posted_form = forms.UseConditionGroupForm(request.form)
-        if posted_form.validate_on_submit():
-            if mode == 'edit':
-                duc_rec = SubmissionUseConditionGroup.query.get_or_404(duc_id)
-                posted_form.populate_obj(duc_rec)
-            else:
-                duc_rec = SubmissionUseConditionGroup()
-                posted_form.populate_obj(duc_rec)
-                duc_rec.id = None
-            db.session.add(duc_rec)
-            db.session.commit()
-            flash("Restriction Group {}.".format("created" if mode == 'create' else "updated"), "success")
-            sid = posted_form.submission_id.data
-            return render_template('submission/_duc_form.html', duc_form=forms.UseConditionGroupForm(formdata=None,
-                                                                                                     obj=None,
-                                                                                                     sub_id=sid)), 200
-        else:
-            flash("Please check the validity of your input in highlighted places", "error")
-            return render_template('submission/_duc_form.html', duc_form=posted_form), 400
-
-
-@app.route('/submission_duc/<int:duc_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
-def delete_submission_duc(duc_id):
-    duc = SubmissionUseConditionGroup.query.get_or_404(duc_id)
-    db.session.delete(duc)
-    db.session.commit()
-    flash("Restriction Group deleted", "success")
-    return "", 204
 
 
 """----------------------------------------------------"""

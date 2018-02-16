@@ -37,8 +37,8 @@
                         <td> {{ submission.title }} </td>
                         <td> {{ submission.created_on }} </td>
                         <td> {{ submission.current_status.value }} </td>
-                        {% if submission.provider_user %}
-                            <td> {{ submission.provider_user.display_name() }} </td>
+                        {% if submission.is_assigned %}
+                            <td> {{ submission.provider_users_display() }} </td>
                         {% else %}
                             <td>  --- </td>
                         {% endif %}
@@ -50,6 +50,10 @@
                             <a name="button_submission_listing_share"
                                data-url="{{ url_for('share_submission',sub_id=submission.id) }}" role="button">
                                 <i class="text-info material-icons">assignment_ind</i>
+                            </a>
+                            <a name="button_submission_listing_transfer"
+                               data-url="{{ url_for('datalink_submission',sub_id=submission.id) }}" role="button">
+                                <i class="text-info material-icons">link</i>
                             </a>
                             <!--
                             <a name="button_submission_listing_view"

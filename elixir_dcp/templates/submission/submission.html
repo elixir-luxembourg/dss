@@ -28,11 +28,10 @@
 {% endblock %}
 {% block content %}
 
-    {% include 'submission/_submission_progress_bar.html' %}
 
     {{ macros.show_flashes() }}
-    <div class="row">
 
+    <div class="row">
             <div id="basicinfo" class="col-md-9 block" >
                 <form id="form_submission_basics"
                       method="POST"
@@ -73,7 +72,6 @@
                 <li><a href="#contacts">Contacts</a></li>
                 <li><a href="#attachments">Attachments</a></li>
                 <li><a href="#dishes">Studies</a></li>
-                <li><a href="#ducs">Data Use Restrictions</a></li>
             {% endif %}
             {% if current_user.is_admin()  or  submission.current_status.step_num() == 2 %}
                 <li><a href="#uploadinfos">Data Upload Info</a></li>
@@ -103,7 +101,6 @@
                     </div>
                     <hr size="2px"/>
 
-                    <!--class="container" -->
                     <div id="attachments_inline_editor" data-url="{{ url_for('add_submission_attachment') }}">
                         {% include 'submission/_attachment_form.html' %}
                     </div>
@@ -119,19 +116,6 @@
                     <hr size="2px"/>
                     <div id="dishes_inline_editor" data-url="{{ url_for('add_edit_submission_dish') }}">
                         {% include 'submission/_dish_form.html' %}
-                    </div>
-                {% endwith %}
-            </div>
-            <div id="ducs">
-                {% with %}
-                    {% set ducs = submission.use_conditions %}
-                    {% set duc_form =  submsn_form.child_duc_form() %}
-                    <div id="ducs_inline_list" data-url="{{ url_for('list_submission_ducs',sub_id=submission.id) }}">
-                        {% include 'submission/_duc_columns.html' %}
-                    </div>
-                    <hr size="2px"/>
-                    <div id="ducs_inline_editor" data-url="{{ url_for('add_edit_submission_duc') }}">
-                        {% include 'submission/_duc_form.html' %}
                     </div>
                 {% endwith %}
             </div>
@@ -152,6 +136,8 @@
             </div>
         {% endif %}
     </div>
+
+    {% include 'submission/_submission_progress_bar.html' %}
 
 
 {% endblock %}

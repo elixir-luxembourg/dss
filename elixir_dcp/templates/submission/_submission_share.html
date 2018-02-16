@@ -6,7 +6,7 @@
         {{ submsn_access_form.hidden_tag() }}
         {{ fmacros.render_field_with_errors(submsn_access_form.ref_name, readonly=true) }}
         {{ fmacros.render_field_with_errors(submsn_access_form.title, readonly=true) }}
-        {{ fmacros.render_field_with_errors(submsn_access_form.provider_user_id, clazz="elx-select") }}
+        {{ fmacros.render_field_with_errors(submsn_access_form.provider_user_ids, clazz="elx-multi-select") }}
         <div class="modal-footer">
             <input type="submit" class="save btn btn-raised btn-primary" value="Share"/>
             <button type="button" class="btn btn-dialog" data-dismiss="modal">Cancel</button>
