@@ -44,7 +44,6 @@
 
 
                 {{ fmacros.render_field_with_errors(dish_form.consent_status, div_col_class="col-md-2", clazz="elx-select") }}
-
                 {{ fmacros.render_field_with_errors(dish_form.consent_notes) }}
 
             </fieldset>
@@ -66,16 +65,16 @@
                         <div data-toggle="fieldset" id="duc-codes-fieldset">
                             <button type="button" data-toggle="fieldset-add-row" data-target="#duc-codes-fieldset">+
                             </button>
-                            <table>
+                            <table  style="width:800px" >
                                 <tr>
-                                    <th>GA4GH Code</th>
-                                    <th>Note</th>
-                                    <th></th>
+                                    <th width="40%">GA4GH Code</th>
+                                    <th width="55%">Note</th>
+                                    <th width="5%"></th>
                                 </tr>
                                 {% for duc_code_instance in dish_form.duc_codes %}
                                     <tr data-toggle="fieldset-entry">
                                         <td>{{ duc_code_instance.ga4gh_code }}</td>
-                                        <td>{{ duc_code_instance.note }}</td>
+                                        <td>{{ duc_code_instance.note(rows='3',cols='75')}}</td>
                                         <td>
                                             <button type="button" data-toggle="fieldset-remove-row"
                                                     id="duc-code-{{ loop.index0 }}-remove">-

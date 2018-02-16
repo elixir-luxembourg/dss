@@ -172,7 +172,7 @@ class DUCCodeInstance(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     ga4gh_code = db.Column(db.String, db.ForeignKey('ga4gh_codes.code'), nullable=False)
-    note = db.Column(db.String(150))
+    note = db.Column(db.String(250))
     study_id = db.Column(db.Integer, db.ForeignKey('submission_dishes.id'), nullable=False)
     study = db.relationship("SubmissionStudyDish", back_populates="duc_codes")
 

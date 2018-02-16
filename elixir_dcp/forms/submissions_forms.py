@@ -65,7 +65,7 @@ class UseConditionCodeForm(FlaskForm):
     Form for creating an instance of a Ga4GH code to be included in a DUC group
     """
     ga4gh_code = SelectField('GA4GH Code')
-    note = StringField('Note')
+    note = TextAreaField('Note')
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)

@@ -1,5 +1,6 @@
 $(document).ready(function () {
 
+    var VALIDATION_ERROR_STR = "BAD REQUEST";
 
     function bind_widgets(){
 
@@ -108,9 +109,11 @@ $(document).ready(function () {
                 bind_widgets();
             },
             error: function (xhr, status, error) {
-                refresh_bean_list("contacts");
-                $("#contacts_inline_editor").html(xhr.responseText);
-            }
+                if (error === VALIDATION_ERROR_STR) {
+                    refresh_bean_list("contacts");
+                    $("#contacts_inline_editor").html(xhr.responseText);
+                }}
+
         });
     });
     $("#contacts_inline_list").on('click', 'a#submission_contact_listing_delete', function() {
@@ -161,8 +164,10 @@ $(document).ready(function () {
                 $("#attachments_inline_editor").html(result);
             },
             error: function (xhr, status, error) {
-                refresh_bean_list("attachments");
-                $("#attachments_inline_editor").html(xhr.responseText);
+                if (error === VALIDATION_ERROR_STR) {
+                    refresh_bean_list("attachments");
+                    $("#attachments_inline_editor").html(xhr.responseText);
+                }
             }
         });
     });
@@ -193,9 +198,11 @@ $(document).ready(function () {
                 bind_widgets();
             },
             error: function (xhr, status, error) {
-                refresh_bean_list("dishes");
-                $("#dishes_inline_editor").html(xhr.responseText);
-                bind_widgets();
+                if (error === VALIDATION_ERROR_STR) {
+                    refresh_bean_list("dishes");
+                    $("#dishes_inline_editor").html(xhr.responseText);
+                    bind_widgets();
+                }
             }
         });
     });
@@ -218,7 +225,6 @@ $(document).ready(function () {
             }
         });
     });
-
 
 
 
@@ -247,11 +253,11 @@ $(document).ready(function () {
                 $("#uploadinfos_inline_editor").html(result);
             },
             error: function (xhr, status, error) {
-                refresh_bean_list("uploadinfos");
-                //TODO check the type of error here,
-                //only in csae of validation errors we should update the html
-                $("#uploadinfos_inline_editor").html(xhr.responseText);
-                bind_widgets();
+                if (error === VALIDATION_ERROR_STR) {
+                    refresh_bean_list("uploadinfos");
+                    $("#uploadinfos_inline_editor").html(xhr.responseText);
+                    bind_widgets();
+                }
             }
         });
     });
