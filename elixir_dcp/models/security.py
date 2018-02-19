@@ -11,10 +11,10 @@ class User(db.Model):
     last_name = db.Column(db.String, nullable=False)
     elixir_sub_id = db.Column(db.String, nullable=False, unique=True)
     email = db.Column(db.String, unique=True)
-    phone_icc = db.Column(db.String)
     phone_no = db.Column(db.String)
     addr_line1 = db.Column(db.String)
     addr_line2 = db.Column(db.String)
+    institution = db.Column(db.String, nullable=False)
 
     assigned_roles = db.relationship('Role', secondary='users_roles')
 
@@ -46,20 +46,6 @@ class User(db.Model):
             return True
         else:
             return False
-
-    def assign_role(self, role_name):
-
-        role = Role.query.filter_by(name=role_name).one_or_none()
-        if role:
-            if not self.has_role_from([role_name]):
-                new_role_assignment = UsersRoles()
-                new_role_assignment.user_id = self.id
-                new_role_assignment.role_id = role.id
-                new_role_assignment.assigned_on = datetime.now()
-                db.session.add(new_role_assignment)
-                db.session.commit()
-        else:
-            raise RecordNotExistsException("Role with specified name does not exist.")
 
     def is_admin(self):
         return self.has_role_from(['admin'])

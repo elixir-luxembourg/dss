@@ -9,6 +9,14 @@ jqueryui_css = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.css')
 jqueryui_js = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.js')
 datatables_js = 'vendor/datatables/datatables.min.js'
 datatables_css = 'vendor/datatables/datatables.min.css'
+
+select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/select2.sortable.js')
+select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
+
+jquery_multiselect_js = Bundle('vendor/multiselect/jquery.multiselect.js')
+jquery_multiselect_css = Bundle('vendor/multiselect/jquery.multiselect.css')
+
+
 common_css = Bundle(
     'vendor/node_modules/bootstrap/dist/css/bootstrap.css',
     'vendor/node_modules/bootstrap-material-design/dist/css/ripples.css',
@@ -33,9 +41,6 @@ common_js = Bundle(
     filters='closure_js',
     output='public/js/common.min.js', debug=False)
 
-select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/select2.sortable.js')
-select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
-
 
 submission_editor_js = Bundle(
     Bundle(
@@ -51,8 +56,13 @@ submission_listing_js = Bundle(
     ),
     output='public/js/submission_listing.min.js')
 
-jquery_multiselect_js = Bundle('vendor/multiselect/jquery.multiselect.js')
-jquery_multiselect_css = Bundle('vendor/multiselect/jquery.multiselect.css')
+signup_js = Bundle(
+    Bundle(
+        'js/signup.js',
+        filters='closure_js'
+    ),
+    output='public/js/signup.min.js')
+
 
 
 

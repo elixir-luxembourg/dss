@@ -1,9 +1,10 @@
 # coding=utf-8
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionAccessForm, SubmissionForm, \
     StudyDishForm, UploadInfoForm
-from wtforms import HiddenField,StringField
+
+from wtforms import HiddenField,StringField,  SelectField
 from wtforms.fields.html5 import EmailField
-from flask_wtf import FlaskForm #, RecaptchaField
+from flask_wtf import FlaskForm
 from flask import redirect, request
 from urllib.parse import urlparse, urljoin
 from wtforms.validators import Email, DataRequired, Length, Regexp
@@ -41,13 +42,33 @@ class RedirectForm(FlaskForm):
         return redirect(target or '/')
 
 
+def check_phone(form, field):
+    """Form validation: fails if the phone field is not recognisable by the google phonenumber library."""
+    # w = form.w.data
+    # T = field.data
+    # period = 2*pi/w
+    # if T > 30*period:
+    #     num_periods = int(round(T/period))
+    #     raise validators.ValidationError(
+    #         'Cannot plot as much as %d periods! T<%.2f' %
+    #         (num_periods, 30*period))
+
+
 class SignupForm(FlaskForm):
     elixir_sub_id = HiddenField('Elixir Sub ID')
-    first_name = StringField('First Name', [DataRequired(), Regexp('\w+', message="Names can contain only letters numbers or underscore"), Length(min=2, max=20, message="First name must be between 2 & 20 characters")])
-    last_name = StringField('Last Name', [DataRequired(), Regexp('\w+', message="Names can contain only letters numbers or underscore"), Length(min=2, max=20, message="Last name must be between 2 & 20 characters")])
-    email = EmailField('E-Mail', [DataRequired()],
-                       render_kw={"placeholder": "Email address that ELIXIR LU should contact you."})
-    #recaptcha = RecaptchaField()
+    first_name = StringField('First Name', [DataRequired(), Regexp('\w+', message="Names can contain letters, numbers or underscore."), Length(min=2, max=20, message="Must be between 2 & 20 characters.")])
+    last_name = StringField('Last Name', [DataRequired(), Regexp('\w+', message="Names can contain letters, numbers or underscore."), Length(min=2, max=20, message="Must be between 2 & 20 characters.")])
+    institution = StringField('Institution', [DataRequired()])
+    email = EmailField('E-Mail', [DataRequired(), Email("This field requires an email address.")],
+                       render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
+
+    addr_line1 = StringField('Address', render_kw={"placeholder": "Street Address."})
+    addr_line2 = StringField('City', render_kw={"placeholder": "City, Country, Postal Code."})
+
+    phone_no = StringField('Phone', [check_phone])
+
+
+
 
 __all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, SubmissionAccessForm]
 

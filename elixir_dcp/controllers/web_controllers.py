@@ -1,14 +1,14 @@
 # coding=utf-8
-from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages
+from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages, Response
 from flask_login import current_user, login_user, login_required, logout_user
-from urllib import parse
 
+from json import dumps
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
 from elixir_dcp.models.services import create_sub, delete_sub, share_sub, steer_sub, revert_sub, \
-    get_submissions_shared_with_user
-from elixir_dcp.models.submission import Submission, SubmissionAttachment, SubmissionContact,  \
+    get_submissions_shared_with_user, register_new_user, assign_role_to_user
+from elixir_dcp.models.submission import Submission, SubmissionAttachment, SubmissionContact, \
     SubmissionStudyDish, SubmissionUploadInfo
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
@@ -43,13 +43,13 @@ def logout():
     return render_template('home.html')
 
 
-
 @app.route('/oidc_login', methods=['GET', 'POST'])
 @oidc.require_login
 def oidc_login():
     app.logger.info('Debug in oidc_login')
     app.logger.info(g.oidc_id_token)
-    app.logger.info("User Info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
+    app.logger.info(
+        "User Info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
     # TODO:  Ask Jacek. We need to figure out which attributes are useful. E.g. what does the information
     # in bona_fide_status exactly mean. Are we ging to make a check whether user group in AAI and the applications we
     # have here at ELIXIR LU
@@ -75,39 +75,25 @@ def oidc_login():
                     "This AAI User does not have access to the application")), 500
             else:
                 login_user(existing_user_record, remember=True)
-                next = request.args.get('next')
+                nextt = request.args.get('next')
                 app.logger.info(get_flashed_messages())
-                if not is_safe_url(next):
+                if not forms.is_safe_url(nextt):
                     return abort(404)
                 else:
-                    return redirect(next or url_for('home'))
+                    return redirect(nextt or url_for('home'))
     elif request.method == 'POST':
         posted_form = forms.SignupForm(request.form)
         if posted_form.validate_on_submit():
-            new_user_record = User(elixir_sub_id=posted_form.elixir_sub_id.data,
-                                   first_name=posted_form.first_name.data,
-                                   last_name=posted_form.last_name.data,
-                                   email=posted_form.email.data,
-                                   active_user=True)
-            db.session.add(new_user_record)
-            db.session.commit()
-            User.query.filter_by(elixir_sub_id=posted_form.elixir_sub_id.data).one_or_none().assign_role(
-                'data_provider')
-            login_user(new_user_record, remember=True)
-            flash('You have been signed up to the ELIXIR-LU Data Submission system.', 'info')
+            new_user_record = User()
+            posted_form.populate_obj(new_user_record)
+            registered_user = register_new_user(new_user_record)
+            assign_role_to_user(registered_user, 'data_provider')
+            login_user(registered_user, remember=True)
+            flash('You are now signed up to the ELIXIR-LU Data Submission System.', 'success')
             return redirect(url_for('home'))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
             return render_template('security/signup.html', signup_form=posted_form)
-
-##there needs tobe a method here for config login.
-## we will use it for tests.
-
-def is_safe_url(target):
-    ref_url = parse.urlparse(request.host_url)
-    test_url = parse.urlparse(parse.urljoin(request.host_url, target))
-    return test_url.scheme in ('http', 'https') and \
-           ref_url.netloc == test_url.netloc
 
 
 @login_manager.user_loader
@@ -168,7 +154,6 @@ def delete_submission(sub_id):
 @app.route('/archive/submission/<int:sub_id>', methods=['GET'])
 def archive_submission(sub_id):
     pass
-
 
 
 @app_authorization(allowed_roles=['admin'])
@@ -466,7 +451,6 @@ def delete_submission_dish(dish_id):
     return "", 204
 
 
-
 """----------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's Upload Info Records."""
 """----------------------------------------------------"""
@@ -523,3 +507,13 @@ def delete_submission_uploadinfo(uploadinfo_id):
     db.session.commit()
     flash("Submission Upload Info deleted", "success")
     return "", 204
+
+
+"""----------------------------------------------------"""
+"""AJAX Endpoints for autocomplete fields in various forms"""
+"""----------------------------------------------------"""
+
+
+@app.route('/autocomplete_institutes', methods=['GET'])
+def autocomplete_institutes():
+    return Response(dumps(app.config.get('DATA_INIT')['collab_institutions']), mimetype='application/json')

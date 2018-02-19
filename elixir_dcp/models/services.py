@@ -1,5 +1,6 @@
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess
-from elixir_dcp.exceptions import RecordLifecycleException
+from elixir_dcp.models.security import User, Role, UsersRoles
+from elixir_dcp.exceptions import RecordLifecycleException, RecordNotExistsException
 from elixir_dcp import db, app
 from datetime import datetime
 from sqlalchemy import and_
@@ -88,4 +89,32 @@ def get_submissions_shared_with_user(user_id):
     submission_ids = SubmissionAccess.query(SubmissionAccess.submission_id).filter_by(user_id=user_id)
     return Submission.query.filter_by(Submission.id.in_(submission_ids), Submission.current_status.in_(
         [SubmissionStatusEnum.in_progress_metadata, SubmissionStatusEnum.in_progress_data]))
+
+
+def assign_role_to_user(user: User, role_name: str):
+
+    role = Role.query.filter_by(name=role_name).one_or_none()
+    if role:
+        if not user.has_role_from([role_name]):
+            new_role_assignment = UsersRoles()
+            new_role_assignment.user_id = user.id
+            new_role_assignment.role_id = role.id
+            new_role_assignment.assigned_on = datetime.now()
+            db.session.add(new_role_assignment)
+            db.session.commit()
+    else:
+        raise RecordNotExistsException("Role with specified name does not exist.")
+
+
+def register_new_user(user: User):
+
+    user.active_user = True
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+
+
+
+
 

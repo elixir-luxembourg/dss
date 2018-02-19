@@ -1,9 +1,6 @@
 from sqlalchemy import Sequence
-
 from elixir_dcp import db, app
 import enum
-
-
 
 
 class ContactType(db.Model):
@@ -175,7 +172,6 @@ class DUCCodeInstance(db.Model):
     note = db.Column(db.String(250))
     study_id = db.Column(db.Integer, db.ForeignKey('submission_dishes.id'), nullable=False)
     study = db.relationship("SubmissionStudyDish", back_populates="duc_codes")
-
 
 
 

@@ -1,17 +1,33 @@
 {% extends 'layout.html' %}
 {% from "forms_macros.html" import render_field_with_errors %}
+{% block title %}Sign Up{% endblock %}
+{% block js %}
+    {{ super() }}
+    {% assets "signup_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
 {% block container %}
-    <div class="container">
+    <div class="container" id="main-container">
+
+        {% include 'header.html' %}
+
+        {{ macros.show_flashes() }}
         <h1 class="text-center">SignUp</h1>
-        <form class="form-horizontal" action="{{ url_for('oidc_login') }}" method="POST">
-            {{ signup_form.hidden_tag() }}
-            {{ render_field_with_errors(signup_form.email) }}
-            {{ render_field_with_errors(signup_form.first_name) }}
-            {{ render_field_with_errors(signup_form.last_name) }}
-            {{  }}
-            <!-- {{ signup_form.recaptcha }} -->
-            <input type="submit" class="save btn btn-raised btn-primary" value="SignUp"/>
-        </form>
+            <form class="form-horizontal" action="{{ url_for('oidc_login') }}" method="POST">
+                {{ signup_form.hidden_tag() }}
+                {{ render_field_with_errors(signup_form.first_name) }}
+                {{ render_field_with_errors(signup_form.last_name) }}
+                {{ render_field_with_errors(signup_form.email) }}
+                {{ render_field_with_errors(signup_form.institution, clazz="elx-autocomp-institution") }}
+
+                {{ render_field_with_errors(signup_form.addr_line1) }}
+                {{ render_field_with_errors(signup_form.addr_line2) }}
+                {{ render_field_with_errors(signup_form.phone_no) }}
+
+                <input type="submit" class="save btn btn-raised btn-primary" value="SignUp"/>
+            </form>
+
     </div>
 
 {% endblock %}

@@ -4,7 +4,7 @@ from wtforms import StringField, HiddenField, BooleanField, TextAreaField, Selec
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Email,  Regexp, Length
 from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSizeCategory, DeIdentificationTypeEnum, \
-    SubmissionStatusEnum, GA4GHCodes, DUCCodeInstance
+     GA4GHCodes, DUCCodeInstance
 from elixir_dcp.models.security import User
 
 class AttachmentForm(FlaskForm):

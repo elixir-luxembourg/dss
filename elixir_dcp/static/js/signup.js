@@ -1,0 +1,10 @@
+$(document).ready($(function () {
+    $.ajax({
+        url: '/autocomplete_institutes'
+    }).done(function (data) {
+        $('.elx-autocomp-institution').autocomplete({
+            source: data,
+            minLength: 3
+        });
+    });
+}));

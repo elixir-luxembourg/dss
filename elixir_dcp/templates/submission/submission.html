@@ -16,6 +16,7 @@
     {% endassets %}
 
 {% endblock %}
+
 {% block css %}
     {{ super() }}
     {% assets "jquery_multiselect_css" %}
@@ -26,9 +27,8 @@
         <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
     {% endassets %}
 {% endblock %}
+
 {% block content %}
-
-
     {{ macros.show_flashes() }}
 
     <div class="row">
