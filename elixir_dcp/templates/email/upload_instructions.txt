@@ -1,0 +1,22 @@
+Dear Data Provider,
+
+The upload instructions for your submission {{ submission.ref_name }} have been updated. The updated instructions are as follows:
+
+------
+Ref Name: {{ submission.ref_name }}
+Title: {{ submission.title }}
+
+
+{{ submission.upload_instructions }}
+
+------
+
+Most recent upload instructions for your submission can be viewed via the Submission Page at:
+
+{{ url_for('edit_submission',sub_id=submission.id) }}
+
+If you want to close-off your submission you may do so from the Submission Page.
+
+
+Regards,
+ELIXIR-LU Data Stewards

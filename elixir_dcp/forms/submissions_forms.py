@@ -7,6 +7,7 @@ from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSiz
      GA4GHCodes, DUCCodeInstance
 from elixir_dcp.models.security import User
 
+
 class AttachmentForm(FlaskForm):
     """
     Form for creating or updating attachments in the form of uploaded files
@@ -37,12 +38,12 @@ class ContactForm(FlaskForm):
     category_id = SelectField('Type', coerce=int)
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")], render_kw={"placeholder": "Institutional e-mail"})
 
-
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         if 'sub_id' in kwargs:
             self.submission_id.data = kwargs['sub_id']
         self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
+
 
 class UploadInfoForm(FlaskForm):
     """
@@ -72,24 +73,6 @@ class UseConditionCodeForm(FlaskForm):
         self.ga4gh_code.choices = [(c.code, c.code + " - " + c.name) for c in GA4GHCodes.query.all()]
 
 
-
-
-class SubmissionAccessForm(FlaskForm):
-    """
-    Form for sharing a submission with a data provider user.
-    """
-
-    id = HiddenField('Submission_Id')
-    ref_name = StringField('Submission Reference No')
-    title = StringField('Submission Title')
-    provider_user_ids = SelectMultipleField('Shared With', coerce=int)
-
-
-    def __init__(self, *args, **kwargs):
-        FlaskForm.__init__(self, *args, **kwargs)
-        self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in User.query.all()]
-
-
 class SubmissionForm(FlaskForm):
     """
     Form for updating a submission's title and
@@ -102,16 +85,22 @@ class SubmissionForm(FlaskForm):
                                              Regexp('\w+', message="Title must contain only letters numbers or underscore"),
                                              Length(min=15, max=75, message="Title must be between 5 & 25 characters")])
 
+    upload_instructions = TextAreaField('Upload Instructions', render_kw={"placeholder": "Instructions will be displayed here once you complete Study Registration and we create an upload link for you.", "rows": "6", "columns": "50"})
+
+    provider_user_ids = SelectMultipleField('Shared With', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+        self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in User.query.all()]
+
     def child_contact_form(self, *args, **kwargs):
         return ContactForm(formdata=None, obj=None, sub_id=self.id.data)
-
 
     def child_dish_form(self, *args, **kwargs):
         return StudyDishForm(formdata=None, obj=None, sub_id=self.id.data)
 
     def child_attachment_form(self, *args, **kwargs):
         return AttachmentForm(formdata=None, obj=None, sub_id=self.id.data)
-
 
     def child_uploadinfo_form(self, *args, **kwargs):
         return UploadInfoForm(formdata=None, obj=None, sub_id=self.id.data)
@@ -142,7 +131,6 @@ class StudyDishForm(FlaskForm):
     storage_end_date = DateField('Store Until', validators=[DataRequired()], format='%d/%m/%Y', render_kw={"placeholder": "DD/MM/YYYY"})
 
     duc_codes = FieldList(FormField(UseConditionCodeForm, default=lambda: DUCCodeInstance()),  min_entries=1, label='Data Use Restrictions')
-
 
     def __init__(self, *args, **kwargs):
             FlaskForm.__init__(self, *args, **kwargs)

@@ -1,5 +1,5 @@
 # coding=utf-8
-from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionAccessForm, SubmissionForm, \
+from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm,  SubmissionForm, \
     StudyDishForm, UploadInfoForm
 
 from wtforms import HiddenField,StringField,  SelectField
@@ -9,7 +9,7 @@ from flask import redirect, request
 from urllib.parse import urlparse, urljoin
 from wtforms.validators import Email, DataRequired, Length, Regexp
 
-__author__ = 'Valentin Grouès'
+__author__ = 'Pinar Alper'
 
 
 def is_safe_url(target):
@@ -70,7 +70,7 @@ class SignupForm(FlaskForm):
 
 
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, SubmissionAccessForm]
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm]
 
 
 

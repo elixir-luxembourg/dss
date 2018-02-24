@@ -1,12 +1,12 @@
 {% import "forms_macros.html" as fmacros %}
 <div class="panel panel-default">
-    <div class="panel-heading">{% if uploadinfo_form.id.data %}Update  {% else %}Add New {% endif %}Upload Info</div>
+    <div class="panel-heading">{% if uploadinfo_form.id.data %}Update  {% else %}Add New {% endif %}File Checksum</div>
     <div class="panel-body">
         <form id="form_submission_uploadinfo">
             {{ uploadinfo_form.hidden_tag() }}
             {{ fmacros.render_field_with_errors(uploadinfo_form.file_name) }}
             {{ fmacros.render_field_with_errors(uploadinfo_form.md5_checksum_at_provider) }}
         </form>
-        <a id="submission_uploadinfo_save" class="save btn btn-raised btn-primary" role="button">Save Upload Info</a>
+        <a id="submission_uploadinfo_save" class="save btn btn-raised btn-primary" role="button">Save File Checksum</a>
     </div>
 </div>

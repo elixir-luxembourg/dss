@@ -1,13 +1,16 @@
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess
 from elixir_dcp.models.security import User, Role, UsersRoles
+from elixir_dcp.controllers.utils import equal_long_strings
 from elixir_dcp.exceptions import RecordLifecycleException, RecordNotExistsException
-from elixir_dcp import db, app
+from elixir_dcp import db, app, mail
 from datetime import datetime
+from flask import flash, render_template
 from sqlalchemy import and_
-import sys
+from threading import Thread
+from flask_mail import Message
 
 
-def delete_sub(submission_id):
+def delete_sub(submission_id: str):
     submission = Submission.query.filter_by(submission_id=submission_id).one_or_none()
     if submission.is_deletable():
         db.session.delete(submission)
@@ -17,7 +20,7 @@ def delete_sub(submission_id):
         raise RecordLifecycleException("Submission cannot be deleted")
 
 
-def has_access(user_id, submission_id):
+def has_access(user_id: str, submission_id: str):
     access = SubmissionAccess.query.filter_by(submission_id=submission_id, user_id=user_id).one_or_none()
     if access is not None:
         return True
@@ -25,22 +28,32 @@ def has_access(user_id, submission_id):
         return False
 
 
-def steer_sub(submission_id):
+def steer_sub(submission_id: str):
     try:
         submission = Submission.query.get_or_404(submission_id)
-        submission.current_status.get_steer_handler()()
         new_state = submission.current_status.next_state()
-        submission.current_status = new_state
-        db.session.add(submission)
-        db.session.commit()
+        if new_state is None:
+            raise RecordLifecycleException("Submission cannot be steered to the next state!")
+        elif new_state == SubmissionStatusEnum.in_progress_metadata and submission.submission_accesses is None:
+            flash('You need to specify a data provider user before initiating a submission', 'error')
+            raise RecordLifecycleException("Submission cannot be steered to the next state!")
+        else:
+            if new_state == SubmissionStatusEnum.in_progress_metadata:
+                send_submission_steer_step1_notification(submission)
+            elif new_state == SubmissionStatusEnum.in_progress_data:
+                send_submission_steer_step2_notification(submission)
+            elif new_state == SubmissionStatusEnum.completed:
+                send_submission_steer_step3_notification(submission)
+            submission.current_status = new_state
+            db.session.add(submission)
+            db.session.commit()
         return submission
-    except:
-        app.logger.error(sys.exc_info()[0])
-        #TODO Better handle the exception here!
-        raise RecordLifecycleException("Submission cannot be transitioned to the next state!")
+    except Exception as e:
+        app.logger.error(e, exc_info=True)
+        raise RecordLifecycleException("Submission cannot be steered to the next state!")
 
 
-def revert_sub(submission_id):
+def revert_sub(submission_id: str):
     submission = Submission.query.get_or_404(submission_id)
     new_state = submission.current_status.prev_state()
     if new_state is not None:
@@ -52,7 +65,7 @@ def revert_sub(submission_id):
         raise RecordLifecycleException("Submission cannot be reverted to its previous state!")
 
 
-def create_sub(title):
+def create_sub(title: str):
     new_submission = Submission()
     new_submission.title = title
     new_submission.created_on = datetime.today()
@@ -63,36 +76,13 @@ def create_sub(title):
     return new_submission
 
 
-def share_sub(submission_id, shared_user_ids):
-    submission = Submission.query.filter_by(id=submission_id).one_or_none()
-    if submission.is_shareable():
-        for user_id in shared_user_ids:
-            if not has_access(user_id, submission_id):
-                new_access = SubmissionAccess()
-                new_access.submission_id = submission_id
-                new_access.user_id = user_id
-                new_access.access_granted_on = datetime.now()
-                db.session.add(new_access)
-                ##SEND the email
-        revoked_acesses = db.session.query(SubmissionAccess).filter(and_(SubmissionAccess.submission_id == submission_id,
-                                                                         SubmissionAccess.user_id.notin_(shared_user_ids)))
-        if revoked_acesses is not None:
-            for rev_acc in revoked_acesses:
-                db.session.delete(rev_acc)
-        db.session.commit()
-    else:
-        raise RecordLifecycleException("Submission cannot be shared.")
-
-
-def get_submissions_shared_with_user(user_id):
-
+def get_in_progress_submissions_shared_with_user(user_id: str):
     submission_ids = SubmissionAccess.query(SubmissionAccess.submission_id).filter_by(user_id=user_id)
     return Submission.query.filter_by(Submission.id.in_(submission_ids), Submission.current_status.in_(
         [SubmissionStatusEnum.in_progress_metadata, SubmissionStatusEnum.in_progress_data]))
 
 
 def assign_role_to_user(user: User, role_name: str):
-
     role = Role.query.filter_by(name=role_name).one_or_none()
     if role:
         if not user.has_role_from([role_name]):
@@ -106,15 +96,92 @@ def assign_role_to_user(user: User, role_name: str):
         raise RecordNotExistsException("Role with specified name does not exist.")
 
 
-def register_new_user(user: User):
-
+def register_new_user(user: User) -> User:
     user.active_user = True
     db.session.add(user)
     db.session.commit()
     return user
 
 
+def send_submission_steer_step1_notification(submission: Submission):
+    recipients = []
+    for access in submission.submission_accesses:
+        recipients.append(access.user.email)
+    send_email("ELIXIR LU has created Submission [%s] for you" % submission.ref_name,
+               'noreply@elixir-luxembourg.org',
+               recipients,
+               render_template("email/submission_steer1.txt", submission=submission), None)
 
 
+def send_submission_steer_step2_notification(submission: Submission):
+    send_email("Submission [%s] steered to Data Upload, needs Upload Instructions" % submission.ref_name,
+               'noreply@elixir-luxembourg.org',
+               app.config.get('DATA_STEWARDS_MAILS'),
+               render_template("email/submission_steer2.txt", submission=submission), None)
 
 
+def send_submission_steer_step3_notification(submission: Submission):
+    send_email("Submission [%s] steered to Completion, needs Verification" % submission.ref_name,
+               'noreply@elixir-luxembourg.org',
+               app.config.get('DATA_STEWARDS_MAILS'),
+               render_template("email/submission_steer3.txt", submission=submission), None)
+
+
+def send_upload_instruction_notification(submission: Submission):
+    for access in submission.submission_accesses:
+        send_email("Submission [%s] has new upload instructions" % submission.ref_name,
+                   ['noreply@elixir-luxembourg.org'],
+                   [access.user.email],
+                   render_template("email/upload_instructions.txt", submission=submission))
+
+
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = '<b>HTML</b> body'
+    thr = Thread(target=send_async_email, args=[app, msg])
+    thr.start()
+
+
+def send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
+def update_submission_basic_info(submission: Submission, **kwargs):
+    new_instructions = kwargs.pop('upload_instructions');
+    new_title = kwargs.pop('title');
+    new_shared_user_ids = kwargs.pop('provider_user_ids');
+
+    any_instruction_changes = not equal_long_strings(submission.upload_instructions, new_instructions)
+
+    submission.title = new_title
+    submission.upload_instructions = new_instructions
+    db.session.add(submission)
+    db.session.commit()
+
+    for user_id in new_shared_user_ids:
+        if not has_access(user_id, submission.id):
+            new_access = SubmissionAccess()
+            new_access.submission_id = submission.id
+            new_access.user_id = user_id
+            new_access.access_granted_on = datetime.now()
+            db.session.add(new_access)
+            db.session.commit()
+
+            if submission.is_in_progress():
+                send_submission_steer_step1_notification(submission)
+                usr = User.query.filter_by(id=user_id).one_or_none()
+                flash('Submission shared with %s' % usr.display_name(), 'info')
+
+    revoked_acesses = db.session.query(SubmissionAccess).filter(and_(SubmissionAccess.submission_id == submission.id,
+                                                                     SubmissionAccess.user_id.notin_(
+                                                                         new_shared_user_ids)))
+    if revoked_acesses is not None:
+        for rev_acc in revoked_acesses:
+            db.session.delete(rev_acc)
+            db.session.commit()
+
+    if any_instruction_changes and submission.is_in_progress():
+        send_upload_instruction_notification(submission)
+        flash('Data Providers are notified of upload instructions', 'info')

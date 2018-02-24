@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 from datetime import datetime
-
+from flask_mail import Message
 from flask_assets import ManageAssets
 from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell, Server
-from elixir_dcp import app, db
+from elixir_dcp import app, db, mail
 from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, SubmissionContact, \
     SubmissionStatusEnum, GA4GHCodes
 from elixir_dcp.models.security import User, Role
@@ -62,6 +62,17 @@ def init_db():
 
     return
 
+@manager.command
+def send_mail():
+    msg = Message(
+        'Elixir Dcp Test Message',
+        sender='pinar.alper@uni.lu',
+        recipients=
+        ['pinarpink@yahoo.com'])
+    msg.body = "This is the email body"
+    mail.send(msg)
+    #msg = Message(subject='TEst Email from pinar '+ calendar.month_name[prev_month]+'-'+str(current_year),
+    #              recipients=app.config['EMAIL_RECIPIENT'], html=page)
 
 manager.add_command("shell", Shell(use_ipython=True, use_bpython=False))
 # work-around bug in flask-assets

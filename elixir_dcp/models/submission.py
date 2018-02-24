@@ -38,6 +38,7 @@ class SubmissionAttachment(db.Model):
 class DeIdentificationTypeEnum(enum.Enum):
     a = 'anonymized'
     p = 'pseudonymized'
+
     @classmethod
     def choices(cls):
         return [(choice.name, choice.value) for choice in cls]
@@ -46,55 +47,34 @@ class DeIdentificationTypeEnum(enum.Enum):
 class ConsentStatusEnum(enum.Enum):
     htr = 'heterogeneous'
     hmg = 'homogeneous'
+
     @classmethod
     def choices(cls):
         return [(choice.name, choice.value) for choice in cls]
 
 
-
-def transition_0_to_1():
-    app.logger.info(" Debug in P1")
-
-def transition_1_to_2():
-    app.logger.info(" Debug in P2")
-
-def transition_2_to_3():
-    app.logger.info(" Debug in P3")
-
-def transition_3_to_4():
-    app.logger.info(" Debug in P4")
-
-
 class SubmissionStatusEnum(enum.Enum):
     draft = 'Draft'
     in_progress_metadata = 'Study Registration'
-    in_progress_data = 'Upload'
-    completed = 'Completed'
-    archived = 'Archived'
+    in_progress_data = 'Data Upload'
+    completed = 'Completion'
 
     def next_state(self):
-        return {SubmissionStatusEnum.draft:SubmissionStatusEnum.in_progress_metadata,
-                SubmissionStatusEnum.in_progress_metadata:SubmissionStatusEnum.in_progress_data,
-                SubmissionStatusEnum.in_progress_data:SubmissionStatusEnum.completed,
-                SubmissionStatusEnum.completed:SubmissionStatusEnum.archived}.get(self)
+        return {self.draft:self.in_progress_metadata,
+                self.in_progress_metadata:self.in_progress_data,
+                self.in_progress_data:self.completed}.get(self)
 
     def prev_state(self):
-        return {SubmissionStatusEnum.completed:SubmissionStatusEnum.in_progress_data,
-                SubmissionStatusEnum.in_progress_data:SubmissionStatusEnum.in_progress_metadata,
-                SubmissionStatusEnum.in_progress_metadata:SubmissionStatusEnum.draft}.get(self)
+        return {self.completed:self.in_progress_data,
+                self.in_progress_data:self.in_progress_metadata,
+                self.in_progress_metadata:self.draft}.get(self)
 
     def step_num(self):
-        return {SubmissionStatusEnum.draft:0,
-                SubmissionStatusEnum.in_progress_metadata:1,
-                SubmissionStatusEnum.in_progress_data:2,
-                SubmissionStatusEnum.completed:3,
-                SubmissionStatusEnum.archived:4}.get(self)
+        return {self.draft:0,
+                self.in_progress_metadata:1,
+                self.in_progress_data:2,
+                self.completed:3}.get(self)
 
-    def get_steer_handler(self):
-        return {SubmissionStatusEnum.draft:transition_0_to_1,
-                SubmissionStatusEnum.in_progress_metadata:transition_1_to_2,
-                SubmissionStatusEnum.in_progress_data:transition_2_to_3,
-                SubmissionStatusEnum.completed:transition_3_to_4}.get(self)
 
 
 def uniqid():
@@ -109,6 +89,7 @@ class Submission(db.Model):
     title = db.Column(db.String(75))
     created_on = db.Column(db.Date, nullable=False)
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
+    upload_instructions = db.Column(db.String)
 
     submission_accesses = db.relationship('SubmissionAccess',  cascade="all, delete-orphan")
     contacts = db.relationship("SubmissionContact", cascade="all, delete-orphan")
@@ -116,12 +97,11 @@ class Submission(db.Model):
     dishes = db.relationship("SubmissionStudyDish", cascade="all, delete-orphan")
     uploadinfos = db.relationship("SubmissionUploadInfo", cascade="all, delete-orphan")
 
-    def is_shareable(self):
-        return ((self.current_status is not SubmissionStatusEnum.completed)
-                & (self.current_status is not SubmissionStatusEnum.archived))
-
     def is_deletable(self):
         return self.current_status == SubmissionStatusEnum.draft
+
+    def is_in_progress(self):
+        return self.current_status == SubmissionStatusEnum.in_progress_data or self.current_status == SubmissionStatusEnum.in_progress_metadata
 
     def is_assigned(self):
             if self.provider_users is not None:
@@ -129,11 +109,18 @@ class Submission(db.Model):
             else:
                 return False
 
+    def provider_user_ids(self):
+        result = []
+        for access in self.submission_accesses:
+            result.append(access.user_id)
+            #+= ("" if index == 0 else ", ")+ access.user.first_name + " " +access.user.last_name
+        return result
+
     def provider_users_display(self):
         result = ""
         index = 0
         for access in self.submission_accesses:
-            result += ("" if index == 0 else ", ")+ access.user.first_name + access.user.last_name
+            result += ("" if index == 0 else ", ")+ access.user.first_name + " " +access.user.last_name
             index += 1
         return result
 
@@ -146,7 +133,8 @@ class SubmissionContact(db.Model):
     is_primary = db.Column(db.Boolean, nullable=False)
     name = db.Column(db.String, nullable=False)
     surname = db.Column(db.String, nullable=False)
-    email = db.Column(db.String, unique=True)
+    email = db.Column(db.String)
+    institution = db.Column(db.String)
     category_id = db.Column(db.Integer, db.ForeignKey('contact_types.id'), nullable=False)
     contact_category = db.relationship('ContactType')
 
@@ -172,7 +160,6 @@ class DUCCodeInstance(db.Model):
     note = db.Column(db.String(250))
     study_id = db.Column(db.Integer, db.ForeignKey('submission_dishes.id'), nullable=False)
     study = db.relationship("SubmissionStudyDish", back_populates="duc_codes")
-
 
 
 class SubmissionStudyDish(db.Model):

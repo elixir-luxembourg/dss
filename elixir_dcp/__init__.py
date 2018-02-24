@@ -2,9 +2,7 @@ import os
 
 from flask import Flask
 from flask_assets import Environment
-from flask_babel import Babel
 from flask_mail import Mail
-#from flask_security import SQLAlchemyUserDatastore, Security
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -62,17 +60,11 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 configure_authentication_system()
 
-# Setup Flask-Babel
-#babel = Babel(app)
 
 # Setup Flask-Mail
-#mail = Mail(app)
+mail = Mail(app)
 
-# Setup Flask-Security
-#from elixir_dcp.models import Role, User
 
-#user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-#security = Security(app, user_datastore)
 
 
 @app.template_filter('dt')
@@ -97,7 +89,7 @@ def inject_now():
 
 from . import controllers
 
-__all__ = [controllers, assets, app, db, exceptions, oidc]
+__all__ = [controllers, assets, app, db, exceptions, oidc, mail]
 # db.create_all()
 if __name__ == '__main__':
     app.run()

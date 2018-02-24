@@ -6,20 +6,19 @@ from json import dumps
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
-from elixir_dcp.models.services import create_sub, delete_sub, share_sub, steer_sub, revert_sub, \
-    get_submissions_shared_with_user, register_new_user, assign_role_to_user
+from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert_sub, \
+    get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info
 from elixir_dcp.models.submission import Submission, SubmissionAttachment, SubmissionContact, \
     SubmissionStudyDish, SubmissionUploadInfo
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
-from sqlalchemy import and_, or_
 import os
 import uuid
 import shutil
 from elixir_dcp import app, db, oidc
 from werkzeug.utils import secure_filename
 from . import app_authorization
-from .utils import get_names_from_oidc
+from .utils import get_names_from_oidc, equal_long_strings
 
 __author__ = 'Valentin Grouès, Pinar Alper'
 
@@ -112,31 +111,6 @@ def load_user(user_id):
 
 
 @app_authorization(allowed_roles=['admin'])
-@app.route('/share/submission/<int:sub_id>', methods=['GET', 'POST'])
-def share_submission(sub_id):
-    if request.method == 'GET':
-        submission_rec = Submission.query.get_or_404(sub_id)
-        access_form = forms.SubmissionAccessForm(obj=submission_rec)
-        return render_template('submission/_submission_share.html', submsn_access_form=access_form)
-    elif request.method == 'POST':
-        posted_form = forms.SubmissionAccessForm(request.form)
-        if posted_form.validate_on_submit():
-            try:
-                share_sub(sub_id, posted_form.provider_user_ids.data)
-                flash(
-                    'Submission {} shared'.format(posted_form.ref_name.data),
-                    "success")
-                return redirect(url_for('list_submissions'))
-            except exceptions.RecordLifecycleException as e:
-                app.logger.error('ERROR %s', e)
-                flash("The submission is not shareable due to its status", "error")
-                return redirect(url_for('list_submissions'))
-        else:
-            flash("Unable to share submission with the information provided", "error")
-            return redirect(url_for('list_submissions'))
-
-
-@app_authorization(allowed_roles=['admin'])
 @app.route('/submission/<int:sub_id>', methods=['DELETE'])
 def delete_submission(sub_id):
     try:
@@ -156,23 +130,16 @@ def archive_submission(sub_id):
     pass
 
 
-@app_authorization(allowed_roles=['admin'])
-@app.route('/datalink/submission/<int:sub_id>', methods=['GET'])
-def datalink_submission(sub_id):
-    pass
-
-
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 @app.route('/steer/submission/<int:sub_id>', methods=['GET'])
 def steer_submission(sub_id):
     try:
         sub_with_new_state = steer_sub(sub_id)
         flash("Submission moved to next state {} !".format(sub_with_new_state.current_status), "success")
-        return "", 204
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
         flash("Unable to transition submission to the next state", 'error')
-        return "", 400
+    return redirect(url_for('edit_submission', sub_id=sub_id))
 
 
 @app_authorization(allowed_roles=['admin'])
@@ -180,7 +147,7 @@ def steer_submission(sub_id):
 def revert_submission(sub_id):
     try:
         sub_with_new_state = revert_sub(sub_id)
-        flash("Submission moved to next state {} !".format(sub_with_new_state.current_status), "success")
+        flash("Submission moved to next state {} !".format(sub_with_new_state.current_status.value), "success")
         return "", 204
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
@@ -213,7 +180,7 @@ def list_my_submissions():
     List the submissions that have been shared with the LOGGED IN  user
     """
 
-    my_submissions = get_submissions_shared_with_user(current_user.id)
+    my_submissions = get_in_progress_submissions_shared_with_user(current_user.id)
 
     return render_template('submission/my_submissions.html',
                            my_submissions=my_submissions)
@@ -247,15 +214,15 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info('Sub REC: %s', submission_rec)
         sub_form = forms.SubmissionForm(obj=submission_rec)
-
+        sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
         return render_template('submission/submission.html', submsn_form=sub_form, submission=submission_rec)
     elif request.method == 'POST':
         form = forms.SubmissionForm(request.form)
-        submission_rec = Submission.query.filter_by(id=form.id.data).first()
+        submission_rec = Submission.query.get_or_404(form.id.data)
         if form.validate_on_submit():
-            submission_rec.title = form.title.data
-            db.session.add(submission_rec)
-            db.session.commit()
+            update_submission_basic_info(submission_rec, title=form.title.data,
+                                         upload_instructions=form.upload_instructions.data,
+                                         provider_user_ids=form.provider_user_ids.data)
             flash('Submission updated', 'success')
             return redirect(url_for('list_submissions'))
         else:

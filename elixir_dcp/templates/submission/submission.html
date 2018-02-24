@@ -1,16 +1,11 @@
 {% extends "layout.html" %}
-{% import "forms_macros.html" as fmacros%}
+{% import "forms_macros.html" as fmacros %}
 {% block title %}Submission Editor{% endblock %}
 {% block js %}
     {{ super() }}
     {% assets "submission_editor_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
-
-    {% assets "jquery_multiselect_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-
     {% assets "select2_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
@@ -30,60 +25,75 @@
 
 {% block content %}
     {{ macros.show_flashes() }}
-
     <div class="row">
-            <div id="basicinfo" class="col-md-9 block" >
-                <form id="form_submission_basics"
-                      method="POST"
-                      action="{{ url_for('edit_submission',sub_id=submsn_form.id.data) }}">
-                    {{ submsn_form.hidden_tag() }}
-                    {{ fmacros.render_string_field_readonly('Reference No', submission.ref_name) }}
-                    {{ fmacros.render_field_with_errors(submsn_form.title) }}
-                    {{ fmacros.render_string_field_readonly('Created On', submission.created_on) }}
-                    {{ fmacros.render_string_field_readonly('Status', submission.current_status.value) }}
-
-                </form>
-            </div>
-
+        <div id="basicinfo" class="col-md-10 block">
+            <form id="form_submission_basics"
+                  method="POST"
+                  action="{{ url_for('edit_submission',sub_id=submsn_form.id.data) }}">
+                <div class="form-group row">
+                    <div class="form-group col-md-4">
+                        <span class="label label-default">Submission Ref No:</span>
+                        <label>{{ submission.ref_name }}</label>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <span class="label label-default">Created On:</span>
+                        <label>{{ submission.created_on }}</label>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <span class="label label-default">Status:</span>
+                        <label>{{ submission.current_status.value }}</label>
+                    </div>
+                </div>
+                {{ submsn_form.hidden_tag() }}
+                {{ fmacros.render_field_with_errors(submsn_form.title) }}
+                {% if current_user.is_admin() %}
+                    {{ fmacros.render_field_with_errors(submsn_form.provider_user_ids, clazz="elx-multi-select") }}
+                {% endif %}
+                {{ fmacros.render_field_with_errors(submsn_form.upload_instructions) }}
+            </form>
+        </div>
         {#    SIDEBAR     #}
-        <div class="col-md-3" id="sidebar">
-            <div class="row block" id="button-group">
-                <div class="row ">
-                    <p class="col-md-offset-1 col-sm-offset-1  col-xs-offset-1 col-xs-5 col-md-5 col-sm-5">
-                        <button class="save btn btn-raised btn-primary" form="form_submission_basics" >Return <br/>later</button>
-                    </p>
-                </div>
-                <div class="row">
-                    <p class="col-md-offset-1 col-sm-offset-1 col-xs-offset-1 col-xs-3 col-md-3 col-sm-3">
-                        <a name="button_submission_steer" class="save btn btn-raised btn-primary"
-                           href="{{ url_for('steer_submission',sub_id=submission.id) }}" role="button">
-                            PROCEED TO<br/>NEXT STEP
-                        </a>
-                    </p>
-                </div>
-            </div>
+        <div class="col-md-2">
+            <ul class="nav nav-pills nav-stacked">
+                <li><a {% if current_user.is_admin() %} href="{{ url_for('list_submissions') }}" {% else %}
+                                                        href="{{ url_for('list_my_submissions') }}"  {% endif %}
+                                                        class="btn btn-secondary" role="button">Close</a></li>
+                {% if submission.current_status.next_state() is not none %}
+                    {% if current_user.is_admin()  or  submission.current_status.step_num() ==1  or  submission.current_status.step_num() ==2 %}
+                        <li><a href="{{ url_for('steer_submission',sub_id=submission.id) }}" class="btn btn-secondary"
+                               role="button">Proceed to <br/>{{ submission.current_status.next_state().value }}</a></li>
+                    {% endif %}
+                {% endif %}
+                {% if submission.current_status.prev_state() is not none %}
+                    {% if current_user.is_admin()  or  submission.current_status.step_num() ==1  or  submission.current_status.step_num() ==2 %}
+                        <li><a href="{{ url_for('revert_submission',sub_id=submission.id) }}" class="btn btn-secondary"
+                               role="button">Revert to <br/>{{ submission.current_status.next_state().value }}</a></li>
+                    {% endif %}
+                {% endif %}
+                {% if current_user.is_admin() %}
+                    <li><a href="javascript:;" onclick="document.getElementById('form_submission_basics').submit();"
+                           class="btn btn-secondary" role="button">Save</a></li>{% endif %}
+            </ul>
         </div>
     </div>
-
-
     <div class="row" id="tabs">
         <ul>
-            {% if current_user.is_admin()  or  submission.current_status.step_num() == 1 %}
+            {% if current_user.is_admin()  or  submission.current_status.step_num() ==1  or  submission.current_status.step_num() ==2 %}
                 <li><a href="#contacts">Contacts</a></li>
                 <li><a href="#attachments">Attachments</a></li>
                 <li><a href="#dishes">Studies</a></li>
             {% endif %}
             {% if current_user.is_admin()  or  submission.current_status.step_num() == 2 %}
-                <li><a href="#uploadinfos">Data Upload Info</a></li>
+                <li><a href="#uploadinfos">Upload Verification</a></li>
             {% endif %}
         </ul>
-
-        {% if current_user.is_admin()  or  submission.current_status.step_num() == 1 %}
+        {% if current_user.is_admin()  or  submission.current_status.step_num() == 1 or  submission.current_status.step_num() ==2 %}
             <div id="contacts">
                 {% with %}
                     {% set contacts = submission.contacts %}
                     {% set contact_form =  submsn_form.child_contact_form() %}
-                    <div id="contacts_inline_list"  data-url="{{ url_for('list_submission_contacts',sub_id=submission.id) }}">
+                    <div id="contacts_inline_list"
+                         data-url="{{ url_for('list_submission_contacts',sub_id=submission.id) }}">
                         {% include 'submission/_contact_columns.html' %}
                     </div>
                     <hr size="2px"/>
@@ -96,7 +106,8 @@
                 {% with %}
                     {% set attachments = submission.attachments %}
                     {% set attachment_form =  submsn_form.child_attachment_form() %}
-                    <div id="attachments_inline_list"  data-url="{{ url_for('list_submission_attachments',sub_id=submission.id) }}">
+                    <div id="attachments_inline_list"
+                         data-url="{{ url_for('list_submission_attachments',sub_id=submission.id) }}">
                         {% include 'submission/_attachment_columns.html' %}
                     </div>
                     <hr size="2px"/>
@@ -110,7 +121,8 @@
                 {% with %}
                     {% set dishes = submission.dishes %}
                     {% set dish_form =  submsn_form.child_dish_form() %}
-                    <div id="dishes_inline_list" data-url="{{ url_for('list_submission_dishes',sub_id=submission.id) }}">
+                    <div id="dishes_inline_list"
+                         data-url="{{ url_for('list_submission_dishes',sub_id=submission.id) }}">
                         {% include 'submission/_dish_columns.html' %}
                     </div>
                     <hr size="2px"/>
@@ -125,7 +137,8 @@
                 {% with %}
                     {% set uploadinfos = submission.uploadinfos %}
                     {% set uploadinfo_form =  submsn_form.child_uploadinfo_form() %}
-                    <div id="uploadinfos_inline_list" data-url="{{ url_for('list_submission_uploadinfos',sub_id=submission.id) }}">
+                    <div id="uploadinfos_inline_list"
+                         data-url="{{ url_for('list_submission_uploadinfos',sub_id=submission.id) }}">
                         {% include 'submission/_uploadinfo_columns.html' %}
                     </div>
                     <hr size="2px"/>

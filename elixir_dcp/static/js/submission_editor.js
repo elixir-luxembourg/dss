@@ -9,15 +9,14 @@ $(document).ready(function () {
         $('.elx-select').select2({
             minimumResultsForSearch: -1
         });
-
-        /*       $('select[multiple]').multiselect({
-                    columns  : 2,
-                    search   : true,
-                    selectAll: true,
-                    texts    : {
-                        placeholder: 'Select one or more Studies',
-                    }
-                });*/
+        $('.elx-multi-select').select2({
+            columns: 2,
+            search: true,
+            selectAll: true,
+            texts: {
+                placeholder: 'Select one or more Users',
+            }
+        });
 
         $("div[data-toggle=fieldset]").each(function() {
             var $this = $(this);

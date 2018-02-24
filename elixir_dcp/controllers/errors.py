@@ -10,7 +10,7 @@ from elixir_dcp import app
 @app.errorhandler(CSRFError)
 def csrf_error(reason):
     explanation = "The session might have timed out, try to go back and refresh the page before doing any action"
-    return render_template('error.html', message="Error 400 - " + reason,
+    return render_template('error.html', message="Error 400 - " + reason.description,
                            explanation=explanation), 400
 
 
