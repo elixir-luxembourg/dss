@@ -61,13 +61,13 @@
                 {% if submission.current_status.next_state() is not none %}
                     {% if current_user.is_admin()  or  submission.current_status.step_num() ==1  or  submission.current_status.step_num() ==2 %}
                         <li><a href="{{ url_for('steer_submission',sub_id=submission.id) }}" class="btn btn-secondary"
-                               role="button">Proceed to <br/>{{ submission.current_status.next_state().value }}</a></li>
+                               role="button"> >> Proceed to <br/>{{ submission.current_status.next_state().value }} >> </a></li>
                     {% endif %}
                 {% endif %}
                 {% if submission.current_status.prev_state() is not none %}
                     {% if current_user.is_admin()  or  submission.current_status.step_num() ==1  or  submission.current_status.step_num() ==2 %}
                         <li><a href="{{ url_for('revert_submission',sub_id=submission.id) }}" class="btn btn-secondary"
-                               role="button">Revert to <br/>{{ submission.current_status.next_state().value }}</a></li>
+                               role="button"> << Revert to <br/>{{ submission.current_status.prev_state().value }} << </a></li>
                     {% endif %}
                 {% endif %}
                 {% if current_user.is_admin() %}

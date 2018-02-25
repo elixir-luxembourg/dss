@@ -1,11 +1,12 @@
 Dear ELIXIR LU Data Steward,
 
-The Submission Ref Name: {{ submission.ref_name }} has been steered to the Completion stage.
-Please verify the uploaded metadata from the Submission Page below and the data on the upload server.
+The following Submission  has been steered to the Completion stage. Please verify the uploaded metadata from the Submission Page below and the data on the upload server.
 
-{{ url_for('edit_submission',sub_id=submission.id) }}
+Ref Name: {{ submission.ref_name }}
+Title: {{ submission.title }}
+View: {{ url_for('edit_submission',sub_id=submission.id) }}
 
 
 Regards
 ELIXIR LU
-(This is an auto-generated e-mail sent by the ELIXI-LU Data Submission System. Please do not reply to this mail)
+(This is an auto-generated e-mail sent by the ELIXIR-LU Data Submission System. Please do not reply to this mail)

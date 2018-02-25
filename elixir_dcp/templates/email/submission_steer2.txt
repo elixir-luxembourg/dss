@@ -1,11 +1,14 @@
-Dear ELIXIR LU Data Steward,
+Dear Data Steward,
 
-The Submission Ref Name: {{ submission.ref_name }} has been steered to the Data Upload stage.
-Please go to the Submission Page below and provide Upload Instructions.
+The following Submission  has been steered to the Data Upload stage. The next step for you is to provide Upload Instructions.
 
-{{ url_for('edit_submission',sub_id=submission.id) }}
+
+Ref Name: {{ submission.ref_name }}
+Title: {{ submission.title }}
+View: {{ url_for('edit_submission',sub_id=submission.id) }}
+
 
 
 Regards
 ELIXIR LU
-(This is an auto-generated e-mail sent by the ELIXI-LU Data Submission System. Please do not reply to this mail)
+(This is an auto-generated e-mail sent by the ELIXIR-LU Data Submission System. Please do not reply to this mail)

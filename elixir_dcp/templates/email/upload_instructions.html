@@ -1,0 +1,28 @@
+<p>Dear Data Provider,</p>
+<p>The following Submission has new upload instructions. The next step for you is to upload data according to these instructions.</p>
+<table>
+    <tr valign="top">
+        <td>Ref Name:</td>
+        <td>
+            {{ submission.ref_name }}
+        </td>
+    </tr>
+    <tr valign="top">
+        <td>Title:</td>
+        <td>
+            {{ submission.title }}
+        </td>
+    </tr>
+    <tr valign="top">
+        <td>Edit here:</td>
+        <td>
+            <a href="{{ url_for('edit_submission',sub_id=submission.id) }}">{{ url_for('edit_submission',sub_id=submission.id) }}</a><br/>
+        </td>
+    </tr>
+</table>
+<p>Once your upload is complete you may close-off your submission from the Submission Page.</p>
+
+<p>Regards,</p>
+<p>ELIXIR LU</p>
+<p>(This is an auto-generated e-mail sent by the ELIXIR-LU Data Submission System. Please do not reply to this mail)</p>
+

@@ -1,21 +1,13 @@
 Dear Data Provider,
 
-The upload instructions for your submission {{ submission.ref_name }} have been updated. The updated instructions are as follows:
+The following Submission has new upload instructions. The next step for you is to upload data according to these instructions.
 
-------
 Ref Name: {{ submission.ref_name }}
 Title: {{ submission.title }}
+View: {{ url_for('edit_submission',sub_id=submission.id) }}
 
 
-{{ submission.upload_instructions }}
-
-------
-
-Most recent upload instructions for your submission can be viewed via the Submission Page at:
-
-{{ url_for('edit_submission',sub_id=submission.id) }}
-
-If you want to close-off your submission you may do so from the Submission Page.
+Once your upload is complete you may  close-off your submission from the Submission Page.
 
 
 Regards,

@@ -90,6 +90,6 @@ def inject_now():
 from . import controllers
 
 __all__ = [controllers, assets, app, db, exceptions, oidc, mail]
-# db.create_all()
+
 if __name__ == '__main__':
     app.run()

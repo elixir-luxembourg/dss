@@ -135,7 +135,7 @@ def archive_submission(sub_id):
 def steer_submission(sub_id):
     try:
         sub_with_new_state = steer_sub(sub_id)
-        flash("Submission moved to next state {} !".format(sub_with_new_state.current_status), "success")
+        flash("Submission moved to next state {} !".format(sub_with_new_state.current_status.value), "success")
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
         flash("Unable to transition submission to the next state", 'error')
@@ -147,12 +147,12 @@ def steer_submission(sub_id):
 def revert_submission(sub_id):
     try:
         sub_with_new_state = revert_sub(sub_id)
-        flash("Submission moved to next state {} !".format(sub_with_new_state.current_status.value), "success")
+        flash("Submission moved to previous state {} !".format(sub_with_new_state.current_status.value), "success")
         return "", 204
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
-        flash("Unable to transition submission to the next state", 'error')
-        return "", 400
+        flash("Unable to revert submission to the previous state", 'error')
+    return redirect(url_for('edit_submission', sub_id=sub_id))
 
 
 """------------------------------------"""
