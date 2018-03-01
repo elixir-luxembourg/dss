@@ -4,7 +4,7 @@ The following Submission has new upload instructions. The next step for you is t
 
 Ref Name: {{ submission.ref_name }}
 Title: {{ submission.title }}
-View: {{ url_for('edit_submission',sub_id=submission.id) }}
+Submission Page: {{ url_for('edit_submission',sub_id=submission.id, _external=True) }}
 
 
 Once your upload is complete you may  close-off your submission from the Submission Page.
@@ -12,3 +12,4 @@ Once your upload is complete you may  close-off your submission from the Submiss
 
 Regards,
 ELIXIR-LU Data Stewards
+(This is an auto-generated e-mail, please do not reply)

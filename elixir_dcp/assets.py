@@ -13,10 +13,6 @@ datatables_css = 'vendor/datatables/datatables.min.css'
 select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/select2.sortable.js')
 select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
 
-jquery_multiselect_js = Bundle('vendor/multiselect/jquery.multiselect.js')
-jquery_multiselect_css = Bundle('vendor/multiselect/jquery.multiselect.css')
-
-
 common_css = Bundle(
     'vendor/node_modules/bootstrap/dist/css/bootstrap.css',
     'vendor/node_modules/bootstrap-material-design/dist/css/ripples.css',

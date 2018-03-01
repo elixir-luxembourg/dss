@@ -1,6 +1,14 @@
+function displayInlineError(msg) {
+    $(".inline-editor-tabs").prepend('<div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg + '</strong> </div>');
+
+}
+function displayInlineSuccess(msg) {
+    $(".inline-editor-tabs").prepend('<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg+ '</strong> </div>');
+
+}
 $(document).ready(function () {
 
-    var VALIDATION_ERROR_STR = "BAD REQUEST";
+    var VALIDATION_ERROR = "BAD REQUEST";
 
     function bind_widgets(){
 
@@ -80,9 +88,69 @@ $(document).ready(function () {
                 refresh_bean_list(bean_name);
             },
             error: function () {
-                alert('An error occurred during delete');
+                alert('An error occurred during deletion');
             }
         });
+    }
+
+
+
+    $("#submission_commands_bar").on('click','a[name="button_submission_editor_steer"]', function () {
+        var endpoint = $(this).attr('data-url');
+        confirmDialog("steer this Submission to next state").done(function() {
+            $.ajax({
+                url: endpoint,
+                type: "get",
+                success: function(result){
+                    location.reload()
+                },
+                error: function (xhr, status, error) {
+                    location.reload()
+                }
+            });
+
+        });
+    });
+
+    $("#submission_commands_bar").on('click','a[name="button_submission_editor_revert"]', function () {
+        var endpoint = $(this).attr('data-url');
+        confirmDialog("revert this Submission to its previous state").done(function() {
+            $.ajax({
+                url: endpoint,
+                type: "get",
+                success: function(result){
+                    location.reload()
+                },
+                error: function (xhr, status, error) {
+                    location.reload()
+                }
+            });
+
+        });
+    });
+    function confirmDialog(msg) {
+        $("#submission-dialog-text").text(msg);
+        var def = $.Deferred();
+        $("#submission-command-dialog").dialog({
+            autoOpen: true,
+            hide: true,
+            resizable: false,
+            height: 20,
+            width: 250,
+            modal: true,
+            dialogClass: "alert",
+            buttons: {
+                'Continue': function() {
+                    def.resolve();
+                    $( this ).dialog( "close" );
+                },
+                'Cancel': function() {
+                    def.reject();
+                    $( this ).dialog( "close" );
+                }
+            }
+        });
+        return def.promise();
     }
 
     /**
@@ -106,17 +174,20 @@ $(document).ready(function () {
                 refresh_bean_list("contacts");
                 $("#contacts_inline_editor").html(result);
                 bind_widgets();
+                displayInlineSuccess("Submission Contact saved");
             },
             error: function (xhr, status, error) {
-                if (error === VALIDATION_ERROR_STR) {
+                if (error === VALIDATION_ERROR) {
                     refresh_bean_list("contacts");
                     $("#contacts_inline_editor").html(xhr.responseText);
+                    displayInlineError("Please check the validity of your input in highlighted places");
                 }}
 
         });
     });
     $("#contacts_inline_list").on('click', 'a#submission_contact_listing_delete', function() {
         bean_list_delete_handler($(this).attr('data-url'), "contacts");
+        displayInlineSuccess("Submission Contact deleted.");
     });
 
     $("#contacts_inline_list").on('click', 'a#submission_contact_listing_edit', function() {
@@ -145,6 +216,7 @@ $(document).ready(function () {
 
     $("#attachments_inline_list").on('click', 'a#submission_attachment_listing_delete', function() {
         bean_list_delete_handler($(this).attr('data-url'), "attachments");
+        displayInlineSuccess("Attachment deleted.");
     });
 
     $("#attachments_inline_editor").on('click', 'a#submission_attachment_add', function() {
@@ -161,11 +233,13 @@ $(document).ready(function () {
             success: function(result){
                 refresh_bean_list("attachments");
                 $("#attachments_inline_editor").html(result);
+                displayInlineSuccess("Attachment saved");
             },
             error: function (xhr, status, error) {
-                if (error === VALIDATION_ERROR_STR) {
+                if (error === VALIDATION_ERROR) {
                     refresh_bean_list("attachments");
                     $("#attachments_inline_editor").html(xhr.responseText);
+                    displayInlineError("Please check the validity of your input in highlighted places");
                 }
             }
         });
@@ -194,12 +268,14 @@ $(document).ready(function () {
             success: function(result){
                 refresh_bean_list("dishes");
                 $("#dishes_inline_editor").html(result);
+                displayInlineSuccess("Study saved");
                 bind_widgets();
             },
             error: function (xhr, status, error) {
-                if (error === VALIDATION_ERROR_STR) {
+                if (error === VALIDATION_ERROR) {
                     refresh_bean_list("dishes");
                     $("#dishes_inline_editor").html(xhr.responseText);
+                    displayInlineError("Please check the validity of your input in highlighted places");
                     bind_widgets();
                 }
             }
@@ -208,6 +284,7 @@ $(document).ready(function () {
 
     $("#dishes_inline_list").on('click', 'a#submission_dish_listing_delete', function() {
         bean_list_delete_handler($(this).attr('data-url'), "dishes");
+        displayInlineSuccess("Study deleted");
     });
 
 
@@ -250,11 +327,13 @@ $(document).ready(function () {
             success: function(result){
                 refresh_bean_list("uploadinfos");
                 $("#uploadinfos_inline_editor").html(result);
+                displayInlineSuccess("Upload Checksum saved");
             },
             error: function (xhr, status, error) {
-                if (error === VALIDATION_ERROR_STR) {
+                if (error === VALIDATION_ERROR) {
                     refresh_bean_list("uploadinfos");
                     $("#uploadinfos_inline_editor").html(xhr.responseText);
+                    displayInlineError("Please check the validity of your input in highlighted places");
                     bind_widgets();
                 }
             }
@@ -263,10 +342,10 @@ $(document).ready(function () {
 
     $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_delete', function() {
         bean_list_delete_handler($(this).attr('data-url'), "uploadinfos");
+        displayInlineSuccess("Upload Checksum deleted");
     });
 
     $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_edit', function() {
-        alert($(this).attr('data-url'));
         $.ajax({
             url: $(this).attr('data-url'),
             type: "get",
@@ -274,7 +353,6 @@ $(document).ready(function () {
                 $("#uploadinfos_inline_editor").html(result);
             },
             error: function (xhr, status, error) {
-               // alert(error);
                 alert('An error occurred while loading the selected upload information!');
             }
         });

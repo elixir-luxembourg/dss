@@ -1,6 +1,5 @@
 <p>Dear Data Provider,</p>
-<p>ELIXIR Luxembourg has shared with you the following Data Submission session. The next step for you is to register your studies
-    within this submission.</p>
+<p>ELIXIR Luxembourg has shared with you the following Data Submission session. The next step for you is to register your studies.</p>
 <table>
     <tr valign="top">
         <td>Ref Name:</td>
@@ -15,14 +14,14 @@
         </td>
     </tr>
     <tr valign="top">
-        <td>View:</td>
+        <td>Submission Page:</td>
         <td>
-            <a href="{{ url_for('edit_submission',sub_id=submission.id) }}">{{ url_for('edit_submission',sub_id=submission.id) }}</a><br/>
+            <a href="{{ url_for('edit_submission',sub_id=submission.id,  _external=True) }}">{{ url_for('edit_submission',sub_id=submission.id,  _external=True) }}</a><br/>
         </td>
     </tr>
 </table>
 <p></p>
 <p>Regards,</p>
 <p>ELIXIR LU</p>
-<p>(This is an auto-generated e-mail sent by the ELIXIR-LU Data Submission System. Please do not reply to this mail)</p>
+<p>(This is an auto-generated e-mail, please do not reply)</p>
 

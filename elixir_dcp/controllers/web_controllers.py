@@ -75,6 +75,7 @@ def oidc_login():
             else:
                 login_user(existing_user_record, remember=True)
                 nextt = request.args.get('next')
+
                 app.logger.info(get_flashed_messages())
                 if not forms.is_safe_url(nextt):
                     return abort(404)
@@ -136,14 +137,15 @@ def steer_submission(sub_id):
     try:
         sub_with_new_state = steer_sub(sub_id)
         flash("Submission moved to next state {} !".format(sub_with_new_state.current_status.value), "success")
+        return "", 204
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
         flash("Unable to transition submission to the next state", 'error')
-    return redirect(url_for('edit_submission', sub_id=sub_id))
+        return "", 400
 
 
 @app_authorization(allowed_roles=['admin'])
-@app.route('/steer/submission/<int:sub_id>', methods=['GET'])
+@app.route('/revert/submission/<int:sub_id>', methods=['GET'])
 def revert_submission(sub_id):
     try:
         sub_with_new_state = revert_sub(sub_id)
@@ -152,7 +154,8 @@ def revert_submission(sub_id):
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
         flash("Unable to revert submission to the previous state", 'error')
-    return redirect(url_for('edit_submission', sub_id=sub_id))
+        return "", 400
+
 
 
 """------------------------------------"""
@@ -266,8 +269,8 @@ def add_edit_submission_contact(contact_id=None):
                 contact_rec.id = None
             db.session.add(contact_rec)
             db.session.commit()
-            msg = "updated" if mode == 'create' else "added"
-            flash("Submission Contact {}.".format(msg), "success")
+            #msg = "updated" if mode == 'create' else "added"
+            #flash("Submission Contact {}.".format(msg), "success")
 
             sid = posted_form.submission_id.data
 
@@ -285,7 +288,7 @@ def delete_submission_contact(contact_id):
     submission_contact = SubmissionContact.query.get_or_404(contact_id)
     db.session.delete(submission_contact)
     db.session.commit()
-    flash("Submission Contact deleted", "info")
+    #flash("Submission Contact deleted", "info")
     return "", 204
 
 
@@ -315,16 +318,17 @@ def add_submission_attachment():
     form_validation = form.validate_on_submit()
     request_files = request.files.getlist(form.file_attachments.name)
     for file in request_files:
-        # if user does not select file, browser also
-        # submit an empty part without filename
+        # if user does not select file, browser may
+        # submit an empty part without filename.
+        # we therefore check for that.
         if file.filename == '':
             file_validation = False
             form.file_attachments.errors.append('No file(s) selected.')
         if not is_allowed_type(file.filename):
             file_validation = False
-            form.file_attachments.errors.append('File {} is not of allowed type.'.format(file.filename))
+            form.file_attachments.errors.append('File {} is not of allowed type. Only TXT, PDF and PNG files can be uploaded.'.format(file.filename))
     if (not file_validation) or (not form_validation):
-        flash("Please check the validity of your input in highlighted fields.", "error")
+        #flash("Please check the validity of your input in highlighted fields.", "error")
         return render_template('submission/_attachment_form.html', attachment_form=form), 400
     else:
         attachments_folder = str(uuid.uuid4())
@@ -333,7 +337,7 @@ def add_submission_attachment():
         attachment = SubmissionAttachment()
         attachment.note = form.note.data
         attachment.submission_id = form.submission_id.data
-        attachment.server_path = path_on_server
+        attachment.folder_name = attachments_folder
         attachment.file_names = ''
         for file in request_files:
             secured_file_name = secure_filename(file.filename)
@@ -341,7 +345,7 @@ def add_submission_attachment():
             file.save(os.path.join(path_on_server, secured_file_name))
         db.session.add(attachment)
         db.session.commit()
-        flash("Submission Attachment(s) added", "success")
+        #flash("Submission Attachment(s) added", "success")
         sid = form.submission_id.data
         return render_template('submission/_attachment_form.html', attachment_form=forms.AttachmentForm(formdata=None,
                                                                                                         obj=None,
@@ -352,10 +356,11 @@ def add_submission_attachment():
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 def delete_submission_attachment(attach_id):
     submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
-    shutil.rmtree(submission_attachment.server_path)
+    path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], submission_attachment.folder_name)
+    shutil.rmtree(path_on_server)
     db.session.delete(submission_attachment)
     db.session.commit()
-    flash("Submission Attachment deleted", "success")
+    #flash("Submission Attachment deleted", "success")
     return "", 204
 
 
@@ -395,8 +400,8 @@ def add_edit_submission_dish(dish_id=None):
                 dish_rec.id = None
             db.session.add(dish_rec)
             db.session.commit()
-            msg = "created" if mode == 'create' else "updated"
-            flash("Study {}.".format(msg), "success")
+            #msg = "created" if mode == 'create' else "updated"
+            #flash("Study {}.".format(msg), "success")
 
             sid = posted_form.submission_id.data
 
@@ -404,7 +409,7 @@ def add_edit_submission_dish(dish_id=None):
                                                                                                obj=None,
                                                                                                sub_id=sid)), 200
         else:
-            flash("Please check the validity of your input in highlighted places", "error")
+            #flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_dish_form.html', dish_form=posted_form), 400
 
 
@@ -414,7 +419,7 @@ def delete_submission_dish(dish_id):
     dish = SubmissionStudyDish.query.get_or_404(dish_id)
     db.session.delete(dish)
     db.session.commit()
-    flash("Study deleted", "success")
+    #flash("Study deleted", "success")
     return "", 204
 
 
@@ -454,7 +459,7 @@ def add_edit_submission_uploadinfo(uploadinfo_id=None):
                 uploadinfo_rec.id = None
             db.session.add(uploadinfo_rec)
             db.session.commit()
-            flash("Submission Upload Info {}.".format("created" if mode == 'create' else "updated"), "success")
+            #flash("Submission Upload Info {}.".format("created" if mode == 'create' else "updated"), "success")
             sid = posted_form.submission_id.data
 
             return render_template('submission/_uploadinfo_form.html',
@@ -462,7 +467,7 @@ def add_edit_submission_uploadinfo(uploadinfo_id=None):
                                                                         obj=None,
                                                                         sub_id=sid)), 200
         else:
-            flash("Please check the validity of your input in highlighted places", "error")
+            #flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_uploadinfo_form.html', uploadinfo_form=posted_form), 400
 
 
@@ -472,7 +477,7 @@ def delete_submission_uploadinfo(uploadinfo_id):
     submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
     db.session.delete(submission_uploadinfo)
     db.session.commit()
-    flash("Submission Upload Info deleted", "success")
+    #flash("Submission Upload Info deleted", "success")
     return "", 204
 
 

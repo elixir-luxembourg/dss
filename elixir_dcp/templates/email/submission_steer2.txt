@@ -5,10 +5,10 @@ The following Submission  has been steered to the Data Upload stage. The next st
 
 Ref Name: {{ submission.ref_name }}
 Title: {{ submission.title }}
-View: {{ url_for('edit_submission',sub_id=submission.id) }}
+Submission Page: {{ url_for('edit_submission',sub_id=submission.id,  _external=True) }}
 
 
 
 Regards
 ELIXIR LU
-(This is an auto-generated e-mail sent by the ELIXIR-LU Data Submission System. Please do not reply to this mail)
+(This is an auto-generated e-mail, please do not reply)

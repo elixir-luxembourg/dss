@@ -1,6 +1,7 @@
 from sqlalchemy import Sequence
 from elixir_dcp import db, app
 import enum
+import os
 
 
 class ContactType(db.Model):
@@ -29,10 +30,21 @@ class SubmissionAttachment(db.Model):
     __tablename__ = 'submission_attachments'
 
     id = db.Column(db.Integer, primary_key=True)
-    note = db.Column(db.String, nullable=False)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-    server_path = db.Column(db.String, nullable=False)
+    note = db.Column(db.String, nullable=False)
+    folder_name = db.Column(db.String, nullable=False)
     file_names = db.Column(db.String, nullable=False)
+
+    def files_urls(self):
+        if self.file_names is not None:
+            result = []
+            names = self.file_names.strip(' \t\n\r').split(" ")
+            for name in names:
+                result.append(
+                    (os.path.join(os.path.join(app.config.get('UPLOADS_SERVER_PATH'), self.folder_name), name), name))
+                return result
+        else:
+            return None
 
 
 class DeIdentificationTypeEnum(enum.Enum):
@@ -60,26 +72,25 @@ class SubmissionStatusEnum(enum.Enum):
     completed = 'Completion'
 
     def next_state(self):
-        return {self.draft:self.in_progress_metadata,
-                self.in_progress_metadata:self.in_progress_data,
-                self.in_progress_data:self.completed}.get(self)
+        return {self.draft: self.in_progress_metadata,
+                self.in_progress_metadata: self.in_progress_data,
+                self.in_progress_data: self.completed}.get(self)
 
     def prev_state(self):
-        return {self.completed:self.in_progress_data,
-                self.in_progress_data:self.in_progress_metadata,
-                self.in_progress_metadata:self.draft}.get(self)
+        return {self.completed: self.in_progress_data,
+                self.in_progress_data: self.in_progress_metadata,
+                self.in_progress_metadata: self.draft}.get(self)
 
     def step_num(self):
-        return {self.draft:0,
-                self.in_progress_metadata:1,
-                self.in_progress_data:2,
-                self.completed:3}.get(self)
-
+        return {self.draft: 0,
+                self.in_progress_metadata: 1,
+                self.in_progress_data: 2,
+                self.completed: 3}.get(self)
 
 
 def uniqid():
     from time import time
-    return hex(int(time()*10000000))[2:]
+    return hex(int(time() * 10000000))[2:]
 
 
 class Submission(db.Model):
@@ -91,7 +102,7 @@ class Submission(db.Model):
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
     upload_instructions = db.Column(db.String)
 
-    submission_accesses = db.relationship('SubmissionAccess',  cascade="all, delete-orphan")
+    submission_accesses = db.relationship('SubmissionAccess', cascade="all, delete-orphan")
     contacts = db.relationship("SubmissionContact", cascade="all, delete-orphan")
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
     dishes = db.relationship("SubmissionStudyDish", cascade="all, delete-orphan")
@@ -104,32 +115,39 @@ class Submission(db.Model):
         return self.current_status == SubmissionStatusEnum.in_progress_data or self.current_status == SubmissionStatusEnum.in_progress_metadata
 
     def is_assigned(self):
-            if self.provider_users is not None:
-                return True
-            else:
-                return False
+        if self.provider_users is not None:
+            return True
+        else:
+            return False
 
     def provider_user_ids(self):
         result = []
         for access in self.submission_accesses:
             result.append(access.user_id)
-            #+= ("" if index == 0 else ", ")+ access.user.first_name + " " +access.user.last_name
+            # += ("" if index == 0 else ", ")+ access.user.first_name + " " +access.user.last_name
         return result
 
     def provider_users_display(self):
         result = ""
         index = 0
         for access in self.submission_accesses:
-            result += ("" if index == 0 else ", ")+ access.user.first_name + " " +access.user.last_name
+            result += ("" if index == 0 else ", ") + access.user.first_name + " " + access.user.last_name
             index += 1
         return result
 
+    def has_providers(self):
+        if self.submission_accesses is None:
+            return False
+        elif len(self.submission_accesses) == 0:
+            return False
+        else:
+            return True
 
 class SubmissionContact(db.Model):
     __tablename__ = 'submission_contacts'
 
     id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'),  nullable=False)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     is_primary = db.Column(db.Boolean, nullable=False)
     name = db.Column(db.String, nullable=False)
     surname = db.Column(db.String, nullable=False)
@@ -146,13 +164,12 @@ class SubmissionUploadInfo(db.Model):
     __tablename__ = 'submission_upload_info'
 
     id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'),  nullable=False)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     file_name = db.Column(db.String(45), nullable=False)
     md5_checksum_at_provider = db.Column(db.String(32), nullable=False)
 
 
 class DUCCodeInstance(db.Model):
-
     __tablename__ = 'duc_code_instances'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -184,14 +201,15 @@ class SubmissionStudyDish(db.Model):
                                        default=DeIdentificationTypeEnum.p)
     storage_end_date = db.Column(db.Date, nullable=True)
 
-    duc_codes = db.relationship("DUCCodeInstance", back_populates="study",  cascade="all, delete-orphan")
+    duc_codes = db.relationship("DUCCodeInstance", back_populates="study", cascade="all, delete-orphan")
 
-    def duc_codes_display(self):
-        result = ""
-        index = 0
-        for duc_code in self.duc_codes:
-            result += ("" if index == 0 else ", ")+duc_code.ga4gh_code
-            index += 1
+    def duc_codes_names(self):
+        result = []
+        if self.duc_codes is not None:
+
+            for duc_code_instance in self.duc_codes:
+                result.append((duc_code_instance.ga4gh_code,
+                               GA4GHCodes.query.filter_by(code=duc_code_instance.ga4gh_code).one_or_none().name))
         return result
 
     def special_subjects_status_display(self):
@@ -202,7 +220,6 @@ class SubmissionStudyDish(db.Model):
 
 
 class SubmissionAccess(db.Model):
-
     __tablename__ = 'submission_access'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -210,4 +227,3 @@ class SubmissionAccess(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     access_granted_on = db.Column(db.DateTime, nullable=False)
     user = db.relationship("User")
-

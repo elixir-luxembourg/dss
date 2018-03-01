@@ -1,6 +1,5 @@
 $(document).ready(function () {
 
-
     function confirmDialog(msg) {
         $("#submission-dialog-text").text(msg);
         var def = $.Deferred();

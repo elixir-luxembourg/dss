@@ -14,17 +14,12 @@
 
 {% block css %}
     {{ super() }}
-    {% assets "jquery_multiselect_css" %}
-        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
-    {% endassets %}
-
     {% assets "select2_css" %}
         <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
     {% endassets %}
 {% endblock %}
 
 {% block content %}
-    {{ macros.show_flashes() }}
     <div class="row">
         <div id="basicinfo" class="col-md-10 block">
             <form id="form_submission_basics"
@@ -53,30 +48,40 @@
             </form>
         </div>
         {#    SIDEBAR     #}
-        <div class="col-md-2">
+        <div id="submission_commands_bar" class="col-md-2">
             <ul class="nav nav-pills nav-stacked">
                 <li><a {% if current_user.is_admin() %} href="{{ url_for('list_submissions') }}" {% else %}
                                                         href="{{ url_for('list_my_submissions') }}"  {% endif %}
                                                         class="btn btn-secondary" role="button">Close</a></li>
                 {% if submission.current_status.next_state() is not none %}
                     {% if current_user.is_admin()  or  submission.current_status.step_num() ==1  or  submission.current_status.step_num() ==2 %}
-                        <li><a href="{{ url_for('steer_submission',sub_id=submission.id) }}" class="btn btn-secondary"
-                               role="button"> >> Proceed to <br/>{{ submission.current_status.next_state().value }} >> </a></li>
+                        <li><a name="button_submission_editor_steer"
+                               data-url="{{ url_for('steer_submission',sub_id=submission.id) }}"
+                               class="btn btn-secondary"
+                               role="button">Proceed to <br/> {{ submission.current_status.next_state().value }}
+                        </a></li>
                     {% endif %}
                 {% endif %}
                 {% if submission.current_status.prev_state() is not none %}
                     {% if current_user.is_admin()  or  submission.current_status.step_num() ==1  or  submission.current_status.step_num() ==2 %}
-                        <li><a href="{{ url_for('revert_submission',sub_id=submission.id) }}" class="btn btn-secondary"
-                               role="button"> << Revert to <br/>{{ submission.current_status.prev_state().value }} << </a></li>
+                        <li><a name="button_submission_editor_revert"
+                               data-url="{{ url_for('revert_submission',sub_id=submission.id) }}"
+                               class="btn btn-secondary"
+                               role="button">Revert to <br/>{{ submission.current_status.prev_state().value }}
+                        </a></li>
                     {% endif %}
                 {% endif %}
+
                 {% if current_user.is_admin() %}
                     <li><a href="javascript:;" onclick="document.getElementById('form_submission_basics').submit();"
-                           class="btn btn-secondary" role="button">Save</a></li>{% endif %}
+                           class="btn btn-secondary" role="button">Save</a></li>
+                {% endif %}
             </ul>
         </div>
     </div>
-    <div class="row" id="tabs">
+
+
+    <div class="inline-editor-tabs row" id="tabs">
         <ul>
             {% if current_user.is_admin()  or  submission.current_status.step_num() ==1  or  submission.current_status.step_num() ==2 %}
                 <li><a href="#contacts">Contacts</a></li>
@@ -152,6 +157,11 @@
 
     {% include 'submission/_submission_progress_bar.html' %}
 
-
+    <div id="submission-command-dialog" title="Confirm" class="ui-dialog" style="display:none;">
+        <!-- Fragment displayed within a JQuery UI Dialog  -->
+        <p>
+            You are about to <span id="submission-dialog-text"></span>!
+        </p>
+    </div>
 {% endblock %}
 

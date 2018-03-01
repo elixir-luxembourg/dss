@@ -1,8 +1,6 @@
-{% import 'macros.html' as macros %}
-{{ macros.show_flashes() }}
 <div class="row">
-<p class="form-adhoc-notes"><u>Please do NOT upload any DATA through this section.
-   This section is for providing Legal Documents such as Agreements, Study Consent Templates etc.</u></p></div>
+    <p class="form-adhoc-notes"><u>Please do NOT upload any DATA through this section.
+        This section is for providing Legal Documents such as Agreements, Study Consent Templates etc.</u></p></div>
 {% if attachments %}
     <table style="width:700px" class="table table-striped table-bordered">
         <thead>
@@ -15,19 +13,14 @@
         {% for attachment in attachments %}
             <tr>
                 <td>{{ attachment.note }}</td>
-                <td>{{ attachment.file_names }}</td>
-
-                {% for category, message in messages %}
-                    {% if category == 'error' or category is none %}
-                        <div class="alert alert-dismissible alert-danger" role="alert">
-                    {% else %}
-                        <div class="alert alert-{{ category }}" role="alert">
+                <td>{% if attachment.files_urls() %}
+                    <ul>
+                        {% for file_url, file_name in attachment.files_urls() %}
+                            <li><a href="{{ file_url }}">{{ file_name }}</a></li>
+                        {% endfor %}
+                    </ul>
                     {% endif %}
-                <button type="button" class="close" data-dismiss="alert">×</button>
-                <strong>{{ message }}</strong>
-                </div>
-                {% endfor %}
-
+                </td>
                 <td>
                     <a id="submission_attachment_listing_delete"
                        data-url="{{ url_for('delete_submission_attachment',attach_id=attachment.id) }}" role="button">

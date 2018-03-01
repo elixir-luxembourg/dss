@@ -1,4 +1,4 @@
-from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess
+from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, GA4GHCodes
 from elixir_dcp.models.security import User, Role, UsersRoles
 from elixir_dcp.controllers.utils import equal_long_strings
 from elixir_dcp.exceptions import RecordLifecycleException, RecordNotExistsException
@@ -29,28 +29,24 @@ def has_access(user_id: str, submission_id: str):
 
 
 def steer_sub(submission_id: str):
-    try:
-        submission = Submission.query.get_or_404(submission_id)
-        new_state = submission.current_status.next_state()
-        if new_state is None:
-            raise RecordLifecycleException("Submission cannot be steered to the next state!")
-        elif new_state == SubmissionStatusEnum.in_progress_metadata and submission.submission_accesses is None:
-            flash('You need to specify a data provider user before initiating a submission', 'error')
-            raise RecordLifecycleException("Submission cannot be steered to the next state!")
-        else:
-            if new_state == SubmissionStatusEnum.in_progress_metadata:
-                send_submission_steer_step1_notification(submission)
-            elif new_state == SubmissionStatusEnum.in_progress_data:
-                send_submission_steer_step2_notification(submission)
-            elif new_state == SubmissionStatusEnum.completed:
-                send_submission_steer_step3_notification(submission)
-            submission.current_status = new_state
-            db.session.add(submission)
-            db.session.commit()
-        return submission
-    except Exception as e:
-        app.logger.error(e, exc_info=True)
+    submission = Submission.query.get_or_404(submission_id)
+    target_state = submission.current_status.next_state()
+    if target_state is None:
         raise RecordLifecycleException("Submission cannot be steered to the next state!")
+    elif target_state == SubmissionStatusEnum.in_progress_metadata and not submission.has_providers():
+        flash('You need to specify a data provider user before initiating a submission', 'error')
+        raise RecordLifecycleException("Submission cannot be steered to the next state!")
+    else:
+        if target_state == SubmissionStatusEnum.in_progress_metadata:
+            send_submission_steer_step1_notification(submission)
+        elif target_state == SubmissionStatusEnum.in_progress_data:
+            send_submission_steer_step2_notification(submission)
+        elif target_state == SubmissionStatusEnum.completed:
+            send_submission_steer_step3_notification(submission)
+        submission.current_status = target_state
+        db.session.add(submission)
+        db.session.commit()
+    return submission
 
 
 def revert_sub(submission_id: str):
@@ -107,38 +103,44 @@ def send_submission_steer_step1_notification(submission: Submission):
     recipients = []
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
-    send_email("ELIXIR LU has created Submission [%s] for you" % submission.ref_name,
+    send_email("Submission [%s] initiated" % submission.ref_name,
                'noreply@elixir-luxembourg.org',
                recipients,
-               render_template("email/submission_steer1.txt", submission=submission), None)
+               render_template("email/submission_steer1.txt", submission=submission),
+               render_template("email/submission_steer1.html", submission=submission))
 
 
 def send_submission_steer_step2_notification(submission: Submission):
     send_email("Submission [%s] steered to Data Upload, needs Upload Instructions" % submission.ref_name,
                'noreply@elixir-luxembourg.org',
                app.config.get('DATA_STEWARDS_MAILS'),
-               render_template("email/submission_steer2.txt", submission=submission), None)
+               render_template("email/submission_steer2.txt", submission=submission),
+               render_template("email/submission_steer2.html", submission=submission))
 
 
 def send_submission_steer_step3_notification(submission: Submission):
     send_email("Submission [%s] steered to Completion, needs Verification" % submission.ref_name,
                'noreply@elixir-luxembourg.org',
                app.config.get('DATA_STEWARDS_MAILS'),
-               render_template("email/submission_steer3.txt", submission=submission), None)
+               render_template("email/submission_steer3.txt", submission=submission),
+               render_template("email/submission_steer3.html", submission=submission))
 
 
 def send_upload_instruction_notification(submission: Submission):
+    recipients = []
     for access in submission.submission_accesses:
-        send_email("Submission [%s] has new upload instructions" % submission.ref_name,
-                   ['noreply@elixir-luxembourg.org'],
-                   [access.user.email],
-                   render_template("email/upload_instructions.txt", submission=submission))
+        recipients.append(access.user.email)
+    send_email("Submission [%s] has new upload instructions" % submission.ref_name,
+               'noreply@elixir-luxembourg.org',
+               recipients,
+               render_template("email/upload_instructions.txt", submission=submission),
+               render_template("email/upload_instructions.html", submission=submission))
 
 
 def send_email(subject, sender, recipients, text_body, html_body):
     msg = Message(subject, sender=sender, recipients=recipients)
     msg.body = text_body
-    msg.html = '<b>HTML</b> body'
+    msg.html = html_body
     thr = Thread(target=send_async_email, args=[app, msg])
     thr.start()
 
@@ -149,9 +151,9 @@ def send_async_email(app, msg):
 
 
 def update_submission_basic_info(submission: Submission, **kwargs):
-    new_instructions = kwargs.pop('upload_instructions');
-    new_title = kwargs.pop('title');
-    new_shared_user_ids = kwargs.pop('provider_user_ids');
+    new_instructions = kwargs.pop('upload_instructions')
+    new_title = kwargs.pop('title')
+    new_shared_user_ids = kwargs.pop('provider_user_ids')
 
     any_instruction_changes = not equal_long_strings(submission.upload_instructions, new_instructions)
 

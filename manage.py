@@ -62,19 +62,9 @@ def init_db():
 
     return
 
-@manager.command
-def send_mail():
-    msg = Message(
-        'Elixir Dcp Test Message',
-        sender='pinar.alper@uni.lu',
-        recipients=
-        ['pinarpink@yahoo.com'])
-    msg.body = "This is the email body"
-    mail.send(msg)
-    #msg = Message(subject='TEst Email from pinar '+ calendar.month_name[prev_month]+'-'+str(current_year),
-    #              recipients=app.config['EMAIL_RECIPIENT'], html=page)
-
+#TODO I don't know what the below command does. FInd out.
 manager.add_command("shell", Shell(use_ipython=True, use_bpython=False))
+
 # work-around bug in flask-assets
 app.jinja_env.assets_environment.environment = app.jinja_env.assets_environment
 manager.add_command("assets", ManageAssets(app.jinja_env.assets_environment))
