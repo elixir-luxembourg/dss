@@ -42,6 +42,9 @@ def create_application():
 app = create_application()
 login_manager = LoginManager()
 login_manager.init_app(app)
+#TODO there needs to be a control here
+#if login is AAI then view is oidc_login
+#else it should be a vanilla login view.
 login_manager.login_view = "oidc_login"
 login_manager.login_message_category = "error"
 
