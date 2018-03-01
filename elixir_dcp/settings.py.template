@@ -8,7 +8,7 @@ class Config(object):
     SECRET_KEY = b'deneme'
     SQLALCHEMY_DATABASE_URI = "sqlite:///elixir-dcp.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    UPLOAD_FOLDER = '/Users/pinar_alper/Desktop/flaskUploads'
+    UPLOAD_FOLDER = 'path/to/uploads/folder'
     UPLOADS_SERVER_PATH = '/attachments'
 
     DATA_STEWARDS_MAILS = ['pinar.alper@uni.lu']
@@ -29,7 +29,7 @@ class ProdConfig(Config):
     AUTHENTICATION_METHOD = 'AAI'
 
     # OIDC config
-    OIDC_CLIENT_SECRETS = '/Users/pinar_alper/Desktop/client_secrets.json'
+    OIDC_CLIENT_SECRETS = 'client_secrets.json'
     OIDC_SCOPES = ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']
     OIDC_COOKIE_SECURE = False
 
@@ -50,7 +50,7 @@ class DevConfig(Config):
     AUTHENTICATION_METHOD = 'AAI'  # Possible methods is 'AAI' or 'CONFIG'
 
     # OIDC config
-    OIDC_CLIENT_SECRETS = '/Users/pinar_alper/Desktop/client_secrets.json'
+    OIDC_CLIENT_SECRETS = 'client_secrets.json'
     OIDC_SCOPES = ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']
     OIDC_COOKIE_SECURE = False
 
