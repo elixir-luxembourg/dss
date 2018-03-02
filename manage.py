@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from datetime import datetime
-from flask_mail import Message
 from flask_assets import ManageAssets
 from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell, Server
@@ -12,6 +11,7 @@ from elixir_dcp.models.services import assign_role_to_user, register_new_user
 
 manager = Manager(app)
 manager.add_command("runserver", Server(host="127.0.0.1", port=5000))
+
 manager.add_command('db', MigrateCommand)
 
 
