@@ -4,9 +4,9 @@
 {% block content %}
     <div class="row well">
         <h1 class="text-center">Login</h1>
-        <form class="form-horizontal" action="{{ url_for('login') }}" method="POST" name="login_user_form">
+        <form class="form-horizontal" action="{{ url_for(login_page) }}" method="POST" name="login_user_form">
             {{ login_user_form.hidden_tag() }}
-            {{ render_field_with_errors(login_user_form.elixir_reg_id) }}
+            {{ render_field_with_errors(login_user_form.username) }}
             {{ render_field_with_errors(login_user_form.password) }}
             {{ render_checkbox_field(login_user_form.remember) }}
             {{ render_field(login_user_form.next) }}
@@ -17,5 +17,4 @@
             </div>
         </form>
     </div>
-
 {% endblock %}

@@ -12,22 +12,7 @@ import elixir_dcp.assets as assets
 import elixir_dcp.exceptions as exceptions
 from flask_oidc import OpenIDConnect
 
-
 __VERSION__ = "0.0.1-dev"
-
-
-def configure_authentication_system():
-    from .authentication.config_authentication import ConfigAuthentication
-    from .authentication.aai_authentication import AAIAuthentication
-
-    authentication_method = app.config.get('AUTHENTICATION_METHOD', 'CONFIG')
-    if authentication_method == 'CONFIG':
-        authentication = ConfigAuthentication(app.config.get('AUTHENTICATION_DICT', {}))
-    elif authentication_method == 'AAI':
-        authentication = AAIAuthentication()
-    else:
-        raise ValueError("Unsupported authentication method")
-    app.config['authentication'] = authentication
 
 
 def create_application():
@@ -42,17 +27,21 @@ def create_application():
 app = create_application()
 login_manager = LoginManager()
 login_manager.init_app(app)
-#TODO there needs to be a control here
-#if login is AAI then view is oidc_login
-#else it should be a vanilla login view.
-login_manager.login_view = "oidc_login"
 login_manager.login_message_category = "error"
 
-csrf = CSRFProtect()
-csrf.init_app(app)
+authentication_method = app.config.get('AUTHENTICATION_METHOD', 'CONFIG')
+if authentication_method == 'CONFIG':
+    login_manager.login_view = "login"
+elif authentication_method == 'AAI':
+    login_manager.login_view = "oidc_login"
+else:
+    raise ValueError("Unsupported authentication method")
 
 oidc = OpenIDConnect()
 oidc.init_app(app)
+
+csrf = CSRFProtect()
+csrf.init_app(app)
 
 assets_env = Environment(app)
 assets_loader = PythonAssetsLoader(assets)
@@ -61,14 +50,12 @@ for name, bundle in assets_loader.load_bundles().items():
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-configure_authentication_system()
-
 
 # Setup Flask-Mail
 mail = Mail(app)
 
 
-
+app.add_template_global(login_manager.login_view, 'login_page')
 
 @app.template_filter('dt')
 def _jinja2_filter_datetime(date, fmt=None):

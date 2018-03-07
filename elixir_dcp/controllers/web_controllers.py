@@ -7,7 +7,8 @@ import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
 from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert_sub, \
-    get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info
+    get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info, \
+    update_user_info
 from elixir_dcp.models.submission import Submission, SubmissionAttachment, SubmissionContact, \
     SubmissionStudyDish, SubmissionUploadInfo
 import elixir_dcp.exceptions as exceptions
@@ -18,7 +19,7 @@ import shutil
 from elixir_dcp import app, db, oidc
 from werkzeug.utils import secure_filename
 from . import app_authorization
-from .utils import get_names_from_oidc, equal_long_strings
+from .utils import get_names_from_oidc
 
 __author__ = 'Valentin Grouès, Pinar Alper'
 
@@ -26,6 +27,42 @@ __author__ = 'Valentin Grouès, Pinar Alper'
 @app.route('/', methods=['GET'])
 def home():
     return render_template('home.html')
+
+
+@app.route('/users', methods=['GET'])
+@app_authorization(allowed_roles=['admin'])
+def list_users():
+    users = User.query.all()
+    return render_template('security/users.html',
+                           users=users)
+
+
+@app.route('/user/edit/<int:user_id>', methods=['GET', 'POST'])
+@app_authorization(allowed_roles=['admin'])
+def edit_user(user_id):
+    if request.method == 'GET':
+        user_rec = User.query.get_or_404(int(user_id))
+        usr_form = forms.UserForm(obj=user_rec)
+        usr_form.assigned_role_ids.data = user_rec.assigned_role_ids()
+        return render_template('security/user.html', user_form=usr_form)
+    elif request.method == 'POST':
+        form = forms.UserForm(request.form)
+        user_rec = User.query.get_or_404(form.id.data)
+        if form.validate_on_submit():
+            update_user_info(user_rec, first_name=form.first_name.data,
+                             last_name=form.last_name.data,
+                             institution=form.institution.data,
+                             email=form.email.data,
+                             addr_line1=form.addr_line1.data,
+                             addr_line2=form.addr_line2.data,
+                             phone_no=form.phone_no.data,
+                             assigned_role_ids=form.assigned_role_ids.data)
+
+            flash('User updated', 'success')
+            return redirect(url_for('list_users'))
+        else:
+            flash("Please check the validity of your input in highlighted places", "error")
+            return render_template('security/user.html', user_form=form)
 
 
 @app.route("/logout")
@@ -45,13 +82,9 @@ def logout():
 @app.route('/oidc_login', methods=['GET', 'POST'])
 @oidc.require_login
 def oidc_login():
-    app.logger.info('Debug in oidc_login')
     app.logger.info(g.oidc_id_token)
     app.logger.info(
         "User Info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
-    # TODO:  Ask Jacek. We need to figure out which attributes are useful. E.g. what does the information
-    # in bona_fide_status exactly mean. Are we ging to make a check whether user group in AAI and the applications we
-    # have here at ELIXIR LU
 
     if current_user.is_authenticated:
         return redirect(url_for('home'))
@@ -71,7 +104,7 @@ def oidc_login():
         else:
             if not existing_user_record.is_active:
                 render_template('error.html', message="Error 500 - {}".format(
-                    "This AAI User does not have access to the application")), 500
+                    "This User does not have access to the application")), 500
             else:
                 login_user(existing_user_record, remember=True)
                 nextt = request.args.get('next')
@@ -96,9 +129,34 @@ def oidc_login():
             return render_template('security/signup.html', signup_form=posted_form)
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = forms.LoginForm()
+    if form.validate_on_submit():
+        email = form.username.data
+        password = form.password.data
+
+        expected_password = app.config.get('AUTHENTICATION_DICT').get(email)
+
+        if expected_password is not None and expected_password == password:
+            app.logger.debug('config authentication passed')
+            user = User.query.filter_by(email=email, active_user=True).one_or_none()
+            if user is None:
+                form.username.errors.append('User not found')
+            else:
+                login_user(user, remember=form.remember.data)
+                flash('User logged in successfully.', 'success')
+                return form.redirect()
+        else:
+            message = 'Wrong username / password combination'
+            form.username.errors.append(message)
+            form.password.errors.append(message)
+
+    return render_template('security/login_user.html', login_user_form=form)
+
+
 @login_manager.user_loader
 def load_user(user_id):
-    app.logger.info('INFO: Load User with ID: %s', user_id)
     try:
         return User.query.get(int(user_id))
     except OperationalError as e:
@@ -157,14 +215,12 @@ def revert_submission(sub_id):
         return "", 400
 
 
-
 """------------------------------------"""
 """------------------------------------"""
 """------------------------------------"""
 
 
 @app.route('/submissions', methods=['GET'])
-@login_required
 @app_authorization(allowed_roles=['admin'])
 def list_submissions():
     """
@@ -176,7 +232,6 @@ def list_submissions():
 
 
 @app.route('/my_submissions', methods=['GET'])
-@login_required
 @app_authorization(allowed_roles=['data_provider'])
 def list_my_submissions():
     """
@@ -269,8 +324,8 @@ def add_edit_submission_contact(contact_id=None):
                 contact_rec.id = None
             db.session.add(contact_rec)
             db.session.commit()
-            #msg = "updated" if mode == 'create' else "added"
-            #flash("Submission Contact {}.".format(msg), "success")
+            # msg = "updated" if mode == 'create' else "added"
+            # flash("Submission Contact {}.".format(msg), "success")
 
             sid = posted_form.submission_id.data
 
@@ -288,7 +343,7 @@ def delete_submission_contact(contact_id):
     submission_contact = SubmissionContact.query.get_or_404(contact_id)
     db.session.delete(submission_contact)
     db.session.commit()
-    #flash("Submission Contact deleted", "info")
+    # flash("Submission Contact deleted", "info")
     return "", 204
 
 
@@ -326,9 +381,10 @@ def add_submission_attachment():
             form.file_attachments.errors.append('No file(s) selected.')
         if not is_allowed_type(file.filename):
             file_validation = False
-            form.file_attachments.errors.append('File {} is not of allowed type. Only TXT, PDF and PNG files can be uploaded.'.format(file.filename))
+            form.file_attachments.errors.append(
+                'File {} is not of allowed type. Only TXT, PDF and PNG files can be uploaded.'.format(file.filename))
     if (not file_validation) or (not form_validation):
-        #flash("Please check the validity of your input in highlighted fields.", "error")
+        # flash("Please check the validity of your input in highlighted fields.", "error")
         return render_template('submission/_attachment_form.html', attachment_form=form), 400
     else:
         attachments_folder = str(uuid.uuid4())
@@ -345,7 +401,7 @@ def add_submission_attachment():
             file.save(os.path.join(path_on_server, secured_file_name))
         db.session.add(attachment)
         db.session.commit()
-        #flash("Submission Attachment(s) added", "success")
+        # flash("Submission Attachment(s) added", "success")
         sid = form.submission_id.data
         return render_template('submission/_attachment_form.html', attachment_form=forms.AttachmentForm(formdata=None,
                                                                                                         obj=None,
@@ -360,7 +416,7 @@ def delete_submission_attachment(attach_id):
     shutil.rmtree(path_on_server)
     db.session.delete(submission_attachment)
     db.session.commit()
-    #flash("Submission Attachment deleted", "success")
+    # flash("Submission Attachment deleted", "success")
     return "", 204
 
 
@@ -400,8 +456,8 @@ def add_edit_submission_dish(dish_id=None):
                 dish_rec.id = None
             db.session.add(dish_rec)
             db.session.commit()
-            #msg = "created" if mode == 'create' else "updated"
-            #flash("Study {}.".format(msg), "success")
+            # msg = "created" if mode == 'create' else "updated"
+            # flash("Study {}.".format(msg), "success")
 
             sid = posted_form.submission_id.data
 
@@ -409,7 +465,7 @@ def add_edit_submission_dish(dish_id=None):
                                                                                                obj=None,
                                                                                                sub_id=sid)), 200
         else:
-            #flash("Please check the validity of your input in highlighted places", "error")
+            # flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_dish_form.html', dish_form=posted_form), 400
 
 
@@ -419,7 +475,7 @@ def delete_submission_dish(dish_id):
     dish = SubmissionStudyDish.query.get_or_404(dish_id)
     db.session.delete(dish)
     db.session.commit()
-    #flash("Study deleted", "success")
+    # flash("Study deleted", "success")
     return "", 204
 
 
@@ -459,7 +515,7 @@ def add_edit_submission_uploadinfo(uploadinfo_id=None):
                 uploadinfo_rec.id = None
             db.session.add(uploadinfo_rec)
             db.session.commit()
-            #flash("Submission Upload Info {}.".format("created" if mode == 'create' else "updated"), "success")
+            # flash("Submission Upload Info {}.".format("created" if mode == 'create' else "updated"), "success")
             sid = posted_form.submission_id.data
 
             return render_template('submission/_uploadinfo_form.html',
@@ -467,7 +523,7 @@ def add_edit_submission_uploadinfo(uploadinfo_id=None):
                                                                         obj=None,
                                                                         sub_id=sid)), 200
         else:
-            #flash("Please check the validity of your input in highlighted places", "error")
+            # flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_uploadinfo_form.html', uploadinfo_form=posted_form), 400
 
 
@@ -477,7 +533,7 @@ def delete_submission_uploadinfo(uploadinfo_id):
     submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
     db.session.delete(submission_uploadinfo)
     db.session.commit()
-    #flash("Submission Upload Info deleted", "success")
+    # flash("Submission Upload Info deleted", "success")
     return "", 204
 
 
