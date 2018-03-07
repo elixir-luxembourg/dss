@@ -114,12 +114,6 @@ class Submission(db.Model):
     def is_in_progress(self):
         return self.current_status == SubmissionStatusEnum.in_progress_data or self.current_status == SubmissionStatusEnum.in_progress_metadata
 
-    def is_assigned(self):
-        if self.provider_users is not None:
-            return True
-        else:
-            return False
-
     def provider_user_ids(self):
         result = []
         for access in self.submission_accesses:
