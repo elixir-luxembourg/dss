@@ -1,7 +1,5 @@
 from elixir_dcp import db
 from flask_login._compat import text_type
-from datetime import datetime
-from elixir_dcp.exceptions import RecordNotExistsException
 
 
 class User(db.Model):
@@ -52,6 +50,12 @@ class User(db.Model):
 
     def display_name(self):
         return self.first_name + " " + self.last_name
+
+    def assigned_role_ids(self):
+        result = []
+        for role in self.assigned_roles:
+            result.append(role.id)
+        return result
 
 
 class Role(db.Model):

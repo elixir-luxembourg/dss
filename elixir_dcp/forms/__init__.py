@@ -1,8 +1,8 @@
 # coding=utf-8
-from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm,  SubmissionForm, \
+from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, \
     StudyDishForm, UploadInfoForm
-
-from wtforms import HiddenField,StringField,  SelectField
+from elixir_dcp.models.security import Role
+from wtforms import BooleanField, HiddenField, StringField, PasswordField, SelectMultipleField
 from wtforms.fields.html5 import EmailField
 from flask_wtf import FlaskForm
 from flask import redirect, request
@@ -54,10 +54,22 @@ def check_phone(form, field):
     #         (num_periods, 30*period))
 
 
+class LoginForm(RedirectForm):
+    username = EmailField('Username', [DataRequired(), Email("This field requires a valid email address")],
+                          render_kw={"placeholder": "email@uni.lux"})
+    password = PasswordField('Password', [DataRequired()],
+                             render_kw={"placeholder": "UL password"})
+    remember = BooleanField('Remember me')
+
+
 class SignupForm(FlaskForm):
     elixir_sub_id = HiddenField('Elixir Sub ID')
-    first_name = StringField('First Name', [DataRequired(), Regexp('\w+', message="Names can contain letters, numbers or underscore."), Length(min=2, max=20, message="Must be between 2 & 20 characters.")])
-    last_name = StringField('Last Name', [DataRequired(), Regexp('\w+', message="Names can contain letters, numbers or underscore."), Length(min=2, max=20, message="Must be between 2 & 20 characters.")])
+    first_name = StringField('First Name', [DataRequired(),
+                                            Regexp('\w+', message="Names can contain letters, numbers or underscore."),
+                                            Length(min=2, max=20, message="Must be between 2 & 20 characters.")])
+    last_name = StringField('Last Name',
+                            [DataRequired(), Regexp('\w+', message="Names can contain letters, numbers or underscore."),
+                             Length(min=2, max=20, message="Must be between 2 & 20 characters.")])
     institution = StringField('Institution', [DataRequired()])
     email = EmailField('E-Mail', [DataRequired(), Email("This field requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
@@ -68,12 +80,14 @@ class SignupForm(FlaskForm):
     phone_no = StringField('Phone', [check_phone])
 
 
+class UserForm(SignupForm):
+
+    id = HiddenField('User_Id')
+    assigned_role_ids = SelectMultipleField('Has Roles', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+        self.assigned_role_ids.choices = [(rol.id, rol.name) for rol in Role.query.all()]
 
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm]
-
-
-
-
-
-
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, UserForm]

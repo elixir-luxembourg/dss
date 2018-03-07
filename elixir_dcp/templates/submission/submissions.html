@@ -37,7 +37,7 @@
                         <td> {{ submission.title }} </td>
                         <td> {{ submission.created_on }} </td>
                         <td> {{ submission.current_status.value }} </td>
-                        {% if submission.is_assigned %}
+                        {% if submission.has_providers %}
                             <td> {{ submission.provider_users_display() }} </td>
                         {% else %}
                             <td>  --- </td>

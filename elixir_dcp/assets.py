@@ -52,6 +52,20 @@ submission_listing_js = Bundle(
     ),
     output='public/js/submission_listing.min.js')
 
+user_editor_js = Bundle(
+    Bundle(
+        'js/user_editor.js',
+        filters='closure_js'
+    ),
+    output='public/js/user_editor.min.js')
+
+user_listing_js = Bundle(
+    Bundle(
+        'js/user_listing.js',
+        filters='closure_js'
+    ),
+    output='public/js/user_listing.min.js')
+
 signup_js = Bundle(
     Bundle(
         'js/signup.js',

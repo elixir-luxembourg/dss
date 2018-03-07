@@ -187,3 +187,28 @@ def update_submission_basic_info(submission: Submission, **kwargs):
     if any_instruction_changes and submission.is_in_progress():
         send_upload_instruction_notification(submission)
         flash('Data Providers are notified of upload instructions', 'info')
+
+
+def update_user_info(usr: User, **kwargs):
+
+    usr.first_name = kwargs.pop('first_name')
+    usr.last_name = kwargs.pop('last_name')
+    usr.institution = kwargs.pop('institution')
+    usr.email = kwargs.pop('email')
+    usr.addr_line1 = kwargs.pop('addr_line1')
+    usr.addr_line2 = kwargs.pop('addr_line2')
+    usr.phone_no = kwargs.pop('phone_no')
+
+    new_assigned_role_ids = set(kwargs.pop('assigned_role_ids'))
+    old_assigned_role_ids = set(usr.assigned_role_ids())
+    to_be_added = new_assigned_role_ids - old_assigned_role_ids
+    to_be_removed = old_assigned_role_ids - new_assigned_role_ids
+
+    for role_id in to_be_added:
+        usr.assigned_roles.append(Role.query.get_or_404(role_id))
+
+    for role_id in to_be_removed:
+        usr.assigned_roles.remove(Role.query.get_or_404(role_id))
+
+    db.session.add(usr)
+    db.session.commit()

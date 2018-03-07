@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+{% set active_page = 'users' %}
+{% block title %} Users List {% endblock %}
+{% block js %}
+    {{ super() }}
+    {% assets "user_listing_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "select2_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+{% block css %}
+    {{ super() }}
+    {% assets "select2_css" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        {% if users %}
+            <table class="datatable table table-striped table-bordered" id="user_list_table">
+                <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td> {{ user.first_name }} </td>
+                        <td> {{ user.last_name }} </td>
+                        <td> {{ user.email }} </td>
+                        <td> {{ user.active_user}} </td>
+                        <td>
+                            <a name="button_user_listing_edit"
+                               href="{{ url_for('edit_user',user_id=user.id) }}" role="button">
+                                <i class="text-info material-icons">edit</i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="text-center">
+                <h3> No user definitions exist. </h3>
+                <hr class="intro-divider">
+            </div>
+        {% endif %}
+
+
+    </div>
+{% endblock %}
