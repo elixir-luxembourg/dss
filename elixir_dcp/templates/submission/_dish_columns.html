@@ -8,7 +8,9 @@
             <th width="10%">Special Subjects?</th>
             <th width="10%">Consent Status</th>
             <th width="35%">Use Conditions</th>
-            <th width="20%">Actions</th>
+            {% if  not readonly %}
+                <th width="20%">Actions</th>
+            {% endif %}
         </tr>
         </thead>
         {% for dish in dishes %}
@@ -24,16 +26,18 @@
                         {% endfor %}
                     </ul>
                 </td>
-                <td>
-                    <a id="submission_dish_listing_delete"
-                       data-url="{{ url_for('delete_submission_dish',dish_id=dish.id) }}" role="button">
-                        <i class="material-icons">delete</i>
-                    </a>
-                    <a id="submission_dish_listing_edit"
-                       data-url="{{ url_for('add_edit_submission_dish',dish_id=dish.id) }}" role="button">
-                        <i class="material-icons">edit</i>
-                    </a>
-                </td>
+                {% if  not readonly %}
+                    <td>
+                        <a id="submission_dish_listing_delete"
+                           data-url="{{ url_for('delete_submission_dish',dish_id=dish.id) }}" role="button">
+                            <i class="material-icons">delete</i>
+                        </a>
+                        <a id="submission_dish_listing_edit"
+                           data-url="{{ url_for('add_edit_submission_dish',dish_id=dish.id) }}" role="button">
+                            <i class="material-icons">edit</i>
+                        </a>
+                    </td>
+                {% endif %}
             </tr>
         {% endfor %}
     </table>
