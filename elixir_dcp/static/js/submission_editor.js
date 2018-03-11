@@ -1,18 +1,21 @@
 function displayInlineError(msg) {
-    $(".inline-editor-tabs").prepend('<div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg + '</strong> </div>');
+    $(".inline-editor-messages").prepend('<div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg + '</strong> </div>');
 
 }
+
 function displayInlineSuccess(msg) {
-    $(".inline-editor-tabs").prepend('<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg+ '</strong> </div>');
+    $(".inline-editor-messages").prepend('<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg + '</strong> </div>');
 
 }
+
+
 $(document).ready(function () {
 
     var VALIDATION_ERROR = "BAD REQUEST";
 
-    function bind_widgets(){
+    function bind_widgets() {
 
-        $(".elx-date").datepicker({ dateFormat: 'dd/mm/yy' });
+        $(".elx-date").datepicker({dateFormat: 'dd/mm/yy'});
 
         $('.elx-select').select2({
             minimumResultsForSearch: -1
@@ -26,11 +29,11 @@ $(document).ready(function () {
             }
         });
 
-        $("div[data-toggle=fieldset]").each(function() {
+        $("div[data-toggle=fieldset]").each(function () {
             var $this = $(this);
 
             //Add new entry
-            $this.find("button[data-toggle=fieldset-add-row]").click(function() {
+            $this.find("button[data-toggle=fieldset-add-row]").click(function () {
                 var target = $($(this).data("target"))
                 console.log(target);
                 var oldrow = target.find("[data-toggle=fieldset-entry]:last");
@@ -39,7 +42,7 @@ $(document).ready(function () {
                 var elem_id = row.find(":input")[0].id;
                 var elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1')) + 1;
                 row.attr('data-id', elem_num);
-                row.find(":input").each(function() {
+                row.find(":input").each(function () {
                     console.log(this);
                     var id = $(this).attr('id').replace('-' + (elem_num - 1) + '-', '-' + (elem_num) + '-');
                     $(this).attr('name', id).attr('id', id).val('').removeAttr("checked");
@@ -48,8 +51,8 @@ $(document).ready(function () {
             }); //End add new entry
 
             //Remove row
-            $this.find("button[data-toggle=fieldset-remove-row]").click(function() {
-                if($this.find("[data-toggle=fieldset-entry]").length > 1) {
+            $this.find("button[data-toggle=fieldset-remove-row]").click(function () {
+                if ($this.find("[data-toggle=fieldset-entry]").length > 1) {
                     var thisRow = $(this).closest("[data-toggle=fieldset-entry]");
                     thisRow.remove();
                 }
@@ -64,15 +67,15 @@ $(document).ready(function () {
     });
 
 
-    function refresh_bean_list(bean_name){
+    function refresh_bean_list(bean_name) {
 
-        var bean_label = $("div[id='tabs']").find("a[href='#" + bean_name+"']").text();
+        var bean_label = $("div[id='tabs']").find("a[href='#" + bean_name + "']").text();
 
         $.ajax({
             url: $("#" + bean_name + "_inline_list").attr('data-url'),
             type: "get",
             success: function (result) {
-                $("#"+ bean_name + "_inline_list").html(result);
+                $("#" + bean_name + "_inline_list").html(result);
             },
             error: function () {
                 alert('An error occurred while loading the ' + bean_label + ' section of this page');
@@ -80,7 +83,7 @@ $(document).ready(function () {
         });
     }
 
-    function bean_list_delete_handler(data_url, bean_name){
+    function bean_list_delete_handler(data_url, bean_name) {
         $.ajax({
             url: data_url,
             type: "delete",
@@ -94,14 +97,13 @@ $(document).ready(function () {
     }
 
 
-
-    $("#submission_commands_bar").on('click','a[name="button_submission_editor_steer"]', function () {
+    $("#submission_commands_bar").on('click', 'a[name="button_submission_editor_steer"]', function () {
         var endpoint = $(this).attr('data-url');
-        confirmDialog("steer this Submission to next state").done(function() {
+        confirmDialog("steer this Submission to next state").done(function () {
             $.ajax({
                 url: endpoint,
                 type: "get",
-                success: function(result){
+                success: function (result) {
                     location.reload()
                 },
                 error: function (xhr, status, error) {
@@ -112,13 +114,13 @@ $(document).ready(function () {
         });
     });
 
-    $("#submission_commands_bar").on('click','a[name="button_submission_editor_revert"]', function () {
+    $("#submission_commands_bar").on('click', 'a[name="button_submission_editor_revert"]', function () {
         var endpoint = $(this).attr('data-url');
-        confirmDialog("revert this Submission to its previous state").done(function() {
+        confirmDialog("revert this Submission to its previous state").done(function () {
             $.ajax({
                 url: endpoint,
                 type: "get",
-                success: function(result){
+                success: function (result) {
                     location.reload()
                 },
                 error: function (xhr, status, error) {
@@ -128,6 +130,7 @@ $(document).ready(function () {
 
         });
     });
+
     function confirmDialog(msg) {
         $("#submission-dialog-text").text(msg);
         var def = $.Deferred();
@@ -135,18 +138,18 @@ $(document).ready(function () {
             autoOpen: true,
             hide: true,
             resizable: false,
-            height: 20,
+            height: 200,
             width: 250,
             modal: true,
             dialogClass: "alert",
             buttons: {
-                'Continue': function() {
+                'Continue': function () {
                     def.resolve();
-                    $( this ).dialog( "close" );
+                    $(this).dialog("close");
                 },
-                'Cancel': function() {
+                'Cancel': function () {
                     def.reject();
-                    $( this ).dialog( "close" );
+                    $(this).dialog("close");
                 }
             }
         });
@@ -162,15 +165,15 @@ $(document).ready(function () {
      */
 
 
-    $("#contacts_inline_editor").on('click', 'a#submission_contact_save', function() {
+    $("#contacts_inline_editor").on('click', 'a#submission_contact_save', function () {
 
-        var id = $('#form_submission_contact').find( "#id" ).val();
-        var base_url  = $('#contacts_inline_editor').attr('data-url');
+        var id = $('#form_submission_contact').find("#id").val();
+        var base_url = $('#contacts_inline_editor').attr('data-url');
         $.ajax({
-            url: "".concat(base_url, (id.length>0)? "/"+id :""),
+            url: "".concat(base_url, (id.length > 0) ? "/" + id : ""),
             type: 'post',
-            data : $('#form_submission_contact').serialize(),
-            success: function(result){
+            data: $('#form_submission_contact').serialize(),
+            success: function (result) {
                 refresh_bean_list("contacts");
                 $("#contacts_inline_editor").html(result);
                 bind_widgets();
@@ -181,20 +184,21 @@ $(document).ready(function () {
                     refresh_bean_list("contacts");
                     $("#contacts_inline_editor").html(xhr.responseText);
                     displayInlineError("Please check the validity of your input in highlighted places");
-                }}
+                }
+            }
 
         });
     });
-    $("#contacts_inline_list").on('click', 'a#submission_contact_listing_delete', function() {
+    $("#contacts_inline_list").on('click', 'a#submission_contact_listing_delete', function () {
         bean_list_delete_handler($(this).attr('data-url'), "contacts");
         displayInlineSuccess("Submission Contact deleted.");
     });
 
-    $("#contacts_inline_list").on('click', 'a#submission_contact_listing_edit', function() {
+    $("#contacts_inline_list").on('click', 'a#submission_contact_listing_edit', function () {
         $.ajax({
             url: $(this).attr('data-url'),
             type: "get",
-            success: function(result){
+            success: function (result) {
                 $("#contacts_inline_editor").html(result);
                 bind_widgets();
             },
@@ -214,12 +218,12 @@ $(document).ready(function () {
      *
      */
 
-    $("#attachments_inline_list").on('click', 'a#submission_attachment_listing_delete', function() {
+    $("#attachments_inline_list").on('click', 'a#submission_attachment_listing_delete', function () {
         bean_list_delete_handler($(this).attr('data-url'), "attachments");
         displayInlineSuccess("Attachment deleted.");
     });
 
-    $("#attachments_inline_editor").on('click', 'a#submission_attachment_add', function() {
+    $("#attachments_inline_editor").on('click', 'a#submission_attachment_add', function () {
 
         var formData = new FormData($("#form_submission_attachment")[0]);
         $.ajax({
@@ -229,8 +233,8 @@ $(document).ready(function () {
             contentType: false,
             processData: false,
             enctype: 'multipart/form-data',
-            data : formData,
-            success: function(result){
+            data: formData,
+            success: function (result) {
                 refresh_bean_list("attachments");
                 $("#attachments_inline_editor").html(result);
                 displayInlineSuccess("Attachment saved");
@@ -257,15 +261,15 @@ $(document).ready(function () {
      */
 
 
-    $("#dishes_inline_editor").on('click', 'a#submission_dish_save', function() {
+    $("#dishes_inline_editor").on('click', 'a#submission_dish_save', function () {
 
-        var id = $('#form_submission_dish').find( "#id" ).val();
-        var base_url  = $('#dishes_inline_editor').attr('data-url');
+        var id = $('#form_submission_dish').find("#id").val();
+        var base_url = $('#dishes_inline_editor').attr('data-url');
         $.ajax({
-            url: "".concat(base_url, (id.length>0)? "/"+id :""),
+            url: "".concat(base_url, (id.length > 0) ? "/" + id : ""),
             type: 'post',
-            data : $('#form_submission_dish').serialize(),
-            success: function(result){
+            data: $('#form_submission_dish').serialize(),
+            success: function (result) {
                 refresh_bean_list("dishes");
                 $("#dishes_inline_editor").html(result);
                 displayInlineSuccess("Study saved");
@@ -282,17 +286,17 @@ $(document).ready(function () {
         });
     });
 
-    $("#dishes_inline_list").on('click', 'a#submission_dish_listing_delete', function() {
+    $("#dishes_inline_list").on('click', 'a#submission_dish_listing_delete', function () {
         bean_list_delete_handler($(this).attr('data-url'), "dishes");
         displayInlineSuccess("Study deleted");
     });
 
 
-    $("#dishes_inline_list").on('click', 'a#submission_dish_listing_edit', function() {
+    $("#dishes_inline_list").on('click', 'a#submission_dish_listing_edit', function () {
         $.ajax({
             url: $(this).attr('data-url'),
             type: "get",
-            success: function(result){
+            success: function (result) {
                 $("#dishes_inline_editor").html(result);
                 bind_widgets();
             },
@@ -301,7 +305,6 @@ $(document).ready(function () {
             }
         });
     });
-
 
 
     /**
@@ -316,15 +319,15 @@ $(document).ready(function () {
      *
      */
 
-    $("#uploadinfos_inline_editor").on('click', 'a#submission_uploadinfo_save', function() {
+    $("#uploadinfos_inline_editor").on('click', 'a#submission_uploadinfo_save', function () {
 
-        var id = $('#form_submission_uploadinfo').find( "#id" ).val();
-        var base_url  = $('#uploadinfos_inline_editor').attr('data-url');
+        var id = $('#form_submission_uploadinfo').find("#id").val();
+        var base_url = $('#uploadinfos_inline_editor').attr('data-url');
         $.ajax({
-            url: "".concat(base_url, (id.length>0)? "/"+id :""),
+            url: "".concat(base_url, (id.length > 0) ? "/" + id : ""),
             type: 'post',
-            data : $('#form_submission_uploadinfo').serialize(),
-            success: function(result){
+            data: $('#form_submission_uploadinfo').serialize(),
+            success: function (result) {
                 refresh_bean_list("uploadinfos");
                 $("#uploadinfos_inline_editor").html(result);
                 displayInlineSuccess("Upload Checksum saved");
@@ -340,16 +343,16 @@ $(document).ready(function () {
         });
     });
 
-    $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_delete', function() {
+    $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_delete', function () {
         bean_list_delete_handler($(this).attr('data-url'), "uploadinfos");
         displayInlineSuccess("Upload Checksum deleted");
     });
 
-    $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_edit', function() {
+    $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_edit', function () {
         $.ajax({
             url: $(this).attr('data-url'),
             type: "get",
-            success: function(result){
+            success: function (result) {
                 $("#uploadinfos_inline_editor").html(result);
             },
             error: function (xhr, status, error) {

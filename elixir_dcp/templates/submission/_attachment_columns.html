@@ -1,13 +1,13 @@
-<div class="row">
-    <p class="form-adhoc-notes"><u>Please do NOT upload any DATA through this section.
-        This section is for providing Legal Documents such as Agreements, Study Consent Templates etc.</u></p></div>
 {% if attachments %}
     <table style="width:700px" class="table table-striped table-bordered">
+        <caption>Attachments:</caption>
         <thead>
         <tr>
             <th width="40%">Note</th>
             <th width="50%">File(s)</th>
-            <th width="10%">Actions</th>
+            {% if  not readonly %}
+                <th width="15%">Actions</th>
+            {% endif %}
         </tr>
         </thead>
         {% for attachment in attachments %}
@@ -19,19 +19,23 @@
                             <li><a href="{{ file_url }}">{{ file_name }}</a></li>
                         {% endfor %}
                     </ul>
-                    {% endif %}
+                {% endif %}
                 </td>
-                <td>
-                    <a id="submission_attachment_listing_delete"
-                       data-url="{{ url_for('delete_submission_attachment',attach_id=attachment.id) }}" role="button">
-                        <i class="material-icons">delete</i>
-                    </a>
-                </td>
+                {% if  not readonly %}
+                    <td>
+                        <a id="submission_attachment_listing_delete"
+                           data-url="{{ url_for('delete_submission_attachment',attach_id=attachment.id) }}"
+                           role="button">
+                            <i class="material-icons">delete</i>
+                        </a>
+                    </td>
+                {% endif %}
             </tr>
         {% endfor %}
     </table>
 {% else %}
+   <br/>
     <div class="text-center">
-        <h3> You have not uploaded any attachments yet. </h3>
+        <h3> No attachments. </h3>
     </div>
 {% endif %}

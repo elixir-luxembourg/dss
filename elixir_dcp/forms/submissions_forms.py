@@ -93,18 +93,6 @@ class SubmissionForm(FlaskForm):
         FlaskForm.__init__(self, *args, **kwargs)
         self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in User.query.all()]
 
-    def child_contact_form(self, *args, **kwargs):
-        return ContactForm(formdata=None, obj=None, sub_id=self.id.data)
-
-    def child_dish_form(self, *args, **kwargs):
-        return StudyDishForm(formdata=None, obj=None, sub_id=self.id.data)
-
-    def child_attachment_form(self, *args, **kwargs):
-        return AttachmentForm(formdata=None, obj=None, sub_id=self.id.data)
-
-    def child_uploadinfo_form(self, *args, **kwargs):
-        return UploadInfoForm(formdata=None, obj=None, sub_id=self.id.data)
-
 
 class StudyDishForm(FlaskForm):
 

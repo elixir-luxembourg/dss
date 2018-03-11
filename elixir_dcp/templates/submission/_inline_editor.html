@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% import "forms_macros.html" as fmacros %}
+{% block title %}Submission{% endblock %}
+{% block js %}
+    {{ super() }}
+    {% assets "submission_editor_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+{% block content %}
+    <div class="inline-editor-messages">
+    </div>
+    <div class="row block">
+
+        <div id="basicinfo" class="col-md-11">
+            {% include 'submission/_submission_header.html' %}
+        </div>
+        {#    SIDE BAR CLOSE  BUTTON    #}
+        <div class="col-md-1">
+            <a href="{{ url_for('edit_submission',sub_id=submission.id) }}"
+               class="btn btn-info btn-lg"><span
+                    class="glyphicon glyphicon-remove"
+                    data-toggle="tooltip"
+                    title="Close"></span>
+            </a>
+        </div>
+        <hr size="2px"/>
+        {% block inline_content %}{% endblock %}
+    </div>
+{% endblock %}

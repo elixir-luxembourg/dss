@@ -29,6 +29,11 @@ def home():
     return render_template('home.html')
 
 
+@app.route('/test_metadata', methods=['GET'])
+def test_metadata():
+    return render_template('submission/_study_metadata.html')
+
+
 @app.route('/users', methods=['GET'])
 @app_authorization(allowed_roles=['admin'])
 def list_users():
@@ -183,12 +188,6 @@ def delete_submission(sub_id):
         return "", 400
 
 
-@app_authorization(allowed_roles=['admin'])
-@app.route('/archive/submission/<int:sub_id>', methods=['GET'])
-def archive_submission(sub_id):
-    pass
-
-
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 @app.route('/steer/submission/<int:sub_id>', methods=['GET'])
 def steer_submission(sub_id):
@@ -293,6 +292,16 @@ def edit_submission(sub_id):
 """----------------------------------------------------"""
 
 
+@app.route('/submission_contacts_inline/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+def inline_submission_contacts(sub_id):
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/_contacts.html', submission=submission_rec,
+                           contact_form=forms.ContactForm(formdata=None,
+                                                          obj=None,
+                                                          sub_id=submission_rec.id))
+
+
 @app.route('/submission_contacts/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 def list_submission_contacts(sub_id):
@@ -351,6 +360,14 @@ def delete_submission_contact(contact_id):
 """AJAX Endpoints for managing a Submission's Attachments."""
 """-------------------------------------------------------"""
 
+@app.route('/submission_attachments_inline/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+def inline_submission_attachments(sub_id):
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/_attachments.html', submission=submission_rec,
+                           attachment_form=forms.AttachmentForm(formdata=None,
+                                                          obj=None,
+                                                          sub_id=submission_rec.id))
 
 @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
@@ -425,6 +442,15 @@ def delete_submission_attachment(attach_id):
 """----------------------------------------------------"""
 
 
+
+@app.route('/submission_dishes_inline/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+def inline_submission_dishes(sub_id):
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/_dishes.html', submission=submission_rec,
+                           dish_form=forms.StudyDishForm(formdata=None,
+                                                                obj=None,
+                                                                sub_id=submission_rec.id))
 @app.route('/submission_dishes/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 def list_submission_dishes(sub_id):
@@ -483,6 +509,15 @@ def delete_submission_dish(dish_id):
 """AJAX Endpoints for managing a Submission's Upload Info Records."""
 """----------------------------------------------------"""
 
+
+@app.route('/submission_uploadinfos_inline/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+def inline_submission_uploadinfos(sub_id):
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/_uploadinfos.html', submission=submission_rec,
+                           uploadinfo_form=forms.UploadInfoForm(formdata=None,
+                                                         obj=None,
+                                                         sub_id=submission_rec.id))
 
 @app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])

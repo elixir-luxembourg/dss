@@ -1,5 +1,6 @@
 {% if uploadinfos %}
     <table style="width:700px"  class="table table-striped table-bordered">
+        <caption>File Checksums:</caption>
         <thead>
         <tr>
             <th width="30%">Uploaded File Name</th>
@@ -26,6 +27,6 @@
     </table>
 {% else %}
     <div class="text-center">
-    <h3> You have not provided any file checksums for upload verification. </h3>
+    <h3> No file checksums. </h3>
     </div>
 {% endif %}

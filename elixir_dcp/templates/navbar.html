@@ -14,58 +14,60 @@
                 </button>
                 {# <a class="navbar-brand" href="/">Navigation</a>#}
             </div>
-            <ul class="nav navbar-nav">
-                <li class="active">
-                    <a href="{{ url_for('home') }}"><span class="glyphicon glyphicon-home"></span> Home </a>
-                </li>
-                {% if current_user.is_authenticated %} 
-                    {% for name, link, sub_items, role in menu_bar_items %}
-                        {% if current_user.assigned_roles|selectattr("name", "equalto",role)|list|count > 0 %} 
-                            {% if link %}
-                                <li><a href="{{ url_for(link) }}">{{ name|e }}</a></li>
-                            {% else %}
-                                </ul>
+            <div>
+                <ul class="nav navbar-nav">
+                    <li class="active">
+                        <a href="{{ url_for('home') }}"><span class="glyphicon glyphicon-home"></span> Home </a>
+                    </li>
+                </ul>
+                    {% if current_user.is_authenticated %} 
+                        {% for name, link, sub_items, role in menu_bar_items %}
+                            {% if current_user.assigned_roles|selectattr("name", "equalto",role)|list|count > 0 %} 
                                 <ul class="nav navbar-nav">
-                                <li class="dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                        <strong>{{ name }}</strong>
-                                        <span class="glyphicon glyphicon-chevron-down"></span>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        {% for sub_item_name, sub_item_link in sub_items %}
-                                            <li><a href="{{ url_for(sub_item_link) }}">{{ sub_item_name }}</a></li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
+                                {% if link %}
+                                    <li><a href="{{ url_for(link) }}">{{ name|e }}</a></li>
+                                {% else %}
+                                    <li class="dropdown">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                            <strong>{{ name }}</strong>
+                                            <span class="glyphicon glyphicon-chevron-down"></span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            {% for sub_item_name, sub_item_link in sub_items %}
+                                                <li><a href="{{ url_for(sub_item_link) }}">{{ sub_item_name }}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                {% endif %}
                                 </ul>
                             {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-            </ul>
+                        {% endfor %}
+                    {% endif %}
 
-            <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <span class="glyphicon glyphicon-user"></span>
-                        {% if current_user.is_authenticated %} 
-                            <strong>{{ current_user.display_name() }}</strong>
-                        {% else %}
-                            <strong>Anonymous</strong>
-                        {% endif %}
-                        <span class="glyphicon glyphicon-chevron-down"></span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        {% if current_user.is_authenticated %}
-                            <li><a href="#">My Info</a></li>
-                            <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                        {% else %}
-                            <li><a href="{{ url_for(login_page) }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">Login</a></li>
-                        {% endif %}
-                    </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-user"></span>
+                            {% if current_user.is_authenticated %} 
+                                <strong>{{ current_user.display_name() }}</strong>
+                            {% else %}
+                                <strong>Anonymous</strong>
+                            {% endif %}
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% if current_user.is_authenticated %}
+                                <li><a href="{{ url_for('logout') }}">Logout</a>
+                                </li>
+                            {% else %}
+                                <li><a href="{{ url_for(login_page) }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">Login</a>
+                                </li>
+                            {% endif %}
+                        </ul>
 
-                </li>
-            </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

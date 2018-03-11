@@ -1,0 +1,14 @@
+{% extends "submission/_inline_editor.html" %}
+{% block inline_content %}
+    {% with %}
+        {% set attachments = submission.attachments %}
+        <div id="attachments_inline_list"
+             data-url="{{ url_for('list_submission_attachments',sub_id=submission.id) }}">
+            {% include 'submission/_attachment_columns.html' %}
+        </div>
+    {% endwith %}
+    <hr size="2px"/>
+    <div id="attachments_inline_editor" data-url="{{ url_for('add_submission_attachment') }}">
+        {% include 'submission/_attachment_form.html' %}
+    </div>
+{% endblock %}

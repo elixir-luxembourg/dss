@@ -1,0 +1,18 @@
+{% extends "submission/_inline_editor.html" %}
+{% block inline_content %}
+    {% with %}
+        {% set uploadinfos = submission.uploadinfos %}
+        <div id="uploadinfos_inline_list"
+             data-url="{{ url_for('list_submission_uploadinfos',sub_id=submission.id) }}">
+            {% include 'submission/_uploadinfo_columns.html' %}
+        </div>
+    {% endwith %}
+    <hr size="2px"/>
+    <div id="uploadinfos_inline_editor" data-url="{{ url_for('add_edit_submission_uploadinfo') }}">
+        {% include 'submission/_uploadinfo_form.html' %}
+    </div>
+{% endblock %}
+
+
+
+

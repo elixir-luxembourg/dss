@@ -34,7 +34,7 @@ $.extend(
 $(document).ready(function () {
 
     $.material.init();
-    $('[data-toggle="tooltip"]').tooltip();
+    $("body").tooltip({ selector: '[data-toggle=tooltip]' });
 
     $('#query').change(function () {
         $('#sort_by').val('');

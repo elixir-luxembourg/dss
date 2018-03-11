@@ -2,6 +2,9 @@
 <div class="panel panel-default">
     <div class="panel-heading">Add New Attachment</div>
     <div class="panel-body">
+        <div class="row">
+            <p class="form-adhoc-notes"><u>Please do NOT upload any DATA through this section.
+                This section is for providing Legal Documents such as Agreements, Study Consent Templates etc.</u></p></div>
         <form id="form_submission_attachment" enctype="multipart/form-data">
             {{ attachment_form.hidden_tag() }}
             {{ fmacros.render_field_with_errors(attachment_form.note) }}

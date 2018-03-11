@@ -1,5 +1,6 @@
 {% if dishes %}
     <table style="width:900px" class="table table-striped table-bordered">
+        <caption>Studies:</caption>
         <thead>
         <tr>
             <th width="15%">Study Name</th>
@@ -37,7 +38,8 @@
         {% endfor %}
     </table>
 {% else %}
+    <br/>
     <div class="text-center">
-        <h3> You have not registered any Studies yet.</h3>
+        <h3> No Studies.</h3>
     </div>
 {% endif %}

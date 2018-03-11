@@ -13,11 +13,14 @@ datatables_css = 'vendor/datatables/datatables.min.css'
 select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/select2.sortable.js')
 select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
 
+
+
 common_css = Bundle(
     'vendor/node_modules/bootstrap/dist/css/bootstrap.css',
     'vendor/node_modules/bootstrap-material-design/dist/css/ripples.css',
     jqueryui_css,
     datatables_css,
+    select2_css,
     Bundle(
         'css/layout.less',
         filters='less'
@@ -30,6 +33,7 @@ common_js = Bundle(
     'vendor/node_modules/bootstrap-material-design/dist/js/ripples.js',
     'vendor/node_modules/bootstrap-material-design/dist/js/material.js',
     jqueryui_js,
+    select2_js,
     datatables_js,
     handlebars_js,
     typeahead_js,
@@ -74,5 +78,9 @@ signup_js = Bundle(
     output='public/js/signup.min.js')
 
 
-
-
+jsoneditor_js = Bundle(
+    Bundle(
+        'vendor/jsoneditor/jsoneditor.js',
+        filters='closure_js'
+    ),
+    output='public/js/jsoneditor.min.js')
