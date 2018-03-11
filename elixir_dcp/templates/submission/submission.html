@@ -78,7 +78,7 @@
     <ul>
         <li><a href="#contacts">Contacts</a></li>
         <li><a href="#attachments">Attachments</a></li>
-        <li><a href="#dishes">Studies</a></li>
+        <li><a href="#dishes">Dataset Infos</a></li>
         <li><a href="#uploadinfos">File Checksums</a></li>
     </ul>
     <div id="contacts">
@@ -133,13 +133,11 @@
                    href="{{ url_for('inline_submission_dishes',sub_id=submission.id) }}">
                     <span class="glyphicon glyphicon-pencil" style="font-size: xx-large"></span>
                     Edit<br/>
-                    <span>Studies</span><br/>
+                    <span>Datasets</span><br/>
                 </a>
             </div>
         {% endif %}
     </div>
-
-
     <div id="uploadinfos">
         {% with %}
             {% set uploadinfos = submission.uploadinfos %}

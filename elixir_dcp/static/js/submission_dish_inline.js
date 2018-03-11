@@ -1,0 +1,483 @@
+
+$(document).ready(function () {
+
+    var schema =   {"type": "object",
+        "required": [
+        "name",
+        "description",
+        "descriptors",
+        "funding_sources",
+        "data_types",
+        "contacts"
+    ],
+        "properties": {
+        "name": {
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "web_page": {
+            "type": "string",
+                "format": "uri"
+        },
+        "in_ex_criteria": {
+            "type": "string"
+        },
+        "descriptors": {
+            "type": "array",
+                "minItems": 1,
+                "items": [
+                {
+                    "type": "string",
+                    "enum": [
+                        "Observational",
+                        "Interventional",
+                        "Expanded_Access",
+                        "Longitudinal_Cohort",
+                        "Cross_Sectional",
+                        "Case_Control",
+                        "Case_Set",
+                        "Control_Set",
+                        "Parent_Offspring",
+                        "Unrelated_Individuals",
+                        "Sibling_Pairs",
+                        "Family",
+                        "Pedigree",
+                        "Preclinical_Trial",
+                        "Clinical_Trial",
+                        "Meta_Analysis",
+                        "Prospective",
+                        "Retrospective",
+                        "Phase_I",
+                        "Phase_II",
+                        "Phase_III",
+                        "Phase_IV",
+                        "Single_Group",
+                        "Parallel",
+                        "Cross_Over",
+                        "Factorial",
+                        "Randomized",
+                        "Blind",
+                        "Controlled",
+                        "Open",
+                        "Single_Blind",
+                        "Double_Blind"
+                    ]
+                }
+            ]
+        },
+        "disease_terms": {
+            "$ref": "#/definitions/term_set"
+        },
+        "gene_id_terms": {
+            "$ref": "#/definitions/term_set"
+        },
+        "phenotype_terms": {
+            "$ref": "#/definitions/term_set"
+        },
+        "funding_sources": {
+            "type": "array",
+                "items": {
+                "type": "string",
+                    "enum": [
+                    "IMI",
+                    "H2020",
+                    "FP7",
+                    "NIH",
+                    "OTHER"
+                ]
+            }
+        },
+        "funding_source_description": {
+            "type": "string"
+        },
+        "planning_site": {
+            "type": "string"
+        },
+        "data_standards_implemented": {
+            "type": "string"
+        },
+        "is_multi_site": {
+            "type": "boolean"
+        },
+        "data_types": {
+            "type": "array",
+                "items": {
+                "type": "string",
+                    "enum": [
+                    "Omics_data",
+                    "Genotype_data",
+                    "Whole_genome_sequencing",
+                    "Exome_sequencing",
+                    "Genomics_variant_array",
+                    "RNASeq",
+                    "Genetic_derived_genetic_data",
+                    "Transcriptome_array",
+                    "Methylation_array",
+                    "MicroRNA_array",
+                    "Metabolomics",
+                    "Metagenomics",
+                    "Proteomics",
+                    "Other_omics_data",
+                    "Clinical_Imaging",
+                    "Cell_Imaging",
+                    "Human_subject_data",
+                    "Clinical_data",
+                    "Lifestyle_data",
+                    "Socio_Economic_Data",
+                    "Environmental_Data",
+                    "Other_Phenotype_data",
+                    "Other"
+                ]
+            }
+        },
+        "contacts": {
+            "type": "array",
+                "minItems": 1,
+                "items": {
+                "type": "object",
+                    "properties": {
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string",
+                            "enum": [
+                            "Principal_Investigator",
+                            "Researcher",
+                            "Data_Manager",
+                            "Data_Protection_Officer",
+                            "Legal_Representative",
+                            "Other"
+                        ]
+                    },
+                    "email": {
+                        "type": "string",
+                            "format": "email"
+                    },
+                    "affiliation": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "first_name",
+                    "last_name",
+                    "role",
+                    "email",
+                    "affiliation"
+                ]
+            }
+        },
+        "publications": {
+            "type": "array",
+                "items": {
+                "type": "object",
+                    "properties": {
+                    "doi": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "year": {
+                        "type": "integer"
+                    },
+                    "venue": {
+                        "type": "string"
+                    },
+                    "authors": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "title",
+                    "venue",
+                    "authors"
+                ]
+            }
+        }
+    },
+    "definitions": {
+        "term_set": {
+            "type": "object",
+                "properties": {
+                "vocabularyUrl": {
+                    "type": "string",
+                        "format": "uri"
+                },
+                "vocabularyDescription": {
+                    "type": "string"
+                },
+                "terms": {
+                    "type": "array",
+                        "minItems": 1,
+                        "items": [
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "terms"
+            ]
+        }
+    }
+};
+    var BrutusinForms = brutusin["json-forms"];
+    var bf = BrutusinForms.create(schema);
+
+    bf.render(document.getElementById('dish_metadata_modal_body'), {});
+
+    // JSONEditor.defaults.options.theme = 'bootstrap2';
+
+     // editor = new JSONEditor(document.getElementById('dish_metadata_modal_body'), {
+     //     "schema": {
+     //         "title": "A JSON Schema for describing Studies within the ELIXIR Data Submission System.",
+     //         "$schema": "http://json-schema.org/draft-04/schema#",
+     //         "type": "object",
+     //         "required": [
+     //             "name",
+     //             "description",
+     //             "descriptors",
+     //             "funding_sources",
+     //             "data_types",
+     //             "contacts"
+     //         ],
+     //         "properties": {
+     //             "name": {
+     //                 "type": "string"
+     //             },
+     //             "description": {
+     //                 "type": "string"
+     //             },
+     //             "web_page": {
+     //                 "type": "string",
+     //                 "format": "uri"
+     //             },
+     //             "in_ex_criteria": {
+     //                 "type": "string"
+     //             },
+     //             "descriptors": {
+     //                 "type": "array",
+     //                 "minItems": 1,
+     //                 "items": [
+     //                     {
+     //                         "type": "string",
+     //                         "enum": [
+     //                             "Observational",
+     //                             "Interventional",
+     //                             "Expanded_Access",
+     //                             "Longitudinal_Cohort",
+     //                             "Cross_Sectional",
+     //                             "Case_Control",
+     //                             "Case_Set",
+     //                             "Control_Set",
+     //                             "Parent_Offspring",
+     //                             "Unrelated_Individuals",
+     //                             "Sibling_Pairs",
+     //                             "Family",
+     //                             "Pedigree",
+     //                             "Preclinical_Trial",
+     //                             "Clinical_Trial",
+     //                             "Meta_Analysis",
+     //                             "Prospective",
+     //                             "Retrospective",
+     //                             "Phase_I",
+     //                             "Phase_II",
+     //                             "Phase_III",
+     //                             "Phase_IV",
+     //                             "Single_Group",
+     //                             "Parallel",
+     //                             "Cross_Over",
+     //                             "Factorial",
+     //                             "Randomized",
+     //                             "Blind",
+     //                             "Controlled",
+     //                             "Open",
+     //                             "Single_Blind",
+     //                             "Double_Blind"
+     //                         ]
+     //                     }
+     //                 ]
+     //             },
+     //             "disease_terms": {
+     //                 "$ref": "#/definitions/term_set"
+     //             },
+     //             "gene_id_terms": {
+     //                 "$ref": "#/definitions/term_set"
+     //             },
+     //             "phenotype_terms": {
+     //                 "$ref": "#/definitions/term_set"
+     //             },
+     //             "funding_sources": {
+     //                 "type": "array",
+     //                 "items": {
+     //                     "type": "string",
+     //                     "enum": [
+     //                         "IMI",
+     //                         "H2020",
+     //                         "FP7",
+     //                         "NIH",
+     //                         "OTHER"
+     //                     ]
+     //                 }
+     //             },
+     //             "funding_source_description": {
+     //                 "type": "string"
+     //             },
+     //             "planning_site": {
+     //                 "type": "string"
+     //             },
+     //             "data_standards_implemented": {
+     //                 "type": "string"
+     //             },
+     //             "is_multi_site": {
+     //                 "type": "boolean"
+     //             },
+     //             "data_types": {
+     //                 "type": "array",
+     //                 "items": {
+     //                     "type": "string",
+     //                     "enum": [
+     //                         "Omics_data",
+     //                         "Genotype_data",
+     //                         "Whole_genome_sequencing",
+     //                         "Exome_sequencing",
+     //                         "Genomics_variant_array",
+     //                         "RNASeq",
+     //                         "Genetic_derived_genetic_data",
+     //                         "Transcriptome_array",
+     //                         "Methylation_array",
+     //                         "MicroRNA_array",
+     //                         "Metabolomics",
+     //                         "Metagenomics",
+     //                         "Proteomics",
+     //                         "Other_omics_data",
+     //                         "Clinical_Imaging",
+     //                         "Cell_Imaging",
+     //                         "Human_subject_data",
+     //                         "Clinical_data",
+     //                         "Lifestyle_data",
+     //                         "Socio_Economic_Data",
+     //                         "Environmental_Data",
+     //                         "Other_Phenotype_data",
+     //                         "Other"
+     //                     ]
+     //                 }
+     //             },
+     //             "contacts": {
+     //                 "type": "array",
+     //                 "minItems": 1,
+     //                 "items": {
+     //                     "type": "object",
+     //                     "properties": {
+     //                         "first_name": {
+     //                             "type": "string"
+     //                         },
+     //                         "last_name": {
+     //                             "type": "string"
+     //                         },
+     //                         "role": {
+     //                             "type": "string",
+     //                             "enum": [
+     //                                 "Principal_Investigator",
+     //                                 "Researcher",
+     //                                 "Data_Manager",
+     //                                 "Data_Protection_Officer",
+     //                                 "Legal_Representative",
+     //                                 "Other"
+     //                             ]
+     //                         },
+     //                         "email": {
+     //                             "type": "string",
+     //                             "format": "email"
+     //                         },
+     //                         "affiliation": {
+     //                             "type": "string"
+     //                         },
+     //                         "address": {
+     //                             "type": "string"
+     //                         },
+     //                         "phone": {
+     //                             "type": "string"
+     //                         }
+     //                     },
+     //                     "required": [
+     //                         "first_name",
+     //                         "last_name",
+     //                         "role",
+     //                         "email",
+     //                         "affiliation"
+     //                     ]
+     //                 }
+     //             },
+     //             "publications": {
+     //                 "type": "array",
+     //                 "items": {
+     //                     "type": "object",
+     //                     "properties": {
+     //                         "doi": {
+     //                             "type": "string"
+     //                         },
+     //                         "title": {
+     //                             "type": "string"
+     //                         },
+     //                         "year": {
+     //                             "type": "integer"
+     //                         },
+     //                         "venue": {
+     //                             "type": "string"
+     //                         },
+     //                         "authors": {
+     //                             "type": "string"
+     //                         }
+     //                     },
+     //                     "required": [
+     //                         "title",
+     //                         "venue",
+     //                         "authors"
+     //                     ]
+     //                 }
+     //             }
+     //         },
+     //         "definitions": {
+     //             "term_set": {
+     //                 "type": "object",
+     //                 "properties": {
+     //                     "vocabularyUrl": {
+     //                         "type": "string",
+     //                         "format": "uri"
+     //                     },
+     //                     "vocabularyDescription": {
+     //                         "type": "string"
+     //                     },
+     //                     "terms": {
+     //                         "type": "array",
+     //                         "minItems": 1,
+     //                         "items": [
+     //                             {
+     //                                 "type": "string"
+     //                             }
+     //                         ]
+     //                     }
+     //                 },
+     //                 "required": [
+     //                     "terms"
+     //                 ]
+     //             }
+     //         }
+     //     },
+     //     theme: 'bootstrap2'});
+});
+

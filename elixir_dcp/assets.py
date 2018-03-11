@@ -14,6 +14,7 @@ select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/sele
 select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
 
 
+brutusin_css = Bundle('vendor/brutusin/brutusin-json-forms.css')
 
 common_css = Bundle(
     'vendor/node_modules/bootstrap/dist/css/bootstrap.css',
@@ -41,7 +42,6 @@ common_js = Bundle(
     filters='closure_js',
     output='public/js/common.min.js', debug=False)
 
-
 submission_editor_js = Bundle(
     Bundle(
         'js/submission_editor.js',
@@ -55,6 +55,12 @@ submission_listing_js = Bundle(
         filters='closure_js'
     ),
     output='public/js/submission_listing.min.js')
+submission_dish_inline_js = Bundle(
+    Bundle(
+        'js/submission_dish_inline.js',
+        filters='closure_js'
+    ),
+    output='public/js/submission_dish_inline.min.js')
 
 user_editor_js = Bundle(
     Bundle(
@@ -77,10 +83,18 @@ signup_js = Bundle(
     ),
     output='public/js/signup.min.js')
 
-
 jsoneditor_js = Bundle(
     Bundle(
         'vendor/jsoneditor/jsoneditor.js',
         filters='closure_js'
     ),
     output='public/js/jsoneditor.min.js')
+
+brutusin_js = Bundle(
+    Bundle(
+        'vendor/brutusin/brutusin-json-forms.js',
+        'vendor/brutusin/brutusin-json-forms-bootstrap.js',
+        filters='closure_js'
+    ),
+    output='public/js/brutusin-json-forms.min.js')
+

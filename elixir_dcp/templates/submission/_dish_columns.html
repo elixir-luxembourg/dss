@@ -1,16 +1,21 @@
 {% if dishes %}
-    <table style="width:900px" class="table table-striped table-bordered">
-        <caption>Studies:</caption>
+    <table style="width:1000px" class="table table-striped table-bordered">
+        <caption>Dataset Infos:</caption>
         <thead>
         <tr>
-            <th width="15%">Study Name</th>
-            <th width="10%">De-Identification</th>
-            <th width="10%">Special Subjects?</th>
-            <th width="10%">Consent Status</th>
-            <th width="35%">Use Conditions</th>
+
+            <th rowspan="2">Name</th>
+            <th colspan="4" align="center">Data Protection Information</th>
+            <th rowspan="2">Study Metadata</th>
             {% if  not readonly %}
-                <th width="20%">Actions</th>
+                <th rowspan="2">Actions</th>
             {% endif %}
+        </tr>
+        <tr>
+            <th>De-Identification</th>
+            <th>Special Subjects?</th>
+            <th>Consent Status</th>
+            <th>Use Conditions</th>
         </tr>
         </thead>
         {% for dish in dishes %}
@@ -25,6 +30,17 @@
                             <li>{{ code }}, {{ name }}</li>
                         {% endfor %}
                     </ul>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-tag"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="#">Show Form</a></li>
+                            <li><a href="#">Upload XLS</a></li>
+                        </ul>
+                    </div>
                 </td>
                 {% if  not readonly %}
                     <td>
@@ -44,6 +60,6 @@
 {% else %}
     <br/>
     <div class="text-center">
-        <h3> No Studies.</h3>
+        <h3> No Datasets.</h3>
     </div>
 {% endif %}

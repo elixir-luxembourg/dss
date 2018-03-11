@@ -9,6 +9,7 @@ function displayInlineSuccess(msg) {
 }
 
 
+
 $(document).ready(function () {
 
     var VALIDATION_ERROR = "BAD REQUEST";

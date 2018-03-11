@@ -101,16 +101,16 @@ class StudyDishForm(FlaskForm):
     """
     id = HiddenField('DISH_Id')
     submission_id = HiddenField('Submission Id')
-    study_name = StringField('Study Name', validators=[DataRequired()])
+    study_name = StringField('Dataset Name', validators=[DataRequired()])
 
-    joint_providers = BooleanField('Submitter and ELIXIR are Joint Controllers', default=False)
+    joint_providers = BooleanField('Submitter is (Joint)Controller for Data', default=False)
     estimate_data_size = SelectField('Estimated Total Data Size', validators=[DataRequired()])
 
     ethics_approval_exists = BooleanField('Ethics Approval Exists', default=False)
 
-    subjects_minors = BooleanField('Subjects include Minors?', default=False)
-    subjects_vulnerable = BooleanField('Subjects include those Unable To Consent?', default=False)
-    subjects_unable_to_consent = BooleanField('Other vulnerable Subjects?', default=False)
+    subjects_minors = BooleanField('Subjects Minors', default=False)
+    subjects_vulnerable = BooleanField('Subjects those Unable To Consent', default=False)
+    subjects_unable_to_consent = BooleanField('Has other vulnerable Subjects', default=False)
 
     consent_status = SelectField('Consent Status', choices=ConsentStatusEnum.choices())
     consent_notes = TextAreaField('Note on Heterogeneous Consents', render_kw={'rows': 3})

@@ -2,7 +2,7 @@
 
 
 <div class="panel panel-default">
-    <div class="panel-heading">{% if dish_form.id.data %}Update {% else %}Add New {% endif %}Study</div>
+    <div class="panel-heading">{% if dish_form.id.data %}Update {% else %}Add New {% endif %}Dataset Info</div>
     <div class="panel-body">
         <form id="form_submission_dish">
             {{ dish_form.hidden_tag() }}
@@ -92,6 +92,6 @@
                 </div>
             </fieldset>
         </form>
-        <a id="submission_dish_save" class="save btn btn-raised btn-primary" role="button">Save Study</a>
+        <a id="submission_dish_save" class="save btn btn-raised btn-primary" role="button">Save Dataset Info</a>
     </div>
 </div>
