@@ -3,12 +3,12 @@
 
 # Install platform dependencies
 
-sudo yum group install "Development Tools" (will provide you with git among other things)
-sudo yum install nginx (our web server)
-sudo yum python36-devel.x86_64   (Python)
+sudo yum group install "Development Tools" 
+sudo yum install nginx 
+sudo yum python36-devel.x86_64   
 sudo yum install java-1.8.0-openjdk-devel
-sudo yum install supervisor   (a tool to manage gunicorn app server)
-curl "https://bootstrap.pypa.io/get-pip.py" | sudo python3.6   (Install pip)
+sudo yum install supervisor  
+curl "https://bootstrap.pypa.io/get-pip.py" | sudo python3.6   
 
 # Create elixirdcp user 
 sudo useradd elixirdcp
@@ -22,12 +22,12 @@ mkdir app-logs
 
 # Get the project
 cd app-src
-wget "https://server/elixir-dcp-dist.zip"
-unzip elixir-dcp-dist.zip
+git clone ssh://git@git-r3lab-server.uni.lu:8022/elixir/elixir-dcp.git
 cd elixir-dcp
 
 
-vi client-secrets.json to put it the client id and client secret
+vi client-secrets.json 
+(put in the client id and client secret)
 
 mkdir project_venv
 python3.6 -m venv project_venv
@@ -44,10 +44,10 @@ cp elixir_dcp/settings.py.template elixir_dcp/settings.py
 # Configure and run nginx 
 
 sudo mkdir /etc/nginx/conf.d  (if it does not already exist)
-sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-nginx.conf ./elixir-dcp-nginx.conf
+sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-nginx.conf /etc/nginx/conf.d/elixir-dcp-nginx.conf
 
 sudo vi /etc/nginx/nginx.conf
-1. Make sure the following line exists the end 
+1. Make sure the following line exists 
         http {
           # ... ...
           # ... ... nginx stuff
@@ -62,32 +62,19 @@ sudo nginx # starts web server
 sudo nginx -s stop #stops web server
 
 
-
-Go to:  http://elixir-dcp.lcsb.uni.lu  to check if nginx is installed properly
-
-
+sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-gunicorn.ini  /etc/supervisord.d/elixir-dcp-gunicorn.ini
+sudo systemctl start supervisord
 
 
-
-
- sudo lsof -i :8000  See who uses port 8000 on my machine this was smth called a pma_agent
- 
- sudo kill -9 XXXXX kill that process
- 
- 
- 
-
-sudo supervisord -c supervisord.ini
-
+Go to:  http://elixir-dcp.lcsb.uni.lu  to check if it works
 
 
  
 TODO: 
-set the  authorized URLs in ELIXIR AAI.
 
-I had to do chmod 751 on /pinar_alper/Desktop/  to allow nginx serve the uploaded files..
+I had to do chmod 751 on upload folder  to allow nginx serve the  files.
 
-add step for creating environment variable setting config to "prod"
+supervior gunicorn config set environment variable setting config to "prod"
 
 
 
