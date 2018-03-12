@@ -194,8 +194,10 @@ class SubmissionStudyDish(db.Model):
     de_identification_type = db.Column(db.Enum(DeIdentificationTypeEnum), nullable=False,
                                        default=DeIdentificationTypeEnum.p)
     storage_end_date = db.Column(db.Date, nullable=True)
+    metadata_json = db.Column(db.String, nullable=True)
 
     duc_codes = db.relationship("DUCCodeInstance", back_populates="study", cascade="all, delete-orphan")
+
 
     def duc_codes_names(self):
         result = []

@@ -6,9 +6,10 @@ class Config(object):
     # name of the application
     TITLE = 'ELIXIR Data and Computation Platform'
     SECRET_KEY = b'deneme'
-    SQLALCHEMY_DATABASE_URI = "sqlite:///elixir-dcp.db"
+    SQLALCHEMY_DATABASE_URI = "sqlite:////home/elixidcp/app-data/elixir-dcp.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    UPLOAD_FOLDER = 'path/to/uploads/folder'
+    
+    UPLOAD_FOLDER = '/home/elixirdcp/app-data'
     UPLOADS_SERVER_PATH = '/attachments'
 
     DATA_STEWARDS_MAILS = ['pinar.alper@uni.lu']
@@ -23,7 +24,6 @@ class Config(object):
 
 class ProdConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = "sqlite:///elixir-dcp.db"
     SQLALCHEMY_ECHO = True
 
     AUTHENTICATION_METHOD = 'AAI'
@@ -44,7 +44,6 @@ class ProdConfig(Config):
 class DevConfig(Config):
     DEBUG = True
     SQLALCHEMY_ECHO = True
-
 
 
     AUTHENTICATION_METHOD = 'AAI'  # Possible methods is 'AAI' or 'CONFIG'
