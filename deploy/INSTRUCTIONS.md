@@ -3,14 +3,16 @@
 
 # Install platform dependencies
 
+```bash
 sudo yum group install "Development Tools" 
 sudo yum install nginx 
 sudo yum python36-devel.x86_64   
 sudo yum install java-1.8.0-openjdk-devel
 sudo yum install supervisor  
 curl "https://bootstrap.pypa.io/get-pip.py" | sudo python3.6   
-
+```
 # Create elixirdcp user 
+```bash
 sudo useradd elixirdcp
 sudo passwd elixirdcp
 su elixirdcp
@@ -19,8 +21,10 @@ mkdir app-data
 mkdir app-data/uploads
 mkdir app-src
 mkdir app-logs
+```
 
 # Get the project
+```bash
 cd app-src
 git clone ssh://git@git-r3lab-server.uni.lu:8022/elixir/elixir-dcp.git
 cd elixir-dcp
@@ -35,7 +39,7 @@ source project_venv/bin/activate
 
 pip install -e .
 pip install gunicorn
-
+```
 # Configure And Run project with Gunicore
 
 cp elixir_dcp/settings.py.template elixir_dcp/settings.py
