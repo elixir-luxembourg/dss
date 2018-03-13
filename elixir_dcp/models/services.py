@@ -73,9 +73,13 @@ def create_sub(title: str):
 
 
 def get_in_progress_submissions_shared_with_user(user_id: str):
-    submission_ids = SubmissionAccess.query.filter_by(user_id=user_id)
-    return Submission.query.filter_by(Submission.id.in_(submission_ids), Submission.current_status.in_(
-        [SubmissionStatusEnum.in_progress_metadata, SubmissionStatusEnum.in_progress_data]))
+    submission_accesses = SubmissionAccess.query.filter_by(user_id=user_id)
+    submission_ids = []
+    for access in submission_accesses:
+        submission_ids.append(access.submission_id)
+
+    return Submission.query.filter(and_(Submission.id.in_(submission_ids), Submission.current_status.in_(
+        [SubmissionStatusEnum.in_progress_metadata, SubmissionStatusEnum.in_progress_data])))
 
 
 def assign_role_to_user(user: User, role_name: str):
