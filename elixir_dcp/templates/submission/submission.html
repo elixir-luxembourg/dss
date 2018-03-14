@@ -53,7 +53,7 @@
                     {% endif %}
                 {% endif %}
                 {% if submission.current_status.prev_state() is not none %}
-                    {% if current_user.is_admin()  or  submission.current_status.step_num() ==1  or  submission.current_status.step_num() ==2 %}
+                    {% if current_user.is_admin() %}
                         <a name="button_submission_editor_revert"
                            data-url="{{ url_for('revert_submission',sub_id=submission.id) }}"
                            class="btn btn-info btn-lg"><span class="glyphicon glyphicon-backward"
