@@ -105,11 +105,11 @@ def oidc_login():
                 return render_template('security/signup.html', signup_form=empty_form)
             else:
                 return render_template('error.html', message="Error 500 - {}".format(
-                    "Insufficient information on the AAI User, cannot continue with signup ")), 500
+                    "Insufficient information on the AAI User, cannot continue with signup.")), 500
         else:
             if not existing_user_record.is_active:
                 render_template('error.html', message="Error 500 - {}".format(
-                    "This User does not have access to the application")), 500
+                    "You are no longer an active user of this application.")), 500
             else:
                 login_user(existing_user_record, remember=True)
                 nextt = request.args.get('next')
@@ -130,7 +130,7 @@ def oidc_login():
             flash('You are now signed up to the ELIXIR-LU Data Submission System.', 'success')
             return redirect(url_for('home'))
         else:
-            flash("Please check the validity of your input in highlighted places", "error")
+            flash("Please check the validity of your input in highlighted places.", "error")
             return render_template('security/signup.html', signup_form=posted_form)
 
 
@@ -153,7 +153,7 @@ def login():
                 flash('User logged in successfully.', 'success')
                 return form.redirect()
         else:
-            message = 'Wrong username / password combination'
+            message = 'Wrong username / password combination.'
             form.username.errors.append(message)
             form.password.errors.append(message)
 
@@ -193,7 +193,7 @@ def delete_submission(sub_id):
 def steer_submission(sub_id):
     try:
         sub_with_new_state = steer_sub(sub_id)
-        flash("Submission moved to next state {} !".format(sub_with_new_state.current_status.value), "success")
+        flash("Submission moved to next state {}!".format(sub_with_new_state.current_status.value), "success")
         return "", 204
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
@@ -206,7 +206,7 @@ def steer_submission(sub_id):
 def revert_submission(sub_id):
     try:
         sub_with_new_state = revert_sub(sub_id)
-        flash("Submission moved to previous state {} !".format(sub_with_new_state.current_status.value), "success")
+        flash("Submission moved to previous state {}!".format(sub_with_new_state.current_status.value), "success")
         return "", 204
     except exceptions.RecordLifecycleException as e:
         app.logger.error('ERROR %s', e)
@@ -498,6 +498,16 @@ def add_edit_submission_dish(dish_id=None):
 @app.route('/submission_dish/<int:dish_id>', methods=['DELETE'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 def delete_submission_dish(dish_id):
+    dish = SubmissionStudyDish.query.get_or_404(dish_id)
+    db.session.delete(dish)
+    db.session.commit()
+    # flash("Study deleted", "success")
+    return "", 204
+
+
+@app.route('/submission_dish/<int:dish_id>', methods=['DELETE'])
+@app_authorization(allowed_roles=['admin', 'data_provider'])
+def get_dish_metadata(dish_id):
     dish = SubmissionStudyDish.query.get_or_404(dish_id)
     db.session.delete(dish)
     db.session.commit()

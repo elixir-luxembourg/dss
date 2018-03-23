@@ -8,6 +8,7 @@ from flask_wtf import FlaskForm
 from flask import redirect, request
 from urllib.parse import urlparse, urljoin
 from wtforms.validators import Email, DataRequired, Length, Regexp
+import phonennumbers
 
 __author__ = 'Pinar Alper'
 
@@ -43,8 +44,7 @@ class RedirectForm(FlaskForm):
 
 
 def check_phone(form, field):
-    """Form validation: fails if the phone field is not recognisable by the google phonenumber library."""
-    # w = form.w.data
+    #  w = form.data
     # T = field.data
     # period = 2*pi/w
     # if T > 30*period:
@@ -52,7 +52,7 @@ def check_phone(form, field):
     #     raise validators.ValidationError(
     #         'Cannot plot as much as %d periods! T<%.2f' %
     #         (num_periods, 30*period))
-
+    pass
 
 class LoginForm(RedirectForm):
     username = EmailField('Username', [DataRequired(), Email("This field requires a valid email address")],
