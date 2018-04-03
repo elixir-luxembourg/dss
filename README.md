@@ -1,6 +1,14 @@
 # Elixir Data and Computing Platform 
-s
 ## Development
+
+
+
+The project_venv folder is for holding the virtual environment. (Elixir DCP has been developed using Python 3.6) 
+
+```bash
+virtualenv --python=/usr/local/bin/python3.6  project_venv
+source ./project_venv/bin/activate
+```
 
 Install dependencies with:
  
