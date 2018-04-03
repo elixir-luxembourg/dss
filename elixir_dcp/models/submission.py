@@ -142,7 +142,6 @@ class SubmissionContact(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-    is_primary = db.Column(db.Boolean, nullable=False)
     name = db.Column(db.String, nullable=False)
     surname = db.Column(db.String, nullable=False)
     email = db.Column(db.String)

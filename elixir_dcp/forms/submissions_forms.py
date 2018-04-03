@@ -32,9 +32,9 @@ class ContactForm(FlaskForm):
     """
     id = HiddenField('Contact_Id')
     submission_id = HiddenField('Submission Id')
-    name = StringField('Name', validators=[DataRequired()], render_kw={"placeholder": "Name"})
-    surname = StringField('Surname', validators=[DataRequired()], render_kw={"placeholder": "SURNAME"})
-    is_primary = BooleanField('Is Primary?', default=False)
+    name = StringField('Name', description='This is the help text for name', validators=[DataRequired()], render_kw={"placeholder": "Name"})
+    surname = StringField('Surname', description='This is the help text for surname', validators=[DataRequired()], render_kw={"placeholder": "SURNAME"})
+
     category_id = SelectField('Type', coerce=int)
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")], render_kw={"placeholder": "Institutional e-mail"})
 
