@@ -30,6 +30,12 @@ $.extend(
         }
     });
 
+window.setTimeout(function() {
+    $(".alert").fadeTo(1000, 0).slideUp(1000, function(){
+        $(".alert-dismissible").alert('close');
+        //$(this).remove();
+    });
+}, 6000);
 
 $(document).ready(function () {
 

@@ -1,12 +1,22 @@
-function displayInlineError(msg) {
-    $(".inline-editor-messages").prepend('<div class="alert alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg + '</strong> </div>');
+function resetTimeOut(){
+    window.setTimeout(function() {
+        $(".alert").fadeTo(1000, 0).slideUp(1000, function(){
+            $(".alert-dismissible").alert('close');
+            //$(this).remove();
+        });
+    }, 6000);
+}
 
+function displayInlineError(msg) {
+    $(".inline-editor-messages").prepend('<div class="alert alert-dismissible alert-danger" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg + '</strong> </div>');
+    resetTimeOut();
 }
 
 function displayInlineSuccess(msg) {
-    $(".inline-editor-messages").prepend('<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg + '</strong> </div>');
-
+    $(".inline-editor-messages").prepend('<div class="alert alert-dismissible alert-success" role="alert"><button type="button" class="close" data-dismiss="alert">×</button> <strong>' + msg + '</strong> </div>');
+    resetTimeOut();
 }
+
 
 
 
