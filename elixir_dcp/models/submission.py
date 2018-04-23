@@ -118,24 +118,26 @@ class Submission(db.Model):
         result = []
         for access in self.submission_accesses:
             result.append(access.user_id)
-            # += ("" if index == 0 else ", ")+ access.user.first_name + " " +access.user.last_name
         return result
 
-    def provider_users_display(self):
-        result = ""
-        index = 0
+    def provider_user_names(self):
+        result = []
         for access in self.submission_accesses:
-            result += ("" if index == 0 else ", ") + access.user.first_name + " " + access.user.last_name
-            index += 1
+            result.append(access.user.first_name + ' ' + access.user.last_name.upper())
+        return result
+
+    def uploads_instructions_lines(self):
+        result = []
+        for line in self.upload_instructions.split('\n'):
+            result.append(line)
         return result
 
     def has_providers(self):
         if self.submission_accesses is None:
             return False
-        elif len(self.submission_accesses) == 0:
-            return False
         else:
             return True
+
 
 class SubmissionContact(db.Model):
     __tablename__ = 'submission_contacts'

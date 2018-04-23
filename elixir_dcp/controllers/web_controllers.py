@@ -21,7 +21,7 @@ from werkzeug.utils import secure_filename
 from . import app_authorization
 from .utils import get_names_from_oidc
 
-__author__ = 'Valentin Grouès, Pinar Alper'
+__author__ = 'Pinar Alper'
 
 
 @app.route('/', methods=['GET'])
@@ -99,10 +99,10 @@ def oidc_login():
         if existing_user_record is None:
             name = oidc.user_getfield("name")
             if name is not None:
-                empty_form = forms.SignupForm(elixir_sub_id=oidc.user_getfield("sub"),
+                partially_filled_form = forms.SignupForm(elixir_sub_id=oidc.user_getfield("sub"),
                                               first_name=get_names_from_oidc(name)[0],
                                               last_name=get_names_from_oidc(name)[1], email=oidc.user_getfield("email"))
-                return render_template('security/signup.html', signup_form=empty_form)
+                return render_template('security/signup.html', signup_form=partially_filled_form)
             else:
                 return render_template('error.html', message="Error 500 - {}".format(
                     "Insufficient information on the AAI User, cannot continue with signup.")), 500

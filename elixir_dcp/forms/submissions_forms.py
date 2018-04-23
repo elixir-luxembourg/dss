@@ -85,7 +85,7 @@ class SubmissionForm(FlaskForm):
                                              Regexp('\w+', message="Title must contain only letters numbers or underscore"),
                                              Length(min=15, max=75, message="Title must be between 5 & 25 characters")])
 
-    upload_instructions = TextAreaField('Upload Instructions', render_kw={"placeholder": "Instructions will be displayed here once you complete Study Registration and we create an upload link for you.", "rows": "6", "columns": "50"})
+    upload_instructions = TextAreaField('Upload Instructions', render_kw={"rows": "6", "columns": "50"})
 
     provider_user_ids = SelectMultipleField('Shared With', coerce=int)
 

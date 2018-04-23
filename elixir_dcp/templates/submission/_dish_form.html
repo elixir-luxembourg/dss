@@ -7,7 +7,7 @@
         <form id="form_submission_dish">
             {{ dish_form.hidden_tag() }}
             {{ fmacros.render_field_with_errors(dish_form.study_name) }}
-            {{ fmacros.render_checkbox_field(dish_form.joint_providers) }}
+            {{ fmacros.render_field_with_errors(dish_form.joint_providers) }}
             {{ fmacros.render_field_with_errors(dish_form.estimate_data_size, div_col_class="col-md-2", clazz="elx-select") }}
             <div class="form-group row">
             </div>

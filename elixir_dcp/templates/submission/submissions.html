@@ -38,7 +38,7 @@
                         <td> {{ submission.created_on }} </td>
                         <td> {{ submission.current_status.value }} </td>
                         {% if submission.has_providers %}
-                            <td> {{ submission.provider_users_display() }} </td>
+                            <td> {{ submission.provider_user_names() | join(', ') }} </td>
                         {% else %}
                             <td>  --- </td>
                         {% endif %}

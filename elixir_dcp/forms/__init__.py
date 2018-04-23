@@ -7,8 +7,10 @@ from wtforms.fields.html5 import EmailField
 from flask_wtf import FlaskForm
 from flask import redirect, request
 from urllib.parse import urlparse, urljoin
-from wtforms.validators import Email, DataRequired, Length, Regexp
-import phonennumbers
+from wtforms.validators import Email, DataRequired, Length, Regexp, ValidationError
+from .validators import OptionalFieldValidator
+
+import re
 
 __author__ = 'Pinar Alper'
 
@@ -43,45 +45,50 @@ class RedirectForm(FlaskForm):
         return redirect(target or '/')
 
 
-def check_phone(form, field):
-    #  w = form.data
-    # T = field.data
-    # period = 2*pi/w
-    # if T > 30*period:
-    #     num_periods = int(round(T/period))
-    #     raise validators.ValidationError(
-    #         'Cannot plot as much as %d periods! T<%.2f' %
-    #         (num_periods, 30*period))
-    pass
-
 class LoginForm(RedirectForm):
-    username = EmailField('Username', [DataRequired(), Email("This field requires a valid email address")],
-                          render_kw={"placeholder": "email@uni.lux"})
-    password = PasswordField('Password', [DataRequired()],
-                             render_kw={"placeholder": "UL password"})
+    """This form is for test purposes only. We use AAI IdP Proxy for logins to system.
+    """
+    username = EmailField('Username', [DataRequired(), Email("This field requires a valid email address")])
+    password = PasswordField('Password', [DataRequired()])
     remember = BooleanField('Remember me')
 
 
 class SignupForm(FlaskForm):
+    """This form is used to sign up users to ELIXIR DCP.
+    """
+
     elixir_sub_id = HiddenField('Elixir Sub ID')
-    first_name = StringField('First Name', [DataRequired(),
-                                            Regexp('\w+', message="Names can contain letters, numbers or underscore."),
-                                            Length(min=2, max=20, message="Must be between 2 & 20 characters.")])
+    first_name = StringField('First Name', validators=[DataRequired(),
+                                                       Regexp('^[a-zA-Z\s]+$', message="Can only contain letters."),
+                                                       Length(min=2, max=20,
+                                                              message="Must be 2 to 20 characters long.")])
     last_name = StringField('Last Name',
-                            [DataRequired(), Regexp('\w+', message="Names can contain letters, numbers or underscore."),
-                             Length(min=2, max=20, message="Must be between 2 & 20 characters.")])
-    institution = StringField('Institution', [DataRequired()])
-    email = EmailField('E-Mail', [DataRequired(), Email("This field requires an email address.")],
+                            validators=[DataRequired(), Regexp('^[a-zA-Z\s]+$', message="Can only contain letters."),
+                                        Length(min=2, max=20, message="Must be 2 to 20 characters long.")])
+
+    institution = StringField('Institution', validators=[DataRequired(), Regexp('^[a-zA-Z\s\(\)-]+$',
+                                                                                message="Can only contain letters, parantheses and dash."),
+                                                         Length(min=2, max=20,
+                                                                message="Must be 2 to 20 characters long.")])
+
+    email = EmailField('E Mail', validators=[DataRequired(), Email("Requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
 
-    addr_line1 = StringField('Address', render_kw={"placeholder": "Street Address."})
-    addr_line2 = StringField('City', render_kw={"placeholder": "City, Country, Postal Code."})
+    addr_line1 = StringField('Address', validators=[OptionalFieldValidator(regex_str='^[a-zA-Z0-9\s,-]+$',
+                                                                           message="Can only contain letters, numbers, colon and dash.")],
+                             render_kw={"placeholder": "Street Address."})
 
-    phone_no = StringField('Phone', [check_phone])
+    addr_line2 = StringField('City', validators=[OptionalFieldValidator(regex_str='^[a-zA-Z0-9\s,-]+$',
+                                                                        message="Can only contain letters, numbers and dash.")],
+                             render_kw={"placeholder": "City, Country, Postal Code."})
+
+    phone_no = StringField('Phone', validators=[
+        OptionalFieldValidator(message="Can only contain numbers and dash.", regex_str='^[0-9\s,-]+$')])
 
 
 class UserForm(SignupForm):
-
+    """This form is used to view and edit a particular User record in the ELIXIR DCP database.
+    """
     id = HiddenField('User_Id')
     assigned_role_ids = SelectMultipleField('Has Roles', coerce=int)
 
