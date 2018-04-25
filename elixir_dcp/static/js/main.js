@@ -40,7 +40,10 @@ window.setTimeout(function() {
 $(document).ready(function () {
 
     $.material.init();
+
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+    $('[data-toggle="popover"]').popover();
+
 
     $('#query').change(function () {
         $('#sort_by').val('');
