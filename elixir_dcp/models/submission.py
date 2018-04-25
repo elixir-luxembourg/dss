@@ -2,6 +2,7 @@ from sqlalchemy import Sequence
 from elixir_dcp import db, app
 import enum
 import os
+import json
 
 
 class ContactType(db.Model):
@@ -88,6 +89,16 @@ class SubmissionStatusEnum(enum.Enum):
                 self.completed: 3}.get(self)
 
 
+
+class SubmissionScopeEnum(enum.Enum):
+    elx = 'ELIXIR'
+    collab = 'Collaboration'
+
+    @classmethod
+    def choices(cls):
+        return [(choice.name, choice.value) for choice in cls]
+
+
 def uniqid():
     from time import time
     return hex(int(time() * 10000000))[2:]
@@ -101,6 +112,10 @@ class Submission(db.Model):
     created_on = db.Column(db.Date, nullable=False)
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
     upload_instructions = db.Column(db.String)
+
+    submission_scope = db.Column(db.Enum(SubmissionScopeEnum), nullable=False, default=SubmissionScopeEnum.collab)
+    collab_local_custodian = db.Column(db.String)
+    collab_project_name = db.Column(db.String)
 
     submission_accesses = db.relationship('SubmissionAccess', cascade="all, delete-orphan")
     contacts = db.relationship("SubmissionContact", cascade="all, delete-orphan")
@@ -177,28 +192,44 @@ class DUCCodeInstance(db.Model):
 class SubmissionStudyDish(db.Model):
     __tablename__ = 'submission_dishes'
 
+    # Study
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'))
     study_name = db.Column(db.String, nullable=False)
-    joint_providers = db.Column(db.Boolean, default=False, nullable=False)
-    estimate_data_size = db.Column(db.Integer, db.ForeignKey('data_size_category.code'), nullable=False)
+    study_description = db.Column(db.String, nullable=False)
+    study_types_json = db.Column(db.String, nullable=False)
 
-    # Ethics
+    # Data
+    estimate_data_size = db.Column(db.Integer, db.ForeignKey('data_size_category.code'), nullable=False)
+    data_types_json = db.Column(db.String, nullable=False)
+    metadata_exists = db.Column(db.Boolean, nullable=False, default=True)
+
+    # Ethics & Data Protection
     ethics_approval_exists = db.Column(db.Boolean, nullable=False, default=False)
     subjects_minors = db.Column(db.Boolean, nullable=False, default=False)
     subjects_vulnerable = db.Column(db.Boolean, nullable=False, default=False)
     subjects_unable_to_consent = db.Column(db.Boolean, nullable=False, default=False)
 
-    # Data Protection
     consent_status = db.Column(db.Enum(ConsentStatusEnum), nullable=False, default=ConsentStatusEnum.hmg)
     consent_notes = db.Column(db.String, nullable=False)
     de_identification_type = db.Column(db.Enum(DeIdentificationTypeEnum), nullable=False,
                                        default=DeIdentificationTypeEnum.p)
-    storage_end_date = db.Column(db.Date, nullable=True)
-    metadata_json = db.Column(db.String, nullable=True)
 
     duc_codes = db.relationship("DUCCodeInstance", back_populates="study", cascade="all, delete-orphan")
 
+    def study_type_names(self):
+        if self.study_types_json is not None:
+
+            return json.loads(self.study_types_json)
+        else:
+            return []
+
+    def data_type_names(self):
+        if self.data_types_json is not None:
+
+            return json.loads(self.data_types_json)
+        else:
+            return []
 
     def duc_codes_names(self):
         result = []
@@ -211,9 +242,9 @@ class SubmissionStudyDish(db.Model):
 
     def special_subjects_status_display(self):
         if self.subjects_unable_to_consent or self.subjects_vulnerable or self.subjects_minors:
-            return "Y"
+            return "Yes"
         else:
-            return "N"
+            return "No"
 
 
 class SubmissionAccess(db.Model):

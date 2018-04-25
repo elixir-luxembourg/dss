@@ -16,6 +16,7 @@ from sqlalchemy.exc import OperationalError
 import os
 import uuid
 import shutil
+import json
 from elixir_dcp import app, db, oidc
 from werkzeug.utils import secure_filename
 from . import app_authorization
@@ -469,6 +470,10 @@ def add_edit_submission_dish(dish_id=None):
     if request.method == 'GET':
         dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
         result_form = forms.StudyDishForm(obj=dish_rec)
+        if dish_rec.study_types_json:
+            result_form.study_types.data = json.loads(dish_rec.study_types_json)
+        if dish_rec.data_types_json:
+            result_form.data_types.data = json.loads(dish_rec.data_types_json)
         return render_template('submission/_dish_form.html', dish_form=result_form)
     elif request.method == 'POST':
         posted_form = forms.StudyDishForm(request.form)
@@ -480,10 +485,12 @@ def add_edit_submission_dish(dish_id=None):
                 dish_rec = SubmissionStudyDish()
                 posted_form.populate_obj(dish_rec)
                 dish_rec.id = None
+            if posted_form.data_types.data:
+                dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
+            if posted_form.study_types.data:
+                dish_rec.study_types_json = json.dumps(posted_form.study_types.data)
             db.session.add(dish_rec)
             db.session.commit()
-            # msg = "created" if mode == 'create' else "updated"
-            # flash("Study {}.".format(msg), "success")
 
             sid = posted_form.submission_id.data
 
@@ -578,7 +585,6 @@ def delete_submission_uploadinfo(uploadinfo_id):
     submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
     db.session.delete(submission_uploadinfo)
     db.session.commit()
-    # flash("Submission Upload Info deleted", "success")
     return "", 204
 
 
@@ -590,3 +596,8 @@ def delete_submission_uploadinfo(uploadinfo_id):
 @app.route('/autocomplete_institutes', methods=['GET'])
 def autocomplete_institutes():
     return Response(dumps(app.config.get('DATA_INIT')['collab_institutions']), mimetype='application/json')
+
+@app.route('/autocomplete_pis', methods=['GET'])
+def autocomplete_pis():
+    return Response(dumps(app.config.get('DATA_INIT')['collab_pis']), mimetype='application/json')
+

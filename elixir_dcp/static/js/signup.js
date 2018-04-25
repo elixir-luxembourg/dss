@@ -4,7 +4,7 @@ $(document).ready($(function () {
     }).done(function (data) {
         $('.elx-autocomp-institution').autocomplete({
             source: data,
-            minLength: 3
+            minLength: 2
         });
     });
 }));

@@ -1,17 +1,5 @@
 
 {% extends "submission/_inline_editor.html" %}
-{% block js %}
-    {{ super() }}
-    {% assets "submission_dish_inline_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-    {% assets "brutusin_css" %}
-        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
-    {% endassets %}
-    {% assets "brutusin_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-{% endblock %}
 {% block inline_content %}
     {% with %}
         {% set dishes = submission.dishes %}
@@ -24,30 +12,6 @@
     <div id="dishes_inline_editor" data-url="{{ url_for('add_edit_submission_dish') }}">
         {% include 'submission/_dish_form.html' %}
     </div>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#dish_metadata_modal">View Metadata Form
-    </button>
-
-    <div class="modal fade" id="dish_metadata_modal" tabindex="-1" role="dialog"
-         aria-labelledby="dish_metadata_modal">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Study Metadata</h4>
-                </div>
-                <div class="modal-body">
-
-                    <div id="dish_metadata_modal_body">
-
-
-
-                    </div>
-
-
-                </div><!-- modal body -->
-            </div><!-- modal-content -->
-        </div><!-- modal-dialog -->
-    </div><!-- Modal used as to create Detailed Study Metadata via a JSON Schema driven form-->
-
 {% endblock %}
 
 

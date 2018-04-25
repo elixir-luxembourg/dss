@@ -10,7 +10,7 @@ from urllib.parse import urlparse, urljoin
 from wtforms.validators import Email, DataRequired, Length, Regexp, ValidationError
 from .validators import OptionalFieldValidator
 
-import re
+
 
 __author__ = 'Pinar Alper'
 
@@ -68,8 +68,8 @@ class SignupForm(FlaskForm):
 
     institution = StringField('Institution', validators=[DataRequired(), Regexp('^[a-zA-Z\s\(\)-]+$',
                                                                                 message="Can only contain letters, parantheses and dash."),
-                                                         Length(min=2, max=20,
-                                                                message="Must be 2 to 20 characters long.")])
+                                                         Length(min=2, max=40,
+                                                                message="Must be 2 to 40 characters long.")])
 
     email = EmailField('E Mail', validators=[DataRequired(), Email("Requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
@@ -88,6 +88,7 @@ class SignupForm(FlaskForm):
 
 class UserForm(SignupForm):
     """This form is used to view and edit a particular User record in the ELIXIR DCP database.
+    It extends the SignupForm.
     """
     id = HiddenField('User_Id')
     assigned_role_ids = SelectMultipleField('Has Roles', coerce=int)

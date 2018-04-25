@@ -5,7 +5,6 @@
         <tr>
             <th width="25%">Name SURNAME</th>
             <th width="25%">Email</th>
-            <th width="10%">Is Primary</th>
             <th width="25%">Type</th>
             {% if  not readonly %}
                 <th width="15%">Actions</th>
@@ -16,7 +15,6 @@
             <tr>
                 <td>{{ contact.fullname() }}</td>
                 <td>{{ contact.email }}</td>
-                <td>{{ contact.is_primary }}</td>
                 <td>{{ contact.contact_category.name }}</td>
                 {% if  not readonly %}
                     <td>
@@ -34,8 +32,7 @@
         {% endfor %}
     </table>
 {% else %}
-    <br/>
-    <div class="text-center">
-        <h3> No contacts. </h3>
+    <div  class="text_center">
+        <h3> ___ No Contacts defined yet ___</h3>
     </div>
 {% endif %}

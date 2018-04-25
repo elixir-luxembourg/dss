@@ -2,20 +2,20 @@
 {% import "forms_macros.html" as fmacros %}
 {% block title %}Submission{% endblock %}
 {% block js %}
-    {{ super() }}
-    {% assets "submission_editor_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
+{{ super() }}
+{% assets "submission_editor_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}
 {% block content %}
-    <div class="inline-editor-messages">
-    </div>
-    <div class="row block">
-
+<div class="inline-editor-messages">
+</div>
+<div class="row block">
+    <div class="row">
         <div id="basicinfo" class="col-md-11">
             {% include 'submission/_submission_header.html' %}
         </div>
-        {#    SIDE BAR CLOSE  BUTTON    #}
+        {# SIDE BAR CLOSE BUTTON #}
         <div class="col-md-1">
             <a href="{{ url_for('edit_submission',sub_id=submission.id) }}"
                class="btn btn-info btn-lg"><span
@@ -24,7 +24,10 @@
                     title="Back to Submission"></span>
             </a>
         </div>
-        <hr size="2px"/>
+    </div>
+    <br/>
+    <div class="row">
         {% block inline_content %}{% endblock %}
     </div>
+</div>
 {% endblock %}

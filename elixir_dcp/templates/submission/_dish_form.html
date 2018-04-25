@@ -2,91 +2,95 @@
 
 
 <div class="panel panel-default">
-    <div class="panel-heading">{% if dish_form.id.data %}Update {% else %}Add New {% endif %}Dataset Info</div>
+    <div class="panel-heading">{% if dish_form.id.data %}Update {% else %}Add New {% endif %}Dataset</div>
     <div class="panel-body">
         <form id="form_submission_dish">
-            {{ dish_form.hidden_tag() }}
-            {{ fmacros.render_field_with_errors(dish_form.study_name) }}
-            {{ fmacros.render_field_with_errors(dish_form.joint_providers) }}
-            {{ fmacros.render_field_with_errors(dish_form.estimate_data_size, div_col_class="col-md-2", clazz="elx-select") }}
+            <fieldset>
+                <legend>Study</legend>
+                {{ dish_form.hidden_tag() }}
+                {{ fmacros.render_field_with_errors(dish_form.study_name) }}
+                {{ fmacros.render_field_with_errors(dish_form.study_description) }}
+                {{ fmacros.render_field_with_errors(dish_form.study_types, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(dish_form.ethics_approval_exists) }}
+            </fieldset>
             <div class="form-group row">
             </div>
+
             <fieldset>
-                <legend>Ethics</legend>
-
-                <div class="form-group row">
-                    <div class="form-group col-md-3">
-                        <label class="control-label"
-                               for="ethicsApprovalExistsCheck">{{ dish_form.ethics_approval_exists.label.text }}</label>
-                        <input id="ethicsApprovalExistsCheck" class="form-control" type="checkbox"
-                                {% if dish_form.ethics_approval_exists.data %} checked="checked" {% endif %}/>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label class="control-label"
-                               for="subjectsMinorsCheck">{{ dish_form.subjects_minors.label.text }}</label>
-                        <input id="subjectsMinorsCheck" class="form-control" type="checkbox"
-                                {% if dish_form.subjects_minors.data %} checked="checked" {% endif %}/>
-                    </div>
-
-                    <div class="form-group col-md-3">
-                        <label class="control-label"
-                               for="subjectsVulnerableCheck">{{ dish_form.subjects_vulnerable.label.text }}</label>
-                        <input id="subjectsVulnerableCheck" class="form-control" type="checkbox"
-                                {% if dish_form.subjects_vulnerable.data %} checked="checked" {% endif %}/>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label class="control-label"
-                               for="subjectsUnableToConsentCheck">{{ dish_form.subjects_unable_to_consent.label.text }}</label>
-                        <input id="subjectsUnableToConsentCheck" class="form-control" type="checkbox"
-                                {% if dish_form.subjects_unable_to_consent.data %} checked="checked" {% endif %}/>
-                    </div>
-                </div>
-
-
-                {{ fmacros.render_field_with_errors(dish_form.consent_status, div_col_class="col-md-2", clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dish_form.consent_notes) }}
-
+                <legend>Data</legend>
+                {{ fmacros.render_field_with_errors(dish_form.estimate_data_size, div_col_class="col-md-2",
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dish_form.data_types, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(dish_form.metadata_exists) }}
             </fieldset>
             <div class="form-group row">
             </div>
             <fieldset>
                 <legend>Data Protection</legend>
-                {{ fmacros.render_field_with_errors(dish_form.de_identification_type, div_col_class="col-md-2", clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dish_form.storage_end_date, div_col_class="col-md-3", clazz="elx-date") }}
+
+                <div class="form-group row">
+
+                    <div class="form-group col-md-4">
+                        <label
+                               for="subjectsMinorsCheck">{{ dish_form.subjects_minors.label.text }}</label>
+                        <input id="subjectsMinorsCheck" class="form-control" type="checkbox"
+                               {% if dish_form.subjects_minors.data %} checked="checked" {% endif %}/>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label
+                               for="subjectsVulnerableCheck">{{ dish_form.subjects_vulnerable.label.text }}</label>
+                        <input id="subjectsVulnerableCheck" class="form-control" type="checkbox"
+                               {% if dish_form.subjects_vulnerable.data %} checked="checked" {% endif %}/>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label
+                               for="subjectsUnableToConsentCheck">{{ dish_form.subjects_unable_to_consent.label.text
+                            }}</label>
+                        <input id="subjectsUnableToConsentCheck" class="form-control" type="checkbox"
+                               {% if dish_form.subjects_unable_to_consent.data %} checked="checked" {% endif %}/>
+                    </div>
+                </div>
+
+
+                {{ fmacros.render_field_with_errors(dish_form.consent_status, div_col_class="col-md-2",
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dish_form.consent_notes) }}
+                {{ fmacros.render_field_with_errors(dish_form.de_identification_type, div_col_class="col-md-2",
+                clazz="elx-select") }}
             </fieldset>
             <div class="form-group row">
             </div>
-
             <fieldset>
                 <legend>Use Conditions</legend>
                 <div class="form-group row {% if dish_form.duc_codes.errors %}has-error{% endif %}">
-                    {{ dish_form.duc_codes.label(class="col-md-2 control-label") }}
+                    {{ dish_form.duc_codes.label(class="col-md-2") }}
                     <div class="col-md-8">
                         <div data-toggle="fieldset" id="duc-codes-fieldset">
                             <button type="button" data-toggle="fieldset-add-row" data-target="#duc-codes-fieldset">+
                             </button>
-                            <table  style="width:800px" >
+                            <table style="width:800px">
                                 <tr>
-                                    <th width="40%">GA4GH Code</th>
-                                    <th width="45%">Note</th>
+                                    <th width="40%">Category</th>
+                                    <th width="45%">Restriction</th>
                                     <th width="15%"></th>
                                 </tr>
                                 {% for duc_code_instance in dish_form.duc_codes %}
-                                    <tr data-toggle="fieldset-entry">
-                                        <td>{{ duc_code_instance.ga4gh_code }}</td>
-                                        <td>{{ duc_code_instance.note(rows='3',cols='45')}}</td>
-                                        <td>
-                                            <button type="button" data-toggle="fieldset-remove-row"
-                                                    id="duc-code-{{ loop.index0 }}-remove">-
-                                            </button>
-                                        </td>
-                                    </tr>
+                                <tr data-toggle="fieldset-entry">
+                                    <td>{{ duc_code_instance.ga4gh_code }}</td>
+                                    <td>{{ duc_code_instance.note(rows='3',cols='45')}}</td>
+                                    <td>
+                                        <button type="button" data-toggle="fieldset-remove-row"
+                                                id="duc-code-{{ loop.index0 }}-remove">-
+                                        </button>
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </table>
                         </div>
                         {% if dish_form.duc_codes.errors %}
-                            {% for error in dish_form.duc_codes.errors %}<p class="help-block">{{ error }}</p>
-                            {% endfor %}
+                        {% for error in dish_form.duc_codes.errors %}<p class="help-block">{{ error }}</p>
+                        {% endfor %}
                         {% endif %}
                     </div>
                 </div>

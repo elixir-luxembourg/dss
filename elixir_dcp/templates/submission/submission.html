@@ -20,6 +20,19 @@
 
         <div id="basicinfo" class="col-md-11">
             {% include 'submission/_submission_header.html' %}
+            <div class="row">
+                <div class="form-group col-md-11">
+                    <span class="label label-default">Upload Instructions</span><br/>
+                    {% if submission.upload_instructions %}
+                    {% for line in submission.uploads_instructions_lines() %}
+                    <label>{{ line|urlize }}</label><br>
+                    {% endfor %}
+
+                    {% else %}
+                    <label>Instructions will be provided once you complete Dataset Registration and we create an upload link for you.</label>
+                    {% endif %}
+                </div>
+            </div>
         </div>
         {# SIDEBAR BUTTONS #}
         <div id="submission_commands_bar" class="col-md-1">
@@ -55,7 +68,7 @@
             </div>
         </div>
     </div>
-    {% if current_user.is_admin() %}
+    {% if current_user.is_admin() or submission.current_status.step_num() == 1 or submission.current_status.step_num() ==2 %}
     <div class="row">
         <div class="col-md-11">
             <form id="form_submission_basics"
@@ -63,10 +76,14 @@
                   action="{{ url_for('edit_submission',sub_id=submsn_form.id.data) }}">
                 {{ submsn_form.hidden_tag() }}
                 {{ fmacros.render_field_with_errors(submsn_form.title) }}
+                {{ fmacros.render_field_with_errors(submsn_form.submission_scope, div_col_class="col-md-2", clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(submsn_form.collab_local_custodian, clazz="elx-autocomp-pis") }}
+                {{ fmacros.render_field_with_errors(submsn_form.collab_project_name) }}
+
                 {% if current_user.is_admin() %}
                     {{ fmacros.render_field_with_errors(submsn_form.provider_user_ids, clazz="elx-multi-select") }}
+                    {{ fmacros.render_field_with_errors(submsn_form.upload_instructions) }}
                 {% endif %}
-                {{ fmacros.render_field_with_errors(submsn_form.upload_instructions) }}
             </form>
         </div>
         <div id="submission_form_commands_bar" class="col-md-1">
@@ -84,7 +101,7 @@
     <ul>
         <li><a href="#contacts">Contacts</a></li>
         <li><a href="#attachments">Attachments</a></li>
-        <li><a href="#dishes">Dataset Infos</a></li>
+        <li><a href="#dishes">Datasets</a></li>
         <li><a href="#uploadinfos">File Checksums</a></li>
     </ul>
     <div id="contacts">

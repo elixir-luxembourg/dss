@@ -19,7 +19,6 @@ function displayInlineSuccess(msg) {
 
 
 
-
 $(document).ready(function () {
 
     var VALIDATION_ERROR = "BAD REQUEST";
@@ -38,6 +37,14 @@ $(document).ready(function () {
             texts: {
                 placeholder: 'Select one or more Users',
             }
+        });
+        $.ajax({
+            url: '/autocomplete_pis'
+        }).done(function (data) {
+            $('.elx-autocomp-pis').autocomplete({
+                source: data,
+                minLength: 2
+            });
         });
 
         $("div[data-toggle=fieldset]").each(function () {
@@ -374,4 +381,5 @@ $(document).ready(function () {
 
 
     bind_widgets();
+
 });

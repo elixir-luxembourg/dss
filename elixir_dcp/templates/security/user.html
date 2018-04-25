@@ -20,7 +20,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-10 block">
+        <div class="col-md-12 block">
             <form  method="POST"
                   action="{{ url_for('edit_user',user_id=user_form.id.data) }}">
                 {{ user_form.hidden_tag() }}

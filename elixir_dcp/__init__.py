@@ -43,6 +43,7 @@ elif authentication_method == 'AAI':
 else:
     raise ValueError("Unsupported authentication method")
 
+
 oidc = OpenIDConnect()
 oidc.init_app(app)
 
