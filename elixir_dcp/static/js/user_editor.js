@@ -1,4 +1,5 @@
 $(document).ready(function () {
+    $('[data-toggle="popover"]').popover();
     $('.elx-multi-select').select2({
         columns: 2,
         search: true,

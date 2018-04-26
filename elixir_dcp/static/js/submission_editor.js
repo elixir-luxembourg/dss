@@ -25,6 +25,7 @@ $(document).ready(function () {
 
     function bind_widgets() {
 
+        $('[data-toggle="popover"]').popover();
         $(".elx-date").datepicker({dateFormat: 'dd/mm/yy'});
 
         $('.elx-select').select2({

@@ -136,7 +136,7 @@ class StudyDishForm(FlaskForm):
     submission_id = HiddenField('Submission Id')
     study_name = StringField('Study Name', validators=[DataRequired()])
     study_description = TextAreaField('Study Description', render_kw={'rows': 3})
-    study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()], render_kw={"help_text": "This is the help text for Study Type field."})
+    study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()], description="This is the help text for Study Type field.")
 
     # Data
     estimate_data_size = SelectField('Estimated Total Data Size', validators=[DataRequired()])

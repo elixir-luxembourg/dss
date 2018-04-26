@@ -2,65 +2,69 @@
 
 {% block content %}
 
-    <div class="row">
-        <div class="col-md-8 block" id="home-description">
-            <div class="col-md-12">
-                <p>ELIXIR-LU is the Luxembourgish node of ELIXIR, which is a European infrastructure for life science
-                    information. ELIXIR-LU Data Repository is specialised repository of data and analytical tools for
-                    Translation
-                    Medicine.</p>
-                <p>This site is targeted for data providers, who want to submit data to
-                    ELIXIR-LU Data Repository.</p>
-                <div class="row">
-                    <div class="col-md-2">
-                        <p id="home-links">
-                            <a href="">Acknowledgements</a><br/>
-                            <a href="">About Us</a>
-                        </p>
-                    </div>
+<div class="row">
+    <div class="col-md-8 block" id="home-description">
+        <div class="col-md-12">
+            <p align="justify">This site is targeted for data providers, who want to submit Human Data to
+                the ELIXIR-LU Data Repository or to Collaborators at LCSB.</p>
+            <br/>
+            <p align="justify">In order to use this site, <a href="https://www.elixir-europe.org/intranet">register with ELIXIR
+                AAI</a>. You will then be able to login using either your Institutional,  Google or ORCID account.</p>
 
-                </div>
-            </div>
-        </div>
-        {#    SIDEBAR     #}
-        <div class="col-md-4" id="sidebar">
-            <div class="col-md-12">
-                <!--
-                <div class="row block" id="home-users">
-                    {#    USERS     #}
-                    <h2>Users</h2>
-                    <div class="row ">
-                        <p class="col-md-offset-1 col-sm-offset-1  col-xs-offset-1 col-xs-5 col-md-5 col-sm-5">
-                            <button class="btn btn-default btn-raised">EXPLORE<br/>DATA CATALOG</button>
-                        </p>
-                        <p class="col-md-offset-1 col-sm-offset-1 col-xs-offset-1 col-xs-3 col-md-3 col-sm-3">
-                            <button class="btn btn-default btn-raised">EXPLORE<br/>TOOLS</button>
-                        </p>
-                    </div>
+            <br/>
+            <p align="justify"> ELIXIR is a pan-European infrastructure for life science
+                information. ELIXIR-Luxembourg is based at Luxembourg Center for Systems Biomedicine (LCSB).</p>
 
-                </div>
-               -->
-                <div class="row block">
-                    {#    DATA PROVIDERS     #}
-                    <h2>Data Providers</h2>
-                    <a id="dp-link" href="">How to add your datasets to ELIXIR-LU DCP?</a>
-                    <p>NEED MORE INFO: If you'd like to deposit your data to ELIXIR-LU DCP but have questions about the
-                        process, please contact our data stewardship team at:</p>
-                    <p><a href="mailto:data.steward@uni.lu">data.steward@uni.lu</a><br/><a href="tel:+352000000000">+352
-                        000
-                        000 000</a></p>
-                </div>
-
-                <div class="row block">
-
-                    <p>
-                        <a class="twitter-timeline" data-height="400"
-                           href="https://twitter.com/elixir_lu?ref_src=twsrc%5Etfw">Tweets by
-                            elixir_lu</a>
-                        <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+            <div class="row">
+                <div class="col-md-2">
+                    <p id="home-links">
+                        <a href="">Acknowledgements</a><br/>
+                        <a href="">About Us</a>
                     </p>
                 </div>
+
             </div>
         </div>
     </div>
+    {# SIDEBAR #}
+    <div class="col-md-4" id="sidebar">
+        <div class="col-md-12">
+            <!--
+            <div class="row block" id="home-users">
+                {#    USERS     #}
+                <h2>Users</h2>
+                <div class="row ">
+                    <p class="col-md-offset-1 col-sm-offset-1  col-xs-offset-1 col-xs-5 col-md-5 col-sm-5">
+                        <button class="btn btn-default btn-raised">EXPLORE<br/>DATA CATALOG</button>
+                    </p>
+                    <p class="col-md-offset-1 col-sm-offset-1 col-xs-offset-1 col-xs-3 col-md-3 col-sm-3">
+                        <button class="btn btn-default btn-raised">EXPLORE<br/>TOOLS</button>
+                    </p>
+                </div>
+
+            </div>
+           -->
+            <div class="row block">
+                {# DATA PROVIDERS #}
+                <h2>Data Providers</h2>
+                <a id="dp-link" href="">How to add your datasets to ELIXIR-LU DCP?</a>
+                <p>NEED MORE INFO: If you'd like to deposit your data to ELIXIR-LU DCP but have questions about the
+                    process, please contact our data stewardship team at:</p>
+                <p><a href="mailto:data.steward@uni.lu">data.steward@uni.lu</a><br/><a href="tel:+352000000000">+352
+                    000
+                    000 000</a></p>
+            </div>
+
+            <div class="row block">
+
+                <p>
+                    <a class="twitter-timeline" data-height="400"
+                       href="https://twitter.com/elixir_lu?ref_src=twsrc%5Etfw">Tweets by
+                        elixir_lu</a>
+                    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

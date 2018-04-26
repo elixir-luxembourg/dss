@@ -21,17 +21,17 @@ class Config(object):
     ]
     DATA_INIT = START_UP_DATA
 
+    # OIDC config
+    OIDC_CLIENT_SECRETS = 'client_secrets.json'
+    OIDC_SCOPES = ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']
+    OIDC_COOKIE_SECURE = False
 
 class ProdConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = True
 
     AUTHENTICATION_METHOD = 'AAI'
-
-    # OIDC config
-    OIDC_CLIENT_SECRETS = 'client_secrets.json'
-    OIDC_SCOPES = ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']
-    OIDC_COOKIE_SECURE = False
+    OIDC_COOKIE_SECURE = True
 
     #Flask-Mail config
     MAIL_SERVER = 'localhost'
@@ -48,10 +48,6 @@ class DevConfig(Config):
 
     AUTHENTICATION_METHOD = 'AAI'  # Possible methods is 'AAI' or 'CONFIG'
 
-    # OIDC config
-    OIDC_CLIENT_SECRETS = 'client_secrets.json'
-    OIDC_SCOPES = ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']
-    OIDC_COOKIE_SECURE = False
 
     #Flask-Mail config
     MAIL_SERVER = 'smtp.gmail.com'

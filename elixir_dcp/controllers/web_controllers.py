@@ -343,7 +343,7 @@ def add_edit_submission_contact(contact_id=None):
                                                                                                    obj=None,
                                                                                                    sub_id=sid)), 200
         else:
-            flash("Please check the validity of your input in highlighted places", "error")
+            #flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_contact_form.html', contact_form=posted_form), 400
 
 
