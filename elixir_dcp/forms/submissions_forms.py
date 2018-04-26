@@ -73,12 +73,12 @@ class UploadInfoForm(FlaskForm):
     """
     id = HiddenField('SubmissionUploadInfo_Id')
     submission_id = HiddenField('Submission Id')
-    file_name = StringField('Name', validators=[DataRequired(), Regexp('^[\w\s]+$',
+    file_name = StringField('Name', description="Please specify the name of the file that has been uploaded.", validators=[DataRequired(), Regexp('^[\w\s]+$',
                                                                        message="Can only contain letters, digits and underscore.."),
                                                 Length(min=5, max=40,
                                                        message="Must be 5 to 40 characters long.")],
                             render_kw={"placeholder": "Only the name of the file without folder information."})
-    md5_checksum_at_provider = StringField('File Checksum', validators=[DataRequired(), Regexp('^[0-9]+$',
+    md5_checksum_at_provider = StringField('File Checksum', description="Please specify the md5 checksum at your side. This information will be used by us to verify that the file has been transmitted without errors.", validators=[DataRequired(), Regexp('^[0-9]+$',
                                                                                                message="Can only contain digits.")],
                                            render_kw={"placeholder": "32 Characters checksum."})
 
@@ -139,18 +139,18 @@ class StudyDishForm(FlaskForm):
     id = HiddenField('DISH_Id')
     submission_id = HiddenField('Submission Id')
     study_name = StringField('Study Name', validators=[DataRequired()])
-    study_description = TextAreaField('Study Description', render_kw={'rows': 3})
+    study_description = TextAreaField('Study Description', description="Please provide a short description of the study.", render_kw={'rows': 3})
     study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
-                                      description="This is the help text for Study Type field.")
+                                      description="Please select the categories that would best characterise the study within which the data has been collected.")
 
     # Data
-    estimate_data_size = SelectField('Estimated Total Data Size', validators=[DataRequired()])
+    estimate_data_size = SelectField('Estimated Total Data Size', description="Please select the estimated size of the dataset that will be subnmitted for this study.", validators=[DataRequired()])
 
-    data_types = SelectMultipleField('Data Type(s)', validators=[DataRequired()])
-    metadata_exists = BooleanField('Metadata Provided', default=True)
+    data_types = SelectMultipleField('Data Type(s)', description="Please select the categories that would best characterise the types of data within this dataset.", validators=[DataRequired()])
+    metadata_exists = BooleanField('Metadata Provided', description="Confirmation of whether metadata will be uploaded alongside data. As a minimum we would expect a Data Dictionary to be supplied alongside data.", default=True)
 
     # Ethics & Data Protection
-    ethics_approval_exists = BooleanField('Ethics Approval Exists', default=False)
+    ethics_approval_exists = BooleanField('Ethics Approval Exists', description="Your confirmation that an ethics approval exists for the study in which the data hasbeen collected/generated.", default=False)
     subjects_minors = BooleanField('Subjects Minors', default=False)
     subjects_vulnerable = BooleanField('Subjects Those Unable to Consent', default=False)
     subjects_unable_to_consent = BooleanField('Other Vulnerable Subjects', default=False)

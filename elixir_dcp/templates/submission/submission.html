@@ -25,7 +25,7 @@
                     <span class="label label-default">Upload Instructions</span><br/><br/>
                     {% if submission.upload_instructions %}
                     {% for line in submission.uploads_instructions_lines() %}
-                    <label>{{ line|urlize }}</label><br>
+                    <label>{{ line|urlize(40, True, '_blank') }}</label><br>
                     {% endfor %}
 
                     {% else %}
