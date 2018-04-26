@@ -11,6 +11,7 @@ from elixir_dcp.models.security import User
 from elixir_dcp import app
 import re
 
+
 class AttachmentForm(FlaskForm):
     """
     Form for creating or updating attachments in the form of uploaded files
@@ -39,18 +40,22 @@ class ContactForm(FlaskForm):
     """
     id = HiddenField('Contact_Id')
     submission_id = HiddenField('Submission Id')
-    name = StringField('Name', description='This is the help text for name',
-                       validators=[DataRequired(), Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
+    name = StringField('Name',
+                       validators=[DataRequired(),
+                                   Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                    Length(min=2, max=20,
                                           message="Must be 2 to 20 characters long.")],
                        render_kw={"placeholder": "Name"})
-    surname = StringField('Surname', description='This is the help text for surname',
-                          validators=[DataRequired(), Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
+    surname = StringField('Surname',
+                          validators=[DataRequired(),
+                                      Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                       Length(min=2, max=20,
                                              message="Must be 2 to 20 characters long.")],
                           render_kw={"placeholder": "SURNAME"})
 
-    category_id = SelectField('Type', coerce=int)
+    category_id = SelectField('Type', validators=[DataRequired()],
+                              description="Please specify the role of the contact person, which could be the source study's PI, the data manager, legal rep or DPO of data submitting  institution.",
+                              coerce=int)
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")],
                        render_kw={"placeholder": "Institutional e-mail"})
 
@@ -116,10 +121,10 @@ class SubmissionForm(FlaskForm):
     submission_scope = SelectField('Category', choices=SubmissionScopeEnum.choices(), validators=[DataRequired()])
 
     collab_local_custodian = StringField('Recipient PI', validators=[OptionalFieldValidator(regex_str='^[\w\s,]+$',
-    message="Recipient names should contain only letters, digits and underscore; multiple recipient should be separated by colons.")])
+                                                                                            message="Recipient names should contain only letters, digits and underscore; multiple recipient should be separated by colons.")])
 
     collab_project_name = StringField('Recipient Project', validators=[OptionalFieldValidator(regex_str='^[\w\s]+$',
-    message="Can only contain letters, digits and underscore.")])
+                                                                                              message="Can only contain letters, digits and underscore.")])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
