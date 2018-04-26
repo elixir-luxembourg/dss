@@ -59,31 +59,31 @@ class SignupForm(FlaskForm):
 
     elixir_sub_id = HiddenField('Elixir Sub ID')
     first_name = StringField('First Name', validators=[DataRequired(),
-                                                       Regexp('^[a-zA-Z\s]+$', message="Can only contain letters."),
+                                                       Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                                        Length(min=2, max=20,
                                                               message="Must be 2 to 20 characters long.")])
     last_name = StringField('Last Name',
-                            validators=[DataRequired(), Regexp('^[a-zA-Z\s]+$', message="Can only contain letters."),
+                            validators=[DataRequired(), Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                         Length(min=2, max=20, message="Must be 2 to 20 characters long.")])
 
-    institution = StringField('Institution', validators=[DataRequired(), Regexp('^[a-zA-Z\s\(\)-]+$',
-                                                                                message="Can only contain letters, parantheses and dash."),
+    institution = StringField('Institution', validators=[DataRequired(), Regexp('^[\w\s\(\)-]+$',
+                                                                                message="Can only contain letters, digits, underscore, dash and parantheses."),
                                                          Length(min=2, max=40,
                                                                 message="Must be 2 to 40 characters long.")])
 
     email = EmailField('E Mail', validators=[DataRequired(), Email("Requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
 
-    addr_line1 = StringField('Address', validators=[OptionalFieldValidator(regex_str='^[a-zA-Z0-9\s,-]+$',
-                                                                           message="Can only contain letters, numbers, colon and dash.")],
+    addr_line1 = StringField('Address', validators=[OptionalFieldValidator(regex_str='^[\w\s,-]+$',
+                                                                           message="Can only contain letters, digits, underscore, colon and dash.")],
                              render_kw={"placeholder": "Street Address."})
 
-    addr_line2 = StringField('City', validators=[OptionalFieldValidator(regex_str='^[a-zA-Z0-9\s,-]+$',
-                                                                        message="Can only contain letters, numbers and dash.")],
+    addr_line2 = StringField('City', validators=[OptionalFieldValidator(regex_str='^[\w\s,-]+$',
+                                                                        message="Can only contain letters, digits, underscore, colon and dash.")],
                              render_kw={"placeholder": "City, Country, Postal Code."})
 
     phone_no = StringField('Phone', validators=[
-        OptionalFieldValidator(message="Can only contain numbers and dash.", regex_str='^[0-9\s,-]+$')])
+        OptionalFieldValidator(message="Can only contain digits and dash.", regex_str='^[0-9\s-]+$')])
 
 
 class UserForm(SignupForm):

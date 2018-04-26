@@ -9,8 +9,7 @@ from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSiz
     GA4GHCodes, DUCCodeInstance, SubmissionScopeEnum
 from elixir_dcp.models.security import User
 from elixir_dcp import app
-
-
+import re
 
 class AttachmentForm(FlaskForm):
     """
@@ -18,7 +17,7 @@ class AttachmentForm(FlaskForm):
     """
     id = HiddenField('Attachment_Id')
     note = StringField('Attachment Note',
-                       validators=[DataRequired(), Regexp('^[a-zA-Z\s]+$', message="Note can only contain letters."),
+                       validators=[DataRequired(), Regexp('^[\w\s]+$', message="Note can only contain letters, ."),
                                    Length(min=2, max=40,
                                           message="Must be 2 to 40 characters long.")])
     submission_id = HiddenField('Submission Id')
@@ -41,12 +40,12 @@ class ContactForm(FlaskForm):
     id = HiddenField('Contact_Id')
     submission_id = HiddenField('Submission Id')
     name = StringField('Name', description='This is the help text for name',
-                       validators=[DataRequired(), Regexp('^[a-zA-Z\s]+$', message="Can only contain letters."),
+                       validators=[DataRequired(), Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                    Length(min=2, max=20,
                                           message="Must be 2 to 20 characters long.")],
                        render_kw={"placeholder": "Name"})
     surname = StringField('Surname', description='This is the help text for surname',
-                          validators=[DataRequired(), Regexp('^[a-zA-Z\s]+$', message="Can only contain letters."),
+                          validators=[DataRequired(), Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                       Length(min=2, max=20,
                                              message="Must be 2 to 20 characters long.")],
                           render_kw={"placeholder": "SURNAME"})
@@ -69,13 +68,13 @@ class UploadInfoForm(FlaskForm):
     """
     id = HiddenField('SubmissionUploadInfo_Id')
     submission_id = HiddenField('Submission Id')
-    file_name = StringField('Name', validators=[DataRequired(), Regexp('^[a-zA-Z0-9-\s\.]+$',
-                                                                       message="File name can contain letters, numbers and dash."),
+    file_name = StringField('Name', validators=[DataRequired(), Regexp('^[\w\s]+$',
+                                                                       message="Can only contain letters, digits and underscore.."),
                                                 Length(min=5, max=40,
                                                        message="Must be 5 to 40 characters long.")],
                             render_kw={"placeholder": "Only the name of the file without folder information."})
     md5_checksum_at_provider = StringField('File Checksum', validators=[DataRequired(), Regexp('^[0-9]+$',
-                                                                                               message="Can only contain numbers.")],
+                                                                                               message="Can only contain digits.")],
                                            render_kw={"placeholder": "32 Characters checksum."})
 
     def __init__(self, *args, **kwargs):
@@ -105,8 +104,8 @@ class SubmissionForm(FlaskForm):
     id = HiddenField('Submission_Id')
 
     title = StringField('Title', validators=[DataRequired(),
-                                             Regexp('\w+',
-                                                    message="Title must contain only letters numbers or underscore"),
+                                             Regexp('^[\w\s]+$',
+                                                    message="Title must contain only letters, digits or underscore"),
                                              Length(min=15, max=75,
                                                     message="Title must be between 15 & 75 characters")])
 
@@ -116,11 +115,11 @@ class SubmissionForm(FlaskForm):
 
     submission_scope = SelectField('Category', choices=SubmissionScopeEnum.choices(), validators=[DataRequired()])
 
-    collab_local_custodian = StringField('Recipient PI', validators=[OptionalFieldValidator(regex_str='^[a-zA-Z\s,]+$',
-                                                                                         message="Recipient name can contain only letters and colon.")])
+    collab_local_custodian = StringField('Recipient PI', validators=[OptionalFieldValidator(regex_str='^[\w\s,]+$',
+    message="Recipient names should contain only letters, digits and underscore; multiple recipient should be separated by colons.")])
 
-    collab_project_name = StringField('Recipient Project', validators=[OptionalFieldValidator(regex_str='^[a-zA-Z0-9\s,]+$',
-                                                                                    message="Can only contain letters, numbers and colon.")])
+    collab_project_name = StringField('Recipient Project', validators=[OptionalFieldValidator(regex_str='^[\w\s]+$',
+    message="Can only contain letters, digits and underscore.")])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
@@ -136,7 +135,8 @@ class StudyDishForm(FlaskForm):
     submission_id = HiddenField('Submission Id')
     study_name = StringField('Study Name', validators=[DataRequired()])
     study_description = TextAreaField('Study Description', render_kw={'rows': 3})
-    study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()], description="This is the help text for Study Type field.")
+    study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
+                                      description="This is the help text for Study Type field.")
 
     # Data
     estimate_data_size = SelectField('Estimated Total Data Size', validators=[DataRequired()])
