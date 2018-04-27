@@ -34,15 +34,12 @@ $(document).ready(function () {
         $('.elx-multi-select').select2({
             columns: 2,
             search: true,
-            selectAll: true,
-            texts: {
-                placeholder: 'Select one or more Users',
-            }
+            selectAll: true
         });
         $.ajax({
-            url: '/autocomplete_pis'
+            url: '/autocomplete_institutes'
         }).done(function (data) {
-            $('.elx-autocomp-pis').autocomplete({
+            $('.elx-autocomp-institution').autocomplete({
                 source: data,
                 minLength: 2
             });

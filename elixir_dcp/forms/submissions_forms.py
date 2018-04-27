@@ -52,12 +52,17 @@ class ContactForm(FlaskForm):
                                       Length(min=2, max=20,
                                              message="Must be 2 to 20 characters long.")],
                           render_kw={"placeholder": "SURNAME"})
-
     category_id = SelectField('Type', validators=[DataRequired()],
                               description="Please specify the role of the contact person, which could be the source study's PI, the data manager, legal rep or DPO of data submitting  institution.",
                               coerce=int)
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")],
                        render_kw={"placeholder": "Institutional e-mail"})
+
+    institution = StringField('Institution', validators=[DataRequired(), Regexp('^[\w\s\(\)-]+$',
+                                                                                message="Can only contain letters, digits, underscore, dash and parantheses."),
+                                                         Length(min=2, max=40,
+                                                                message="Must be 2 to 40 characters long.")])
+
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
@@ -120,8 +125,7 @@ class SubmissionForm(FlaskForm):
 
     submission_scope = SelectField('Category', choices=SubmissionScopeEnum.choices(), validators=[DataRequired()])
 
-    collab_local_custodian = StringField('Recipient PI', validators=[OptionalFieldValidator(regex_str='^[\w\s,]+$',
-                                                                                            message="Recipient names should contain only letters, digits and underscore; multiple recipient should be separated by colons.")])
+    collab_local_custodian = SelectMultipleField('Recipient PI(s)', validators=[DataRequired()])
 
     collab_project_name = StringField('Recipient Project', validators=[OptionalFieldValidator(regex_str='^[\w\s]+$',
                                                                                               message="Can only contain letters, digits and underscore.")])
@@ -129,6 +133,7 @@ class SubmissionForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in User.query.all()]
+        self.collab_local_custodian.choices = [(c, c) for c in app.config.get('DATA_INIT')['collab_pis']]
 
 
 class StudyDishForm(FlaskForm):

@@ -80,7 +80,7 @@
                 {{ fmacros.render_field_with_errors(submsn_form.title) }}
                 {{ fmacros.render_field_with_errors(submsn_form.submission_scope, div_col_class="col-md-2",
                 clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(submsn_form.collab_local_custodian, clazz="elx-autocomp-pis") }}
+                {{ fmacros.render_field_with_errors(submsn_form.collab_local_custodian, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.collab_project_name) }}
 
                 {% if current_user.is_admin() %}

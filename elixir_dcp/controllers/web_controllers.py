@@ -101,8 +101,9 @@ def oidc_login():
             name = oidc.user_getfield("name")
             if name is not None:
                 partially_filled_form = forms.SignupForm(elixir_sub_id=oidc.user_getfield("sub"),
-                                              first_name=get_names_from_oidc(name)[0],
-                                              last_name=get_names_from_oidc(name)[1], email=oidc.user_getfield("email"))
+                                                         first_name=get_names_from_oidc(name)[0],
+                                                         last_name=get_names_from_oidc(name)[1],
+                                                         email=oidc.user_getfield("email"))
                 return render_template('security/signup.html', signup_form=partially_filled_form)
             else:
                 return render_template('error.html', message="Error 500 - {}".format(
@@ -272,6 +273,8 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info('Sub REC: %s', submission_rec)
         sub_form = forms.SubmissionForm(obj=submission_rec)
+        if submission_rec.collab_local_custodian_json:
+            sub_form.collab_local_custodian.data = json.loads(submission_rec.collab_local_custodian_json)
         sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
         return render_template('submission/submission.html', submsn_form=sub_form, submission=submission_rec)
     elif request.method == 'POST':
@@ -279,8 +282,12 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(form.id.data)
         if form.validate_on_submit():
             update_submission_basic_info(submission_rec, title=form.title.data,
-                                         upload_instructions=form.upload_instructions.data,
-                                         provider_user_ids=form.provider_user_ids.data)
+                                         submission_scope=form.submission_scope.data,
+                                         collab_local_custodian_json=json.dumps(form.collab_local_custodian.data),
+                                         collab_project_name=form.collab_project_name.data,
+                                         upload_instructions=form.upload_instructions.data if form.upload_instructions else None,
+                                         provider_user_ids=form.provider_user_ids.data if form.provider_user_ids else None)
+
             flash('Submission updated', 'success')
             return redirect(url_for('list_submissions'))
         else:
@@ -343,7 +350,7 @@ def add_edit_submission_contact(contact_id=None):
                                                                                                    obj=None,
                                                                                                    sub_id=sid)), 200
         else:
-            #flash("Please check the validity of your input in highlighted places", "error")
+            # flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_contact_form.html', contact_form=posted_form), 400
 
 
@@ -361,14 +368,16 @@ def delete_submission_contact(contact_id):
 """AJAX Endpoints for managing a Submission's Attachments."""
 """-------------------------------------------------------"""
 
+
 @app.route('/submission_attachments_inline/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 def inline_submission_attachments(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_attachments.html', submission=submission_rec,
                            attachment_form=forms.AttachmentForm(formdata=None,
-                                                          obj=None,
-                                                          sub_id=submission_rec.id))
+                                                                obj=None,
+                                                                sub_id=submission_rec.id))
+
 
 @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
@@ -443,15 +452,16 @@ def delete_submission_attachment(attach_id):
 """----------------------------------------------------"""
 
 
-
 @app.route('/submission_dishes_inline/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 def inline_submission_dishes(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_dishes.html', submission=submission_rec,
                            dish_form=forms.StudyDishForm(formdata=None,
-                                                                obj=None,
-                                                                sub_id=submission_rec.id))
+                                                         obj=None,
+                                                         sub_id=submission_rec.id))
+
+
 @app.route('/submission_dishes/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
 def list_submission_dishes(sub_id):
@@ -533,8 +543,9 @@ def inline_submission_uploadinfos(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_uploadinfos.html', submission=submission_rec,
                            uploadinfo_form=forms.UploadInfoForm(formdata=None,
-                                                         obj=None,
-                                                         sub_id=submission_rec.id))
+                                                                obj=None,
+                                                                sub_id=submission_rec.id))
+
 
 @app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
@@ -596,8 +607,3 @@ def delete_submission_uploadinfo(uploadinfo_id):
 @app.route('/autocomplete_institutes', methods=['GET'])
 def autocomplete_institutes():
     return Response(dumps(app.config.get('DATA_INIT')['collab_institutions']), mimetype='application/json')
-
-@app.route('/autocomplete_pis', methods=['GET'])
-def autocomplete_pis():
-    return Response(dumps(app.config.get('DATA_INIT')['collab_pis']), mimetype='application/json')
-

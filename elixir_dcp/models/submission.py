@@ -2,7 +2,6 @@ from sqlalchemy import Sequence
 from elixir_dcp import db, app
 import enum
 import os
-import json
 
 
 class ContactType(db.Model):
@@ -114,7 +113,7 @@ class Submission(db.Model):
     upload_instructions = db.Column(db.String)
 
     submission_scope = db.Column(db.Enum(SubmissionScopeEnum), nullable=False, default=SubmissionScopeEnum.collab)
-    collab_local_custodian = db.Column(db.String)
+    collab_local_custodian_json = db.Column(db.String)
     collab_project_name = db.Column(db.String)
 
     submission_accesses = db.relationship('SubmissionAccess', cascade="all, delete-orphan")
@@ -161,8 +160,8 @@ class SubmissionContact(db.Model):
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     name = db.Column(db.String, nullable=False)
     surname = db.Column(db.String, nullable=False)
-    email = db.Column(db.String)
-    institution = db.Column(db.String)
+    email = db.Column(db.String, nullable=False)
+    institution = db.Column(db.String, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('contact_types.id'), nullable=False)
     contact_category = db.relationship('ContactType')
 
