@@ -36,11 +36,13 @@ def init_db():
 
     sub1 = Submission(ref_name='ELX_LU_SUB-1', title='Submission of Oncotrack data', created_on=datetime.today(),
                       current_status=SubmissionStatusEnum.draft)
-    sub2 = Submission(ref_name='ELX_LU_SUB-2', title='Submission of Predict-TB preclinical data',
+    sub2 = Submission(ref_name='ELX_LU_SUB-2', title='Submission of Predict-TB  data',
                       created_on=datetime.today(), current_status=SubmissionStatusEnum.draft)
-    contact1 = SubmissionContact(name='P\u0131nar', surname='Alper', category_id=3)
+    contact1 = SubmissionContact(name='P\u0131nar', surname='Alper', category_id=3, email="pinar.alper@uni.lu",
+                                 institution="University of Luxembourg")
     sub1.contacts.append(contact1)
-    contact2 = SubmissionContact(name='Valentin', surname='Grou\u00E8s', category_id=1)
+    contact2 = SubmissionContact(name='Valentin', surname='Grou\u00E8s', category_id=1, email="pinar.alper@uni.lu",
+                                 institution="University of Luxembourg")
     sub2.contacts.append(contact2)
     db.session.add(sub1)
     db.session.add(sub2)
@@ -62,7 +64,8 @@ def init_db():
 
     return
 
-#TODO I don't know what the below command does. FInd out.
+
+# TODO I don't know what the below command does. FInd out.
 manager.add_command("shell", Shell(use_ipython=True, use_bpython=False))
 
 # work-around bug in flask-assets

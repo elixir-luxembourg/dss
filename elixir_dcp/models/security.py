@@ -74,4 +74,3 @@ class UsersRoles(db.Model):
     assigned_on = db.Column('assigned_on', db.Date())
 
 
-

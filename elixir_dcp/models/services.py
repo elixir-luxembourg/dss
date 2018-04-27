@@ -155,13 +155,16 @@ def send_async_email(app, msg):
 
 
 def update_submission_basic_info(submission: Submission, **kwargs):
+    existing_instructions = submission.upload_instructions
     new_instructions = kwargs.pop('upload_instructions')
-    new_title = kwargs.pop('title')
     new_shared_user_ids = kwargs.pop('provider_user_ids')
 
-    any_instruction_changes = not equal_long_strings(submission.upload_instructions, new_instructions)
 
-    submission.title = new_title
+    submission.title = kwargs.pop('title')
+    submission.submission_scope =kwargs.pop('submission_scope')
+    submission.collab_local_custodian_json=kwargs.pop('collab_local_custodian_json')
+    submission.collab_project_name=kwargs.pop('collab_project_name')
+
     submission.upload_instructions = new_instructions
     db.session.add(submission)
     db.session.commit()
@@ -188,6 +191,7 @@ def update_submission_basic_info(submission: Submission, **kwargs):
             db.session.delete(rev_acc)
             db.session.commit()
 
+    any_instruction_changes = not equal_long_strings(existing_instructions, new_instructions)
     if any_instruction_changes and submission.is_in_progress():
         send_upload_instruction_notification(submission)
         flash('Data Providers are notified of upload instructions', 'info')
