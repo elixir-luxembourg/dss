@@ -144,7 +144,8 @@ class StudyDishForm(FlaskForm):
     id = HiddenField('DISH_Id')
     submission_id = HiddenField('Submission Id')
     study_name = StringField('Study Name', validators=[DataRequired()])
-    study_description = TextAreaField('Study Description', description="Please provide a short description of the study.", render_kw={'rows': 3})
+    study_description = TextAreaField('Study Description', description="Please provide a short description of the study.", render_kw={'rows': 3}, validators=[OptionalFieldValidator(regex_str='^[\w\s,-.]+$',
+                                                                                                                                                                                     message="Can only contain letters, digits, dash, comma and dot.")])
     study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
                                       description="Please select the categories that would best characterise the study within which the data has been collected.")
 
