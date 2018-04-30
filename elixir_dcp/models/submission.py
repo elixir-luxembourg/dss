@@ -2,7 +2,7 @@ from sqlalchemy import Sequence
 from elixir_dcp import db, app
 import enum
 import os
-
+import json
 
 class ContactType(db.Model):
     __tablename__ = 'contact_types'
