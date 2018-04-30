@@ -30,9 +30,6 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/test_metadata', methods=['GET'])
-def test_metadata():
-    return render_template('submission/_study_metadata.html')
 
 
 @app.route('/users', methods=['GET'])
