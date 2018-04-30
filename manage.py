@@ -31,7 +31,7 @@ def init_db():
         db.session.add(DataSizeCategory(code=category[0], label=category[1]))
 
     for code_triple in initial_data['ga4gh_codes']:
-        db.session.add(GA4GHCodes(code=code_triple[0], name=code_triple[1], description=code_triple[2]))
+        db.session.add(GA4GHCodes(code=code_triple[0], name=code_triple[1], description = code_triple[2]))
     db.session.commit()
 
     sub1 = Submission(ref_name='ELX_LU_SUB-1', title='Submission of Oncotrack data', created_on=datetime.today(),

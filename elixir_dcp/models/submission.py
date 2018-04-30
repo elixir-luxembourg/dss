@@ -16,7 +16,7 @@ class GA4GHCodes(db.Model):
 
     code = db.Column(db.String, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
-    description = db.Column(db.String, unique=True, nullable=False)
+    description = db.Column(db.String,  nullable=False)
 
 
 class DataSizeCategory(db.Model):
