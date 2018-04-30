@@ -30,7 +30,7 @@ git clone ssh://git@git-r3lab-server.uni.lu:8022/elixir/elixir-dcp.git
 cd elixir-dcp
 
 
-vi client-secrets.json 
+vi client_secrets.json 
 (put in the client id and client secret)
 
 mkdir project_venv
@@ -41,16 +41,17 @@ pip install -e .
 pip install gunicorn
 
 ```
-## Configure And Run project with Gunicore
+## Configure Project
 ```bash
 cp elixir_dcp/settings.py.template elixir_dcp/settings.py
-/Users/pinar_alper/Work/biocore-repos/elixir-dcp/project_venv/bin/gunicorn elixir_dcp:app
 ```
+
 
 ## Configure and run nginx 
 ```bash
 sudo mkdir /etc/nginx/conf.d  (if it does not already exist)
-sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-nginx.conf /etc/nginx/conf.d/elixir-dcp-nginx.conf
+sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-nginx.conf /etc:q
+/nginx/conf.d/elixir-dcp-nginx.conf
 sudo vi /etc/nginx/nginx.conf
 ```
 Change nginx.conf so that:
@@ -74,22 +75,36 @@ user elixirdcp;
         }
 ```
 
+Create self-signed certificates if they already don't exist.
+```bash
+cd /home/elixirdcp/app-src/elixir-dcp/deploy
+openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
+```
+
 Start NGINX web server
 ```bash
 sudo nginx 
 ```
 
-Start GUNICORN web application server
+## Configure and run GUNICORN web application server 
 ```bash
 sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-gunicorn.ini  /etc/supervisord.d/elixir-dcp-gunicorn.ini
 sudo systemctl start supervisord
+sudo supervisorctl start gunicorn
 ```
 Fix needed for file uploads to work
-
+```bash
 sudo chown -R elixirdcp.elixirdcp /var/lib/nginx
+```
 
-Go to:  http://elixir-dcp.lcsb.uni.lu  to check if it works
+Go to:  https://elixir-dcp.lcsb.uni.lu  to check if it works
 
+
+Initialize the database to add the admin user and basic lookup values.
+
+```bash
+./manage.py init_db
+```
 
 ## For Maintenance and Updates
 ```bash
