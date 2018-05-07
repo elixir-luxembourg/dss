@@ -14,7 +14,7 @@ import elixir_dcp.exceptions as exceptions
 from flask_oidc import OpenIDConnect
 import json
 
-__VERSION__ = "0.0.1-dev"
+__VERSION__ = "0.0.1"
 
 
 def create_application():
