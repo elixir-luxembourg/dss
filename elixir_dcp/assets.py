@@ -83,18 +83,4 @@ signup_js = Bundle(
     ),
     output='public/js/signup.min.js')
 
-jsoneditor_js = Bundle(
-    Bundle(
-        'vendor/jsoneditor/jsoneditor.js',
-        filters='closure_js'
-    ),
-    output='public/js/jsoneditor.min.js')
-
-brutusin_js = Bundle(
-    Bundle(
-        'vendor/brutusin/brutusin-json-forms.js',
-        'vendor/brutusin/brutusin-json-forms-bootstrap.js',
-        filters='closure_js'
-    ),
-    output='public/js/brutusin-json-forms.min.js')
 
