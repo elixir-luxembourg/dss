@@ -5,7 +5,7 @@ from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell, Server
 from elixir_dcp import app, db, mail
 from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, SubmissionContact, \
-    SubmissionStatusEnum, GA4GHCodes
+    SubmissionStatusEnum, GA4GHCodes, DeIdentificationType, LegalBasisType, ConsentStatus, SubmissionScope
 from elixir_dcp.models.security import User, Role
 from elixir_dcp.models.services import assign_role_to_user, register_new_user
 
@@ -32,6 +32,20 @@ def init_db():
 
     for code_triple in initial_data['ga4gh_codes']:
         db.session.add(GA4GHCodes(code=code_triple[0], name=code_triple[1], description = code_triple[2]))
+
+
+    for deid_type in initial_data['deidentification_type']:
+        db.session.add(DeIdentificationType(code=deid_type[0], label=deid_type[1]))
+
+    for lb_type in initial_data['legal_basis']:
+        db.session.add(LegalBasisType(code=lb_type[0], label=lb_type[1]))
+
+    for cons_status in initial_data['consent_status']:
+        db.session.add(ConsentStatus(code=cons_status[0], label=cons_status[1]))
+
+    for sub_scope in initial_data['submission_scope']:
+        db.session.add(SubmissionScope(code=sub_scope[0], label=sub_scope[1]))
+
     db.session.commit()
 
     sub1 = Submission(ref_name='ELX_LU_SUB-1', title='Submission of Oncotrack data', created_on=datetime.today(),

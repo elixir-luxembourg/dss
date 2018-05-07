@@ -36,9 +36,9 @@
                         {% endfor %}
                     </ul>
                 </td>
-                <td>{{ dish.de_identification_type.value }}</td>
+                <td>{{ dish.de_identification_type.label }}</td>
                 <td>{{ dish.special_subjects_status_display() }}</td>
-                <td>{{ dish.consent_status.value }}</td>
+                <td>{{ dish.consent_status.label }}</td>
                 <td>
                     <ul>
                         {% for code, name in dish.duc_codes_names() %}

@@ -46,23 +46,22 @@ class SubmissionAttachment(db.Model):
         else:
             return None
 
-
-class DeIdentificationTypeEnum(enum.Enum):
-    a = 'anonymized'
-    p = 'pseudonymized'
-
-    @classmethod
-    def choices(cls):
-        return [(choice.name, choice.value) for choice in cls]
+class DeIdentificationType(db.Model):
+    __tablename__ = 'deidentification_type'
+    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
+    label = db.Column(db.String, nullable=False)
 
 
-class ConsentStatusEnum(enum.Enum):
-    htr = 'heterogeneous'
-    hmg = 'homogeneous'
+class LegalBasisType(db.Model):
+    __tablename__ = 'legalbasis_type'
+    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
+    label = db.Column(db.String, nullable=False)
 
-    @classmethod
-    def choices(cls):
-        return [(choice.name, choice.value) for choice in cls]
+
+class ConsentStatus(db.Model):
+    __tablename__ = 'consent_status'
+    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
+    label = db.Column(db.String, nullable=False)
 
 
 class SubmissionStatusEnum(enum.Enum):
@@ -88,14 +87,11 @@ class SubmissionStatusEnum(enum.Enum):
                 self.completed: 3}.get(self)
 
 
+class SubmissionScope(db.Model):
+    __tablename__ = 'submission_scope'
+    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
+    label = db.Column(db.String, nullable=False)
 
-class SubmissionScopeEnum(enum.Enum):
-    elx = 'ELIXIR'
-    collab = 'Collaboration'
-
-    @classmethod
-    def choices(cls):
-        return [(choice.name, choice.value) for choice in cls]
 
 
 def uniqid():
@@ -112,7 +108,8 @@ class Submission(db.Model):
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
     upload_instructions = db.Column(db.String)
 
-    submission_scope = db.Column(db.Enum(SubmissionScopeEnum), nullable=False, default=SubmissionScopeEnum.collab)
+    submission_scope = db.relationship('SubmissionScope')
+    submission_scope_code = db.Column(db.String, db.ForeignKey('submission_scope.code'), nullable=False, default='e')
     collab_local_custodian_json = db.Column(db.String)
     collab_project_name = db.Column(db.String)
 
@@ -199,20 +196,25 @@ class SubmissionStudyDish(db.Model):
     study_types_json = db.Column(db.String, nullable=False)
 
     # Data
-    estimate_data_size = db.Column(db.Integer, db.ForeignKey('data_size_category.code'), nullable=False)
+    estimate_data_size_code = db.Column(db.String, db.ForeignKey('data_size_category.code'), nullable=False, default='s')
     data_types_json = db.Column(db.String, nullable=False)
     metadata_exists = db.Column(db.Boolean, nullable=False, default=True)
 
     # Ethics & Data Protection
     ethics_approval_exists = db.Column(db.Boolean, nullable=False, default=False)
+    legal_basis_sharing_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='c')
+    legal_basis_sharing = db.relationship('LegalBasisType')
+
     subjects_minors = db.Column(db.Boolean, nullable=False, default=False)
     subjects_vulnerable = db.Column(db.Boolean, nullable=False, default=False)
     subjects_unable_to_consent = db.Column(db.Boolean, nullable=False, default=False)
 
-    consent_status = db.Column(db.Enum(ConsentStatusEnum), nullable=False, default=ConsentStatusEnum.hmg)
+    consent_status = db.relationship('ConsentStatus')
+    consent_status_code = db.Column(db.String, db.ForeignKey('consent_status.code'), nullable=False, default='m')
     consent_notes = db.Column(db.String, nullable=False)
-    de_identification_type = db.Column(db.Enum(DeIdentificationTypeEnum), nullable=False,
-                                       default=DeIdentificationTypeEnum.p)
+
+    de_identification_type_code = db.Column(db.String, db.ForeignKey('deidentification_type.code'), nullable=False, default='p')
+    de_identification_type = db.relationship('DeIdentificationType')
 
     duc_codes = db.relationship("DUCCodeInstance", back_populates="study", cascade="all, delete-orphan")
 

@@ -279,7 +279,7 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(form.id.data)
         if form.validate_on_submit():
             update_submission_basic_info(submission_rec, title=form.title.data,
-                                         submission_scope=form.submission_scope.data,
+                                         submission_scope_code=form.submission_scope_code.data,
                                          collab_local_custodian_json=json.dumps(form.collab_local_custodian.data),
                                          collab_project_name=form.collab_project_name.data,
                                          upload_instructions=form.upload_instructions.data if form.upload_instructions else None,

@@ -6,8 +6,9 @@
                  data-url="{{ url_for('list_submission_contacts',sub_id=submission.id) }}">
                 {% include 'submission/_contact_columns.html' %}
             </div>
+
         {% endwith %}
-        <hr size="2px"/>
+<br/>
         <div id="contacts_inline_editor" data-url="{{ url_for('add_edit_submission_contact') }}">
             {% include 'submission/_contact_form.html' %}
         </div>

@@ -1,14 +1,16 @@
 
 {% extends "submission/_inline_editor.html" %}
 {% block inline_content %}
+
     {% with %}
         {% set dishes = submission.dishes %}
         <div id="dishes_inline_list"
-             data-url="{{ url_for('list_submission_dishes',sub_id=submission.id) }}">
+             data-url="{{ url_for('list_submission_dishes',sub_id=submission.id) }}" >
             {% include 'submission/_dish_columns.html' %}
         </div>
     {% endwith %}
-    <hr size="2px"/>
+<br/>
+<br/>
     <div id="dishes_inline_editor" data-url="{{ url_for('add_edit_submission_dish') }}">
         {% include 'submission/_dish_form.html' %}
     </div>

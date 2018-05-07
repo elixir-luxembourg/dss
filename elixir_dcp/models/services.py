@@ -161,7 +161,7 @@ def update_submission_basic_info(submission: Submission, **kwargs):
 
 
     submission.title = kwargs.pop('title')
-    submission.submission_scope =kwargs.pop('submission_scope')
+    submission.submission_scope_code =kwargs.pop('submission_scope_code')
     submission.collab_local_custodian_json=kwargs.pop('collab_local_custodian_json')
     submission.collab_project_name=kwargs.pop('collab_project_name')
 

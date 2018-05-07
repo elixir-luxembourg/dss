@@ -1,16 +1,14 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField, SelectMultipleField, \
-    FormField, FieldList, IntegerField
+    FormField, FieldList
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Email, Regexp, Length
-from wtforms.widgets import html_params, HTMLString, Select
 
 from .validators import OptionalFieldValidator
-from elixir_dcp.models.submission import ConsentStatusEnum, ContactType, DataSizeCategory, DeIdentificationTypeEnum, \
-    GA4GHCodes, DUCCodeInstance, SubmissionScopeEnum
+from elixir_dcp.models.submission import  ContactType,  GA4GHCodes, DUCCodeInstance
 from elixir_dcp.models.security import User
 from elixir_dcp import app
-import re
+
 
 
 class AttachmentForm(FlaskForm):
@@ -59,11 +57,10 @@ class ContactForm(FlaskForm):
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")],
                        render_kw={"placeholder": "Institutional e-mail"})
 
-    institution = StringField('Institution', validators=[DataRequired(), Regexp('^[\w\s\(\)-]+$',
+    institution = StringField('Institution', validators=[DataRequired(), Regexp('^[\w\s\(\)\-]+$',
                                                                                 message="Can only contain letters, digits, underscore, dash and parantheses."),
                                                          Length(min=2, max=40,
                                                                 message="Must be 2 to 40 characters long.")])
-
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
@@ -79,13 +76,16 @@ class UploadInfoForm(FlaskForm):
     """
     id = HiddenField('SubmissionUploadInfo_Id')
     submission_id = HiddenField('Submission Id')
-    file_name = StringField('Name', description="Please specify the name of the file that has been uploaded.", validators=[DataRequired(), Regexp('^[\w\s]+$',
-                                                                       message="Can only contain letters, digits and underscore.."),
-                                                Length(min=5, max=40,
-                                                       message="Must be 5 to 40 characters long.")],
+    file_name = StringField('Name', description="Please specify the name of the file that has been uploaded.",
+                            validators=[DataRequired(), Regexp('^[\w\s]+$',
+                                                               message="Can only contain letters, digits and underscore.."),
+                                        Length(min=5, max=40,
+                                               message="Must be 5 to 40 characters long.")],
                             render_kw={"placeholder": "Only the name of the file without folder information."})
-    md5_checksum_at_provider = StringField('File Checksum', description="Please specify the md5 checksum at your side. This information will be used by us to verify that the file has been transmitted without errors.", validators=[DataRequired(), Regexp('^[0-9]+$',
-                                                                                               message="Can only contain digits.")],
+    md5_checksum_at_provider = StringField('File Checksum',
+                                           description="Please specify the md5 checksum at your side. This information will be used by us to verify that the file has been transmitted without errors.",
+                                           validators=[DataRequired(), Regexp('^[0-9]+$',
+                                                                              message="Can only contain digits.")],
                                            render_kw={"placeholder": "32 Characters checksum."})
 
     def __init__(self, *args, **kwargs):
@@ -99,7 +99,7 @@ class UseConditionCodeForm(FlaskForm):
     Form for creating an instance of a Ga4GH code to be included in a DUC group
     """
     ga4gh_code = SelectField('GA4GH Code')
-    note = TextAreaField('Note', validators=[OptionalFieldValidator(regex_str='^[\w\s,-.]+$',
+    note = TextAreaField('Note', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                     message="Can only contain letters, digits, dash, comma and dot.")])
 
     def __init__(self, *args, **kwargs):
@@ -116,8 +116,8 @@ class SubmissionForm(FlaskForm):
     id = HiddenField('Submission_Id')
 
     title = StringField('Title', validators=[DataRequired(),
-                                             Regexp('^[\w\s]+$',
-                                                    message="Title must contain only letters, digits or underscore"),
+                                             Regexp('^[\w\s\-]+$',
+                                                    message="Title must contain only letters, digits, underscore or dash"),
                                              Length(min=15, max=75,
                                                     message="Title must be between 15 & 75 characters")])
 
@@ -125,7 +125,7 @@ class SubmissionForm(FlaskForm):
 
     provider_user_ids = SelectMultipleField('Data Provider(s)', coerce=int)
 
-    submission_scope = SelectField('Category', choices=SubmissionScopeEnum.choices(), validators=[DataRequired()])
+    submission_scope_code = SelectField('Category',  validators=[DataRequired()])
 
     collab_local_custodian = SelectMultipleField('Recipient PI(s)', validators=[DataRequired()])
 
@@ -135,6 +135,7 @@ class SubmissionForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in User.query.all()]
+        self.submission_scope_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['submission_scope']]
         self.collab_local_custodian.choices = [(c, c) for c in app.config.get('DATA_INIT')['collab_pis']]
 
 
@@ -145,27 +146,41 @@ class StudyDishForm(FlaskForm):
     # Study
     id = HiddenField('DISH_Id')
     submission_id = HiddenField('Submission Id')
-    study_name = StringField('Study Name', validators=[DataRequired()])
-    study_description = TextAreaField('Study Description', description="Please provide a short description of the study.", render_kw={'rows': 3}, validators=[OptionalFieldValidator(regex_str='^[\w\s,-.]+$',
-                                                                                                                                                                                     message="Can only contain letters, digits, dash, comma and dot.")])
+    study_name = StringField('Study Name', validators=[DataRequired(),  Regexp('^[\w\s\-]+$',
+                                                                               message="Name must contain only letters, digits, underscore or dash")])
+    study_description = TextAreaField('Study Description',
+                                      description="Please provide a short description of the study.",
+                                      render_kw={'rows': 3},
+                                      validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                         message="Can only contain letters, digits, dash, comma and dot.")])
     study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
                                       description="Please select the categories that would best characterise the study within which the data has been collected.")
 
     # Data
-    estimate_data_size = SelectField('Estimated Total Data Size', description="Please select the estimated size of the dataset that will be subnmitted for this study.", validators=[DataRequired()])
+    estimate_data_size_code = SelectField('Estimated Total Data Size',
+                                     description="Please select the estimated size of the dataset that will be subnmitted for this study.",
+                                     validators=[DataRequired()])
 
-    data_types = SelectMultipleField('Data Type(s)', description="Please select the categories that would best characterise the types of data within this dataset.", validators=[DataRequired()])
-    metadata_exists = BooleanField('Metadata Provided', description="Confirmation of whether metadata will be uploaded alongside data. As a minimum we would expect a Data Dictionary to be supplied alongside data.", default=True)
+    data_types = SelectMultipleField('Data Type(s)',
+                                     description="Please select the categories that would best characterise the types of data within this dataset.",
+                                     validators=[DataRequired()])
+    metadata_exists = BooleanField('Metadata Provided',
+                                   description="Confirmation of whether metadata will be uploaded alongside data. As a minimum we would expect a Data Dictionary to be supplied alongside data.",
+                                   default=True)
 
     # Ethics & Data Protection
-    ethics_approval_exists = BooleanField('Ethics Approval Exists', description="Your confirmation that an ethics approval exists for the study in which the data hasbeen collected/generated.", default=False)
+    ethics_approval_exists = BooleanField('Ethics Approval Exists',
+                                          description="Confirmation that an ethics approval exists for the data collection, sharing and the purposes for which the data is shared.",
+                                          default=False)
+
+    legal_basis_sharing_code = SelectField('Legal Basis of Data Sharing',  validators=[DataRequired()])
     subjects_minors = BooleanField('Subjects Minors', default=False)
     subjects_vulnerable = BooleanField('Subjects Those Unable to Consent', default=False)
     subjects_unable_to_consent = BooleanField('Other Vulnerable Subjects', default=False)
 
-    consent_status = SelectField('Consent Status', choices=ConsentStatusEnum.choices())
+    consent_status_code = SelectField('Consent Status', validators=[DataRequired()])
     consent_notes = TextAreaField('Notes on Consent', render_kw={'rows': 3})
-    de_identification_type = SelectField('De-Identification Type', choices=DeIdentificationTypeEnum.choices())
+    de_identification_type_code = SelectField('De-Identification Type', validators=[DataRequired()])
 
     duc_codes = FieldList \
         (FormField(UseConditionCodeForm, default=lambda: DUCCodeInstance()), min_entries=1,
@@ -175,6 +190,9 @@ class StudyDishForm(FlaskForm):
         FlaskForm.__init__(self, *args, **kwargs)
         if 'sub_id' in kwargs:
             self.submission_id.data = kwargs['sub_id']
-        self.estimate_data_size.choices = [(c.code, c.label) for c in DataSizeCategory.query.all()]
+        self.estimate_data_size_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['size_categories']]
+        self.legal_basis_sharing_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['legal_basis']]
+        self.consent_status_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['consent_status']]
+        self.de_identification_type_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['deidentification_type']]
         self.data_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['data_types']]
         self.study_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['study_types']]

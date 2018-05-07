@@ -78,7 +78,7 @@
                   action="{{ url_for('edit_submission',sub_id=submsn_form.id.data) }}">
                 {{ submsn_form.hidden_tag() }}
                 {{ fmacros.render_field_with_errors(submsn_form.title) }}
-                {{ fmacros.render_field_with_errors(submsn_form.submission_scope, div_col_class="col-md-2",
+                {{ fmacros.render_field_with_errors(submsn_form.submission_scope_code, div_col_class="col-md-2",
                 clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.collab_local_custodian, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.collab_project_name) }}

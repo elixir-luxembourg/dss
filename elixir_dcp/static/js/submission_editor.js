@@ -23,6 +23,12 @@ $(document).ready(function () {
 
     var VALIDATION_ERROR = "BAD REQUEST";
 
+
+    function scroll_to_top(){
+        $("html, body").animate({ scrollTop: 0 }, "slow");
+        return false;
+
+    }
     function bind_widgets() {
 
         $('[data-toggle="popover"]').popover();
@@ -192,8 +198,9 @@ $(document).ready(function () {
             success: function (result) {
                 refresh_bean_list("contacts");
                 $("#contacts_inline_editor").html(result);
-                bind_widgets();
                 displayInlineSuccess("Submission Contact saved");
+                bind_widgets();
+                scroll_to_top();
             },
             error: function (xhr, status, error) {
                 if (error === VALIDATION_ERROR) {
@@ -254,6 +261,7 @@ $(document).ready(function () {
                 refresh_bean_list("attachments");
                 $("#attachments_inline_editor").html(result);
                 displayInlineSuccess("Attachment saved");
+                scroll_to_top();
             },
             error: function (xhr, status, error) {
                 if (error === VALIDATION_ERROR) {
@@ -290,6 +298,7 @@ $(document).ready(function () {
                 $("#dishes_inline_editor").html(result);
                 displayInlineSuccess("Study saved");
                 bind_widgets();
+                scroll_to_top();
             },
             error: function (xhr, status, error) {
                 if (error === VALIDATION_ERROR) {
@@ -347,6 +356,7 @@ $(document).ready(function () {
                 refresh_bean_list("uploadinfos");
                 $("#uploadinfos_inline_editor").html(result);
                 displayInlineSuccess("Upload Checksum saved");
+                scroll_to_top();
             },
             error: function (xhr, status, error) {
                 if (error === VALIDATION_ERROR) {

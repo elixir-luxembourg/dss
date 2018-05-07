@@ -12,13 +12,14 @@
                 {{ fmacros.render_field_with_errors(dish_form.study_description) }}
                 {{ fmacros.render_field_with_errors(dish_form.study_types, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(dish_form.ethics_approval_exists) }}
+                {{ fmacros.render_field_with_errors(dish_form.legal_basis_sharing_code, div_col_class="col-md-2", clazz="elx-select") }}
             </fieldset>
             <div class="form-group row">
             </div>
 
             <fieldset>
                 <legend>Data</legend>
-                {{ fmacros.render_field_with_errors(dish_form.estimate_data_size, div_col_class="col-md-2",
+                {{ fmacros.render_field_with_errors(dish_form.estimate_data_size_code, div_col_class="col-md-2",
                 clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dish_form.data_types, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(dish_form.metadata_exists) }}
@@ -53,10 +54,10 @@
                 </div>
 
 
-                {{ fmacros.render_field_with_errors(dish_form.consent_status, div_col_class="col-md-2",
+                {{ fmacros.render_field_with_errors(dish_form.consent_status_code, div_col_class="col-md-2",
                 clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dish_form.consent_notes) }}
-                {{ fmacros.render_field_with_errors(dish_form.de_identification_type, div_col_class="col-md-2",
+                {{ fmacros.render_field_with_errors(dish_form.de_identification_type_code, div_col_class="col-md-2",
                 clazz="elx-select") }}
             </fieldset>
             <div class="form-group row">
