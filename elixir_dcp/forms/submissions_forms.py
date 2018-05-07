@@ -172,7 +172,7 @@ class StudyDishForm(FlaskForm):
     ethics_approval_exists = BooleanField('Ethics Approval Exists',
                                           description="Confirmation that an ethics approval exists for the data collection, sharing and the purposes for which the data is shared.",
                                           default=False)
-
+    legal_basis_collection_code = SelectField('Legal Basis of Data Collection',  validators=[DataRequired()])
     legal_basis_sharing_code = SelectField('Legal Basis of Data Sharing',  validators=[DataRequired()])
     subjects_minors = BooleanField('Subjects Minors', default=False)
     subjects_vulnerable = BooleanField('Subjects Those Unable to Consent', default=False)
@@ -192,6 +192,7 @@ class StudyDishForm(FlaskForm):
             self.submission_id.data = kwargs['sub_id']
         self.estimate_data_size_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['size_categories']]
         self.legal_basis_sharing_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['legal_basis']]
+        self.legal_basis_collection_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['legal_basis']]
         self.consent_status_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['consent_status']]
         self.de_identification_type_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['deidentification_type']]
         self.data_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['data_types']]

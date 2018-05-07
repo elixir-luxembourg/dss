@@ -122,6 +122,7 @@ $(document).ready(function () {
     $("#submission_commands_bar").on('click', 'a[name="button_submission_editor_steer"]', function () {
         var endpoint = $(this).attr('data-url');
         confirmDialog("steer this Submission to next state").done(function () {
+            $("#submission-command-dialog").attr("disabled", true);
             $.ajax({
                 url: endpoint,
                 type: "get",
@@ -139,6 +140,7 @@ $(document).ready(function () {
     $("#submission_commands_bar").on('click', 'a[name="button_submission_editor_revert"]', function () {
         var endpoint = $(this).attr('data-url');
         confirmDialog("revert this Submission to its previous state").done(function () {
+            $("#submission-command-dialog").attr("disabled", true);
             $.ajax({
                 url: endpoint,
                 type: "get",

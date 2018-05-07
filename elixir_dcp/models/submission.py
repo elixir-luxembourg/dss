@@ -203,7 +203,9 @@ class SubmissionStudyDish(db.Model):
     # Ethics & Data Protection
     ethics_approval_exists = db.Column(db.Boolean, nullable=False, default=False)
     legal_basis_sharing_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='c')
-    legal_basis_sharing = db.relationship('LegalBasisType')
+    legal_basis_sharing = db.relationship('LegalBasisType', foreign_keys=[legal_basis_sharing_code])
+    legal_basis_collection_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='c')
+    legal_basis_collection = db.relationship('LegalBasisType',  foreign_keys=[legal_basis_collection_code])
 
     subjects_minors = db.Column(db.Boolean, nullable=False, default=False)
     subjects_vulnerable = db.Column(db.Boolean, nullable=False, default=False)
