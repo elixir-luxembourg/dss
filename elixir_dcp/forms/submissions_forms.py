@@ -77,8 +77,8 @@ class UploadInfoForm(FlaskForm):
     id = HiddenField('SubmissionUploadInfo_Id')
     submission_id = HiddenField('Submission Id')
     file_name = StringField('Name', description="Please specify the name of the file that has been uploaded.",
-                            validators=[DataRequired(), Regexp('^[\w\s]+$',
-                                                               message="Can only contain letters, digits and underscore.."),
+                            validators=[DataRequired(), Regexp('^[\w\s\-.]+$',
+                                                               message="Can only contain letters, digits and underscore."),
                                         Length(min=5, max=40,
                                                message="Must be 5 to 40 characters long.")],
                             render_kw={"placeholder": "Only the name of the file without folder information."})
