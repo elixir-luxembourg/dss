@@ -14,8 +14,6 @@ select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/sele
 select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
 
 
-brutusin_css = Bundle('vendor/brutusin/brutusin-json-forms.css')
-
 common_css = Bundle(
     'vendor/node_modules/bootstrap/dist/css/bootstrap.css',
     'vendor/node_modules/bootstrap-material-design/dist/css/ripples.css',
