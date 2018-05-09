@@ -55,6 +55,10 @@
     {% assets "common_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
+    {% assets "cookiebanner_js" %}
+        <script type="text/javascript" id="cookiebanner" data-height="64px" data-message="This site uses cookies in order to remember your login information. By continuing to visit this site you agree to our use of cookies."
+                src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 {% endblock %}
 </body>
 </html>
