@@ -282,11 +282,11 @@ def edit_submission(sub_id):
                                          submission_scope_code=form.submission_scope_code.data,
                                          collab_local_custodian_json=json.dumps(form.collab_local_custodian.data),
                                          collab_project_name=form.collab_project_name.data,
-                                         upload_instructions=form.upload_instructions.data if form.upload_instructions else None,
-                                         provider_user_ids=form.provider_user_ids.data if form.provider_user_ids else None)
+                                         upload_instructions=form.upload_instructions.data if request.form.get('upload_instructions') else None,
+                                         provider_user_ids=form.provider_user_ids.data if request.form.get('provider_user_ids') else None)
 
             flash('Submission updated', 'success')
-            return redirect(url_for('list_submissions'))
+            return redirect(url_for('edit_submission', sub_id=submission_rec.id))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/submission.html', submsn_form=form, submission=submission_rec)

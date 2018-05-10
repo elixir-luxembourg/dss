@@ -169,28 +169,28 @@ def update_submission_basic_info(submission: Submission, **kwargs):
     submission.upload_instructions = new_instructions
     db.session.add(submission)
     db.session.commit()
+    if new_shared_user_ids is not None:
+        for user_id in new_shared_user_ids:
+            if not has_access(user_id, submission.id):
+                new_access = SubmissionAccess()
+                new_access.submission_id = submission.id
+                new_access.user_id = user_id
+                new_access.access_granted_on = datetime.now()
+                db.session.add(new_access)
+                db.session.commit()
 
-    for user_id in new_shared_user_ids:
-        if not has_access(user_id, submission.id):
-            new_access = SubmissionAccess()
-            new_access.submission_id = submission.id
-            new_access.user_id = user_id
-            new_access.access_granted_on = datetime.now()
-            db.session.add(new_access)
-            db.session.commit()
+                if submission.is_in_progress():
+                    send_submission_steer_step1_notification(submission)
+                    usr = User.query.filter_by(id=user_id).one_or_none()
+                    flash('Submission shared with %s' % usr.display_name(), 'info')
 
-            if submission.is_in_progress():
-                send_submission_steer_step1_notification(submission)
-                usr = User.query.filter_by(id=user_id).one_or_none()
-                flash('Submission shared with %s' % usr.display_name(), 'info')
-
-    revoked_acesses = db.session.query(SubmissionAccess).filter(and_(SubmissionAccess.submission_id == submission.id,
-                                                                     SubmissionAccess.user_id.notin_(
-                                                                         new_shared_user_ids)))
-    if revoked_acesses is not None:
-        for rev_acc in revoked_acesses:
-            db.session.delete(rev_acc)
-            db.session.commit()
+        revoked_acesses = db.session.query(SubmissionAccess).filter(and_(SubmissionAccess.submission_id == submission.id,
+                                                                         SubmissionAccess.user_id.notin_(
+                                                                             new_shared_user_ids)))
+        if revoked_acesses is not None:
+            for rev_acc in revoked_acesses:
+                db.session.delete(rev_acc)
+                db.session.commit()
 
     any_instruction_changes = not equal_long_strings(existing_instructions, new_instructions)
     if any_instruction_changes and submission.is_in_progress():
