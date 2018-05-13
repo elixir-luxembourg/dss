@@ -2,13 +2,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>{{ config.get('TITLE', 'ELIXIR-DCP Home') }} - {% block title %}Home{% endblock %}</title>
+    <title>{{ config.get('TITLE', 'ELIXIR-LU Data Submission System') }} - {% block title %}Home{% endblock %}</title>
     {% block meta %}
         <meta http-equiv="content-type" content="text/html; charset=utf-8">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
     {% endblock %}
-    {#    <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">#}
+    <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">
     {% block css %}
         {% assets "common_css" %}
             <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>

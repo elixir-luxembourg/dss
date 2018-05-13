@@ -4,7 +4,7 @@ from elixir_dcp.scripts.db import START_UP_DATA
 class Config(object):
 
     # name of the application
-    TITLE = 'ELIXIR Data and Computation Platform'
+    TITLE = 'ELIXIR-LU Data Submission System'
     SECRET_KEY = b'deneme'
     SQLALCHEMY_DATABASE_URI = "sqlite:////home/elixirdcp/app-data/elixir-dcp.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False

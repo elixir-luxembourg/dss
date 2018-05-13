@@ -84,8 +84,8 @@ class UploadInfoForm(FlaskForm):
                             render_kw={"placeholder": "Only the name of the file without folder information."})
     md5_checksum_at_provider = StringField('File Checksum',
                                            description="Please specify the md5 checksum at your side. This information will be used by us to verify that the file has been transmitted without errors.",
-                                           validators=[DataRequired(), Regexp('^[0-9]+$',
-                                                                              message="Can only contain digits.")],
+                                           validators=[DataRequired(), Regexp('^[\w]+$',
+                                                                              message="Can only letters and digits.")],
                                            render_kw={"placeholder": "32 Characters checksum."})
 
     def __init__(self, *args, **kwargs):
