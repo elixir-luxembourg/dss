@@ -13,12 +13,16 @@ import elixir_dcp.assets as assets
 import elixir_dcp.exceptions as exceptions
 from flask_oidc import OpenIDConnect
 import json
+from flask_wkhtmltopdf import Wkhtmltopdf
 
 __VERSION__ = "0.0.1-dev"
 
 
 def create_application():
     new_app = Flask(__name__)
+    wkhtmltopdf = Wkhtmltopdf(new_app)
+    new_app.config['WKHTMLTOPDF_USE_CELERY '] = True
+
     env = os.environ.get('ELIXIR_DCP_ENV', 'dev')  # will default to dev env if no var exported
     new_app.config.from_object('elixir_dcp.settings.%sConfig' % env.capitalize())
     new_app.config['ENV'] = env
@@ -129,4 +133,5 @@ from . import controllers
 __all__ = [controllers, assets, app, db, exceptions, oidc, mail]
 
 if __name__ == '__main__':
-    app.run()
+    app.jinja_env.auto_reload = True
+    app.run(debug=True, use_reloader=True)

@@ -187,6 +187,9 @@ class DUCCodeInstance(db.Model):
     study_id = db.Column(db.Integer, db.ForeignKey('submission_dishes.id'), nullable=False)
     study = db.relationship("SubmissionStudyDish", back_populates="duc_codes")
 
+    def get_duc_codes_name(self, ga4gh_code):
+        ga4gh_code_name =  GA4GHCodes.query.filter_by(code=ga4gh_code).one_or_none().name
+        return ga4gh_code_name
 
 class SubmissionStudyDish(db.Model):
     __tablename__ = 'submission_dishes'
@@ -238,6 +241,8 @@ class SubmissionStudyDish(db.Model):
                 result.append((duc_code_instance.ga4gh_code,
                                GA4GHCodes.query.filter_by(code=duc_code_instance.ga4gh_code).one_or_none().name))
         return result
+
+
 
     def special_subjects_status_display(self):
         if self.subjects_unable_to_consent or self.subjects_vulnerable or self.subjects_minors:

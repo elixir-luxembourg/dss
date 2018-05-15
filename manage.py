@@ -48,17 +48,18 @@ def init_db():
     db.session.add(sub2)
     db.session.commit()
 
-    u1 = User(first_name='P\u0131nar', last_name='Alper',
-              elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org', email='pinar.alper@uni.lu',
+    u1 = User(first_name='Kavita', last_name='Rege',
+              elixir_sub_id='0a5006e96e96c8b9481af9a16034aebe7dc7c9c5@elixir-europe.org', email='kavita.rege@uni.lu',
               institution='University of Luxembourg',
-              phone_no='+352123456789')
+              phone_no='3524666449647')
     register_new_user(u1)
     assign_role_to_user(u1, 'admin')
+    assign_role_to_user(u1, 'data_provider')
 
     # u2 = User(first_name='Pinar2', last_name='Alper2',
-    #           elixir_sub_id='a2ba8f4043649f46c91b895e8568d8b96d985284@elixir-europe.org',
-    #           email='pinarpink@googlemail.com', institution='University of Manchester',
-    #           phone_no='+44123456789')
+    #            elixir_sub_id='a2ba8f4043649f46c91b895e8568d8b96d985284@elixir-europe.org',
+    #            email='pinarpink@googlemail.com', institution='University of Manchester',
+    #            phone_no='+44123456789')
     # register_new_user(u2)
     # assign_role_to_user(u2, 'data_provider')
 
