@@ -81,6 +81,10 @@ def logout():
     flash('You have logged out of ELIXIR DCP.', 'success')
     return render_template('home.html')
 
+@app.after_request
+def disable_caching(response):
+    response.headers["Cache-Control"] = "no-cache"
+    return response
 
 @app.route('/oidc_login', methods=['GET', 'POST'])
 @oidc.require_login
