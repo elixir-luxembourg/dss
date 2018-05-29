@@ -23,21 +23,6 @@ def app_authorization(**options):
 
     return wrapper
 
-
-def submission_access_check(current_user):
-    def wrapper(func):
-        @wraps(func)
-        def decorated_subaccess(*args, **kwargs):
-            print("current_user", current_user.get_id())
-            if not has_access(user_id=current_user.get_id(), submission_id=kwargs['sub_id']):
-                return render_template('error.html', message="Error 403 - Unauthorized", show_home_link=True), 403
-            return func(*args, **kwargs)
-
-        return decorated_subaccess
-
-    return wrapper
-
-
 from . import errors
 from . import web_controllers
 from ..models.services import has_access

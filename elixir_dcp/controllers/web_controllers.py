@@ -21,7 +21,7 @@ import json
 import pdfkit
 from elixir_dcp import app, db, oidc
 from werkzeug.utils import secure_filename
-from . import app_authorization, submission_access_check
+from . import app_authorization
 from .utils import get_names_from_oidc
 
 __author__ = 'Pinar Alper'
@@ -266,7 +266,6 @@ def create_submission():
 
 @app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'])
-@submission_access_check(current_user=current_user)
 def edit_submission(sub_id):
     app.logger.info('INFO: Edit submission SUB-ID: %s', sub_id)
     if request.method == 'GET':
