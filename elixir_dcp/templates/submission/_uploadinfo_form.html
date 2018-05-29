@@ -2,7 +2,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">{% if uploadinfo_form.id.data %}Update  {% else %}Add New {% endif %}File Checksum</div>
     <div class="panel-body">
-        <form id="form_submission_uploadinfo">
+        <form id="form_submission_uploadinfo" {% if uploadinfo_form.id.data %} data-url="{{ url_for('edit_submission_uploadinfo', uploadinfo_id = uploadinfo_form.id.data)}}"  {% else %} data-url="{{ url_for('add_submission_uploadinfo', sub_id=uploadinfo_form.submission_id.data)}}" {% endif %}>
             {{ uploadinfo_form.hidden_tag() }}
             {{ fmacros.render_field_with_errors(uploadinfo_form.file_name) }}
             {{ fmacros.render_field_with_errors(uploadinfo_form.md5_checksum_at_provider) }}

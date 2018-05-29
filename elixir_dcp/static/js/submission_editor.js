@@ -191,10 +191,8 @@ $(document).ready(function () {
 
     $("#contacts_inline_editor").on('click', 'a#submission_contact_save', function () {
 
-        var id = $('#form_submission_contact').find("#id").val();
-        var base_url = $('#contacts_inline_editor').attr('data-url');
         $.ajax({
-            url: "".concat(base_url, (id.length > 0) ? "/" + id : ""),
+            url: $('#form_submission_contact').attr('data-url'),
             type: 'post',
             data: $('#form_submission_contact').serialize(),
             success: function (result) {
@@ -252,7 +250,7 @@ $(document).ready(function () {
 
         var formData = new FormData($("#form_submission_attachment")[0]);
         $.ajax({
-            url: $('#attachments_inline_editor').attr('data-url'),
+            url: $('#form_submission_attachment').attr('data-url'),
             type: 'post',
             cache: false,
             contentType: false,
@@ -289,10 +287,8 @@ $(document).ready(function () {
 
     $("#dishes_inline_editor").on('click', 'a#submission_dish_save', function () {
 
-        var id = $('#form_submission_dish').find("#id").val();
-        var base_url = $('#dishes_inline_editor').attr('data-url');
         $.ajax({
-            url: "".concat(base_url, (id.length > 0) ? "/" + id : ""),
+            url: $('#form_submission_dish').attr('data-url'),
             type: 'post',
             data: $('#form_submission_dish').serialize(),
             success: function (result) {
@@ -348,10 +344,8 @@ $(document).ready(function () {
 
     $("#uploadinfos_inline_editor").on('click', 'a#submission_uploadinfo_save', function () {
 
-        var id = $('#form_submission_uploadinfo').find("#id").val();
-        var base_url = $('#uploadinfos_inline_editor').attr('data-url');
         $.ajax({
-            url: "".concat(base_url, (id.length > 0) ? "/" + id : ""),
+            url: $('#form_submission_uploadinfo').attr('data-url'),
             type: 'post',
             data: $('#form_submission_uploadinfo').serialize(),
             success: function (result) {

@@ -2,7 +2,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">Add New Attachment</div>
     <div class="panel-body">
-        <form id="form_submission_attachment" enctype="multipart/form-data">
+        <form id="form_submission_attachment" enctype="multipart/form-data"  data-url="{{ url_for('add_submission_attachment', sub_id=attachment_form.submission_id.data)}}">
             {{ attachment_form.hidden_tag() }}
             {{ fmacros.render_field_with_errors(attachment_form.note) }}
             <div>

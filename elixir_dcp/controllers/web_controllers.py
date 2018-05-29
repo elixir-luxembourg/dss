@@ -247,11 +247,8 @@ def list_my_submissions():
 
 
 @app.route('/submission/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def get_submission(sub_id):
-    #
-    # We need to check here whether the user in the provider role has access to this submission
-    #
     submission_rec = Submission.query.get_or_404(sub_id)
     app.logger.info('INFO: Get submission SUB-ID: %s', sub_id)
     return render_template('submission/viewer.html', submission=submission_rec)
@@ -267,7 +264,7 @@ def create_submission():
 
 
 @app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def edit_submission(sub_id):
     app.logger.info('INFO: Edit submission SUB-ID: %s', sub_id)
     if request.method == 'GET':
@@ -302,7 +299,7 @@ def edit_submission(sub_id):
 
 
 @app.route('/submission_contacts_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def inline_submission_contacts(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_contacts.html', submission=submission_rec,
@@ -312,20 +309,30 @@ def inline_submission_contacts(sub_id):
 
 
 @app.route('/submission_contacts/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def list_submission_contacts(sub_id):
     contacts = SubmissionContact.query.filter_by(submission_id=sub_id)
     return render_template('submission/_contact_columns.html', contacts=contacts)
 
+@app.route('/submission_contact_add/<int:sub_id>', methods=['POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+def add_submission_contact(sub_id):
+    posted_form = forms.ContactForm(request.form)
+    if posted_form.validate_on_submit() and (int(posted_form.submission_id.data) == sub_id):
+        contact_rec = SubmissionContact()
+        posted_form.populate_obj(contact_rec)
+        contact_rec.id = None
+        db.session.add(contact_rec)
+        db.session.commit()
+        return render_template('submission/_contact_form.html', contact_form=forms.ContactForm(formdata=None,
+                                                                                           obj=None,
+                                                                                            sub_id=sub_id)), 200
+    else:
+        return render_template('submission/_contact_form.html', contact_form=posted_form), 400
 
 @app.route('/submission_contact/<int:contact_id>', methods=['GET', 'POST'])
-@app.route('/submission_contact', methods=['POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
-def add_edit_submission_contact(contact_id=None):
-    if contact_id is None:
-        mode = 'create'
-    else:
-        mode = 'edit'
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionContact', 'entity_id_key':'contact_id', 'entity_ac_attribute':'submission_id'})
+def edit_submission_contact(contact_id):
     if request.method == 'GET':
         contact_rec = SubmissionContact.query.get_or_404(contact_id)
         result_form = forms.ContactForm(obj=contact_rec)
@@ -333,17 +340,10 @@ def add_edit_submission_contact(contact_id=None):
     elif request.method == 'POST':
         posted_form = forms.ContactForm(request.form)
         if posted_form.validate_on_submit():
-            if mode == 'edit':
-                contact_rec = SubmissionContact.query.get_or_404(contact_id)
-                posted_form.populate_obj(contact_rec)
-            else:
-                contact_rec = SubmissionContact()
-                posted_form.populate_obj(contact_rec)
-                contact_rec.id = None
+            contact_rec = SubmissionContact.query.get_or_404(contact_id)
+            posted_form.populate_obj(contact_rec)
             db.session.add(contact_rec)
             db.session.commit()
-            # msg = "updated" if mode == 'create' else "added"
-            # flash("Submission Contact {}.".format(msg), "success")
 
             sid = posted_form.submission_id.data
 
@@ -351,17 +351,15 @@ def add_edit_submission_contact(contact_id=None):
                                                                                                    obj=None,
                                                                                                    sub_id=sid)), 200
         else:
-            # flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_contact_form.html', contact_form=posted_form), 400
 
 
 @app.route('/submission_contact/<int:contact_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionContact', 'entity_id_key':'contact_id', 'entity_ac_attribute':'submission_id'})
 def delete_submission_contact(contact_id):
     submission_contact = SubmissionContact.query.get_or_404(contact_id)
     db.session.delete(submission_contact)
     db.session.commit()
-    # flash("Submission Contact deleted", "info")
     return "", 204
 
 
@@ -371,7 +369,7 @@ def delete_submission_contact(contact_id):
 
 
 @app.route('/submission_attachments_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def inline_submission_attachments(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_attachments.html', submission=submission_rec,
@@ -381,7 +379,7 @@ def inline_submission_attachments(sub_id):
 
 
 @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def list_submission_attachments(sub_id):
     attachments = SubmissionAttachment.query.filter_by(submission_id=sub_id)
     return render_template('submission/_attachment_columns.html', attachments=attachments)
@@ -393,9 +391,9 @@ def is_allowed_type(filename):
            filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 
-@app.route('/submission_attachment', methods=['POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
-def add_submission_attachment():
+@app.route('/submission_attachment_add/<int:sub_id>', methods=['POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+def add_submission_attachment(sub_id):
     form = forms.AttachmentForm(request.form)
     file_validation = True
     form_validation = form.validate_on_submit()
@@ -411,8 +409,7 @@ def add_submission_attachment():
             file_validation = False
             form.file_attachments.errors.append(
                 'File {} is not of allowed type. Only TXT, PDF and PNG files can be uploaded.'.format(file.filename))
-    if (not file_validation) or (not form_validation):
-        # flash("Please check the validity of your input in highlighted fields.", "error")
+    if (not file_validation) or (not form_validation) or (sub_id != int(form.submission_id.data)):
         return render_template('submission/_attachment_form.html', attachment_form=form), 400
     else:
         attachments_folder = str(uuid.uuid4())
@@ -429,7 +426,6 @@ def add_submission_attachment():
             file.save(os.path.join(path_on_server, secured_file_name))
         db.session.add(attachment)
         db.session.commit()
-        # flash("Submission Attachment(s) added", "success")
         sid = form.submission_id.data
         return render_template('submission/_attachment_form.html', attachment_form=forms.AttachmentForm(formdata=None,
                                                                                                         obj=None,
@@ -437,14 +433,13 @@ def add_submission_attachment():
 
 
 @app.route('/submission_attachment/<int:attach_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionAttachment', 'entity_id_key':'attach_id', 'entity_ac_attribute':'submission_id'})
 def delete_submission_attachment(attach_id):
     submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
     path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], submission_attachment.folder_name)
     shutil.rmtree(path_on_server)
     db.session.delete(submission_attachment)
     db.session.commit()
-    # flash("Submission Attachment deleted", "success")
     return "", 204
 
 
@@ -454,7 +449,7 @@ def delete_submission_attachment(attach_id):
 
 
 @app.route('/submission_dishes_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def inline_submission_dishes(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_dishes.html', submission=submission_rec,
@@ -464,20 +459,37 @@ def inline_submission_dishes(sub_id):
 
 
 @app.route('/submission_dishes/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def list_submission_dishes(sub_id):
     dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
     return render_template('submission/_dish_columns.html', dishes=dishes)
 
+@app.route('/submission_dish_add/<int:sub_id>', methods=['POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+def add_submission_dish(sub_id):
+    posted_form = forms.StudyDishForm(request.form)
+    if posted_form.validate_on_submit() and (int(posted_form.submission_id.data) == sub_id):
+        dish_rec = SubmissionStudyDish()
+        posted_form.populate_obj(dish_rec)
+        dish_rec.id = None
+
+        if posted_form.data_types.data:
+            dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
+        if posted_form.study_types.data:
+            dish_rec.study_types_json = json.dumps(posted_form.study_types.data)
+        db.session.add(dish_rec)
+        db.session.commit()
+        return render_template('submission/_dish_form.html', dish_form=forms.StudyDishForm(formdata=None,
+                                                                                           obj=None,
+                                                                                           sub_id=sub_id)), 200
+    else:
+        return render_template('submission/_dish_form.html', dish_form=posted_form), 400
+
+
 
 @app.route('/submission_dish/<int:dish_id>', methods=['GET', 'POST'])
-@app.route('/submission_dish', methods=['POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
-def add_edit_submission_dish(dish_id=None):
-    if dish_id is None:
-        mode = 'create'
-    else:
-        mode = 'edit'
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudyDish', 'entity_id_key':'dish_id', 'entity_ac_attribute':'submission_id'})
+def edit_submission_dish(dish_id):
     if request.method == 'GET':
         dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
         result_form = forms.StudyDishForm(obj=dish_rec)
@@ -489,13 +501,10 @@ def add_edit_submission_dish(dish_id=None):
     elif request.method == 'POST':
         posted_form = forms.StudyDishForm(request.form)
         if posted_form.validate_on_submit():
-            if mode == 'edit':
-                dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
-                posted_form.populate_obj(dish_rec)
-            else:
-                dish_rec = SubmissionStudyDish()
-                posted_form.populate_obj(dish_rec)
-                dish_rec.id = None
+
+            dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
+            posted_form.populate_obj(dish_rec)
+
             if posted_form.data_types.data:
                 dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
             if posted_form.study_types.data:
@@ -509,12 +518,11 @@ def add_edit_submission_dish(dish_id=None):
                                                                                                obj=None,
                                                                                                sub_id=sid)), 200
         else:
-            # flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_dish_form.html', dish_form=posted_form), 400
 
 
 @app.route('/submission_dish/<int:dish_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudyDish', 'entity_id_key':'dish_id', 'entity_ac_attribute':'submission_id'})
 def delete_submission_dish(dish_id):
     dish = SubmissionStudyDish.query.get_or_404(dish_id)
     db.session.delete(dish)
@@ -523,15 +531,6 @@ def delete_submission_dish(dish_id):
     return "", 204
 
 
-@app.route('/submission_dish/<int:dish_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
-def get_dish_metadata(dish_id):
-    dish = SubmissionStudyDish.query.get_or_404(dish_id)
-    db.session.delete(dish)
-    db.session.commit()
-    # flash("Study deleted", "success")
-    return "", 204
-
 
 """----------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's Upload Info Records."""
@@ -539,7 +538,7 @@ def get_dish_metadata(dish_id):
 
 
 @app.route('/submission_uploadinfos_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def inline_submission_uploadinfos(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_uploadinfos.html', submission=submission_rec,
@@ -549,20 +548,33 @@ def inline_submission_uploadinfos(sub_id):
 
 
 @app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def list_submission_uploadinfos(sub_id):
     uploadinfos = SubmissionUploadInfo.query.filter_by(submission_id=sub_id)
     return render_template('submission/_uploadinfo_columns.html', uploadinfos=uploadinfos)
 
+@app.route('/submission_uploadinfo_add/<int:sub_id>', methods=['POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+def add_submission_uploadinfo(sub_id):
+    posted_form = forms.UploadInfoForm(request.form)
+    if posted_form.validate_on_submit():
+        uploadinfo_rec = SubmissionUploadInfo()
+        posted_form.populate_obj(uploadinfo_rec)
+        uploadinfo_rec.id = None
+        db.session.add(uploadinfo_rec)
+        db.session.commit()
+
+        return render_template('submission/_uploadinfo_form.html',
+                       uploadinfo_form=forms.UploadInfoForm(formdata=None,
+                                                            obj=None,
+                                                            sub_id=sub_id)), 200
+    else:
+        return render_template('submission/_uploadinfo_form.html', uploadinfo_form=posted_form), 400
+
 
 @app.route('/submission_uploadinfo/<int:uploadinfo_id>', methods=['GET', 'POST'])
-@app.route('/submission_uploadinfo', methods=['POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
-def add_edit_submission_uploadinfo(uploadinfo_id=None):
-    if uploadinfo_id is None:
-        mode = 'create'
-    else:
-        mode = 'edit'
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionUploadInfo', 'entity_id_key':'uploadinfo_id', 'entity_ac_attribute':'submission_id'})
+def edit_submission_uploadinfo(uploadinfo_id):
     if request.method == 'GET':
         uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
         result_form = forms.UploadInfoForm(obj=uploadinfo_rec)
@@ -570,16 +582,13 @@ def add_edit_submission_uploadinfo(uploadinfo_id=None):
     elif request.method == 'POST':
         posted_form = forms.UploadInfoForm(request.form)
         if posted_form.validate_on_submit():
-            if mode == 'edit':
-                uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
-                posted_form.populate_obj(uploadinfo_rec)
-            else:
-                uploadinfo_rec = SubmissionUploadInfo()
-                posted_form.populate_obj(uploadinfo_rec)
-                uploadinfo_rec.id = None
+
+            uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
+            posted_form.populate_obj(uploadinfo_rec)
+
+
             db.session.add(uploadinfo_rec)
             db.session.commit()
-            # flash("Submission Upload Info {}.".format("created" if mode == 'create' else "updated"), "success")
             sid = posted_form.submission_id.data
 
             return render_template('submission/_uploadinfo_form.html',
@@ -587,12 +596,11 @@ def add_edit_submission_uploadinfo(uploadinfo_id=None):
                                                                         obj=None,
                                                                         sub_id=sid)), 200
         else:
-            # flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/_uploadinfo_form.html', uploadinfo_form=posted_form), 400
 
 
 @app.route('/submission_uploadinfo/<int:uploadinfo_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionUploadInfo', 'entity_id_key':'uploadinfo_id', 'entity_ac_attribute':'submission_id'})
 def delete_submission_uploadinfo(uploadinfo_id):
     submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
     db.session.delete(submission_uploadinfo)

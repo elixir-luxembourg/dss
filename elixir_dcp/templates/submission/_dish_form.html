@@ -4,7 +4,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">{% if dish_form.id.data %}Update {% else %}Add New {% endif %}Dataset</div>
     <div class="panel-body">
-        <form id="form_submission_dish">
+        <form id="form_submission_dish" {% if dish_form.id.data %} data-url="{{ url_for('edit_submission_dish', dish_id = dish_form.id.data)}}"  {% else %} data-url="{{ url_for('add_submission_dish', sub_id=dish_form.submission_id.data)}}" {% endif %} >
             <fieldset>
                 <legend>Study</legend>
                 {{ dish_form.hidden_tag() }}
