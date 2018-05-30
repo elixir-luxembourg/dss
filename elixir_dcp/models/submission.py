@@ -210,10 +210,11 @@ class SubmissionStudyDish(db.Model):
     subjects_minors = db.Column(db.Boolean, nullable=False, default=False)
     subjects_vulnerable = db.Column(db.Boolean, nullable=False, default=False)
     subjects_unable_to_consent = db.Column(db.Boolean, nullable=False, default=False)
+    subjects_notes = db.Column(db.String, nullable=True)
 
     consent_status = db.relationship('ConsentStatus')
     consent_status_code = db.Column(db.String, db.ForeignKey('consent_status.code'), nullable=False, default='m')
-    consent_notes = db.Column(db.String, nullable=False)
+    consent_notes = db.Column(db.String, nullable=True)
 
     de_identification_type_code = db.Column(db.String, db.ForeignKey('deidentification_type.code'), nullable=False, default='p')
     de_identification_type = db.relationship('DeIdentificationType')

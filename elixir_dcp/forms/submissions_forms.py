@@ -177,6 +177,7 @@ class StudyDishForm(FlaskForm):
     subjects_minors = BooleanField('Subjects Minors', default=False)
     subjects_vulnerable = BooleanField('Subjects Those Unable to Consent', default=False)
     subjects_unable_to_consent = BooleanField('Other Vulnerable Subjects', default=False)
+    subjects_notes = TextAreaField('Notes on Subjects', render_kw={'rows': 3})
 
     consent_status_code = SelectField('Consent Status', validators=[DataRequired()])
     consent_notes = TextAreaField('Notes on Consent', render_kw={'rows': 3})
