@@ -94,7 +94,7 @@ def oidc_login():
         "User Info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
 
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(landing_page_for_user(current_user))
 
     if request.method == 'GET':
         existing_user_record = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
@@ -121,7 +121,7 @@ def oidc_login():
                 if not forms.is_safe_url(nextt):
                     return abort(404)
                 else:
-                    return redirect(nextt or url_for('home'))
+                    return redirect(nextt or landing_page_for_user(existing_user_record))
     elif request.method == 'POST':
         posted_form = forms.SignupForm(request.form)
         if posted_form.validate_on_submit():
@@ -136,6 +136,11 @@ def oidc_login():
             flash("Please check the validity of your input in highlighted places.", "error")
             return render_template('security/signup.html', signup_form=posted_form)
 
+def landing_page_for_user(usr):
+    if usr.is_admin():
+        return url_for('list_submissions')
+    else:
+        return url_for('list_my_submissions')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
