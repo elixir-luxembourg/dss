@@ -6,7 +6,7 @@ class Config(object):
     # name of the application
     TITLE = 'ELIXIR-LU Data Submission System'
     SECRET_KEY = b'deneme'
-    SQLALCHEMY_DATABASE_URI = "sqlite:////home/elixirdcp/app-data/elixir-dcp.db"
+    SQLALCHEMY_DATABASE_URI ='sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     UPLOAD_FOLDER = '/home/elixirdcp/app-data'
@@ -40,11 +40,10 @@ class ProdConfig(Config):
     MAIL_USE_SSL = False
 
 
-
 class DevConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = True
-
+    SQLALCHEMY_DATABASE_URI ='sqlite:///' + os.path.join(basedir, 'dev-elixir-dcp.db')
 
     AUTHENTICATION_METHOD = 'AAI'  # Possible methods is 'AAI' or 'CONFIG'
 
@@ -58,12 +57,10 @@ class DevConfig(Config):
     MAIL_PASSWORD = 'Baloncuklar_06'
 
 
-
-
 class TestConfig(Config):
     DEBUG = True
     SQLALCHEMY_ECHO = False
-    SQLALCHEMY_DATABASE_URI = "sqlite:///test-elixir-dcp.db"
+    SQLALCHEMY_DATABASE_URI ='sqlite:///' + os.path.join(basedir, 'test-elixir-dcp.db')
 
     AUTHENTICATION_METHOD = 'CONFIG'  # Possible methods is 'AAI' or 'CONFIG'
     # a dict containing user and password items for CONFIG based authentication
