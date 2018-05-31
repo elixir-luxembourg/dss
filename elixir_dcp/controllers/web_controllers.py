@@ -1,10 +1,11 @@
 # coding=utf-8
-from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages, Response
+from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages, Response, make_response
 from flask_login import current_user, login_user, login_required, logout_user
 
 from json import dumps
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
+
 from elixir_dcp.models.security import User
 from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert_sub, \
     get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info, \
@@ -17,6 +18,7 @@ import os
 import uuid
 import shutil
 import json
+import pdfkit
 from elixir_dcp import app, db, oidc
 from werkzeug.utils import secure_filename
 from . import app_authorization
@@ -621,3 +623,20 @@ def delete_submission_uploadinfo(uploadinfo_id):
 @app.route('/autocomplete_institutes', methods=['GET'])
 def autocomplete_institutes():
     return Response(dumps(app.config.get('DATA_INIT')['collab_institutions']), mimetype='application/json')
+
+
+@app.route('/submission/generate_submission_pdf/<int:sub_id>',  methods=['GET'])
+def generate_submission_pdf(sub_id):
+    submission_rec = Submission.query.get_or_404(sub_id)
+    dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
+    submission_contact = SubmissionContact.query.filter_by(submission_id=sub_id)
+    css = ['elixir_dcp/static/vendor/node_modules/bootstrap/dist/css/pdfcss.css']
+    rendered = render_template('submission/generate_submission_pdf.html', submission_rec=submission_rec, dishes=dishes,
+                               submission_contact=submission_contact)
+    pdf = pdfkit.from_string(rendered, False, css=css)
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
+    return response
+
+
