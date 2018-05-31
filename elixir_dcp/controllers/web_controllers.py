@@ -131,7 +131,7 @@ def oidc_login():
             assign_role_to_user(registered_user, 'data_provider')
             login_user(registered_user, remember=True)
             flash('You are now signed up to the ELIXIR-LU Data Submission System.', 'success')
-            return redirect(url_for('home'))
+            return redirect(landing_page_for_user(current_user))
         else:
             flash("Please check the validity of your input in highlighted places.", "error")
             return render_template('security/signup.html', signup_form=posted_form)
