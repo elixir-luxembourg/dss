@@ -8,7 +8,7 @@ class User(db.Model):
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
     elixir_sub_id = db.Column(db.String, nullable=False, unique=True)
-    email = db.Column(db.String, unique=True)
+    email = db.Column(db.String, nullable=False)
     phone_no = db.Column(db.String)
     addr_line1 = db.Column(db.String)
     addr_line2 = db.Column(db.String)
