@@ -4,7 +4,7 @@ from tests.base_test import BaseTest
 from elixir_dcp.models.security import User
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionScope, SubmissionAccess
 from elixir_dcp.models.services import register_new_user, assign_role_to_user, create_sub, steer_sub, \
-    update_submission_basic_info
+    update_submission_basic_info, revert_sub
 from elixir_dcp import db
 from elixir_dcp.exceptions import RecordLifecycleException
 class ModelPersistenceTest(BaseTest):
@@ -80,7 +80,6 @@ class ModelPersistenceTest(BaseTest):
 
     def test_steer_submission(self):
 
-
         submission_rec = create_sub('Test Submission')
 
         sub_id = Submission.query.get_or_404(submission_rec.id).id
@@ -115,8 +114,26 @@ class ModelPersistenceTest(BaseTest):
 
         steer_sub(sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_metadata)
-        # self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_metadata)
 
+        steer_sub(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_data)
 
+        revert_sub(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_metadata)
 
+        steer_sub(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_data)
 
+        steer_sub(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.completed)
+
+        try:
+            steer_sub(sub_id)
+        except RecordLifecycleException:
+            # we should not be able to steer the submission
+            # because it is already complete
+            pass
+        except Exception as e:
+            self.fail('Unexpected exception raised:', e)
+        else:
+            self.fail('Expected Exception not raised')
