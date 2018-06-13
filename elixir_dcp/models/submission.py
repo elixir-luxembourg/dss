@@ -139,12 +139,13 @@ class Submission(db.Model):
 
     def uploads_instructions_lines(self):
         result = []
-        for line in self.upload_instructions.split('\n'):
-            result.append(line)
+        if self.upload_instructions:
+            for line in self.upload_instructions.split('\n'):
+                result.append(line)
         return result
 
     def has_providers(self):
-        if self.submission_accesses is None:
+        if not self.submission_accesses:
             return False
         else:
             return True

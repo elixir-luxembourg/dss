@@ -157,42 +157,52 @@ def send_async_email(app, msg):
 
 def update_submission_basic_info(submission: Submission, **kwargs):
     existing_instructions = submission.upload_instructions
-    new_instructions = kwargs.pop('upload_instructions')
-    new_shared_user_ids = kwargs.pop('provider_user_ids')
+
+    if 'upload_instructions' in kwargs:
+        submission.upload_instructions = kwargs.pop('upload_instructions')
+
+    if 'title' in kwargs:
+        submission.title = kwargs.pop('title')
+
+    if 'submission_scope_code' in kwargs:
+        submission.submission_scope_code = kwargs.pop('submission_scope_code')
+
+    if 'collab_local_custodian_json' in kwargs:
+        submission.collab_local_custodian_json = kwargs.pop('collab_local_custodian_json')
+
+    if 'collab_project_name' in kwargs:
+        submission.collab_project_name = kwargs.pop('collab_project_name')
 
 
-    submission.title = kwargs.pop('title')
-    submission.submission_scope_code =kwargs.pop('submission_scope_code')
-    submission.collab_local_custodian_json=kwargs.pop('collab_local_custodian_json')
-    submission.collab_project_name=kwargs.pop('collab_project_name')
-
-    submission.upload_instructions = new_instructions
     db.session.add(submission)
     db.session.commit()
-    if new_shared_user_ids is not None:
-        for user_id in new_shared_user_ids:
-            if not has_access(user_id, submission.id):
-                new_access = SubmissionAccess()
-                new_access.submission_id = submission.id
-                new_access.user_id = user_id
-                new_access.access_granted_on = datetime.now()
-                db.session.add(new_access)
-                db.session.commit()
 
-                if submission.is_in_progress():
-                    send_submission_steer_step1_notification(submission)
-                    usr = User.query.filter_by(id=user_id).one_or_none()
-                    flash('Submission shared with %s' % usr.display_name(), 'info')
+    if 'provider_user_ids' in kwargs:
+        new_shared_user_ids = kwargs.get('provider_user_ids')
+        if new_shared_user_ids is not None:
+            for user_id in new_shared_user_ids:
+                if not has_access(user_id, submission.id):
+                    new_access = SubmissionAccess()
+                    new_access.submission_id = submission.id
+                    new_access.user_id = user_id
+                    new_access.access_granted_on = datetime.now()
+                    db.session.add(new_access)
+                    db.session.commit()
 
-        revoked_acesses = db.session.query(SubmissionAccess).filter(and_(SubmissionAccess.submission_id == submission.id,
-                                                                         SubmissionAccess.user_id.notin_(
-                                                                             new_shared_user_ids)))
-        if revoked_acesses is not None:
-            for rev_acc in revoked_acesses:
-                db.session.delete(rev_acc)
-                db.session.commit()
+                    if submission.is_in_progress():
+                        send_submission_steer_step1_notification(submission)
+                        usr = User.query.filter_by(id=user_id).one_or_none()
+                        flash('Submission shared with %s' % usr.display_name(), 'info')
 
-    any_instruction_changes = not equal_long_strings(existing_instructions, new_instructions)
+            revoked_acesses = db.session.query(SubmissionAccess).filter(and_(SubmissionAccess.submission_id == submission.id,
+                                                                             SubmissionAccess.user_id.notin_(
+                                                                                 new_shared_user_ids)))
+            if revoked_acesses is not None:
+                for rev_acc in revoked_acesses:
+                    db.session.delete(rev_acc)
+                    db.session.commit()
+
+    any_instruction_changes = not equal_long_strings(existing_instructions, submission.upload_instructions)
     if any_instruction_changes and submission.is_in_progress():
         send_upload_instruction_notification(submission)
         flash('Data Providers are notified of upload instructions', 'info')

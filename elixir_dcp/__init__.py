@@ -28,7 +28,7 @@ def create_application():
     new_app.config['ENV'] = env
     new_app.jinja_env.add_extension('jinja2.ext.i18n')
 
-    handler = RotatingFileHandler('foo.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler('elixir_dcp_app.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.ERROR)
     new_app.logger.addHandler(handler)
     return new_app
