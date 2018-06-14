@@ -22,7 +22,7 @@ class Config(object):
     DATA_INIT = START_UP_DATA
 
     # OIDC config
-    OIDC_CLIENT_SECRETS = 'client_secrets.json'
+    OIDC_CLIENT_SECRETS = os.path.join(basedir, 'client_secrets.json')
     OIDC_SCOPES = ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']
     OIDC_COOKIE_SECURE = False
 
@@ -53,8 +53,8 @@ class DevConfig(Config):
     MAIL_PORT = 465
     MAIL_USE_SSL = True
     MAIL_USE_TLS = False
-    MAIL_USERNAME = 'pinarpink@googlemail.com'
-    MAIL_PASSWORD = 'Baloncuklar_06'
+    MAIL_USERNAME = 'user@gmail.com'
+    MAIL_PASSWORD = 'pwd'
 
 
 class TestConfig(Config):
@@ -65,6 +65,9 @@ class TestConfig(Config):
     AUTHENTICATION_METHOD = 'CONFIG'  # Possible methods is 'AAI' or 'CONFIG'
     # a dict containing user and password items for CONFIG based authentication
     AUTHENTICATION_DICT = {'pinar.alper@uni.lu': 'palper', 'pi@some.uni': 'user'}
+
+    # OIDC config
+    OIDC_CLIENT_SECRETS = os.path.join(basedir, 'client_secrets.json')
 
     ASSETS_DEBUG = True
     TESTING = True
