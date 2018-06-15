@@ -133,3 +133,4 @@ venv.bak/
 .mypy_cache/
 /elixir_dcp/settings.py
 *.db
+project_venv
