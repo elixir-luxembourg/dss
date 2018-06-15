@@ -628,16 +628,13 @@ def autocomplete_institutes():
 
 
 @app.route('/submission/generate_submission_pdf/<int:sub_id>',  methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def generate_submission_pdf(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
-    dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
-    submission_contact = SubmissionContact.query.filter_by(submission_id=sub_id)
-
-
     rendered = render_template('submission/generate_submission_pdf.html',
                                submission_rec=submission_rec,
-                               dishes=dishes,
-                               submission_contact=submission_contact,
+                               dishes=submission_rec.dishes,
+                               submission_contact=submission_rec.contacts,
                                png_elx_lu = app.static_folder+'/public/images/'+'ELIXIR_LU_WB.png',
                                png_lcsb = app.static_folder+'/public/images/'+'LCSB-logo.png',
                                png_uni =app.static_folder+'/public/images/'+'Uni-LU.png')
@@ -652,7 +649,3 @@ def generate_submission_pdf(sub_id):
     response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
     return response
 
-
-def get_image_file_as_base64_data(img_filename):
-    with open(app.static_folder+'/public/images/'+img_filename, 'rb') as image_file:
-        return base64.b64encode(image_file.read())
