@@ -630,13 +630,19 @@ def generate_submission_pdf(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
     submission_contact = SubmissionContact.query.filter_by(submission_id=sub_id)
-    css = ['elixir_dcp/static/vendor/node_modules/bootstrap/dist/css/pdfcss.css']
+    css = ['elixir_dcp/static/vendor/node_modules/bootstrap/dist/css/bootstrap.css']
     rendered = render_template('submission/generate_submission_pdf.html', submission_rec=submission_rec, dishes=dishes,
                                submission_contact=submission_contact)
-    pdf = pdfkit.from_string(rendered, False, css=css)
+    options = {
+        'page-size': 'A4',
+        'dpi': 400
+    }
+    pdf = pdfkit.from_string(rendered, False, css=css, options=options)
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
     return response
 
 
+def convert_svgtopng(svgfile):
+   return  cairosvg.svg2pdf(url='image.svg', write_to='image.pdf')
