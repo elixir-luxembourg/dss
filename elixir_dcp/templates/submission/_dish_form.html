@@ -1,5 +1,8 @@
 {% import "forms_macros.html" as fmacros %}
+<script type="application/javascript">
+    var data_types = {{ dish_form.data_types|tojson|safe }};
 
+</script>
 
 <div class="panel panel-default">
     <div class="panel-heading">{% if dish_form.id.data %}Update {% else %}Add New {% endif %}Dataset</div>
@@ -22,7 +25,16 @@
                 <legend>Data</legend>
                 {{ fmacros.render_field_with_errors(dish_form.estimate_data_size_code, div_col_class="col-md-2",
                 clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dish_form.data_types, clazz="elx-multi-select") }}
+                <div class="form-group row">
+
+                    <label for="datatype" class="col-md-2">
+                        Data Type *
+                     </label>
+                    <div class="col-md-8">
+                        <select name="datatype" id="datatype"  class="js-example-basic-multiple" multiple="multiple"></select>
+                    </div>
+                </div>
+{#                {{ fmacros.render_field_with_errors(dish_form.data_types, clazz="elx-multi-select") }}#}
                 {{ fmacros.render_field_with_errors(dish_form.metadata_exists) }}
             </fieldset>
             <div class="form-group row">
