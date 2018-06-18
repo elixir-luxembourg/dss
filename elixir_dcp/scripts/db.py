@@ -155,3 +155,124 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                                 'Patrick May',
                                 'Carole Linster']
                  }
+
+# data_types  = [{
+#                         "children": [
+#                             "Whole_genome_sequencing",
+#                             "Exome_sequencing",
+#                             "Genomics_variant_array",
+#                             "RNASeq"
+#                         ],
+#                         "text" : "Genotype_data"
+#                         },
+#                         {"children": [
+#                             "Transcriptome_array",
+#                             "Methylation_array",
+#                             "MicroRNA_array",
+#                             "Metabolomics",
+#                             "Metagenomics",
+#                             "Proteomics",
+#                             "Other_omics_data"
+#                         ],
+#                         "text" : "Genetic_and_derived_genetic_data"
+#                         },
+#                         {"children":[], "text" :"Clinical_Imaging"},
+#                         {"children":[],"text" :"Cell_Imaging"},
+#                      {"children": [
+#                         "Clinical_data",
+#                         "Lifestyle_data",
+#                         "Socio_Economic_Data",
+#                         "Environmental_Data",
+#                         "Other_Phenotype_data",
+#                     ],
+#                     "text" : "Human_subject_data"
+#
+#                     },
+#                      {"children":[],"node":"Others"}
+#
+#
+#
+#                  ];
+
+true = True
+data_types = {
+  "results": [
+    {
+      "text": "Genotype_data",
+      "children" : [
+        {
+            "id": "Whole_genome_sequencing",
+            "text": "Whole_genome_sequencing"
+        },
+        {
+            "id": "Exome_sequencing",
+            "text": "Exome_sequencing"
+        },
+        {
+            "id": "Genomics_variant_array",
+            "text": "Genomics_variant_array"
+        },
+        {
+            "id": "RNASeq",
+            "text": "RNASeq"
+        },
+      ]
+    },
+    {
+      "text": "Genetic_and_derived_genetic_data",
+      "children" : [
+        {
+            "id": "Transcriptome_array",
+            "text": "Transcriptome_array"
+        },
+        {
+            "id": "Methylation_array",
+            "text": "Methylation_array"
+        },
+        {
+            "id":  "MicroRNA_array",
+            "text":  "MicroRNA_array"
+        },
+        {
+            "id": "Metabolomics",
+            "text": "Metabolomics"
+        },
+        {
+            "id": "Proteomics",
+            "text": "Proteomics"
+        },
+        {
+            "id": "Other_omics_data",
+            "text": "Other_omics_data"
+        }
+      ]
+    },
+    {"text":  " Clinical_Imaging","children": []},
+    {"text": "Cell_Imaging", "children": []},
+    {
+      "text": "Human_subject_data",
+      "children": [
+        {
+            "id": "Clinical_data",
+            "text": "Clinical_data"
+        },
+        {
+            "id": "Lifestyle_data",
+            "text": "Lifestyle_data"
+        },
+        {
+            "id":  "Socio_Economic_Data",
+            "text": "Socio_Economic_Data"
+        },
+        {
+            "id": "Environmental_Data",
+            "text":"Environmental_Data"
+        },
+        {
+            "id": "Other_Phenotype_data",
+            "text": "Other_Phenotype_data"
+        }
+      ]
+    },
+    {"text": "Others","children": []}
+  ]}

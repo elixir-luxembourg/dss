@@ -196,5 +196,6 @@ class StudyDishForm(FlaskForm):
         self.legal_basis_collection_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['legal_basis']]
         self.consent_status_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['consent_status']]
         self.de_identification_type_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['deidentification_type']]
-        self.data_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['data_types']]
+        #self.data_types.choices = [(c, c) for c in app.config.get('DATA_TYPES')]
+        self.data_types = app.config.get('DATA_TYPES')
         self.study_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['study_types']]

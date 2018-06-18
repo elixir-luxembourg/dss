@@ -51,6 +51,27 @@ $(document).ready(function () {
             });
         });
 
+        // var $datatypechoice = $("#datatype");
+        var data = $.map(data_type_tree, function (obj) {
+         return obj;
+         });
+        $("#datatype").select2({
+            placeholder: "Select a Data Type",
+            data: data,
+            columns: 2,
+            search: true,
+            selectAll: true
+        })
+        // $.each(data_types, function(index, value) {
+        //      var str = '<optgroup label="' + value["node"] + '">';
+        //     $.each(value['leaf_nodes'], function(index, value) {
+        //      str += '<option value="' + value + '">' + value + '</option>';
+        // });
+        // str += '</select>';
+        // $datatypechoice.append(str);
+        // });
+
+
         $("div[data-toggle=fieldset]").each(function () {
             var $this = $(this);
 
