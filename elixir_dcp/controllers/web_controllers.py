@@ -1,4 +1,6 @@
 # coding=utf-8
+import base64
+
 from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages, Response, make_response
 from flask_login import current_user, login_user, login_required, logout_user
 
@@ -19,7 +21,7 @@ import uuid
 import shutil
 import json
 import pdfkit
-from elixir_dcp import app, db, oidc
+from elixir_dcp import app, db, oidc, assets
 from werkzeug.utils import secure_filename
 from . import app_authorization
 from .utils import get_names_from_oidc
@@ -628,17 +630,24 @@ def autocomplete_institutes():
 
 
 @app.route('/submission/generate_submission_pdf/<int:sub_id>',  methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def generate_submission_pdf(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
-    dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
-    submission_contact = SubmissionContact.query.filter_by(submission_id=sub_id)
-    css = ['elixir_dcp/static/vendor/node_modules/bootstrap/dist/css/pdfcss.css']
-    rendered = render_template('submission/generate_submission_pdf.html', submission_rec=submission_rec, dishes=dishes,
-                               submission_contact=submission_contact)
-    pdf = pdfkit.from_string(rendered, False, css=css)
+    rendered = render_template('submission/generate_submission_pdf.html',
+                               submission_rec=submission_rec,
+                               dishes=submission_rec.dishes,
+                               submission_contact=submission_rec.contacts,
+                               png_elx_lu = app.static_folder+'/public/images/'+'ELIXIR_LU_WB.png',
+                               png_lcsb = app.static_folder+'/public/images/'+'LCSB-logo.png',
+                               png_uni =app.static_folder+'/public/images/'+'Uni-LU.png')
+    options = {
+        'page-size': 'A4',
+        'dpi': 400
+    }
+
+    pdf = pdfkit.from_string(rendered, False, css=app.static_folder+'/vendor/node_modules/bootstrap/dist/css/bootstrap.css', options=options)
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
     return response
-
 

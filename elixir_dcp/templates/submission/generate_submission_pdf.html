@@ -1,15 +1,24 @@
 
 {% set active_page = 'generate_submission_pdf' %}
-{% block title %} <h1> Data Infomation Sheet  </h1> {% endblock %}
+<head>
+     <meta charset="UTF-8">
 
-
+</head>
+<div class="row">
+    <div class="col-md-2 logos-section" align="right">
+        <img src="{{png_elx_lu}}"  typealt="elixir luxembourg logo"  width="100px" height="auto"/>
+        <img src="{{png_lcsb}}"  width="70px" height="auto">
+        <img src="{{png_uni}}" width="70px" height="auto">
+    </div>
+    <div class="col-md-4"><h1 align="left"><strong>Data Information Sheet</strong></h1></div>
+</div>
 
 {% block content %}
 
         <div>
             <div>
 
-                <table>
+                <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th scope="col">Submission Ref No</th>
@@ -30,7 +39,7 @@
             </div>
              <div >
                  <h3>Details</h3>
-                    <table >
+                    <table class="table table-bordered">
                     <tr>
                         <th scope="row">Title</th>
                         <td>{{ submission_rec.title }}</td>
@@ -58,7 +67,7 @@
             <div >
                 <h3>Study</h3>
 
-                <table>
+                <table class="table table-bordered">
 
                     <tr>
                         <th scope="row">Study Name</th>
@@ -68,15 +77,15 @@
                     </tr>
                     {% for dish in dishes %}
                     <tr>
-                        <td>{{ dish.study_name }}</td>
+                        <td>{{ dish.study_name  }}</td>
                         <td>{{ dish.study_description  }}</td>
                         <td>{{ dish.study_types_json|replace('"','') | replace("[", '')| replace("]", '')|join('') }}</td>
                         <td>{{ dish.ethics_approval_exists | replace("True","Yes") | replace("False","No") }}</td>
                     </tr>
                     {% endfor %}
-                </table>
+                </table >
                 <h3>Data Protection</h3>
-                <table>
+                <table class="table table-bordered">
                     <tr>
                         <th scope="row">Subject Minors</th>
                         <th scope="row">Subjects those unable to consent</th>
@@ -99,7 +108,7 @@
                     {% endfor %}
                 </table>
                 <h3>Data Use Restrictions</h3>
-                <table>
+                <table class="table table-bordered">
                     <tr>
                         <th scope="row">Category</th>
                         <th scope="row">Restriction Notes</th>
@@ -119,7 +128,7 @@
             </div>
              <div>
                  <h3>Contact</h3>
-                <table>
+                <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th scope="col">Name</th>
@@ -132,7 +141,7 @@
 
                             <td>{{contact.fullname() }}</td>
                             <td>{{ contact.email }}</td>
-                            <td>{{ contact.contact_category.name }}</td>
+                            <td>{{ contact.contact_category.name  }}</td>
 
                         </tr>
                        {% endfor %}

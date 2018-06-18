@@ -11,6 +11,14 @@ sudo yum install java-1.8.0-openjdk-devel
 sudo yum install supervisor  
 curl "https://bootstrap.pypa.io/get-pip.py" | sudo python3.6   
 ```
+
+##Install wkhtmltopdf
+```bash
+yum install xorg-x11-fonts-Type1 xorg-x11-fonts-75dpi libjpeg-turbo libX11 libXext libXrender libpng
+wget https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox-0.12.5-1.centos7.x86_64.rpm
+rpm -Uvh wkhtmltox-0.12.5-1.centos7.x86_64.rpm
+```
+
 ## Create elixirdcp user 
 ```bash
 sudo useradd elixirdcp
