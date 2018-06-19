@@ -101,9 +101,9 @@
                         <td>{{ dish.subjects_minors | replace("True","Yes") | replace("False","No") }}</td>
                         <td>{{ dish.subjects_unable_to_consent  | replace("True","Yes") | replace("False","No") }}</td>
                         <td>{{ dish.subjects_vulnerable | replace("True","Yes") | replace("False","No")  }}</td>
-                        <td>{{ dish.consent_status.value }}</td>
+                        <td>{{ dish.consent_status.label }}</td>
                          <td>{{ dish.consent_notes }}</td>
-                        <td>{{ dish.de_identification_type.value }}</td>
+                        <td>{{ dish.de_identification_type.label }}</td>
                     </tr>
                     {% endfor %}
                 </table>

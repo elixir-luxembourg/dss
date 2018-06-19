@@ -162,8 +162,7 @@ class StudyDishForm(FlaskForm):
                                      validators=[DataRequired()])
 
     data_types = SelectMultipleField('Data Type(s)',
-                                     description="Please select the categories that would best characterise the types of data within this dataset.",
-                                     validators=[DataRequired()])
+                                     description="Please select the categories that would best characterise the types of data within this dataset.")
     metadata_exists = BooleanField('Metadata Provided',
                                    description="Confirmation of whether metadata will be uploaded alongside data. As a minimum we would expect a Data Dictionary to be supplied alongside data.",
                                    default=True)
