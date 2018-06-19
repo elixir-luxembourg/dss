@@ -479,9 +479,8 @@ def add_submission_dish(sub_id):
         dish_rec = SubmissionStudyDish()
         posted_form.populate_obj(dish_rec)
         dish_rec.id = None
-
-        if posted_form.data_types:
-            dish_rec.data_types_json = json.dumps(request.form.getlist('datatype'))
+        if posted_form.data_types.data:
+            dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
         if posted_form.study_types.data:
             dish_rec.study_types_json = json.dumps(posted_form.study_types.data)
         db.session.add(dish_rec)
@@ -502,10 +501,10 @@ def edit_submission_dish(dish_id):
         result_form = forms.StudyDishForm(obj=dish_rec)
         if dish_rec.study_types_json:
             result_form.study_types.data = json.loads(dish_rec.study_types_json)
-        # if dish_rec.data_types_json:
-        #result_form.data_types = json.loads(result_form.data_types)
-        selected_data_type = dish_rec.data_types_json
-        return render_template('submission/_dish_form.html', dish_form=result_form, selected_data_type=selected_data_type)
+        if dish_rec.data_types_json:
+            result_form.data_types.data = json.loads(dish_rec.data_types_json)
+
+        return render_template('submission/_dish_form.html', dish_form=result_form)
     elif request.method == 'POST':
         posted_form = forms.StudyDishForm(request.form)
         if posted_form.validate_on_submit():
@@ -513,8 +512,8 @@ def edit_submission_dish(dish_id):
             dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
             posted_form.populate_obj(dish_rec)
 
-            if posted_form.data_type:
-                dish_rec.data_types_json = json.dumps(posted_form.data_type)
+            if posted_form.data_types.data:
+                dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
             if posted_form.study_types.data:
                 dish_rec.study_types_json = json.dumps(posted_form.study_types.data)
             db.session.add(dish_rec)
