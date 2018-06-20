@@ -640,6 +640,8 @@ def generate_submission_pdf(sub_id):
                                png_uni =app.static_folder+'/public/images/'+'Uni-LU.png')
     options = {
         'page-size': 'A4',
+        'footer-center': '[page] of [topage]',
+        'footer-font-size':'9',
         'dpi': 400
     }
 
