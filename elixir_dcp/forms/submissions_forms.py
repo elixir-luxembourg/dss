@@ -6,9 +6,8 @@ from wtforms.validators import DataRequired, Email, Regexp, Length
 
 from .validators import OptionalFieldValidator
 from elixir_dcp.models.submission import  ContactType,  GA4GHCodes, DUCCodeInstance
-from elixir_dcp.models.security import User
 from elixir_dcp import app
-
+from elixir_dcp.models.services import get_active_users
 
 
 class AttachmentForm(FlaskForm):
@@ -134,7 +133,7 @@ class SubmissionForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
-        self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in User.query.all()]
+        self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in get_active_users()]
         self.submission_scope_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['submission_scope']]
         self.collab_local_custodian.choices = [(c, c) for c in app.config.get('DATA_INIT')['collab_pis']]
 
