@@ -481,7 +481,6 @@ def add_submission_dish(sub_id):
         dish_rec = SubmissionStudyDish()
         posted_form.populate_obj(dish_rec)
         dish_rec.id = None
-
         if posted_form.data_types.data:
             dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
         if posted_form.study_types.data:
@@ -506,6 +505,7 @@ def edit_submission_dish(dish_id):
             result_form.study_types.data = json.loads(dish_rec.study_types_json)
         if dish_rec.data_types_json:
             result_form.data_types.data = json.loads(dish_rec.data_types_json)
+
         return render_template('submission/_dish_form.html', dish_form=result_form)
     elif request.method == 'POST':
         posted_form = forms.StudyDishForm(request.form)

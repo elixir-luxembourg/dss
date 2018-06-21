@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField, SelectMultipleField, \
+from wtforms import StringField, HiddenField, BooleanField, TextAreaField, DateField,  \
     FormField, FieldList
+from wtforms_components import SelectField, SelectMultipleField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Email, Regexp, Length
 
@@ -161,8 +162,7 @@ class StudyDishForm(FlaskForm):
                                      validators=[DataRequired()])
 
     data_types = SelectMultipleField('Data Type(s)',
-                                     description="Please select the categories that would best characterise the types of data within this dataset.",
-                                     validators=[DataRequired()])
+                                     description="Please select the categories that would best characterise the types of data within this dataset.")
     metadata_exists = BooleanField('Metadata Provided',
                                    description="Confirmation of whether metadata will be uploaded alongside data. As a minimum we would expect a Data Dictionary to be supplied alongside data.",
                                    default=True)
@@ -195,5 +195,5 @@ class StudyDishForm(FlaskForm):
         self.legal_basis_collection_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['legal_basis']]
         self.consent_status_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['consent_status']]
         self.de_identification_type_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['deidentification_type']]
-        self.data_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['data_types']]
+        self.data_types.choices = app.config.get('DATA_INIT')['data_types']
         self.study_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['study_types']]

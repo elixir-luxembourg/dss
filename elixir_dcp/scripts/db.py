@@ -52,31 +52,31 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                  'submission_scope': [['e', 'ELIXIR'],
                                       ['c', 'LCSB_Collaboration']],
 
-                 'data_types': [
-                     "Omics_data",
-                     "Genotype_data",
-                     "Whole_genome_sequencing",
-                     "Exome_sequencing",
-                     "Genomics_variant_array",
-                     "RNASeq",
-                     "Genetic_and_derived_genetic_data",
-                     "Transcriptome_array",
-                     "Methylation_array",
-                     "MicroRNA_array",
-                     "Metabolomics",
-                     "Metagenomics",
-                     "Proteomics",
-                     "Other_omics_data",
-                     "Clinical_Imaging",
-                     "Cell_Imaging",
-                     "Human_subject_data",
-                     "Clinical_data",
-                     "Lifestyle_data",
-                     "Socio_Economic_Data",
-                     "Environmental_Data",
-                     "Other_Phenotype_data",
-                     "Other"
-                 ],
+                 'data_types': (
+                    ('Genotype_data', (
+                        ('Whole_genome_sequencing', 'Whole_genome_sequencing'),
+                        ('Exome_sequencing', 'Exome_sequencing'),
+                        ('Genomics_variant_array', 'Genomics_variant_array'),
+                        ('RNASeq', 'RNASeq')
+                    )),
+                    ('Genetic and derived genetic_data', (
+                        ('Transcriptome_array', 'Transcriptome_array'),
+                        ('Methylation_array', 'Methylation_array'),
+                        ('MicroRNA_array', 'MicroRNA_array'),
+                        ('Metabolomics', 'Metabolomics'),
+                        ('Proteomics', 'Proteomics'),
+                        ('Other_omics_data', 'Other_omics_data'),
+
+                    )),
+                   ('Clinical_Imaging', ()),
+                   ('Cell_Imaging', ()),
+                    ('Human_subject_data', (
+                        ('Clinical_data', 'Clinical_data'),
+                        ('Lifestyle_data', 'Lifestyle_data'),
+                        ('Socio_Economic_Data', 'Socio_Economic_Data')
+                    )),
+                       ('Others', ())
+                ),
                  'study_types': [
                      "Observational",
                      "Interventional",
