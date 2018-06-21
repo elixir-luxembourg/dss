@@ -80,7 +80,7 @@
 
                     {% for dish in dishes %}
                     <tr>
-                        <td rowspan="13">1</td>
+                        <td rowspan="13" {% if loop.index % 2 == 1 %} bgcolor="#CCC" {% else %} bgcolor="#f2f2f2" {% endif %} >{{loop.index}}</td>
                     </tr>
                     <tr>
                         <th scope="row">Study Name</th>
