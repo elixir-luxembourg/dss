@@ -9,7 +9,8 @@ except ImportError:
 requirements = [
     'Flask', 'Flask-Assets', 'Flask-SQLAlchemy', 'Flask-Script', 'Jinja2', 'SQLAlchemy', 'Werkzeug', 'closure',
     'Flask-Cache', 'Flask-Login', 'Flask-WTF', 'Flask-Migrate', 'flask-oidc', 'Flask-Testing',
-    'sqlalchemy-utils', 'Flask-Mail', 'Flask-Babel',     'cssmin', 'webassets',  'requests', 'pdfkit'
+    'sqlalchemy-utils', 'Flask-Mail', 'Flask-Babel',     'cssmin', 'webassets',  'requests', 'pdfkit',
+    'WTForms-Components'
 ]
 
 test_requirements = [
