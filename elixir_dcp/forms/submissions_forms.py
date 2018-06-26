@@ -1,14 +1,14 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, BooleanField, TextAreaField, SelectField, DateField, SelectMultipleField, \
+from wtforms import StringField, HiddenField, BooleanField, TextAreaField, DateField,  \
     FormField, FieldList
+from wtforms_components import SelectField, SelectMultipleField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Email, Regexp, Length
 
 from .validators import OptionalFieldValidator
 from elixir_dcp.models.submission import  ContactType,  GA4GHCodes, DUCCodeInstance
-from elixir_dcp.models.security import User
 from elixir_dcp import app
-
+from elixir_dcp.models.services import get_active_users
 
 
 class AttachmentForm(FlaskForm):
@@ -134,7 +134,7 @@ class SubmissionForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
-        self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in User.query.all()]
+        self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in get_active_users()]
         self.submission_scope_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['submission_scope']]
         self.collab_local_custodian.choices = [(c, c) for c in app.config.get('DATA_INIT')['collab_pis']]
 
@@ -162,10 +162,12 @@ class StudyDishForm(FlaskForm):
                                      validators=[DataRequired()])
 
     data_types = SelectMultipleField('Data Type(s)',
-                                     description="Please select the categories that would best characterise the types of data within this dataset.")
+                                     description="Please select the categories that would best characterise the types of data within this dataset.",
+                                     validators=[DataRequired()])
     metadata_exists = BooleanField('Metadata Provided',
                                    description="Confirmation of whether metadata will be uploaded alongside data. As a minimum we would expect a Data Dictionary to be supplied alongside data.",
                                    default=True)
+
     # Ethics & Data Protection
     ethics_approval_exists = BooleanField('Ethics Approval Exists',
                                           description="Confirmation that an ethics approval exists for the data collection, sharing and the purposes for which the data is shared.",
@@ -194,6 +196,5 @@ class StudyDishForm(FlaskForm):
         self.legal_basis_collection_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['legal_basis']]
         self.consent_status_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['consent_status']]
         self.de_identification_type_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['deidentification_type']]
-        #self.data_types.choices = [(c, c) for c in app.config.get('DATA_TYPES')]
-        self.data_types = app.config.get('DATA_TYPES')
+        self.data_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['data_types']]
         self.study_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['study_types']]

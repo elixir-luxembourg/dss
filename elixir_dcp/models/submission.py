@@ -144,6 +144,12 @@ class Submission(db.Model):
                 result.append(line)
         return result
 
+    def is_elixir(self):
+        if self.submission_scope_code == 'e':
+            return True
+        else:
+            return False
+
     def has_providers(self):
         if not self.submission_accesses:
             return False

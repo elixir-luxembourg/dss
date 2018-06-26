@@ -11,7 +11,7 @@ from flask_mail import Message
 
 
 def delete_sub(submission_id: str):
-    submission = Submission.query.filter_by(submission_id=submission_id).one_or_none()
+    submission = Submission.query.filter_by(id=submission_id).one_or_none()
     if submission.is_deletable():
         db.session.delete(submission)
         db.session.commit()
@@ -95,6 +95,17 @@ def assign_role_to_user(user: User, role_name: str):
             db.session.commit()
     else:
         raise RecordNotExistsException("Role with specified name does not exist.")
+
+
+def get_active_users():
+    return User.query.filter_by(active_user=True)
+
+
+def deactivate_user(user: User):
+    user.active_user = False
+    db.session.add(user)
+    db.session.commit()
+    return user
 
 
 def register_new_user(user: User) -> User:

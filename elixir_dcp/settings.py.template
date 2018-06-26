@@ -1,5 +1,5 @@
 from elixir_dcp.scripts.db import START_UP_DATA
-
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
 

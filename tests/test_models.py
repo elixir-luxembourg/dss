@@ -1,12 +1,13 @@
 
 from tests.base_test import BaseTest
 
-from elixir_dcp.models.security import User
+from elixir_dcp.models.security import User, UsersRoles
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionScope, SubmissionAccess
 from elixir_dcp.models.services import register_new_user, assign_role_to_user, create_sub, steer_sub, \
-    update_submission_basic_info, revert_sub
-from elixir_dcp import db
+    update_submission_basic_info, revert_sub, deactivate_user, delete_sub
 from elixir_dcp.exceptions import RecordLifecycleException
+from elixir_dcp import db
+
 class ModelPersistenceTest(BaseTest):
 
 
@@ -40,6 +41,13 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(2, len(pinar.assigned_roles))
         self.assertTrue(pinar.is_admin())
 
+        deactivate_user(pinar)
+        users = User.query.all()
+        self.assertEqual(1, len(users))
+        pinar = users[0]
+        self.assertFalse(pinar.is_active())
+
+
     def test_create_submission(self):
 
 
@@ -58,7 +66,7 @@ class ModelPersistenceTest(BaseTest):
 
         self.assertEqual(1, len(Submission.query.all()))
         sub = Submission.query.get_or_404(submission_rec.id)
-
+        sub_id = sub.id
         self.assertEqual(sub.title, 'Test Submission')
         self.assertEqual(sub.ref_name, 'ELX_LU_SUB-1')
         self.assertEqual(sub.current_status, SubmissionStatusEnum.draft)
@@ -76,6 +84,23 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(0, len(sub.provider_user_names()))
         self.assertEqual(0, len(sub.uploads_instructions_lines()))
         self.assertFalse(sub.has_providers())
+
+
+        u1 = User(first_name='Kavita', last_name='Rege',
+                  elixir_sub_id='SOME_ELX_ID', email='kavita.rege@uni.lu',
+                  institution='University of Luxembourg',
+                  phone_no='+352123456789')
+        usr = register_new_user(u1)
+        update_submission_basic_info(sub, provider_user_ids=[usr.id])
+
+
+        self.assertEqual(1, len(Submission.query.get_or_404(sub_id).submission_accesses))
+
+        delete_sub(sub_id)
+        self.assertEqual(0, len(Submission.query.all()))
+
+        #Testing delete-orphan annotations on the relations of Submission
+        self.assertEqual(0, len(SubmissionAccess.query.all()))
 
 
     def test_steer_submission(self):
