@@ -15,7 +15,17 @@
             {{ render_field_with_errors(signup_form.first_name) }}
             {{ render_field_with_errors(signup_form.last_name) }}
             {{ render_field_with_errors(signup_form.email) }}
-            {{ render_field_with_errors(signup_form.institution, clazz="elx-autocomp-institution") }}
+            <br/>
+            <br/>
+            <div class="form-group row">
+                <div class="col-md-9">
+                    <p style="color:red;">Can not find your institution in the below list, please contact us
+                    <img src="/static/public/images/datasteward_contact.png"/></p>
+                </div>
+            </div>
+
+            {{ render_field_with_errors(signup_form.institution, clazz="elx-select") }}
+            {{ render_field_with_errors(signup_form.institution_division) }}
             {{ render_field_with_errors(signup_form.addr_line1) }}
             {{ render_field_with_errors(signup_form.addr_line2) }}
             {{ render_field_with_errors(signup_form.phone_no) }}

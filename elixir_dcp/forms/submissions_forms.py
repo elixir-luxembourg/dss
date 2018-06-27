@@ -136,7 +136,7 @@ class SubmissionForm(FlaskForm):
         FlaskForm.__init__(self, *args, **kwargs)
         self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in get_active_users()]
         self.submission_scope_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['submission_scope']]
-        self.collab_local_custodian.choices = [(c, c) for c in app.config.get('DATA_INIT')['collab_pis']]
+        self.collab_local_custodian.choices = [(c, c) for c in app.config.get('DATA_INIT')['lcsb_pis']]
 
 
 class StudyDishForm(FlaskForm):

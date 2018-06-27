@@ -1,5 +1,8 @@
 $(document).ready(function () {
     $('[data-toggle="popover"]').popover();
+    $('.elx-select').select2({
+        search: true
+    });
     $('.elx-multi-select').select2({
         columns: 2,
         search: true,
@@ -7,13 +10,5 @@ $(document).ready(function () {
         texts: {
             placeholder: 'Select one or more Roles',
         }
-    });
-    $.ajax({
-        url: '/autocomplete_institutes'
-    }).done(function (data) {
-        $('.elx-autocomp-institution').autocomplete({
-            source: data,
-            minLength: 3
-        });
     });
 });

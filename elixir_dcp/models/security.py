@@ -13,6 +13,7 @@ class User(db.Model):
     addr_line1 = db.Column(db.String)
     addr_line2 = db.Column(db.String)
     institution = db.Column(db.String, nullable=False)
+    institution_division = db.Column(db.String)
 
     assigned_roles = db.relationship('Role', secondary='users_roles')
 

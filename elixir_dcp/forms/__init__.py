@@ -2,14 +2,14 @@
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, \
     StudyDishForm, UploadInfoForm
 from elixir_dcp.models.security import Role
-from wtforms import BooleanField, HiddenField, StringField, PasswordField, SelectMultipleField
+from wtforms import BooleanField, HiddenField, StringField, PasswordField, SelectMultipleField, SelectField
 from wtforms.fields.html5 import EmailField
 from flask_wtf import FlaskForm
 from flask import redirect, request
 from urllib.parse import urlparse, urljoin
 from wtforms.validators import Email, DataRequired, Length, Regexp, ValidationError
 from .validators import OptionalFieldValidator
-
+from elixir_dcp import app
 
 
 __author__ = 'Pinar Alper'
@@ -66,10 +66,12 @@ class SignupForm(FlaskForm):
                             validators=[DataRequired(), Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                         Length(min=2, max=20, message="Must be 2 to 20 characters long.")])
 
-    institution = StringField('Institution', validators=[DataRequired(), Regexp('^[\w\s\(\)\-]+$',
-                                                                                message="Can only contain letters, digits, underscore, dash and parantheses."),
-                                                         Length(min=2, max=40,
-                                                                message="Must be 2 to 40 characters long.")])
+    institution = SelectField('Institution',  validators=[DataRequired()])
+
+    institution_division = StringField('Division/Department', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                                                 message="Can only contain letters, digits, dash, comma and dot."),
+                                                                          Length(min=2, max=40,
+                                                                                 message="Must be 2 to 40 characters long.")])
 
     email = EmailField('E Mail', validators=[DataRequired(), Email("Requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
@@ -85,6 +87,10 @@ class SignupForm(FlaskForm):
     phone_no = StringField('Phone', validators=[
         OptionalFieldValidator(message="Can only contain digits and dash.", regex_str="^[0-9\s\-\+]+$")])
 
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+        self.institution.choices = [(c["elu_accession"], c["institution_name"]) for c in app.config.get('DATA_INIT')['collab_institutions']]
+
 
 class UserForm(SignupForm):
     """This form is used to view and edit a particular User record in the ELIXIR DCP database.
@@ -94,7 +100,7 @@ class UserForm(SignupForm):
     assigned_role_ids = SelectMultipleField('Has Roles', coerce=int)
 
     def __init__(self, *args, **kwargs):
-        FlaskForm.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.assigned_role_ids.choices = [(rol.id, rol.name) for rol in Role.query.all()]
 
 
