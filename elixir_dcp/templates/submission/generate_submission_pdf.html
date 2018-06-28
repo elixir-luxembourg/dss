@@ -25,11 +25,11 @@
                     <table class="table table-bordered">
                         <tr>
                             <th scope="row">Reference No</th>
-                            <td>{{ submission_rec.ref_name }}</td>
+                            <td> {{ submission_rec.ref_name or '' }} </td>
                         </tr>
                         <tr>
                             <th scope="row">Title</th>
-                            <td>{{ submission_rec.title }}</td>
+                            <td>{{ submission_rec.title or '' }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Data Provider(s)</th>
@@ -37,11 +37,11 @@
                         </tr>
                         <tr>
                             <th scope="row">Date of Finalisation</th>
-                            <td>{{ submission_rec.created_on  }}</td>
+                            <td>{{ submission_rec.dish_finalised_on or '' }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Category</th>
-                            <td>{{ submission_rec.submission_scope.label  }}</td>
+                            <td>{{ submission_rec.submission_scope.label }}</td>
                         </tr>
                         <tr>
                             <th scope="row">Recipient</th>
@@ -49,7 +49,7 @@
                         </tr>
                         <tr>
                             <th scope="row">Recipient Project</th>
-                            <td>{{ submission_rec.collab_project_name }}</td>
+                            <td>{{ submission_rec.collab_project_name or ''  }}</td>
                         </tr>
                     </table>
             </div>

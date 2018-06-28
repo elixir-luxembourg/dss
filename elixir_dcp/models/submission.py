@@ -105,6 +105,7 @@ class Submission(db.Model):
     ref_name = db.Column(db.String(45), index=True, unique=True, nullable=False, default=uniqid())
     title = db.Column(db.String(75))
     created_on = db.Column(db.Date, nullable=False)
+    dish_finalised_on = db.Column(db.Date)
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
     upload_instructions = db.Column(db.String)
 

@@ -69,9 +69,7 @@ class SignupForm(FlaskForm):
     institution = SelectField('Institution',  validators=[DataRequired()])
 
     institution_division = StringField('Division/Department', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
-                                                                                                 message="Can only contain letters, digits, dash, comma and dot."),
-                                                                          Length(min=2, max=40,
-                                                                                 message="Must be 2 to 40 characters long.")])
+                                                                                                 message="Can only contain letters, digits, dash, comma and dot.")])
 
     email = EmailField('E Mail', validators=[DataRequired(), Email("Requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})

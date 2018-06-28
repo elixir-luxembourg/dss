@@ -56,14 +56,7 @@ def edit_user(user_id):
         form = forms.UserForm(request.form)
         user_rec = User.query.get_or_404(form.id.data)
         if form.validate_on_submit():
-            update_user_info(user_rec, first_name=form.first_name.data,
-                             last_name=form.last_name.data,
-                             institution=form.institution.data,
-                             email=form.email.data,
-                             addr_line1=form.addr_line1.data,
-                             addr_line2=form.addr_line2.data,
-                             phone_no=form.phone_no.data,
-                             assigned_role_ids=form.assigned_role_ids.data)
+            update_user_info(user_rec, **form.data)
 
             flash('User updated', 'success')
             return redirect(url_for('list_users'))

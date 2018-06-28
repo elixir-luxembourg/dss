@@ -40,6 +40,7 @@ def steer_sub(submission_id: str):
         if target_state == SubmissionStatusEnum.in_progress_metadata:
             send_submission_steer_step1_notification(submission)
         elif target_state == SubmissionStatusEnum.in_progress_data:
+            submission.dish_finalised_on = datetime.today()
             send_submission_steer_step2_notification(submission)
             flash('An upload link will be created once all information provided is checked and where required signatures are received.', 'success')
         elif target_state == SubmissionStatusEnum.completed:
