@@ -1,3 +1,5 @@
+import os
+
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, GA4GHCodes
 from elixir_dcp.models.security import User, Role, UsersRoles
 from elixir_dcp.controllers.utils import equal_long_strings
@@ -8,6 +10,7 @@ from flask import flash, render_template
 from sqlalchemy import and_
 from threading import Thread
 from flask_mail import Message
+import json
 
 
 def delete_sub(submission_id: str):
@@ -243,3 +246,131 @@ def update_user_info(usr: User, **kwargs):
 
     db.session.add(usr)
     db.session.commit()
+
+
+def export_submission(sub:Submission):
+
+    sub_info = {}
+
+    sub_info['submission_ref_name'] = sub.ref_name
+    sub_info['title'] = sub.title
+    sub_info['created_on'] = sub.created_on.strftime("%Y/%m/%d")
+    if sub.dish_finalised_on:
+        sub_info['finalised_on'] = sub.dish_finalised_on.strftime("%Y/%m/%d")
+    sub_info['scope'] = sub.submission_scope.label
+
+
+    submitters = []
+    for access in sub.submission_accesses:
+        provider_info = {}
+        provider_info['institution'] = access.user.institution
+        if access.user.institution_division:
+            provider_info['institution_division']= access.user.institution_division
+        provider_info['email'] = access.user.email
+        provider_info['first_name'] = access.user.first_name
+        provider_info['last_name'] = access.user.last_name
+        provider_info['phone_no'] = access.user.phone_no
+
+        if access.user.addr_line1 or access.user.addr_line2:
+            provider_info['address'] = (access.user.addr_line1 or '') + ' ' + (access.user.addr_line2 or '')
+
+        provider_info['role'] = 'Data_Manager'
+        submitters.append(provider_info)
+
+    sub_info['submitters'] = submitters
+
+    sub_info['studies'] = export_studies(sub)
+
+    sub_info['datasets'] = export_dishes(sub)
+
+    sub_info['attachments'] = export_and_copy_attachments(sub, 'TODO SOme folder')
+
+    #TODO add copy to folder and ZIPPING
+
+    return sub_info
+
+
+def export_dishes(sub:Submission):
+    dataset_list = []
+    for dish in sub.dishes:
+        dataset_info = {}
+        dataset_info['submission_ref']= sub.ref_name
+        dataset_info['title']= 'DATA SET TITLE - TESTT'
+        #Put here the title property
+
+        #TODO Also put here the source study as source project
+
+        dataset_info['source_project'] = 'first study'
+        if sub.is_elixir():
+            dataset_info['source_type'] = 'From_Elixir_Data_Submitter'
+        else:
+            dataset_info['source_type'] = 'From_Collaborator'
+
+        dataset_info['local_custodian'] = json.loads(sub.collab_local_custodian_json)
+        dataset_info['local_project'] = sub.collab_project_name
+        dataset_info['data_types']= dish.data_type_names()
+        dataset_info['data_size_category']=dish.estimate_data_size_code
+        dataset_info['data_dictionary_exists']=dish.metadata_exists
+        dataset_info['has_special_subjects']=dish.subjects_unable_to_consent or dish.subjects_vulnerable or dish.subjects_minors
+        subj_notes = ''
+        if dish.subjects_unable_to_consent: subj_notes+='Subjects unable to consent. '
+        if dish.subjects_vulnerable: subj_notes+='Other vulnerable subjects. '
+        if dish.subjects_minors: subj_notes+='Subjects minors. '
+        if dish.subjects_notes: subj_notes+=dish.subjects_notes
+
+        if subj_notes: dataset_info['special_subject_notes'] = subj_notes
+
+        dataset_info['consent_status'] = dish.consent_status.label.lower()
+        if dish.consent_notes: dataset_info['consent_notes'] = dish.consent_notes
+        dataset_info['de_identification'] = dish.de_identification_type.label.lower()
+        use_restrictions = []
+        for duc_instance in dish.duc_codes:
+            use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
+                                     'note': duc_instance.note})
+        dataset_info['use_restrictions'] = use_restrictions
+        dataset_list.append(dataset_info)
+    return dataset_list
+
+
+def export_and_copy_attachments(sub:Submission, copy_folder):
+    attachment_list = []
+    for att in sub.attachments:
+        att_info = {}
+        att_info['description'] = att.note
+        files_list = []
+        names = att.file_names.strip(' \t\n\r').split(" ")
+        for name in names:
+            files_list.append({"$ref": os.path.join(att.folder_name, name)})
+            #TODO Also copy the files to the export folder
+        att_info['files'] = files_list
+        attachment_list.append(att_info)
+    return attachment_list
+
+def export_studies(sub:Submission):
+    study_list = []
+    # for stdy in sub.studies:
+    #     study_info = {}
+    #     study_info['title'] = stdy.study_name
+    #     study_info['study_description'] = stdy.study_description
+    #     study_info['study_types'] = stdy.study_type_names()
+    #     study_info['has_national_ethics_approval'] = stdy.ethics_approval_exists
+    #     study_info['legal_basis_data_collection'] = stdy.legal_basis_collection.label
+    #     study_info['legal_basis_data_sharing'] = stdy.legal_basis_sharing.label
+    #     study_list.append(study_info)
+    study_list.append({'title':'first study',
+                       'description':'This study investigates blah blah..',
+                       'study_types' : ['Clinical_Trial', 'Blind'],
+                       'has_national_ethics_approval' : True,
+                       'legal_basis_data_collection' : 'Consent',
+                       'legal_basis_data_sharing' : 'Public_Interest'})
+    study_list.append({'title':'second study',
+                       'description':'This study also investigates blah blah..',
+                       'study_types' : ['Observational', 'Longitudinal'],
+                       'has_national_ethics_approval' : True,
+                       'legal_basis_data_collection' : 'Consent',
+                       'legal_basis_data_sharing' : 'Legitimate_Interest'})
+    return study_list
+
+
+
+
