@@ -1,6 +1,6 @@
 # coding=utf-8
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, \
-    StudyDishForm, UploadInfoForm
+    StudyDishForm, UploadInfoForm, StudyForm
 from elixir_dcp.models.security import Role
 from wtforms import BooleanField, HiddenField, StringField, PasswordField, SelectMultipleField
 from wtforms.fields.html5 import EmailField

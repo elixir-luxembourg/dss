@@ -21,14 +21,8 @@
         </thead>
         {% for dish in dishes %}
             <tr>
-                <td>{{ dish.study_name }}</td>
-                <td>
-                    <ul>
-                        {% for  name in dish.study_type_names() %}
-                            <li>{{ name }}</li>
-                        {% endfor %}
-                    </ul>
-                </td>
+            <td>{{ dish.studies.study_name }}</td>
+            <td>{{ dish.studies.study_type_names() | join(', ') }}</td>
                 <td>
                     <ul>
                         {% for name in dish.data_type_names() %}
