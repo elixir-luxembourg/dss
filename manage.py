@@ -4,8 +4,8 @@ from flask_assets import ManageAssets
 from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell, Server
 from elixir_dcp import app, db, mail
-from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, SubmissionContact, \
-    SubmissionStatusEnum, GA4GHCodes, DeIdentificationType, LegalBasisType, ConsentStatus, SubmissionScope
+from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, StudyContact, \
+    SubmissionStatusEnum, GA4GHCodes, DeIdentificationType, LegalBasisType, ConsentStatus, SubmissionScope, SubmissionStudy
 from elixir_dcp.models.security import User, Role
 from elixir_dcp.models.services import assign_role_to_user, register_new_user
 
@@ -52,12 +52,18 @@ def init_db():
                       current_status=SubmissionStatusEnum.draft)
     sub2 = Submission(ref_name='ELX_LU_SUB-2', title='Submission of Predict-TB  data',
                       created_on=datetime.today(), current_status=SubmissionStatusEnum.draft)
-    contact1 = SubmissionContact(name='P\u0131nar', surname='Alper', category_id=3, email="pinar.alper@uni.lu",
+    study1 = SubmissionStudy(study_name='Etriks', study_description='Etriks', study_types_json='["exome", "clinical Data"]')
+    sub1.studies.append(study1)
+    study2 = SubmissionStudy(study_name='OncoTrack', study_description='IMI Project',
+                             study_types_json='["exome", "clinical Data"]')
+    sub1.studies.append(study2)
+    contact1 = StudyContact(firstname='Kavita', surname='Rege', category_id=3, email="kavita.rege@uni.lu",
                                  institution="University of Luxembourg")
-    sub1.contacts.append(contact1)
-    contact2 = SubmissionContact(name='Valentin', surname='Grou\u00E8s', category_id=1, email="pinar.alper@uni.lu",
+    study1.study_contacts.append(contact1)
+    contact2 = StudyContact(firstname='Pinar', surname='Alper', category_id=2, email="pinar.alper@uni.lu",
                                  institution="University of Luxembourg")
-    sub2.contacts.append(contact2)
+    study1.study_contacts.append(contact2)
+
     db.session.add(sub1)
     db.session.add(sub2)
     db.session.commit()

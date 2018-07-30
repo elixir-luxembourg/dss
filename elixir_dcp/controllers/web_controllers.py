@@ -12,8 +12,8 @@ from elixir_dcp.models.security import User
 from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert_sub, \
     get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info, \
     update_user_info
-from elixir_dcp.models.submission import Submission, SubmissionAttachment, SubmissionContact, \
-    SubmissionStudyDish, SubmissionUploadInfo
+from elixir_dcp.models.submission import Submission, SubmissionAttachment, StudyContact, \
+    SubmissionStudyDish, SubmissionUploadInfo, SubmissionStudy
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 import os
@@ -32,8 +32,6 @@ __author__ = 'Pinar Alper'
 @app.route('/', methods=['GET'])
 def home():
     return render_template('home.html')
-
-
 
 
 @app.route('/users', methods=['GET'])
@@ -310,39 +308,44 @@ def inline_submission_contacts(sub_id):
                                                           sub_id=submission_rec.id))
 
 
-@app.route('/submission_contacts/<int:sub_id>', methods=['GET'])
+@app.route('/submission_contacts/<int:study_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def list_submission_contacts(sub_id):
-    contacts = SubmissionContact.query.filter_by(submission_id=sub_id)
+def list_submission_contacts(study_id):
+    contacts = StudyContact.query.filter_by(study_id=study_id)
     return render_template('submission/_contact_columns.html', contacts=contacts)
 
-@app.route('/submission_contact_add/<int:sub_id>', methods=['POST'])
+
+@app.route('/add_submission_contact', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def add_submission_contact(sub_id):
+def add_submission_contact(study_id):
+
     posted_form = forms.ContactForm(request.form)
-    if posted_form.validate_on_submit() and (int(posted_form.submission_id.data) == sub_id):
-        contact_rec = SubmissionContact()
+
+    if posted_form.validate_on_submit() and (int(posted_form.study_id.data) == study_id):
+        contact_rec = StudyContact()
         posted_form.populate_obj(contact_rec)
         contact_rec.id = None
         db.session.add(contact_rec)
         db.session.commit()
         return render_template('submission/_contact_form.html', contact_form=forms.ContactForm(formdata=None,
                                                                                            obj=None,
-                                                                                            sub_id=sub_id)), 200
+                                                                                               study_id=study_id)), 200
     else:
+
         return render_template('submission/_contact_form.html', contact_form=posted_form), 400
+
 
 @app.route('/submission_contact/<int:contact_id>', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionContact', 'entity_id_key':'contact_id', 'entity_ac_attribute':'submission_id'})
 def edit_submission_contact(contact_id):
     if request.method == 'GET':
-        contact_rec = SubmissionContact.query.get_or_404(contact_id)
+        contact_rec = StudyContact.query.get_or_404(contact_id)
         result_form = forms.ContactForm(obj=contact_rec)
         return render_template('submission/_contact_form.html', contact_form=result_form)
     elif request.method == 'POST':
         posted_form = forms.ContactForm(request.form)
         if posted_form.validate_on_submit():
-            contact_rec = SubmissionContact.query.get_or_404(contact_id)
+            contact_rec = StudyContact.query.get_or_404(contact_id)
             posted_form.populate_obj(contact_rec)
             db.session.add(contact_rec)
             db.session.commit()
@@ -357,9 +360,9 @@ def edit_submission_contact(contact_id):
 
 
 @app.route('/submission_contact/<int:contact_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionContact', 'entity_id_key':'contact_id', 'entity_ac_attribute':'submission_id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'StudyContact', 'entity_id_key':'contact_id', 'entity_ac_attribute':'submission_id'})
 def delete_submission_contact(contact_id):
-    submission_contact = SubmissionContact.query.get_or_404(contact_id)
+    submission_contact = StudyContact.query.get_or_404(contact_id)
     db.session.delete(submission_contact)
     db.session.commit()
     return "", 204
@@ -466,18 +469,18 @@ def list_submission_dishes(sub_id):
     dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
     return render_template('submission/_dish_columns.html', dishes=dishes)
 
+
 @app.route('/submission_dish_add/<int:sub_id>', methods=['POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def add_submission_dish(sub_id):
     posted_form = forms.StudyDishForm(request.form)
-    if posted_form.validate_on_submit() and (int(posted_form.submission_id.data) == sub_id):
+    if posted_form.validate_on_submit() and int(posted_form.submission_id.data) == sub_id:
+
         dish_rec = SubmissionStudyDish()
         posted_form.populate_obj(dish_rec)
         dish_rec.id = None
         if posted_form.data_types.data:
             dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
-        if posted_form.study_types.data:
-            dish_rec.study_types_json = json.dumps(posted_form.study_types.data)
         db.session.add(dish_rec)
         db.session.commit()
         return render_template('submission/_dish_form.html', dish_form=forms.StudyDishForm(formdata=None,
@@ -487,15 +490,14 @@ def add_submission_dish(sub_id):
         return render_template('submission/_dish_form.html', dish_form=posted_form), 400
 
 
-
 @app.route('/submission_dish/<int:dish_id>', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudyDish', 'entity_id_key':'dish_id', 'entity_ac_attribute':'submission_id'})
 def edit_submission_dish(dish_id):
     if request.method == 'GET':
         dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
         result_form = forms.StudyDishForm(obj=dish_rec)
-        if dish_rec.study_types_json:
-            result_form.study_types.data = json.loads(dish_rec.study_types_json)
+        # if dish_rec.study_types_json:
+        #     result_form.study_types.data = json.loads(dish_rec.study_types_json)
         if dish_rec.data_types_json:
             result_form.data_types.data = json.loads(dish_rec.data_types_json)
 
@@ -509,8 +511,8 @@ def edit_submission_dish(dish_id):
 
             if posted_form.data_types.data:
                 dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
-            if posted_form.study_types.data:
-                dish_rec.study_types_json = json.dumps(posted_form.study_types.data)
+            # if posted_form.study_types.data:
+            #     dish_rec.study_types_json = json.dumps(posted_form.study_types.data)
             db.session.add(dish_rec)
             db.session.commit()
 
@@ -532,7 +534,82 @@ def delete_submission_dish(dish_id):
     # flash("Study deleted", "success")
     return "", 204
 
+"""----------------------------------------------------"""
+"""AJAX Endpoints for managing a Submission's Studies."""
+"""----------------------------------------------------"""
 
+
+@app.route('/submission_studies_inline/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+def inline_submission_studies(sub_id):
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/_studies.html', submission=submission_rec,
+                           study_form=forms.StudyForm(formdata=None,
+                                                          obj=None,
+                                                          sub_id=submission_rec.id), contact_form=forms.ContactForm())
+
+
+@app.route('/submission_studies/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+def list_submission_studies(sub_id):
+    studies = SubmissionStudy.query.filter_by(submission_id=sub_id)
+    return render_template('submission/_study_columns.html', studies=studies, contact_form=forms.ContactForm())
+
+
+@app.route('/submission_study_add/<int:sub_id>', methods=['POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+def add_submission_study(sub_id):
+    posted_form = forms.StudyForm(request.form)
+    if posted_form.validate_on_submit() and (int(posted_form.submission_id.data) == sub_id):
+        study_rec = SubmissionStudy()
+        posted_form.populate_obj(study_rec)
+        study_rec.id = None
+        if posted_form.study_types.data:
+            study_rec.study_types_json = json.dumps(posted_form.study_types.data)
+        db.session.add(study_rec)
+        db.session.commit()
+        return render_template('submission/_study_form.html', study_form=forms.StudyForm(formdata=None,
+                                                                                         obj=None,
+                                                                                         sub_id=sub_id)), 200
+    else:
+        return render_template('submission/_study_form.html', study_form=posted_form), 400
+
+
+@app.route('/submission_study/<int:study_id>', methods=['GET', 'POST'])
+def edit_submission_study(study_id):
+    if request.method == 'GET':
+        study_rec = SubmissionStudy.query.get_or_404(study_id)
+        result_form = forms.StudyForm(obj=study_rec)
+        if study_rec.study_types_json:
+            result_form.study_types.data = json.loads(study_rec.study_types_json)
+        return render_template('submission/_study_form.html', study_form=result_form, contact_form=forms.ContactForm(study_id=study_rec.id))
+    elif request.method == 'POST':
+        posted_form = forms.StudyForm(request.form)
+        if posted_form.validate_on_submit():
+            study_rec = SubmissionStudy.query.get_or_404(study_id)
+            posted_form.populate_obj(study_rec)
+            if posted_form.study_types.data:
+                study_rec.study_types_json = json.dumps(posted_form.study_types.data)
+            db.session.add(study_rec)
+            db.session.commit()
+
+            sid = posted_form.submission_id.data
+
+            return render_template('submission/_study_form.html', study_form=forms.StudyForm(formdata=None,
+                                                                                             obj=None,
+                                                                                             sub_id=sid)), 200
+        else:
+            return render_template('submission/_study_form.html', study_form=posted_form), 400
+
+
+@app.route('/submission_study/<int:study_id>', methods=['DELETE'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudyDish', 'entity_id_key':'dish_id', 'entity_ac_attribute':'submission_id'})
+def delete_submission_study(study_id):
+    study = SubmissionStudy.query.get_or_404(study_id)
+    db.session.delete(study)
+    db.session.commit()
+    # flash("Study deleted", "success")
+    return "", 204
 
 """----------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's Upload Info Records."""

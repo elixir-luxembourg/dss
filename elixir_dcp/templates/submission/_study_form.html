@@ -1,0 +1,64 @@
+{% import "forms_macros.html" as fmacros %}
+
+
+<div class="panel panel-default">
+
+    <div class="panel-heading">{% if study_form.id.data %}Update {% else %}Add New {% endif %}Study</div>
+    <div class="panel-body">
+        <form id="form_submission_study" {% if study_form.id.data %} data-url="{{ url_for('edit_submission_study', study_id = study_form.id.data)}}"  {% else %} data-url="{{ url_for('add_submission_study', sub_id=study_form.submission_id.data)}}" {% endif %} >
+            <fieldset>
+                <legend>Study</legend>
+                {{ study_form.hidden_tag() }}
+                {{ fmacros.render_field_with_errors(study_form.study_name) }}
+                {{ fmacros.render_field_with_errors(study_form.study_description) }}
+                {{ fmacros.render_field_with_errors(study_form.study_types, clazz="elx-multi-select") }}
+                <fieldset>
+                    <legend>Study Contacts</legend>
+                    <div class="form-group row {% if study_form.study_contacts.errors %}has-error{% endif %}" >
+
+                    <div class="col-md-8">
+                        <div data-toggle="fieldset" id="study-contacts-fieldset">
+                            <button type="button" data-toggle="fieldset-add-row" data-target="#study-contacts-fieldset">+
+                            </button>
+                            <table style="width:820px">
+                                <tr>
+                                    <th width="20%">Name</th>
+                                    <th width="20%">Surname</th>
+                                    <th width="20%">Email</th>
+                                    <th width="25%">Category</th>
+                                    <th width="20%">Institution</th>
+                                </tr>
+                                {% for contact in study_form.study_contacts %}
+                                <tr data-toggle="fieldset-entry">
+                                    <td>{{ contact.firstname }}</td>
+                                    <td>{{ contact.surname }}</td>
+                                    <td>{{ contact.email }}</td>
+                                    <td>{{ contact.category_id }}</td>
+                                    <td>{{ contact.institution }}</td>
+                                    <td>
+                                        <button type="button" data-toggle="fieldset-remove-row"
+                                                id="study-contacts-{{ loop.index0 }}-remove">-
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        {% if study_form.study_contacts.errors %}
+                        {% for error in study_form.study_contacts.errors %}<p class="help-block">{{ error }}</p>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                 </fieldset>
+            </fieldset>
+
+        </form>
+
+
+
+
+
+     <a id="submission_study_save" class="save btn btn-raised btn-primary" role="button">Save Study</a>
+    </div>
+</div>

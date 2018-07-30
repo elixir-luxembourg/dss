@@ -51,9 +51,9 @@ $(document).ready(function () {
             });
         });
 
-
         $("div[data-toggle=fieldset]").each(function () {
             var $this = $(this);
+
             //Add new entry
             $this.find("button[data-toggle=fieldset-add-row]").click(function () {
                 var target = $($(this).data("target"))
@@ -80,6 +80,8 @@ $(document).ready(function () {
                 }
             }); //End remove row
         });
+
+
     }
 
 
@@ -189,16 +191,90 @@ $(document).ready(function () {
      */
 
 
-    $("#contacts_inline_editor").on('click', 'a#submission_contact_save', function () {
+    // $("#theModal").on('click', 'a#submission_contact_save', function () {
+    //     //event.preventDefault();
+    //     // $.ajax({
+    //     //     url: $('#form_submission_contact').attr('data-url'),
+    //     //     type: 'post',
+    //     //     data: $('#form_submission_contact').serialize(),
+    //     //     success: function (result) {
+    //     //         $('#theModal .modal-content').html(result);
+    //     //         displayInlineSuccess("Submission Contact saved");
+    //     //         $('#theModal').modal('hide');
+    //     //         location.reload();
+    //     //     },
+    //     //
+    //     //     error: function (xhr, status, error) {
+    //     //         if (error === VALIDATION_ERROR) {
+    //     //             refresh_bean_list("contacts");
+    //     //             $("#contacts_inline_editor").html(xhr.responseText);
+    //     //             displayInlineError("Please check the validity of your input in highlighted places");
+    //     //         }
+    //     //     }
+    //     //
+    //     //
+    //     // });
+    //     var value = $('#form_submission_contact').serialize();
+    //
+    //     var data = data + value;
+    //     alert(data)
+    //     $("#contact_table > tbody:last-child").append('<tr><td>'+$("#name").val()+'</td><td>'+$("#surname").val()+'</td><td>'+$("#email").val()+'</td></tr>');
+    //     $('#theModal').modal('hide');
+    //
+    // });
+    // $("#theModal").on('click', 'a#submission_contact_listing_delete', function () {
+    //     bean_list_delete_handler($(this).attr('data-url'), "contacts");
+    //     displayInlineSuccess("Submission Contact deleted.");
+    // });
+    //
+    // $("#theModal").on('click', 'a#submission_contact_listing_edit', function () {
+    //     $.ajax({
+    //         url: $(this).attr('data-url'),
+    //         type: "get",
+    //         success: function (result) {
+    //             $("#contacts_inline_editor").html(result);
+    //             bind_widgets();
+    //         },
+    //         error: function () {
+    //             alert('An error occurred while loading the selected contact');
+    //         }
+    //     });
+    // });
+    //
+    //
+    // $('button#addContactButton').on('click', function(e){
+    //
+		// 		e.preventDefault();
+		// 		var url = $(this).attr('data-url');
+		// 		alert(url);
+		// 		$.get(url, function(data) {
+    //
+		// 		    $('#theModal .modal-content').html(data);
+		// 		    $('#theModal').modal('show');
+		// 		  });
+    //
+		// 	});
+
+
+     /**
+     *
+     *
+     * Studies Inline Editor button handlers.
+     *
+     *
+     */
+
+
+    $("#studies_inline_editor").on('click', 'a#submission_study_save', function () {
 
         $.ajax({
-            url: $('#form_submission_contact').attr('data-url'),
+            url: $('#form_submission_study').attr('data-url'),
             type: 'post',
-            data: $('#form_submission_contact').serialize(),
+            data: $('#form_submission_study').serialize(),
             success: function (result) {
-                refresh_bean_list("contacts");
-                $("#contacts_inline_editor").html(result);
-                displayInlineSuccess("Submission Contact saved");
+                refresh_bean_list("studies");
+                $("#studies_inline_editor").html(result);
+                displayInlineSuccess("Submission study saved");
                 bind_widgets();
                 scroll_to_top();
             },
@@ -212,17 +288,17 @@ $(document).ready(function () {
 
         });
     });
-    $("#contacts_inline_list").on('click', 'a#submission_contact_listing_delete', function () {
-        bean_list_delete_handler($(this).attr('data-url'), "contacts");
-        displayInlineSuccess("Submission Contact deleted.");
+    $("#studies_inline_list").on('click', 'a#submission_study_listing_delete', function () {
+        bean_list_delete_handler($(this).attr('data-url'), "Studies");
+        displayInlineSuccess("Submission Study deleted.");
     });
 
-    $("#contacts_inline_list").on('click', 'a#submission_contact_listing_edit', function () {
+    $("#studies_inline_list").on('click', 'a#submission_study_listing_edit', function () {
         $.ajax({
             url: $(this).attr('data-url'),
             type: "get",
             success: function (result) {
-                $("#contacts_inline_editor").html(result);
+                $("#studies_inline_editor").html(result);
                 bind_widgets();
             },
             error: function () {
@@ -240,6 +316,7 @@ $(document).ready(function () {
      *
      *
      */
+
 
     $("#attachments_inline_list").on('click', 'a#submission_attachment_listing_delete', function () {
         bean_list_delete_handler($(this).attr('data-url'), "attachments");
@@ -286,7 +363,6 @@ $(document).ready(function () {
 
 
     $("#dishes_inline_editor").on('click', 'a#submission_dish_save', function () {
-
         $.ajax({
             url: $('#form_submission_dish').attr('data-url'),
             type: 'post',
@@ -310,6 +386,7 @@ $(document).ready(function () {
     });
 
     $("#dishes_inline_list").on('click', 'a#submission_dish_listing_delete', function () {
+
         bean_list_delete_handler($(this).attr('data-url'), "dishes");
         displayInlineSuccess("Study deleted");
     });
@@ -366,7 +443,7 @@ $(document).ready(function () {
     });
 
     $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_delete', function () {
-        bean_list_delete_handler($(this).attr('data-url'), "uploadinfos");
+        alert(bean_list_delete_handler($(this).attr('data-url'), "uploadinfos");)
         displayInlineSuccess("Upload Checksum deleted");
     });
 

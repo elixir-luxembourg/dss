@@ -46,6 +46,7 @@ class SubmissionAttachment(db.Model):
         else:
             return None
 
+
 class DeIdentificationType(db.Model):
     __tablename__ = 'deidentification_type'
     code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
@@ -115,7 +116,8 @@ class Submission(db.Model):
     collab_project_name = db.Column(db.String)
 
     submission_accesses = db.relationship('SubmissionAccess', cascade="all, delete-orphan")
-    contacts = db.relationship("SubmissionContact", cascade="all, delete-orphan")
+    #contacts = db.relationship("StudyContact", cascade="all, delete-orphan")
+    studies = db.relationship("SubmissionStudy", cascade="all, delete-orphan")
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
     dishes = db.relationship("SubmissionStudyDish", cascade="all, delete-orphan")
     uploadinfos = db.relationship("SubmissionUploadInfo", cascade="all, delete-orphan")
@@ -158,20 +160,21 @@ class Submission(db.Model):
             return True
 
 
-class SubmissionContact(db.Model):
-    __tablename__ = 'submission_contacts'
+class StudyContact(db.Model):
+    __tablename__ = 'study_contacts'
 
     id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-    name = db.Column(db.String, nullable=False)
+    firstname = db.Column(db.String, nullable=False)
     surname = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
     institution = db.Column(db.String, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('contact_types.id'), nullable=False)
     contact_category = db.relationship('ContactType')
+    study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'), nullable=False)
+    study = db.relationship("SubmissionStudy", back_populates="study_contacts")
 
     def fullname(self):
-        return self.name + " " + self.surname.upper()
+        return self.firstname + " " + self.surname.upper()
 
 
 class SubmissionUploadInfo(db.Model):
@@ -196,17 +199,43 @@ class DUCCodeInstance(db.Model):
         ga4gh_code_name =  GA4GHCodes.query.filter_by(code=ga4gh_code).one_or_none().name
         return ga4gh_code_name
 
-class SubmissionStudyDish(db.Model):
-    __tablename__ = 'submission_dishes'
 
+class SubmissionStudy(db.Model):
+    __tablename__ = 'submission_study'
     # Study
     id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'))
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     study_name = db.Column(db.String, nullable=False)
     study_description = db.Column(db.String, nullable=False)
     study_types_json = db.Column(db.String, nullable=False)
+    study_contacts = db.relationship("StudyContact", back_populates='study',cascade="all, delete-orphan" )
+    dishes = db.relationship("SubmissionStudyDish", backref='study', lazy=True)
+    def study_type_names(self):
+
+        if self.study_types_json is not None:
+            return json.loads(self.study_types_json)
+
+        else:
+            return []
+
+    def study_contacts_names(self, study_id):
+        contact_fullname = []
+        contacts = StudyContact.query.filter(StudyContact.study_id==study_id).all()
+        if contacts is not None:
+            for contact in contacts:
+                contact_fullname.append(contact.fullname())
+            return contact_fullname
+        else:
+            return []
+
+
+class SubmissionStudyDish(db.Model):
+    __tablename__ = 'submission_dishes'
 
     # Data
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'), nullable=False)
     estimate_data_size_code = db.Column(db.String, db.ForeignKey('data_size_category.code'), nullable=False, default='s')
     data_types_json = db.Column(db.String, nullable=False)
     metadata_exists = db.Column(db.Boolean, nullable=False, default=True)
@@ -231,13 +260,8 @@ class SubmissionStudyDish(db.Model):
     de_identification_type = db.relationship('DeIdentificationType')
 
     duc_codes = db.relationship("DUCCodeInstance", back_populates="study", cascade="all, delete-orphan")
+    studies = db.relationship("SubmissionStudy",  passive_deletes='all')
 
-    def study_type_names(self):
-        if self.study_types_json is not None:
-
-            return json.loads(self.study_types_json)
-        else:
-            return []
 
     def data_type_names(self):
         if self.data_types_json is not None:
@@ -254,8 +278,6 @@ class SubmissionStudyDish(db.Model):
                 result.append((duc_code_instance.ga4gh_code,
                                GA4GHCodes.query.filter_by(code=duc_code_instance.ga4gh_code).one_or_none().name))
         return result
-
-
 
     def special_subjects_status_display(self):
         if self.subjects_unable_to_consent or self.subjects_vulnerable or self.subjects_minors:

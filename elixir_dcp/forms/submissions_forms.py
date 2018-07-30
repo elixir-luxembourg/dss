@@ -6,7 +6,7 @@ from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Email, Regexp, Length
 
 from .validators import OptionalFieldValidator
-from elixir_dcp.models.submission import  ContactType,  GA4GHCodes, DUCCodeInstance
+from elixir_dcp.models.submission import  ContactType,  GA4GHCodes, DUCCodeInstance, StudyContact, SubmissionStudy
 from elixir_dcp import app
 from elixir_dcp.models.services import get_active_users
 
@@ -37,14 +37,12 @@ class ContactForm(FlaskForm):
     """
     Form for creating or updating contacts
     """
-    id = HiddenField('Contact_Id')
-    submission_id = HiddenField('Submission Id')
-    name = StringField('Name',
-                       validators=[DataRequired(),
-                                   Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
-                                   Length(min=2, max=20,
-                                          message="Must be 2 to 20 characters long.")],
-                       render_kw={"placeholder": "Name"})
+    firstname = StringField('Name',
+                          validators=[DataRequired(),
+                                      Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
+                                      Length(min=2, max=20,
+                                             message="Must be 2 to 20 characters long.")],
+                          render_kw={"placeholder": "Name"})
     surname = StringField('Surname',
                           validators=[DataRequired(),
                                       Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
@@ -64,10 +62,34 @@ class ContactForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
-        if 'sub_id' in kwargs:
-            self.submission_id.data = kwargs['sub_id']
         self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
 
+
+class StudyForm(FlaskForm):
+    """
+        Form for creating or updating studies
+    """
+    id = HiddenField('study_id')
+    submission_id = HiddenField('Submission Id')
+    study_name = StringField('Study Name', validators=[DataRequired(), Regexp('^[\w\s\-]+$',
+                                                                              message="Name must contain only letters, digits, underscore or dash")])
+    study_description = TextAreaField('Study Description',
+                                      description="Please provide a short description of the study.",
+                                      render_kw={'rows': 3},
+                                      validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                         message="Can only contain letters, digits, dash, comma and dot.")])
+    study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
+                                      description="Please select the categories that would best characterise the study within which the data has been collected.")
+
+    study_contacts = FieldList(FormField(ContactForm, default=lambda: StudyContact()), min_entries=1,
+         label='Contacts')
+
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+        if 'sub_id' in kwargs:
+            self.submission_id.data = kwargs['sub_id']
+        # self.study_contacts.choices = [(c.id, c.fullname()) for c in StudyContact.query.filter(StudyContact.id==self.id.data).all()]
+        self.study_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['study_types']]
 
 class UploadInfoForm(FlaskForm):
     """
@@ -143,26 +165,19 @@ class StudyDishForm(FlaskForm):
     """
     Form for creating or updating DISH for each study within a submission
     """
-    # Study
     id = HiddenField('DISH_Id')
     submission_id = HiddenField('Submission Id')
-    study_name = StringField('Study Name', validators=[DataRequired(),  Regexp('^[\w\s\-]+$',
-                                                                               message="Name must contain only letters, digits, underscore or dash")])
-    study_description = TextAreaField('Study Description',
-                                      description="Please provide a short description of the study.",
-                                      render_kw={'rows': 3},
-                                      validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
-                                                                         message="Can only contain letters, digits, dash, comma and dot.")])
-    study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
-                                      description="Please select the categories that would best characterise the study within which the data has been collected.")
 
     # Data
+    study_id = SelectField('Study Name', coerce=int, description="Please select the Study name for this Dataset.",
+                        validators=[DataRequired()])
     estimate_data_size_code = SelectField('Estimated Total Data Size',
-                                     description="Please select the estimated size of the dataset that will be subnmitted for this study.",
-                                     validators=[DataRequired()])
+                                          description="Please select the estimated size of the dataset that will be subnmitted for this study.",
+                                          validators=[DataRequired()])
 
     data_types = SelectMultipleField('Data Type(s)',
-                                     description="Please select the categories that would best characterise the types of data within this dataset.")
+                                     description="Please select the categories that would best characterise the types of data within this dataset.",
+                                     validators=[DataRequired()])
     metadata_exists = BooleanField('Metadata Provided',
                                    description="Confirmation of whether metadata will be uploaded alongside data. As a minimum we would expect a Data Dictionary to be supplied alongside data.",
                                    default=True)
@@ -196,4 +211,4 @@ class StudyDishForm(FlaskForm):
         self.consent_status_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['consent_status']]
         self.de_identification_type_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['deidentification_type']]
         self.data_types.choices = app.config.get('DATA_INIT')['data_types']
-        self.study_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['study_types']]
+        self.study_id.choices = [(study.id, study.study_name) for study in SubmissionStudy.query.filter_by(submission_id=self.submission_id.data)]
