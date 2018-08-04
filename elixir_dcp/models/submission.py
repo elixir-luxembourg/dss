@@ -26,6 +26,20 @@ class DataSizeCategory(db.Model):
     label = db.Column(db.String, nullable=False)
 
 
+class EmailNotification(db.Model):
+    __tablename__ = 'email_notification'
+
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.String, nullable=False)
+    sender = db.Column(db.String, nullable=False)
+    recipients_json = db.Column(db.String, nullable=False)
+    text_body = db.Column(db.String, nullable=False)
+    html_body = db.Column(db.String, nullable=False)
+
+    created_on = db.Column(db.Date, nullable=False)
+
+
+
 class SubmissionAttachment(db.Model):
     __tablename__ = 'submission_attachments'
 
@@ -116,7 +130,7 @@ class Submission(db.Model):
     collab_project_name = db.Column(db.String)
 
     submission_accesses = db.relationship('SubmissionAccess', cascade="all, delete-orphan")
-    #contacts = db.relationship("StudyContact", cascade="all, delete-orphan")
+
     studies = db.relationship("SubmissionStudy", cascade="all, delete-orphan")
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
     dishes = db.relationship("SubmissionStudyDish", cascade="all, delete-orphan")

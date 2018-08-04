@@ -46,6 +46,13 @@
             {% endblock %}
             {{ macros.show_flashes() }}
             {% block content %}{% endblock %}
+
+            <div id="common-command-dialog" title="Confirm" class="ui-dialog" style="display:none;">
+                <!-- Fragment displayed within a JQuery UI Dialog  -->
+                <p>
+                    You are about to <span id="command-dialog-text"></span>!
+                </p>
+            </div>
         </div>
     {% endblock %}
 </div>

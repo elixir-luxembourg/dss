@@ -76,6 +76,14 @@ user_listing_js = Bundle(
     ),
     output='public/js/user_listing.min.js')
 
+
+notification_listing_js = Bundle(
+    Bundle(
+        'js/notification_listing.js',
+        filters='closure_js'
+    ),
+    output='public/js/notification_listing.min.js')
+
 signup_js = Bundle(
     Bundle(
         'js/signup.js',

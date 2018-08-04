@@ -1,5 +1,30 @@
 var csrftoken = $('meta[name=csrf-token]').attr('content');
 
+function confirmDialog(msg) {
+    $("#common-command-dialog").text("You are about to "+ msg);
+    var def = $.Deferred();
+    $("#common-command-dialog").dialog({
+        autoOpen: true,
+        hide: true,
+        resizable: false,
+        height: 150,
+        modal: true,
+        buttons: {
+            'Continue': function() {
+                def.resolve();
+                $( this ).dialog( "close" );
+            },
+            'Cancel': function() {
+                def.reject();
+                $( this ).dialog( "close" );
+            }
+        },
+        close: function() {
+            $(this).remove();
+        }
+    });
+    return def.promise();
+}
 $.ajaxSetup({
     beforeSend: function (xhr, settings) {
         if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -51,6 +76,9 @@ $(document).ready(function () {
     $('.start-collapsed').collapse('hide');
     $('.start-visible').collapse('show');
     $('table.datatable').dataTable();
+
+
+
 
 });
 

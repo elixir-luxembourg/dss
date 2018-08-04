@@ -1,28 +1,5 @@
 $(document).ready(function () {
 
-    function confirmDialog(msg) {
-        $("#submission-dialog-text").text(msg);
-        var def = $.Deferred();
-        $("#submission-command-dialog").dialog({
-            autoOpen: true,
-            hide: true,
-            resizable: false,
-            height: 150,
-            modal: true,
-            dialogClass: "alert",
-            buttons: {
-                'Continue': function() {
-                    def.resolve();
-                    $( this ).dialog( "close" );
-                },
-                'Cancel': function() {
-                    def.reject();
-                    $( this ).dialog( "close" );
-                }
-            }
-    });
-        return def.promise();
-    }
 
     $("#submission_list_table").on('click', 'a[name="button_submission_listing_view"]', function () {
         $.ajax({
@@ -40,7 +17,7 @@ $(document).ready(function () {
 
     $("#submission_list_table").on('click','a[name="button_submission_listing_delete"]', function () {
         var endpoint = $(this).attr('data-url');
-        confirmDialog("delete").done(function() {
+        confirmDialog("delete submission").done(function() {
             $.ajax({
                 url: endpoint,
                 type: "delete",

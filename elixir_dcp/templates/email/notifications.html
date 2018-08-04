@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+{% set active_page = 'notifications' %}
+{% block title %} Notifications List {% endblock %}
+{% block js %}
+    {{ super() }}
+    {% assets "notification_listing_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+{% block content %}
+    <div class="row">
+        {% if notifications %}
+            <table class="datatable table table-striped table-bordered" id="notification_list_table">
+                <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Recipients</th>
+                    <th>Message</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for notification in notifications %}
+                    <tr>
+                        <td> {{ notification.subject }} </td>
+                        <td> {{ notification.recipients_json }} </td>
+                        <td> {{ notification.text_body}} </td>
+                        <td>
+                            <a name="button_notification_listing_send"
+                               data-url="{{ url_for('send_notification',notification_id=notification.id) }}" class="btn btn-info btn-lg">
+                                <span class="glyphicon glyphicon-send"
+                                      data-toggle="tooltip"
+                                      title="Resend this notification"></span>
+
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="text-center">
+                <h3> No notifications exist. </h3>
+                <hr class="intro-divider">
+            </div>
+        {% endif %}
+
+
+    </div>
+{% endblock %}

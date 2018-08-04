@@ -1,6 +1,7 @@
 import os
 
-from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, GA4GHCodes
+from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, GA4GHCodes, \
+    EmailNotification
 from elixir_dcp.models.security import User, Role, UsersRoles
 from elixir_dcp.controllers.utils import equal_long_strings
 from elixir_dcp.exceptions import RecordLifecycleException, RecordNotExistsException
@@ -123,49 +124,66 @@ def send_submission_steer_step1_notification(submission: Submission):
     recipients = []
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
-    send_email("Submission [%s] initiated" % submission.ref_name,
-               'noreply@elixir-luxembourg.org',
-               recipients,
-               render_template("email/submission_steer1.txt", submission=submission),
-               render_template("email/submission_steer1.html", submission=submission))
+    persist_and_send_notification("Submission [%s] initiated" % submission.ref_name,
+                           'noreply@elixir-luxembourg.org',
+                           recipients,
+                           render_template("email/submission_steer1.txt", submission=submission),
+                           render_template("email/submission_steer1.html", submission=submission))
 
 
 def send_submission_steer_step2_notification(submission: Submission):
-    send_email("Submission [%s] steered to Data Upload, needs Upload Instructions" % submission.ref_name,
-               'noreply@elixir-luxembourg.org',
-               app.config.get('DATA_STEWARDS_MAILS'),
-               render_template("email/submission_steer2.txt", submission=submission),
-               render_template("email/submission_steer2.html", submission=submission))
+    persist_and_send_notification("Submission [%s] steered to Data Upload, needs Upload Instructions" % submission.ref_name,
+                           'noreply@elixir-luxembourg.org',
+                           app.config.get('DATA_STEWARDS_MAILS'),
+                           render_template("email/submission_steer2.txt", submission=submission),
+                           render_template("email/submission_steer2.html", submission=submission))
 
 
 def send_submission_steer_step3_notification(submission: Submission):
-    send_email("Submission [%s] steered to Completion, needs Verification" % submission.ref_name,
-               'noreply@elixir-luxembourg.org',
-               app.config.get('DATA_STEWARDS_MAILS'),
-               render_template("email/submission_steer3.txt", submission=submission),
-               render_template("email/submission_steer3.html", submission=submission))
+    persist_and_send_notification("Submission [%s] steered to Completion, needs Verification" % submission.ref_name,
+                           'noreply@elixir-luxembourg.org',
+                           app.config.get('DATA_STEWARDS_MAILS'),
+                           render_template("email/submission_steer3.txt", submission=submission),
+                           render_template("email/submission_steer3.html", submission=submission))
 
 
 def send_upload_instruction_notification(submission: Submission):
     recipients = []
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
-    send_email("Submission [%s] has new upload instructions" % submission.ref_name,
-               'noreply@elixir-luxembourg.org',
-               recipients,
-               render_template("email/upload_instructions.txt", submission=submission),
-               render_template("email/upload_instructions.html", submission=submission))
+    persist_and_send_notification("Submission [%s] has new upload instructions" % submission.ref_name,
+                           'noreply@elixir-luxembourg.org',
+                           recipients,
+                           render_template("email/upload_instructions.txt", submission=submission),
+                           render_template("email/upload_instructions.html", submission=submission))
 
 
-def send_email(subject, sender, recipients, text_body, html_body):
-    msg = Message(subject, sender=sender, recipients=recipients)
-    msg.body = text_body
-    msg.html = html_body
-    thr = Thread(target=send_async_email, args=[app, msg])
-    thr.start()
+def persist_and_send_notification(subject, sender, recipients, text_body, html_body):
+    notification  = EmailNotification()
+    notification.subject = subject
+    notification.sender = sender
+    notification.recipients_json = json.dumps(recipients)
+    notification.text_body = text_body
+    notification.html_body = html_body
+    notification.created_on = datetime.today()
+    db.session.add(notification)
+    db.session.commit()
+    send_email(notification, mode='aysnch')
 
 
-def send_async_email(app, msg):
+def send_email(notification: EmailNotification, mode='synch'):
+    msg = Message(notification.subject, sender=notification.sender, recipients=json.loads(notification.recipients_json))
+    msg.body = notification.text_body
+    msg.html = notification.html_body
+    if mode == 'asynch':
+        thr = Thread(target=send_async_email_target, args=[app, msg])
+        thr.start()
+    else:
+        with app.app_context():
+            mail.send(msg)
+
+
+def send_async_email_target(app, msg):
     with app.app_context():
         mail.send(msg)
 
@@ -225,24 +243,34 @@ def update_submission_basic_info(submission: Submission, **kwargs):
 
 def update_user_info(usr: User, **kwargs):
 
-    usr.first_name = kwargs.pop('first_name')
-    usr.last_name = kwargs.pop('last_name')
-    usr.institution = kwargs.pop('institution')
-    usr.email = kwargs.pop('email')
-    usr.addr_line1 = kwargs.pop('addr_line1')
-    usr.addr_line2 = kwargs.pop('addr_line2')
-    usr.phone_no = kwargs.pop('phone_no')
+    if 'first_name' in kwargs:
+        usr.first_name = kwargs.pop('first_name')
+    if 'last_name' in kwargs:
+        usr.last_name = kwargs.pop('last_name')
+    if 'institution' in kwargs:
+        usr.institution = kwargs.pop('institution')
+    if 'institution_division' in kwargs:
+        usr.institution_division = kwargs.pop('institution_division')
+    if 'email' in kwargs:
+        usr.email = kwargs.pop('email')
+    if 'addr_line1' in kwargs:
+        usr.addr_line1 = kwargs.pop('addr_line1')
+    if 'addr_line2' in kwargs:
+        usr.addr_line2 = kwargs.pop('addr_line2')
+    if 'phone_no' in kwargs:
+        usr.phone_no = kwargs.pop('phone_no')
 
-    new_assigned_role_ids = set(kwargs.pop('assigned_role_ids'))
-    old_assigned_role_ids = set(usr.assigned_role_ids())
-    to_be_added = new_assigned_role_ids - old_assigned_role_ids
-    to_be_removed = old_assigned_role_ids - new_assigned_role_ids
+    if 'assigned_role_ids' in kwargs:
+        new_assigned_role_ids = set(kwargs.pop('assigned_role_ids'))
+        old_assigned_role_ids = set(usr.assigned_role_ids())
+        to_be_added = new_assigned_role_ids - old_assigned_role_ids
+        to_be_removed = old_assigned_role_ids - new_assigned_role_ids
 
-    for role_id in to_be_added:
-        usr.assigned_roles.append(Role.query.get_or_404(role_id))
+        for role_id in to_be_added:
+            usr.assigned_roles.append(Role.query.get_or_404(role_id))
 
-    for role_id in to_be_removed:
-        usr.assigned_roles.remove(Role.query.get_or_404(role_id))
+        for role_id in to_be_removed:
+            usr.assigned_roles.remove(Role.query.get_or_404(role_id))
 
     db.session.add(usr)
     db.session.commit()

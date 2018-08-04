@@ -108,6 +108,7 @@
         <li><a href="#uploadinfos">File Checksums</a></li>
     </ul>
     <div id="studies">
+        <br/>
         <p>In this section you should declare studies for this submission. </p><br/>
         {% with %}
         {% set studies = submission.studies %}
@@ -176,6 +177,7 @@
         {% endif %}
     </div>
     <div id="uploadinfos">
+        <br/>
         <p>Once you have uploaded data files, please register the file checksums. This is necessary for us to verify that transfer has occurred without errors.</p><br/>
         {% with %}
         {% set uploadinfos = submission.uploadinfos %}
@@ -199,11 +201,5 @@
 
 {% include 'submission/_submission_progress_bar.html' %}
 
-<div id="submission-command-dialog" title="Confirm" class="ui-dialog" style="display:none;">
-    <!-- Fragment displayed within a JQuery UI Dialog  -->
-    <p>
-        You are about to <span id="submission-dialog-text"></span>!
-    </p>
-</div>
 {% endblock %}
 

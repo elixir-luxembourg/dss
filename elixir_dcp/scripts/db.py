@@ -501,7 +501,6 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                                 'Paul Wilmes',
                                 'Emma Schymanski',
                                 'Ines Thiele',
-                                'Rudi Balling',
                                 'Jorge Goncalves',
                                 'Rejko Krüger',
                                 'Jochen Schneider',

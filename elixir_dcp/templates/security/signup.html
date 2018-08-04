@@ -19,7 +19,7 @@
             <br/>
             <div class="form-group row">
                 <div class="col-md-9">
-                    <p style="color:red;">Can not find your institution in the below list, please contact us
+                    <p style="color:red;">Can not find your institution in the below list, please contact
                     <img src="/static/public/images/datasteward_contact.png"/></p>
                 </div>
             </div>
@@ -29,7 +29,11 @@
             {{ render_field_with_errors(signup_form.addr_line1) }}
             {{ render_field_with_errors(signup_form.addr_line2) }}
             {{ render_field_with_errors(signup_form.phone_no) }}
-            <input type="submit" class="save btn btn-raised btn-primary" value="SignUp"/>
+            <div class="form-group row">
+                <div class="text-center">
+                    <input type="submit" class="save btn btn-raised btn-primary" {% if signup_form.id.data %} value="Update My Info" {% else %} value="Sign Up" {% endif %} />
+                </div>
+            </div>
         </form>
     </div>
 {% endblock %}

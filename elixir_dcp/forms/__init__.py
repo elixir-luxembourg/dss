@@ -90,9 +90,15 @@ class SignupForm(FlaskForm):
         self.institution.choices = [(c["elu_accession"], c["institution_name"]) for c in app.config.get('DATA_INIT')['collab_institutions']]
 
 
+class MyProfileForm(SignupForm):
+    """This form is used to view and edit a particular User's info via the My Profile link.
+    """
+    id = HiddenField('User_Id')
+
+
 class UserForm(SignupForm):
     """This form is used to view and edit a particular User record in the ELIXIR DCP database.
-    It extends the SignupForm.
+    It is intended that the admin updates user roles using this form.
     """
     id = HiddenField('User_Id')
     assigned_role_ids = SelectMultipleField('Has Roles', coerce=int)
@@ -102,4 +108,4 @@ class UserForm(SignupForm):
         self.assigned_role_ids.choices = [(rol.id, rol.name) for rol in Role.query.all()]
 
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, UserForm]
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, UserForm, MyProfileForm]

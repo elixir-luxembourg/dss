@@ -11,9 +11,9 @@ from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
 from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert_sub, \
     get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info, \
-    update_user_info
+    update_user_info, send_email
 from elixir_dcp.models.submission import Submission, SubmissionAttachment, StudyContact, \
-    SubmissionStudyDish, SubmissionUploadInfo, SubmissionStudy
+    SubmissionStudyDish, SubmissionUploadInfo, SubmissionStudy, EmailNotification
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 import os
@@ -86,13 +86,13 @@ def disable_caching(response):
 def oidc_login():
     app.logger.info(g.oidc_id_token)
     app.logger.info(
-        "User Info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
+        "oidc_login  token info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
 
-    if current_user.is_authenticated:
-        return redirect(landing_page_for_user(current_user))
+    # if current_user.is_authenticated:
+    #     return redirect(landing_page_for_user(current_user))
+    existing_user_record = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
 
     if request.method == 'GET':
-        existing_user_record = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
         if existing_user_record is None:
             name = oidc.user_getfield("name")
             if name is not None:
@@ -109,27 +109,43 @@ def oidc_login():
                 render_template('error.html', message="Error 500 - {}".format(
                     "You are no longer an active user of this application.")), 500
             else:
-                login_user(existing_user_record, remember=True)
-                nextt = request.args.get('next')
+                if not current_user.is_authenticated:
+                    login_user(existing_user_record, remember=True)
+                    nextt = request.args.get('next')
 
-                app.logger.info(get_flashed_messages())
-                if not forms.is_safe_url(nextt):
-                    return abort(404)
+                    app.logger.info(get_flashed_messages())
+                    if not forms.is_safe_url(nextt):
+                        return abort(404)
+                    else:
+                        return redirect(nextt or landing_page_for_user(existing_user_record))
                 else:
-                    return redirect(nextt or landing_page_for_user(existing_user_record))
+                    existing_user_info_form = forms.MyProfileForm(obj=current_user)
+                    return render_template('security/signup.html', signup_form=existing_user_info_form)
+                 #return redirect(landing_page_for_user(current_user))
     elif request.method == 'POST':
-        posted_form = forms.SignupForm(request.form)
-        if posted_form.validate_on_submit():
-            new_user_record = User()
-            posted_form.populate_obj(new_user_record)
-            registered_user = register_new_user(new_user_record)
-            assign_role_to_user(registered_user, 'data_provider')
-            login_user(registered_user, remember=True)
-            flash('You are now signed up to the ELIXIR-LU Data Submission System.', 'success')
-            return redirect(landing_page_for_user(current_user))
-        else:
-            flash("Please check the validity of your input in highlighted places.", "error")
-            return render_template('security/signup.html', signup_form=posted_form)
+        if existing_user_record is None:
+            posted_form = forms.SignupForm(request.form)
+            if posted_form.validate_on_submit():
+                new_user_record = User()
+                posted_form.populate_obj(new_user_record)
+                registered_user = register_new_user(new_user_record)
+                assign_role_to_user(registered_user, 'data_provider')
+                login_user(registered_user, remember=True)
+                flash('You are now signed up to the ELIXIR-LU Data Submission System.', 'success')
+                return redirect(landing_page_for_user(current_user))
+            else:
+                flash("Please check the validity of your input in highlighted places.", "error")
+                return render_template('security/signup.html', signup_form=posted_form)
+        elif current_user.is_authenticated:
+            posted_form = forms.MyProfileForm(request.form)
+            if posted_form.validate_on_submit():
+                update_user_info(current_user, **posted_form.data)
+                flash('Your profile is updated.', 'success')
+                return redirect(landing_page_for_user(current_user))
+            else:
+                flash("Please check the validity of your input in highlighted places.", "error")
+                return render_template('security/signup.html', signup_form=posted_form)
+
 
 def landing_page_for_user(usr):
     if usr.is_admin():
@@ -191,8 +207,8 @@ def delete_submission(sub_id):
         return "", 400
 
 
-@app_authorization(allowed_roles=['admin', 'data_provider'])
 @app.route('/steer/submission/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def steer_submission(sub_id):
     try:
         sub_with_new_state = steer_sub(sub_id)
@@ -204,8 +220,9 @@ def steer_submission(sub_id):
         return "", 400
 
 
-@app_authorization(allowed_roles=['admin'])
+
 @app.route('/revert/submission/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin'])
 def revert_submission(sub_id):
     try:
         sub_with_new_state = revert_sub(sub_id)
@@ -721,3 +738,23 @@ def generate_submission_pdf(sub_id):
     response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
     return response
 
+@app.route('/notification/<int:notification_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin'])
+def send_notification(notification_id):
+    try:
+        notification_rec = EmailNotification.query.get_or_404(int(notification_id))
+        send_email(notification_rec)
+        app.logger.info('INFO: Re-Sent email notification with ID: %s', notification_id)
+        flash("Notification email sent!", "success")
+        return "", 204
+    except Exception as e:
+        app.logger.error('ERROR  while sending notification email %s', e)
+        flash("An error occurred when sending the notification email", 'error')
+        return "", 400
+
+@app.route('/notifications', methods=['GET'])
+@app_authorization(allowed_roles=['admin'])
+def list_notifications():
+    notifications = EmailNotification.query.all()
+    return render_template('email/notifications.html',
+                           notifications=notifications)

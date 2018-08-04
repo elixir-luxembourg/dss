@@ -123,8 +123,8 @@ $(document).ready(function () {
 
     $("#submission_commands_bar").on('click', 'a[name="button_submission_editor_steer"]', function () {
         var endpoint = $(this).attr('data-url');
-        confirmDialog("steer this Submission to next state").done(function () {
-            $("#submission-command-dialog").attr("disabled", true);
+
+        var res = confirmDialog("steer this Submission to next state").done(function () {
             $.ajax({
                 url: endpoint,
                 type: "get",
@@ -142,7 +142,6 @@ $(document).ready(function () {
     $("#submission_commands_bar").on('click', 'a[name="button_submission_editor_revert"]', function () {
         var endpoint = $(this).attr('data-url');
         confirmDialog("revert this Submission to its previous state").done(function () {
-            $("#submission-command-dialog").attr("disabled", true);
             $.ajax({
                 url: endpoint,
                 type: "get",
@@ -156,104 +155,6 @@ $(document).ready(function () {
 
         });
     });
-
-    function confirmDialog(msg) {
-        $("#submission-dialog-text").text(msg);
-        var def = $.Deferred();
-        $("#submission-command-dialog").dialog({
-            autoOpen: true,
-            hide: true,
-            resizable: false,
-            height: 200,
-            width: 250,
-            modal: true,
-            dialogClass: "alert",
-            buttons: {
-                'Continue': function () {
-                    def.resolve();
-                    $(this).dialog("close");
-                },
-                'Cancel': function () {
-                    def.reject();
-                    $(this).dialog("close");
-                }
-            }
-        });
-        return def.promise();
-    }
-
-    /**
-     *
-     *
-     * Contacts Inline Editor button handlers.
-     *
-     *
-     */
-
-
-    // $("#theModal").on('click', 'a#submission_contact_save', function () {
-    //     //event.preventDefault();
-    //     // $.ajax({
-    //     //     url: $('#form_submission_contact').attr('data-url'),
-    //     //     type: 'post',
-    //     //     data: $('#form_submission_contact').serialize(),
-    //     //     success: function (result) {
-    //     //         $('#theModal .modal-content').html(result);
-    //     //         displayInlineSuccess("Submission Contact saved");
-    //     //         $('#theModal').modal('hide');
-    //     //         location.reload();
-    //     //     },
-    //     //
-    //     //     error: function (xhr, status, error) {
-    //     //         if (error === VALIDATION_ERROR) {
-    //     //             refresh_bean_list("contacts");
-    //     //             $("#contacts_inline_editor").html(xhr.responseText);
-    //     //             displayInlineError("Please check the validity of your input in highlighted places");
-    //     //         }
-    //     //     }
-    //     //
-    //     //
-    //     // });
-    //     var value = $('#form_submission_contact').serialize();
-    //
-    //     var data = data + value;
-    //     alert(data)
-    //     $("#contact_table > tbody:last-child").append('<tr><td>'+$("#name").val()+'</td><td>'+$("#surname").val()+'</td><td>'+$("#email").val()+'</td></tr>');
-    //     $('#theModal').modal('hide');
-    //
-    // });
-    // $("#theModal").on('click', 'a#submission_contact_listing_delete', function () {
-    //     bean_list_delete_handler($(this).attr('data-url'), "contacts");
-    //     displayInlineSuccess("Submission Contact deleted.");
-    // });
-    //
-    // $("#theModal").on('click', 'a#submission_contact_listing_edit', function () {
-    //     $.ajax({
-    //         url: $(this).attr('data-url'),
-    //         type: "get",
-    //         success: function (result) {
-    //             $("#contacts_inline_editor").html(result);
-    //             bind_widgets();
-    //         },
-    //         error: function () {
-    //             alert('An error occurred while loading the selected contact');
-    //         }
-    //     });
-    // });
-    //
-    //
-    // $('button#addContactButton').on('click', function(e){
-    //
-		// 		e.preventDefault();
-		// 		var url = $(this).attr('data-url');
-		// 		alert(url);
-		// 		$.get(url, function(data) {
-    //
-		// 		    $('#theModal .modal-content').html(data);
-		// 		    $('#theModal').modal('show');
-		// 		  });
-    //
-		// 	});
 
 
      /**
@@ -443,7 +344,8 @@ $(document).ready(function () {
     });
 
     $("#uploadinfos_inline_list").on('click', 'a#submission_uploadinfo_listing_delete', function () {
-        alert(bean_list_delete_handler($(this).attr('data-url'), "uploadinfos");)
+
+        bean_list_delete_handler($(this).attr('data-url'), "uploadinfos");
         displayInlineSuccess("Upload Checksum deleted");
     });
 
