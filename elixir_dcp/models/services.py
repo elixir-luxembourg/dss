@@ -1,6 +1,6 @@
 import os
 
-from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, GA4GHCodes
+from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, GA4GHCodes, SubmissionAttachment
 from elixir_dcp.models.security import User, Role, UsersRoles
 from elixir_dcp.controllers.utils import equal_long_strings
 from elixir_dcp.exceptions import RecordLifecycleException, RecordNotExistsException
@@ -11,6 +11,8 @@ from sqlalchemy import and_
 from threading import Thread
 from flask_mail import Message
 import json
+import shutil
+from pkg_resources import resource_filename
 
 
 def delete_sub(submission_id: str):
@@ -305,7 +307,8 @@ def export_dishes(sub:Submission):
             dataset_info['source_type'] = 'From_Elixir_Data_Submitter'
         else:
             dataset_info['source_type'] = 'From_Collaborator'
-
+        dataset_info['legal_basis_data_collection'] = dish.legal_basis_collection.label
+        dataset_info['legal_basis_data_sharing'] = dish.legal_basis_sharing.label
         dataset_info['local_custodian'] = json.loads(sub.collab_local_custodian_json)
         dataset_info['local_project'] = sub.collab_project_name
         dataset_info['data_types']= dish.data_type_names()
@@ -348,29 +351,52 @@ def export_and_copy_attachments(sub:Submission, copy_folder):
 
 def export_studies(sub:Submission):
     study_list = []
-    # for stdy in sub.studies:
-    #     study_info = {}
-    #     study_info['title'] = stdy.study_name
-    #     study_info['study_description'] = stdy.study_description
-    #     study_info['study_types'] = stdy.study_type_names()
-    #     study_info['has_national_ethics_approval'] = stdy.ethics_approval_exists
-    #     study_info['legal_basis_data_collection'] = stdy.legal_basis_collection.label
-    #     study_info['legal_basis_data_sharing'] = stdy.legal_basis_sharing.label
-    #     study_list.append(study_info)
-    study_list.append({'title':'first study',
-                       'description':'This study investigates blah blah..',
-                       'study_types' : ['Clinical_Trial', 'Blind'],
-                       'has_national_ethics_approval' : True,
-                       'legal_basis_data_collection' : 'Consent',
-                       'legal_basis_data_sharing' : 'Public_Interest'})
-    study_list.append({'title':'second study',
-                       'description':'This study also investigates blah blah..',
-                       'study_types' : ['Observational', 'Longitudinal'],
-                       'has_national_ethics_approval' : True,
-                       'legal_basis_data_collection' : 'Consent',
-                       'legal_basis_data_sharing' : 'Legitimate_Interest'})
+    for stdy in sub.studies:
+        study_info = {}
+        study_info['title'] = stdy.study_name
+        study_info['study_description'] = stdy.study_description
+        study_info['ethics_approval_exists'] = stdy.ethics_approval_exists
+        study_info['study_types'] = stdy.study_type_names()
+        study_info['contact_names'] = stdy.study_contacts_names(stdy.id)
+
+        study_list.append(study_info)
+
     return study_list
 
 
+def schedule_submission_export():
+    app.logger.info("export schedule started")
+    all_submissions = Submission.query.filter_by(current_status=SubmissionStatusEnum.completed, exported=False)
+    app.logger.info("schedule_submission_export")
+    if all_submissions is not None:
+        for submission in all_submissions:
+            toexport_submission = []
+            toexport_submission.append(export_submission(submission))
+            directory = os.path.join(app.config.get('SUBMISSION_EXPORT_FOLDER'), submission.ref_name)
+            app.logger.info(directory)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            submission_exportfile = open(directory+"/"+submission.ref_name+"_json.txt", "w")
+            submission_exportfile.write(json.dumps(toexport_submission, indent=4))
+            submission_attachments = SubmissionAttachment.query.filter_by(submission_id=submission.id).all()
+            for attachment in submission_attachments:
+
+                try:
+                    path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachment.folder_name)
+                    attachment_folder_name = os.path.join(directory, attachment.folder_name)
+                    if not os.path.exists(attachment_folder_name):
+                        os.makedirs(attachment_folder_name)
+                    attachment_file = os.path.join(path_on_server,attachment.file_names)
+                    os.popen('cp '+attachment_file+' '+ attachment_folder_name)
+
+                except OSError as err:
+                     err.extend(err.args[0])
+            setattr(submission, 'exported', True)
+            db.session.commit()
+        app.logger.info("Creating zip file")
+        shutil.make_archive(app.config['SUBMISSION_EXPORT_ZIP'], 'zip', app.config.get('SUBMISSION_EXPORT_FOLDER'))
+        return 'success'
+    else:
+        return 'failed'
 
 
