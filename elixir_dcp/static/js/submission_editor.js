@@ -190,7 +190,7 @@ $(document).ready(function () {
         });
     });
     $("#studies_inline_list").on('click', 'a#submission_study_listing_delete', function () {
-        bean_list_delete_handler($(this).attr('data-url'), "Studies");
+        bean_list_delete_handler($(this).attr('data-url'), "studies");
         displayInlineSuccess("Submission Study deleted.");
     });
 
