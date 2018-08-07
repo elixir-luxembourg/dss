@@ -21,8 +21,8 @@
         </thead>
         {% for dish in dishes %}
             <tr>
-            <td>{{ dish.studies.study_name }}</td>
-            <td>{{ dish.studies.study_type_names() | join(', ') }}</td>
+            <td>{{ dish.study.study_name }}</td>
+            <td>{% if  dish.study %} {{ dish.study.study_type_names() | join(', ') }} {% endif %}</td>
                 <td>
                     <ul>
                         {% for name in dish.data_type_names() %}

@@ -11,7 +11,6 @@ from wtforms.validators import Email, DataRequired, Length, Regexp, ValidationEr
 from .validators import OptionalFieldValidator
 from elixir_dcp import app
 
-
 __author__ = 'Pinar Alper'
 
 
@@ -59,27 +58,30 @@ class SignupForm(FlaskForm):
 
     elixir_sub_id = HiddenField('Elixir Sub ID')
     first_name = StringField('First Name', validators=[DataRequired(),
-                                                       Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
+                                                       Regexp('^[\w\s]+$',
+                                                              message="Can only contain letters, digits and underscore."),
                                                        Length(min=2, max=20,
                                                               message="Must be 2 to 20 characters long.")])
     last_name = StringField('Last Name',
-                            validators=[DataRequired(), Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
+                            validators=[DataRequired(),
+                                        Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                         Length(min=2, max=20, message="Must be 2 to 20 characters long.")])
 
-    institution = SelectField('Institution',  validators=[DataRequired()])
+    institution = SelectField('Institution', validators=[DataRequired()])
 
-    institution_division = StringField('Division/Department', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
-                                                                                                 message="Can only contain letters, digits, dash, comma and dot.")])
+    institution_division = StringField('Division/Department',
+                                       validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                          message="Can only contain letters, digits, dash, comma and dot.")])
 
     email = EmailField('E Mail', validators=[DataRequired(), Email("Requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
 
     addr_line1 = StringField('Address Line 1', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
-                                                                           message="Can only contain letters, digits, dash, comma and dot.")],
+                                                                                  message="Can only contain letters, digits, dash, comma and dot.")],
                              render_kw={"placeholder": "Street Address."})
 
     addr_line2 = StringField('Address Line 2', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
-                                                                        message="Can only contain letters, digits, dash, comma and dot.")],
+                                                                                  message="Can only contain letters, digits, dash, comma and dot.")],
                              render_kw={"placeholder": "City, Country, Postal Code."})
 
     phone_no = StringField('Phone', validators=[
@@ -87,7 +89,10 @@ class SignupForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
-        self.institution.choices = [(c["elu_accession"], c["institution_name"]) for c in app.config.get('DATA_INIT')['collab_institutions']]
+        self.institution.choices = [(c["elu_accession"],
+                                     c["institution_name"] + c["institution_name"] if 'acronym' in c else c[
+                                         "institution_name"]) for c in
+                                    app.config.get('DATA_INIT')['collab_institutions']]
 
 
 class MyProfileForm(SignupForm):

@@ -225,7 +225,7 @@ class SubmissionStudy(db.Model):
     ethics_approval_exists = db.Column(db.Boolean, nullable=False, default=False)
     study_types_json = db.Column(db.String, nullable=False)
     study_contacts = db.relationship("StudyContact", back_populates='study',cascade="all, delete-orphan" )
-    dishes = db.relationship("SubmissionStudyDish", backref='study', lazy=True)
+
     def study_type_names(self):
 
         if self.study_types_json is not None:
@@ -252,6 +252,8 @@ class SubmissionStudyDish(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'), nullable=False)
+    study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
+
     estimate_data_size_code = db.Column(db.String, db.ForeignKey('data_size_category.code'), nullable=False, default='s')
     data_types_json = db.Column(db.String, nullable=False)
     metadata_exists = db.Column(db.Boolean, nullable=False, default=True)
@@ -267,15 +269,18 @@ class SubmissionStudyDish(db.Model):
     subjects_unable_to_consent = db.Column(db.Boolean, nullable=False, default=False)
     subjects_notes = db.Column(db.String, nullable=True)
 
-    consent_status = db.relationship('ConsentStatus')
+
     consent_status_code = db.Column(db.String, db.ForeignKey('consent_status.code'), nullable=False, default='m')
+    consent_status = db.relationship('ConsentStatus', foreign_keys=[consent_status_code])
+
     consent_notes = db.Column(db.String, nullable=True)
 
     de_identification_type_code = db.Column(db.String, db.ForeignKey('deidentification_type.code'), nullable=False, default='p')
     de_identification_type = db.relationship('DeIdentificationType')
 
     duc_codes = db.relationship("DUCCodeInstance", back_populates="study", cascade="all, delete-orphan")
-    studies = db.relationship("SubmissionStudy",  passive_deletes='all')
+
+
 
 
     def data_type_names(self):

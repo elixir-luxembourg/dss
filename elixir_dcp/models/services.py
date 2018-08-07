@@ -1,6 +1,6 @@
 import os
 
-from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, GA4GHCodes, SubmissionAttachment \
+from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, SubmissionAttachment, \
     EmailNotification
 from elixir_dcp.models.security import User, Role, UsersRoles
 from elixir_dcp.controllers.utils import equal_long_strings
@@ -48,7 +48,9 @@ def steer_sub(submission_id: str):
         elif target_state == SubmissionStatusEnum.in_progress_data:
             submission.dish_finalised_on = datetime.today()
             send_submission_steer_step2_notification(submission)
-            flash('An upload link will be created once all information provided is checked and where required signatures are received.', 'success')
+            flash(
+                'An upload link will be created once all information provided is checked and where required signatures are received.',
+                'success')
         elif target_state == SubmissionStatusEnum.completed:
             send_submission_steer_step3_notification(submission)
         submission.current_status = target_state
@@ -127,26 +129,27 @@ def send_submission_steer_step1_notification(submission: Submission):
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
     persist_and_send_notification("Submission [%s] initiated" % submission.ref_name,
-                           'noreply@elixir-luxembourg.org',
-                           recipients,
-                           render_template("email/submission_steer1.txt", submission=submission),
-                           render_template("email/submission_steer1.html", submission=submission))
+                                  'noreply@elixir-luxembourg.org',
+                                  recipients,
+                                  render_template("email/submission_steer1.txt", submission=submission),
+                                  render_template("email/submission_steer1.html", submission=submission))
 
 
 def send_submission_steer_step2_notification(submission: Submission):
-    persist_and_send_notification("Submission [%s] steered to Data Upload, needs Upload Instructions" % submission.ref_name,
-                           'noreply@elixir-luxembourg.org',
-                           app.config.get('DATA_STEWARDS_MAILS'),
-                           render_template("email/submission_steer2.txt", submission=submission),
-                           render_template("email/submission_steer2.html", submission=submission))
+    persist_and_send_notification(
+        "Submission [%s] steered to Data Upload, needs Upload Instructions" % submission.ref_name,
+        'noreply@elixir-luxembourg.org',
+        app.config.get('DATA_STEWARDS_MAILS'),
+        render_template("email/submission_steer2.txt", submission=submission),
+        render_template("email/submission_steer2.html", submission=submission))
 
 
 def send_submission_steer_step3_notification(submission: Submission):
     persist_and_send_notification("Submission [%s] steered to Completion, needs Verification" % submission.ref_name,
-                           'noreply@elixir-luxembourg.org',
-                           app.config.get('DATA_STEWARDS_MAILS'),
-                           render_template("email/submission_steer3.txt", submission=submission),
-                           render_template("email/submission_steer3.html", submission=submission))
+                                  'noreply@elixir-luxembourg.org',
+                                  app.config.get('DATA_STEWARDS_MAILS'),
+                                  render_template("email/submission_steer3.txt", submission=submission),
+                                  render_template("email/submission_steer3.html", submission=submission))
 
 
 def send_upload_instruction_notification(submission: Submission):
@@ -154,14 +157,14 @@ def send_upload_instruction_notification(submission: Submission):
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
     persist_and_send_notification("Submission [%s] has new upload instructions" % submission.ref_name,
-                           'noreply@elixir-luxembourg.org',
-                           recipients,
-                           render_template("email/upload_instructions.txt", submission=submission),
-                           render_template("email/upload_instructions.html", submission=submission))
+                                  'noreply@elixir-luxembourg.org',
+                                  recipients,
+                                  render_template("email/upload_instructions.txt", submission=submission),
+                                  render_template("email/upload_instructions.html", submission=submission))
 
 
 def persist_and_send_notification(subject, sender, recipients, text_body, html_body):
-    notification  = EmailNotification()
+    notification = EmailNotification()
     notification.subject = subject
     notification.sender = sender
     notification.recipients_json = json.dumps(recipients)
@@ -208,7 +211,6 @@ def update_submission_basic_info(submission: Submission, **kwargs):
     if 'collab_project_name' in kwargs:
         submission.collab_project_name = kwargs.pop('collab_project_name')
 
-
     db.session.add(submission)
     db.session.commit()
 
@@ -229,9 +231,10 @@ def update_submission_basic_info(submission: Submission, **kwargs):
                         usr = User.query.filter_by(id=user_id).one_or_none()
                         flash('Submission shared with %s' % usr.display_name(), 'info')
 
-            revoked_acesses = db.session.query(SubmissionAccess).filter(and_(SubmissionAccess.submission_id == submission.id,
-                                                                             SubmissionAccess.user_id.notin_(
-                                                                                 new_shared_user_ids)))
+            revoked_acesses = db.session.query(SubmissionAccess).filter(
+                and_(SubmissionAccess.submission_id == submission.id,
+                     SubmissionAccess.user_id.notin_(
+                         new_shared_user_ids)))
             if revoked_acesses is not None:
                 for rev_acc in revoked_acesses:
                     db.session.delete(rev_acc)
@@ -244,7 +247,6 @@ def update_submission_basic_info(submission: Submission, **kwargs):
 
 
 def update_user_info(usr: User, **kwargs):
-
     if 'first_name' in kwargs:
         usr.first_name = kwargs.pop('first_name')
     if 'last_name' in kwargs:
@@ -278,8 +280,7 @@ def update_user_info(usr: User, **kwargs):
     db.session.commit()
 
 
-def export_submission(sub:Submission):
-
+def export_submission(sub: Submission):
     sub_info = {}
 
     sub_info['submission_ref_name'] = sub.ref_name
@@ -289,13 +290,12 @@ def export_submission(sub:Submission):
         sub_info['finalised_on'] = sub.dish_finalised_on.strftime("%Y/%m/%d")
     sub_info['scope'] = sub.submission_scope.label
 
-
     submitters = []
     for access in sub.submission_accesses:
         provider_info = {}
         provider_info['institution'] = access.user.institution
         if access.user.institution_division:
-            provider_info['institution_division']= access.user.institution_division
+            provider_info['institution_division'] = access.user.institution_division
         provider_info['email'] = access.user.email
         provider_info['first_name'] = access.user.first_name
         provider_info['last_name'] = access.user.last_name
@@ -313,24 +313,22 @@ def export_submission(sub:Submission):
 
     sub_info['datasets'] = export_dishes(sub)
 
-    sub_info['attachments'] = export_and_copy_attachments(sub, 'TODO SOme folder')
-
-    #TODO add copy to folder and ZIPPING
+    sub_info['attachments'] = export_attachment_info(sub)
 
     return sub_info
 
 
-def export_dishes(sub:Submission):
+def export_dishes(sub: Submission):
     dataset_list = []
     for dish in sub.dishes:
         dataset_info = {}
-        dataset_info['submission_ref']= sub.ref_name
-        dataset_info['title']= 'DATA SET TITLE - TESTT'
-        #Put here the title property
+        dataset_info['submission_ref'] = sub.ref_name
+        dataset_info['title'] = sub.title
+        # Put here the title property
 
-        #TODO Also put here the source study as source project
+        # TODO Also put here the source study as source project
 
-        dataset_info['source_project'] = 'first study'
+        dataset_info['source_project'] = dish.study.study_name
         if sub.is_elixir():
             dataset_info['source_type'] = 'From_Elixir_Data_Submitter'
         else:
@@ -339,15 +337,16 @@ def export_dishes(sub:Submission):
         dataset_info['legal_basis_data_sharing'] = dish.legal_basis_sharing.label
         dataset_info['local_custodian'] = json.loads(sub.collab_local_custodian_json)
         dataset_info['local_project'] = sub.collab_project_name
-        dataset_info['data_types']= dish.data_type_names()
-        dataset_info['data_size_category']=dish.estimate_data_size_code
-        dataset_info['data_dictionary_exists']=dish.metadata_exists
-        dataset_info['has_special_subjects']=dish.subjects_unable_to_consent or dish.subjects_vulnerable or dish.subjects_minors
+        dataset_info['data_types'] = dish.data_type_names()
+        dataset_info['data_size_category'] = dish.estimate_data_size_code
+        dataset_info['data_dictionary_exists'] = dish.metadata_exists
+        dataset_info[
+            'has_special_subjects'] = dish.subjects_unable_to_consent or dish.subjects_vulnerable or dish.subjects_minors
         subj_notes = ''
-        if dish.subjects_unable_to_consent: subj_notes+='Subjects unable to consent. '
-        if dish.subjects_vulnerable: subj_notes+='Other vulnerable subjects. '
-        if dish.subjects_minors: subj_notes+='Subjects minors. '
-        if dish.subjects_notes: subj_notes+=dish.subjects_notes
+        if dish.subjects_unable_to_consent: subj_notes += 'Subjects unable to consent. '
+        if dish.subjects_vulnerable: subj_notes += 'Other vulnerable subjects. '
+        if dish.subjects_minors: subj_notes += 'Subjects minors. '
+        if dish.subjects_notes: subj_notes += dish.subjects_notes
 
         if subj_notes: dataset_info['special_subject_notes'] = subj_notes
 
@@ -363,7 +362,7 @@ def export_dishes(sub:Submission):
     return dataset_list
 
 
-def export_and_copy_attachments(sub:Submission, copy_folder):
+def export_attachment_info(sub: Submission):
     attachment_list = []
     for att in sub.attachments:
         att_info = {}
@@ -372,12 +371,12 @@ def export_and_copy_attachments(sub:Submission, copy_folder):
         names = att.file_names.strip(' \t\n\r').split(" ")
         for name in names:
             files_list.append({"$ref": os.path.join(att.folder_name, name)})
-            #TODO Also copy the files to the export folder
         att_info['files'] = files_list
         attachment_list.append(att_info)
     return attachment_list
 
-def export_studies(sub:Submission):
+
+def export_studies(sub: Submission):
     study_list = []
     for stdy in sub.studies:
         study_info = {}
@@ -396,35 +395,33 @@ def schedule_submission_export():
     app.logger.info("export schedule started")
     all_submissions = Submission.query.filter_by(current_status=SubmissionStatusEnum.completed, exported=False)
     app.logger.info("schedule_submission_export")
-    if all_submissions is not None:
+    if all_submissions.count() > 0:
         for submission in all_submissions:
-            toexport_submission = []
-            toexport_submission.append(export_submission(submission))
-            directory = os.path.join(app.config.get('SUBMISSION_EXPORT_FOLDER'), submission.ref_name)
-            app.logger.info(directory)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
-            submission_exportfile = open(directory+"/"+submission.ref_name+"_json.txt", "w")
-            submission_exportfile.write(json.dumps(toexport_submission, indent=4))
+            export_directory = os.path.join(app.config.get('SUBMISSION_EXPORT_FOLDER'), submission.ref_name)
+            app.logger.info(export_directory)
+            if not os.path.exists(export_directory):
+                os.makedirs(export_directory)
+            submission_exportfile = open(os.path.join(export_directory, submission.ref_name + ".json"), "w")
+            submission_exportfile.write(json.dumps([export_submission(submission)], indent=4))
             submission_attachments = SubmissionAttachment.query.filter_by(submission_id=submission.id).all()
             for attachment in submission_attachments:
 
                 try:
                     path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachment.folder_name)
-                    attachment_folder_name = os.path.join(directory, attachment.folder_name)
+                    attachment_folder_name = os.path.join(export_directory, attachment.folder_name)
                     if not os.path.exists(attachment_folder_name):
                         os.makedirs(attachment_folder_name)
-                    attachment_file = os.path.join(path_on_server,attachment.file_names)
-                    os.popen('cp '+attachment_file+' '+ attachment_folder_name)
+                    attachment_file = os.path.join(path_on_server, attachment.file_names)
+                    os.popen('cp ' + attachment_file + ' ' + attachment_folder_name)
 
                 except OSError as err:
-                     err.extend(err.args[0])
-            setattr(submission, 'exported', True)
+                    err.extend(err.args[0])
+
+            shutil.make_archive(export_directory, 'zip', export_directory)
+            app.logger.info("Created zip file")
+
+            submission.exported = True
+            db.session.add(submission)
             db.session.commit()
-        app.logger.info("Creating zip file")
-        shutil.make_archive(app.config['SUBMISSION_EXPORT_ZIP'], 'zip', app.config.get('SUBMISSION_EXPORT_FOLDER'))
-        return 'success'
-    else:
-        return 'failed'
 
 

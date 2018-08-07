@@ -2,40 +2,40 @@
 {% from "forms_macros.html" import render_field_with_errors, render_field %}
 {% block title %}Sign Up{% endblock %}
 {% block js %}
-    {{ super() }}
-    {% assets "signup_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
+{{ super() }}
+{% assets "signup_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}
 {% block content %}
-    <div class="row well">
-        <h1 class="text-center">SignUp</h1>
-        <form class="form-horizontal" action="{{ url_for('oidc_login') }}" method="POST">
-            {{ signup_form.hidden_tag() }}
-            {{ render_field_with_errors(signup_form.first_name) }}
-            {{ render_field_with_errors(signup_form.last_name) }}
-            {{ render_field_with_errors(signup_form.email) }}
-            <br/>
-            <br/>
-            <div class="form-group row">
-                <div class="col-md-9">
-                    <p style="color:red;">Can not find your institution in the below list, please contact
+<div class="row well">
+    <h1 class="text-center">{% if signup_form.id %} My Profile {% else %} Sign Up {% endif %} </h1>
+    <form class="form-horizontal" action="{{ url_for('oidc_login') }}" method="POST">
+        {{ signup_form.hidden_tag() }}
+        {{ render_field_with_errors(signup_form.first_name) }}
+        {{ render_field_with_errors(signup_form.last_name) }}
+        {{ render_field_with_errors(signup_form.email) }}
+        <br/>
+        <br/>
+        <div class="form-group row">
+            <div class="col-md-9">
+                <p style="color:red;">Can not find your institution in the below list, please contact
                     <img src="/static/public/images/datasteward_contact.png"/></p>
-                </div>
             </div>
+        </div>
 
-            {{ render_field_with_errors(signup_form.institution, clazz="elx-select") }}
-            {{ render_field_with_errors(signup_form.institution_division) }}
-            {{ render_field_with_errors(signup_form.addr_line1) }}
-            {{ render_field_with_errors(signup_form.addr_line2) }}
-            {{ render_field_with_errors(signup_form.phone_no) }}
-            <div class="form-group row">
-                <div class="text-center">
-                    <input type="submit" class="save btn btn-raised btn-primary" {% if signup_form.id.data %} value="Update My Info" {% else %} value="Sign Up" {% endif %} />
-                </div>
+        {{ render_field_with_errors(signup_form.institution, clazz="elx-select") }}
+        {{ render_field_with_errors(signup_form.institution_division) }}
+        {{ render_field_with_errors(signup_form.addr_line1) }}
+        {{ render_field_with_errors(signup_form.addr_line2) }}
+        {{ render_field_with_errors(signup_form.phone_no) }}
+        <div class="form-group row">
+            <div class="text-center">
+                <input type="submit" class="save btn btn-raised btn-primary" {% if signup_form.id %} value="Update My Info" {% else %} value="Sign Up" {% endif %} />
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
 {% endblock %}
 
 

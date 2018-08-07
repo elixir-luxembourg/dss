@@ -114,13 +114,15 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                  'collab_institutions': [
                      {
                          "elu_accession": "ELU_I_1",
-                         "institution_name": "Integrated Biobank of Luxembourg (IBBL)",
-                         "geo_category": "National"
+                         "institution_name": "Integrated Biobank of Luxembourg",
+                         "geo_category": "National",
+                         "acronym": "IBBL"
                      },
                      {
                          "elu_accession": "ELU_I_2",
-                         "institution_name": "European Molecular Biology Laboratory (EMBL)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "European Molecular Biology Laboratory",
+                         "geo_category": "Non-EU",
+                         "acronym": "EMBL"
                      },
                      {
                          "elu_accession": "ELU_I_3",
@@ -129,23 +131,27 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_4",
-                         "institution_name": "Erasmus University Medical Center (Erasmus MC)",
-                         "geo_category": "EU"
+                         "institution_name": "Erasmus University Medical Center",
+                         "geo_category": "EU",
+                         "acronym": "Erasmus MC"
                      },
                      {
                          "elu_accession": "ELU_I_5",
-                         "institution_name": "August Pi i Sunyer Biomedical Research Institute (IDIBAPS)",
-                         "geo_category": "EU"
+                         "institution_name": "August Pi i Sunyer Biomedical Research Institute",
+                         "geo_category": "EU",
+                         "acronym": "IDIBAPS"
                      },
                      {
                          "elu_accession": "ELU_I_6",
-                         "institution_name": "University Hospital of the Saarland (UKS Homburg)",
-                         "geo_category": "EU"
+                         "institution_name": "University Hospital of the Saarland",
+                         "geo_category": "EU",
+                         "acronym": "UKS Homburg"
                      },
                      {
                          "elu_accession": "ELU_I_7",
-                         "institution_name": "University Medical Center Utrecht (UMC Utrecht)",
-                         "geo_category": "EU"
+                         "institution_name": "University Medical Center Utrecht",
+                         "geo_category": "EU",
+                         "acronym": "UMC Utrecht"
                      },
                      {
                          "elu_accession": "ELU_I_8",
@@ -154,8 +160,10 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_9",
-                         "institution_name": "Centre Hospitalier de Luxembourg (CHL)",
-                         "geo_category": "National"
+                         "institution_name": "Centre Hospitalier de Luxembourg",
+                         "geo_category": "National",
+                         "acronym": "CHL"
+
                      },
                      {
                          "elu_accession": "ELU_I_10",
@@ -164,8 +172,9 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_11",
-                         "institution_name": "Cologne Center for Genomics (CCG)",
-                         "geo_category": "EU"
+                         "institution_name": "Cologne Center for Genomics",
+                         "geo_category": "EU",
+                         "acronym": "CCG"
                      },
                      {
                          "elu_accession": "ELU_I_12",
@@ -174,8 +183,9 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_13",
-                         "institution_name": "Fraunhofer Institute for Algorithms and Scientific Computing (Fraunhofer SCAI)",
-                         "geo_category": "EU"
+                         "institution_name": "Fraunhofer Institute for Algorithms and Scientific Computing",
+                         "geo_category": "EU",
+                         "acronym": "Fraunhofer SCAI"
                      },
                      {
                          "elu_accession": "ELU_I_14",
@@ -189,13 +199,15 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_16",
-                         "institution_name": "Union Chimique Belge (UCB) Biopharma",
-                         "geo_category": "EU"
+                         "institution_name": "Union Chimique Belge Biopharma",
+                         "geo_category": "EU",
+                         "acronym": "UCB"
                      },
                      {
                          "elu_accession": "ELU_I_17",
-                         "institution_name": "Brain and Spine Institute (ICM)",
-                         "geo_category": "EU"
+                         "institution_name": "Brain and Spine Institute",
+                         "geo_category": "EU",
+                         "acronym": "ICM"
                      },
                      {
                          "elu_accession": "ELU_I_18",
@@ -209,18 +221,21 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_20",
-                         "institution_name": "Biomedical Research Foundation Academy Of Athens (BRFAA)",
-                         "geo_category": "EU"
+                         "institution_name": "Biomedical Research Foundation Academy Of Athens",
+                         "geo_category": "EU",
+                         "acronym": "BRFAA"
                      },
                      {
                          "elu_accession": "ELU_I_21",
-                         "institution_name": "Brazilian Institute of Neuroscience and Neurotechnology (BRAINN)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "Brazilian Institute of Neuroscience and Neurotechnology",
+                         "geo_category": "Non-EU",
+                         "acronym": "BRAINN"
                      },
                      {
                          "elu_accession": "ELU_I_22",
-                         "institution_name": "Centre Hospitalier Emile Mayrisch (CHEM)",
-                         "geo_category": "National"
+                         "institution_name": "Centre Hospitalier Emile Mayrisch",
+                         "geo_category": "National",
+                         "acronym": "CHEM"
                      },
                      {
                          "elu_accession": "ELU_I_23",
@@ -229,7 +244,7 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_24",
-                         "institution_name": "Children\u2019s Hospital of Philadelphia",
+                         "institution_name": "Children's Hospital of Philadelphia",
                          "geo_category": "Non-EU"
                      },
                      {
@@ -244,8 +259,9 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_27",
-                         "institution_name": "European Bank for induced pluripotent Stem Cells (EBiSC)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "European Bank for induced pluripotent Stem Cells",
+                         "geo_category": "Non-EU",
+                         "acronym": "EBiSC"
                      },
                      {
                          "elu_accession": "ELU_I_28",
@@ -259,13 +275,15 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_30",
-                         "institution_name": "Oxford Parkinson\u2019s Disease Centre (OPDC)",
-                         "geo_category": "EU"
+                         "institution_name": "Oxford Parkinson's Disease Centre",
+                         "geo_category": "EU",
+                         "acronym": "OPDC"
                      },
                      {
                          "elu_accession": "ELU_I_31",
-                         "institution_name": "Giannina Gaslini Institute (Gaslini Biobank)",
-                         "geo_category": "EU"
+                         "institution_name": "Giannina Gaslini Institute",
+                         "geo_category": "EU",
+                         "acronym": "Gaslini Biobank"
                      },
                      {
                          "elu_accession": "ELU_I_32",
@@ -274,8 +292,9 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_33",
-                         "institution_name": "Griffith Institute for Drug Discovery (GRIDD)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "Griffith Institute for Drug Discovery",
+                         "geo_category": "Non-EU",
+                         "acronym": "GRIDD"
                      },
                      {
                          "elu_accession": "ELU_I_34",
@@ -284,13 +303,15 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_35",
-                         "institution_name": "Luxembourg Institute of Science and Technology (LIST)",
-                         "geo_category": "National"
+                         "institution_name": "Luxembourg Institute of Science and Technology",
+                         "geo_category": "National",
+                         "acronym": "LIST"
                      },
                      {
                          "elu_accession": "ELU_I_36",
-                         "institution_name": "Life Sciences Research Unit - University of Luxembourg (LSRU)",
-                         "geo_category": "National"
+                         "institution_name": "Life Sciences Research Unit - University of Luxembourg",
+                         "geo_category": "National",
+                         "acronym": "LSRU"
                      },
                      {
                          "elu_accession": "ELU_I_37",
@@ -299,8 +320,9 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_38",
-                         "institution_name": "Michael J. Fox Foundation for Parkinson\u2019s Research (MJFF)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "Michael J. Fox Foundation for Parkinson's Research",
+                         "geo_category": "Non-EU",
+                         "acronym": "MJFF"
                      },
                      {
                          "elu_accession": "ELU_I_39",
@@ -319,8 +341,9 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_42",
-                         "institution_name": "Max Rubner-Institut (MRI)",
-                         "geo_category": "EU"
+                         "institution_name": "Max Rubner-Institut",
+                         "geo_category": "EU",
+                         "acronym": "MRI"
                      },
                      {
                          "elu_accession": "ELU_I_43",
@@ -329,23 +352,27 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_44",
-                         "institution_name": "Medical Research Council Unit The Gambia (MRC Unit The Gambia - LSHTM)",
-                         "geo_category": "EU"
+                         "institution_name": "London School of Hygiene & Tropical Medicine, Medical Research Council  Unit The Gambia",
+                         "geo_category": "EU",
+                         "acronym": "LSHTM MRU The Gambia"
                      },
                      {
                          "elu_accession": "ELU_I_45",
-                         "institution_name": "Murdoch Children\u2019s Research Institute (MCRI)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "Murdoch Children's Research Institute",
+                         "geo_category": "Non-EU",
+                         "acronym": "MCRI"
                      },
                      {
                          "elu_accession": "ELU_I_46",
-                         "institution_name": "National Institute on Aging (NIA)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "National Institute on Aging",
+                         "geo_category": "Non-EU",
+                         "acronym": "NIA"
                      },
                      {
                          "elu_accession": "ELU_I_47",
-                         "institution_name": "National Institutes of Health (NIH)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "National Institutes of Health",
+                         "geo_category": "Non-EU",
+                         "acronym": "NIH"
                      },
                      {
                          "elu_accession": "ELU_I_48",
@@ -354,13 +381,15 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_49",
-                         "institution_name": "Norwegian University of Science and Technology (NTNU)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "Norwegian University of Science and Technology",
+                         "geo_category": "Non-EU",
+                         "acronym": "NTNU"
                      },
                      {
                          "elu_accession": "ELU_I_50",
-                         "institution_name": "Ohio State University Comprehensive Cancer Center (OSUCCC – James)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "Ohio State University Comprehensive Cancer Center",
+                         "geo_category": "Non-EU",
+                         "acronym": "OSUCCC – James"
                      },
                      {
                          "elu_accession": "ELU_I_51",
@@ -384,8 +413,9 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_55",
-                         "institution_name": "Technical University Dresden (TU Dresden)",
-                         "geo_category": "EU"
+                         "institution_name": "Technical University Dresden",
+                         "geo_category": "EU",
+                         "acronym": "TU Dresden"
                      },
                      {
                          "elu_accession": "ELU_I_56",
@@ -395,12 +425,14 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      {
                          "elu_accession": "ELU_I_57",
                          "institution_name": "University Hospital Bonn",
-                         "geo_category": "EU"
+                         "geo_category": "EU",
+                         "acronym": "UKB"
                      },
                      {
                          "elu_accession": "ELU_I_58",
-                         "institution_name": "University College London (UCL)",
-                         "geo_category": "EU"
+                         "institution_name": "University College London",
+                         "geo_category": "EU",
+                         "acronym": "UCL"
                      },
                      {
                          "elu_accession": "ELU_I_59",
@@ -439,18 +471,20 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_66",
-                         "institution_name": "University Hospital Kiel (UKSH)",
-                         "geo_category": "EU"
+                         "institution_name": "University Hospital Kiel",
+                         "geo_category": "EU",
+                         "acronym": "UKSH"
                      },
                      {
                          "elu_accession": "ELU_I_67",
-                         "institution_name": "University of Adelide",
+                         "institution_name": "University of Adelaide",
                          "geo_category": "Non-EU"
                      },
                      {
                          "elu_accession": "ELU_I_68",
-                         "institution_name": "University of Eastern Finland (UEF)",
-                         "geo_category": "EU"
+                         "institution_name": "University of Eastern Finland",
+                         "geo_category": "EU",
+                         "acronym": "UiO"
                      },
                      {
                          "elu_accession": "ELU_I_69",
@@ -464,8 +498,9 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_71",
-                         "institution_name": "University of Oslo (UiO)",
-                         "geo_category": "Non-EU"
+                         "institution_name": "University of Oslo",
+                         "geo_category": "Non-EU",
+                         "acronym": "UiO"
                      },
                      {
                          "elu_accession": "ELU_I_72",
@@ -474,8 +509,9 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                      },
                      {
                          "elu_accession": "ELU_I_73",
-                         "institution_name": "University Hospital Salzburg (SALK)",
-                         "geo_category": "EU"
+                         "institution_name": "University Hospital Salzburg",
+                         "geo_category": "EU",
+                         "acronym": "SALK"
                      },
                      {
                          "elu_accession": "ELU_I_74",
@@ -491,6 +527,103 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                          "elu_accession": "ELU_I_76",
                          "institution_name": "Broad Institute",
                          "geo_category": "Non-EU"
+                     },
+                     {
+                         "elu_accession": "ELU_I_77",
+                         "institution_name": "Luxembourg Centre for Systems Biomedicine",
+                         "geo_category": "National",
+                         "acronym": "LCSB"
+                     },
+                     {
+                         "elu_accession": "ELU_I_78",
+                         "institution_name": "Chemical Sciences Division - Oak Ridge National Library",
+                         "geo_category": "Non-EU",
+                         "acronym": "ORNL"
+                     },
+                     {
+                         "elu_accession": "ELU_I_79",
+                         "institution_name": "Luxembourg institute of health",
+                         "geo_category": "National",
+                         "acronym": "Lih"
+                     },
+                     {
+                         "elu_accession": "ELU_I_80",
+                         "institution_name": "INNAXIS Research Institute",
+                         "geo_category": "EU",
+                         "acronym": "INNAXIS"
+                     },
+                     {
+                         "elu_accession": "ELU_I_81",
+                         "institution_name": "SciCross AB",
+                         "geo_category": "EU"
+                     },
+                     {
+                         "elu_accession": "ELU_I_82",
+                         "institution_name": "University of California -  San Francisco",
+                         "geo_category": "Non-EU",
+                         "acronym": "UCSF"
+                     },
+                     {
+                         "elu_accession": "ELU_I_83",
+                         "institution_name": "The database of Genotypes and Phenotypes",
+                         "geo_category": "Non-EU",
+                         "acronym": "dbGaP"
+                     },
+                     {
+                         "elu_accession": "ELU_I_84",
+                         "institution_name": "Alzheimer's Disease Neuroimaging Initiative",
+                         "geo_category": "Non-EU",
+                         "acronym": "ADNI"
+                     },
+                     {
+                         "elu_accession": "ELU_I_85",
+                         "institution_name": "Parkinson's Progressive Markers Initiative",
+                         "geo_category": "Non-EU",
+                         "acronym": "PPMI"
+                     },
+                     {
+                         "elu_accession": "ELU_I_86",
+                         "institution_name": "Gene Expression Omnibus",
+                         "geo_category": "Non-EU",
+                         "acronym": "GEO"
+                     },
+                     {
+                         "elu_accession": "ELU_I_87",
+                         "institution_name": "Jena University Hospital",
+                         "geo_category": "EU"
+                     },
+                     {
+                         "elu_accession": "ELU_I_88",
+                         "institution_name": "University Hospital of Geneva",
+                         "geo_category": "Non-EU"
+                     },
+                     {
+                         "elu_accession": "ELU_I_89",
+                         "institution_name": "Braunschweig University of Technology",
+                         "geo_category": "EU"
+                     },
+                     {
+                         "elu_accession": "ELU_I_90",
+                         "institution_name": "Hummingbird Diagnostics Heidelberg",
+                         "geo_category": "EU"
+                     },
+                     {
+                         "elu_accession": "ELU_I_91",
+                         "institution_name": "Helmholtz Zentrum München",
+                         "geo_category": "EU",
+                         "acronym": "HMGU"
+                     },
+                     {
+                         "elu_accession": "ELU_I_92",
+                         "institution_name": "German Cancer Research Center Heidelberg",
+                         "geo_category": "EU",
+                         "acronym": "DKFZ"
+                     },
+                     {
+                         "elu_accession": "ELU_I_93",
+                         "institution_name": "National Cancer Institute",
+                         "geo_category": "Non-EU",
+                         "acronym": "NCI"
                      }
                  ],
                  'lcsb_pis': ['Reinhard Schneider',

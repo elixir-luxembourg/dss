@@ -78,7 +78,7 @@ class StudyForm(FlaskForm):
                                       render_kw={'rows': 3},
                                       validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                          message="Can only contain letters, digits, dash, comma and dot.")])
-    ethics_approval_exists = BooleanField('Ethics Approval Exists',
+    ethics_approval_exists = BooleanField('Confirmation that Ethics Approval Exists',
                                           description="Confirmation that an ethics approval exists for the data collection, sharing and the purposes for which the data is shared.",
                                           default=False)
     study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
@@ -91,7 +91,6 @@ class StudyForm(FlaskForm):
         FlaskForm.__init__(self, *args, **kwargs)
         if 'sub_id' in kwargs:
             self.submission_id.data = kwargs['sub_id']
-        # self.study_contacts.choices = [(c.id, c.fullname()) for c in StudyContact.query.filter(StudyContact.id==self.id.data).all()]
         self.study_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['study_types']]
 
 class UploadInfoForm(FlaskForm):
