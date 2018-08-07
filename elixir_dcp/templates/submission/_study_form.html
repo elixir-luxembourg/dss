@@ -21,18 +21,20 @@
             <fieldset>
                 <legend>Study Contacts</legend>
                 <div class="form-group row {% if study_form.study_contacts.errors %}has-error{% endif %}">
-                    <div class="col-md-8">
+                    <div class="col-md-12">
                         <div data-toggle="fieldset" id="study-contacts-fieldset">
                             <button type="button" data-toggle="fieldset-add-row" data-target="#study-contacts-fieldset">
                                 +
                             </button>
-                            <table style="width:820px">
+
+                            <table style="width:1000px">
                                 <tr>
-                                    <th width="20%">Name</th>
-                                    <th width="20%">Surname</th>
-                                    <th width="20%">Email</th>
-                                    <th width="25%">Category</th>
-                                    <th width="20%">Institution</th>
+                                    <th width="15%">Name</th>
+                                    <th width="15%">Surname</th>
+                                    <th width="15%">Email</th>
+                                    <th width="15%">Category</th>
+                                    <th width="35%">Institution</th>
+                                    <th width="5%"></th>
                                 </tr>
                                 {% for contact in study_form.study_contacts %}
                                 <tr data-toggle="fieldset-entry">
@@ -40,7 +42,7 @@
                                     <td>{{ contact.surname }}</td>
                                     <td>{{ contact.email }}</td>
                                     <td>{{ contact.category_id }}</td>
-                                    <td>{{ contact.institution }}</td>
+                                    <td>{{ contact.institution(size='40') }}</td>
                                     <td>
                                         <button type="button" data-toggle="fieldset-remove-row"
                                                 id="study-contacts-{{ loop.index0 }}-remove">-

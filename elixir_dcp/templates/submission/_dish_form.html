@@ -25,7 +25,6 @@
             </div>
             <fieldset>
                 <legend>Data Protection</legend>
-
                 {{ fmacros.render_field_with_errors(dish_form.subjects_minors) }}
                 {{ fmacros.render_field_with_errors(dish_form.subjects_vulnerable) }}
                 {{ fmacros.render_field_with_errors(dish_form.subjects_unable_to_consent) }}
@@ -41,21 +40,20 @@
             <fieldset>
                 <legend>Use Conditions</legend>
                 <div class="form-group row {% if dish_form.duc_codes.errors %}has-error{% endif %}">
-                    {{ dish_form.duc_codes.label(class="col-md-2") }}
-                    <div class="col-md-8">
+                    <div class="col-md-10">
                         <div data-toggle="fieldset" id="duc-codes-fieldset">
                             <button type="button" data-toggle="fieldset-add-row" data-target="#duc-codes-fieldset">+
                             </button>
-                            <table style="width:800px">
+                            <table style="width:900px">
                                 <tr>
                                     <th width="40%">Category</th>
-                                    <th width="45%">Restriction Notes</th>
-                                    <th width="15%"></th>
+                                    <th width="55%">Restriction Notes</th>
+                                    <th width="5%"></th>
                                 </tr>
                                 {% for duc_code_instance in dish_form.duc_codes %}
                                 <tr data-toggle="fieldset-entry">
                                     <td>{{ duc_code_instance.ga4gh_code }}</td>
-                                    <td>{{ duc_code_instance.note(rows='3',cols='45')}}</td>
+                                    <td>{{ duc_code_instance.note(rows='3',cols='65')}}</td>
                                     <td>
                                         <button type="button" data-toggle="fieldset-remove-row"
                                                 id="duc-code-{{ loop.index0 }}-remove">-

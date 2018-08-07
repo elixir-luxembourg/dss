@@ -85,7 +85,7 @@ class StudyForm(FlaskForm):
                                       description="Please select the categories that would best characterise the study within which the data has been collected.")
 
     study_contacts = FieldList(FormField(ContactForm, default=lambda: StudyContact()), min_entries=1,
-         label='Contacts')
+         label='Contacts List')
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
