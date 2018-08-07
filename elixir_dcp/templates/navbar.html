@@ -59,6 +59,8 @@
                             {% if current_user.is_authenticated %}
                                 <li><a href="{{ url_for('logout') }}">Logout</a>
                                 </li>
+                                <li><a href="{{ url_for(login_page) }}">My Profile</a>
+                                </li>
                             {% else %}
                                 <li><a href="{{ url_for(login_page) }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">Login</a>
                                 </li>

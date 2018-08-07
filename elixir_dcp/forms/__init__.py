@@ -74,11 +74,11 @@ class SignupForm(FlaskForm):
     email = EmailField('E Mail', validators=[DataRequired(), Email("Requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
 
-    addr_line1 = StringField('Address', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+    addr_line1 = StringField('Address Line 1', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                            message="Can only contain letters, digits, dash, comma and dot.")],
                              render_kw={"placeholder": "Street Address."})
 
-    addr_line2 = StringField('City', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+    addr_line2 = StringField('Address Line 2', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                         message="Can only contain letters, digits, dash, comma and dot.")],
                              render_kw={"placeholder": "City, Country, Postal Code."})
 
