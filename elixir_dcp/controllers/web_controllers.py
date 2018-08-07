@@ -436,7 +436,9 @@ def add_submission_attachment(sub_id):
     else:
         attachments_folder = str(uuid.uuid4())
         path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachments_folder)
-        os.makedirs(path_on_server)
+
+        if not os.path.exists(path_on_server):
+            os.makedirs(path_on_server)
         attachment = SubmissionAttachment()
         attachment.note = form.note.data
         attachment.submission_id = form.submission_id.data

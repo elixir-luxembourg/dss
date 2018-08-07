@@ -122,6 +122,7 @@ class Submission(db.Model):
     created_on = db.Column(db.Date, nullable=False)
     dish_finalised_on = db.Column(db.Date)
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
+    exported = db.Column(db.Boolean, nullable=False, default=False)
     upload_instructions = db.Column(db.String)
 
     submission_scope = db.relationship('SubmissionScope')
@@ -221,6 +222,7 @@ class SubmissionStudy(db.Model):
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     study_name = db.Column(db.String, nullable=False)
     study_description = db.Column(db.String, nullable=False)
+    ethics_approval_exists = db.Column(db.Boolean, nullable=False, default=False)
     study_types_json = db.Column(db.String, nullable=False)
     study_contacts = db.relationship("StudyContact", back_populates='study',cascade="all, delete-orphan" )
     dishes = db.relationship("SubmissionStudyDish", backref='study', lazy=True)
@@ -255,7 +257,6 @@ class SubmissionStudyDish(db.Model):
     metadata_exists = db.Column(db.Boolean, nullable=False, default=True)
 
     # Ethics & Data Protection
-    ethics_approval_exists = db.Column(db.Boolean, nullable=False, default=False)
     legal_basis_sharing_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='c')
     legal_basis_sharing = db.relationship('LegalBasisType', foreign_keys=[legal_basis_sharing_code])
     legal_basis_collection_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='c')

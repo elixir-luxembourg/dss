@@ -78,6 +78,9 @@ class StudyForm(FlaskForm):
                                       render_kw={'rows': 3},
                                       validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                          message="Can only contain letters, digits, dash, comma and dot.")])
+    ethics_approval_exists = BooleanField('Ethics Approval Exists',
+                                          description="Confirmation that an ethics approval exists for the data collection, sharing and the purposes for which the data is shared.",
+                                          default=False)
     study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
                                       description="Please select the categories that would best characterise the study within which the data has been collected.")
 
@@ -183,9 +186,7 @@ class StudyDishForm(FlaskForm):
                                    default=True)
 
     # Ethics & Data Protection
-    ethics_approval_exists = BooleanField('Ethics Approval Exists',
-                                          description="Confirmation that an ethics approval exists for the data collection, sharing and the purposes for which the data is shared.",
-                                          default=False)
+
     legal_basis_collection_code = SelectField('Legal Basis of Data Collection',  validators=[DataRequired()])
     legal_basis_sharing_code = SelectField('Legal Basis of Data Sharing',  validators=[DataRequired()])
     subjects_minors = BooleanField('Subjects Minors', default=False)

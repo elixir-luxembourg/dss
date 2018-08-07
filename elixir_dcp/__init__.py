@@ -14,6 +14,9 @@ import elixir_dcp.exceptions as exceptions
 from flask_oidc import OpenIDConnect
 import json
 from flask_wkhtmltopdf import Wkhtmltopdf
+import schedule
+import time
+from threading import Thread
 
 __VERSION__ = "0.0.1"
 
@@ -108,6 +111,8 @@ mail = Mail(app)
 app.add_template_global(login_manager.login_view, 'login_page')
 
 
+
+
 @app.template_filter('dt')
 def _jinja2_filter_datetime(date, fmt=None):
     if date is None:
@@ -128,10 +133,23 @@ def inject_now():
     return {'version': __VERSION__}
 
 
-from . import controllers
+from . import controllers,models
+
+
+def run_export_submission():
+    models.services.schedule_submission_export()
+
+def run_schedule():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+schedule.every().day.at("22:30").do(run_export_submission)
+t = Thread(target=run_schedule)
+t.start()
 
 __all__ = [controllers, assets, app, db, exceptions, oidc, mail]
 
 if __name__ == '__main__':
-    app.jinja_env.auto_reload = True
-    app.run(debug=True, use_reloader=True)
+
+    app.run(use_reloader=False)
