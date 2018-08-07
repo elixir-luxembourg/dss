@@ -1,17 +1,16 @@
-
 {% set active_page = 'generate_submission_pdf' %}
 <head>
-     <meta charset="UTF-8">
+    <meta charset="UTF-8">
 
 </head>
 <div class="row">
     <div class="col-md-2 logos-section" align="right">
 
         {% if submission_rec.is_elixir() %}
-            <img src="{{png_elx_lu}}"  typealt="elixir luxembourg logo"  width="100px" height="auto"/>
+        <img src="{{png_elx_lu}}" typealt="elixir luxembourg logo" width="100px" height="auto"/>
         {% endif %}
 
-        <img src="{{png_lcsb}}"  width="70px" height="auto">
+        <img src="{{png_lcsb}}" width="70px" height="auto">
         <img src="{{png_uni}}" width="70px" height="auto">
     </div>
     <div class="col-md-4"><h1 align="left"><strong>Data Information Sheet</strong></h1></div>
@@ -19,126 +18,158 @@
 
 {% block content %}
 
-        <div>
-            <div>
-                    <h3>Submission</h3>
-                    <table class="table table-bordered">
+<div>
+    <div>
+        <h3>Submission</h3>
+        <hr/>
+        <table class="table table-bordered">
+            <tr>
+                <th scope="row">Reference No</th>
+                <td> {{ submission_rec.ref_name or '' }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Title</th>
+                <td>{{ submission_rec.title or '' }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Data Provider(s)</th>
+                <td>{{ submission_rec.provider_user_names()| join(', ') }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Date of Finalisation</th>
+                <td>{{ submission_rec.dish_finalised_on or '' }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Category</th>
+                <td>{{ submission_rec.submission_scope.label }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Recipient</th>
+                <td>{{ submission_rec.collab_local_custodian_json|replace('"','') | replace("[", '')| replace("]",
+                    '')|join('')}}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Recipient Project</th>
+                <td>{{ submission_rec.collab_project_name or '' }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div>
+        <h3>Studies</h3>
+        <hr/>
+        <table class="table table-bordered">
+            {% for study in submission_rec.studies %}
+            <tr>
+                <td rowspan="6" {% if loop.index % 2== 1 %} bgcolor="#CCC" {% else %} bgcolor="#f2f2f2" {% endif %}>
+                    {{loop.index}}
+                </td>
+            </tr>
+
+            <tr>
+                <th scope="row">Study Name</th>
+                <td>
+                    {{ study.study_name }}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Study Description</th>
+                <td>{{ study.study_description }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Study Type</th>
+                <td>{{ study.study_types_json|replace('"','') | replace("[", '')| replace("]", '')|join('') }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Has Ethics Approval</th>
+                <td>{{ study.ethics_approval_exists | replace("True","Yes") | replace("False","No") }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Contacts</th>
+                <td>
+                    <table class="table .table-borderless">
+                        <thead>
                         <tr>
-                            <th scope="row">Reference No</th>
-                            <td> {{ submission_rec.ref_name or '' }} </td>
+                            <th scope="col">Institution</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Role</th>
                         </tr>
+                        {% for contact in study.study_contacts %}
                         <tr>
-                            <th scope="row">Title</th>
-                            <td>{{ submission_rec.title or '' }}</td>
+                            <td>{{ contact.institution }}</td>
+                            <td>{{ contact.fullname() }}</td>
+                            <td>{{ contact.contact_category.name }}</td>
                         </tr>
-                        <tr>
-                            <th scope="row">Data Provider(s)</th>
-                            <td>{{ submission_rec.provider_user_names()| join(', ') }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Date of Finalisation</th>
-                            <td>{{ submission_rec.dish_finalised_on or '' }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Category</th>
-                            <td>{{ submission_rec.submission_scope.label }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Recipient</th>
-                            <td>{{ submission_rec.collab_local_custodian_json|replace('"','') | replace("[", '')| replace("]", '')|join('')}}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Recipient Project</th>
-                            <td>{{ submission_rec.collab_project_name or ''  }}</td>
-                        </tr>
+                        {% endfor %}
+                        </thead>
                     </table>
-            </div>
-            <div>
-                <h3>Contacts</h3>
-                <table class="table table-bordered">
-                    <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Institution</th>
-                    </tr>
-                    {% for contact in submission_contact %}
-                    <tr>
-                        <td>{{ contact.fullname() }}</td>
-                        <td>{{ contact.email }}</td>
-                        <td>{{ contact.contact_category.name  }}</td>
-                        <td>{{ contact.institution  }}</td>
-                    </tr>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div>
+        <h3>Datasets</h3>
+        <hr/>
+        <table class="table table-bordered">
+
+            {% for dish in submission_rec.dishes %}
+            <tr>
+                <td rowspan="10" {% if loop.index % 2== 1 %} bgcolor="#CCC" {% else %} bgcolor="#f2f2f2" {% endif %}>
+                    {{loop.index}}
+                </td>
+            </tr>
+
+            <tr>
+                <th scope="row">Study Name</th>
+
+                <td>{% if dish.study %}
+                    {{ dish.study.study_name }}
+                    {% endif %}
+                </td>
+            </tr>
+
+            <tr>
+                <th scope="row">Subject Minors</th>
+                <td>{{ dish.subjects_minors | replace("True","Yes") | replace("False","No") }}</td>
+            </tr>
+
+            <tr>
+                <th scope="row">Subjects those unable to consent</th>
+                <td>{{ dish.subjects_unable_to_consent | replace("True","Yes") | replace("False","No") }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Other Vulnerable Subjects</th>
+                <td>{{ dish.subjects_vulnerable | replace("True","Yes") | replace("False","No") }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Notes on Subjects</th>
+                <td>{{ dish.subjects_notes }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Consent Status</th>
+                <td>{{ dish.consent_status.label }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Notes on Consent</th>
+                <td>{{ dish.consent_notes }}</td>
+            </tr>
+            <tr>
+                <th scope="row">De-Identification Type</th>
+                <td>{{ dish.de_identification_type.label }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Use Restrictions</th>
+                <td>
+                    {% for code in dish.duc_codes %}
+                    <h4>{{ code.get_duc_codes_name(code.ga4gh_code) }}</h4>
+                    <p>{{ code.note }}</p>
                     {% endfor %}
-                    </thead>
-                </table>
-            </div>
-            <div >
-                <h3>Studies/Datasets</h3>
-                <table class="table table-bordered">
-
-                    {% for dish in dishes %}
-                    <tr>
-                        <td rowspan="13" {% if loop.index % 2 == 1 %} bgcolor="#CCC" {% else %} bgcolor="#f2f2f2" {% endif %} >{{loop.index}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Study Name</th>
-                        <td>{{ dish.study_name  }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Study Description</th>
-                        <td>{{ dish.study_description  }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Study Type</th>
-                        <td>{{ dish.study_types_json|replace('"','') | replace("[", '')| replace("]", '')|join('') }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Has Ethics Approval</th>
-                        <td>{{ dish.ethics_approval_exists | replace("True","Yes") | replace("False","No") }}</td>
-                    </tr>
-
-                    <tr>
-                        <th scope="row">Subject Minors</th>
-                        <td>{{ dish.subjects_minors | replace("True","Yes") | replace("False","No") }}</td>
-                    </tr>
-
-                    <tr>
-                        <th scope="row">Subjects those unable to consent</th>
-                        <td>{{ dish.subjects_unable_to_consent  | replace("True","Yes") | replace("False","No") }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Other Vulnerable Subjects</th>
-                        <td>{{ dish.subjects_vulnerable | replace("True","Yes") | replace("False","No")  }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Notes on Subjects</th>
-                        <td>{{ dish.subjects_notes }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Consent Status</th>
-                        <td>{{ dish.consent_status.label }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Notes on Consent</th>
-                        <td>{{ dish.consent_notes }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">De-Identification Type</th>
-                        <td>{{ dish.de_identification_type.label }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Use Restrictions</th>
-                        <td>
-                            {% for code in dish.duc_codes %}
-                              <h4>{{ code.get_duc_codes_name(code.ga4gh_code) }}</h4>
-                              <p>{{ code.note }}</p>
-                            {% endfor %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </table >
-            </div>
-        </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
 {% endblock %}

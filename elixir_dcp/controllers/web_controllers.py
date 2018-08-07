@@ -718,8 +718,6 @@ def generate_submission_pdf(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     rendered = render_template('submission/generate_submission_pdf.html',
                                submission_rec=submission_rec,
-                               dishes=submission_rec.dishes,
-                               submission_contact=submission_rec.contacts,
                                png_elx_lu = app.static_folder+'/public/images/'+'ELIXIR_LU_WB.png',
                                png_lcsb = app.static_folder+'/public/images/'+'LCSB-logo.png',
                                png_uni =app.static_folder+'/public/images/'+'Uni-LU.png')
