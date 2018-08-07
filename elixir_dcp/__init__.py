@@ -1,22 +1,23 @@
-import os
+import json
 import logging
+import os
+import time
 from logging.handlers import RotatingFileHandler
+
+import schedule
 from flask import Flask
 from flask_assets import Environment
+from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
+from flask_oidc import OpenIDConnect
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_wkhtmltopdf import Wkhtmltopdf
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
+
 import elixir_dcp.assets as assets
 import elixir_dcp.exceptions as exceptions
-from flask_oidc import OpenIDConnect
-import json
-from flask_wkhtmltopdf import Wkhtmltopdf
-import schedule
-import time
-from threading import Thread
 
 __VERSION__ = "0.0.1"
 
@@ -111,8 +112,6 @@ mail = Mail(app)
 app.add_template_global(login_manager.login_view, 'login_page')
 
 
-
-
 @app.template_filter('dt')
 def _jinja2_filter_datetime(date, fmt=None):
     if date is None:
@@ -133,23 +132,24 @@ def inject_now():
     return {'version': __VERSION__}
 
 
-from . import controllers,models
+from . import controllers, models
 
 
 def run_export_submission():
     models.services.schedule_submission_export()
+
 
 def run_schedule():
     while True:
         schedule.run_pending()
         time.sleep(1)
 
-schedule.every().day.at("22:30").do(run_export_submission)
-t = Thread(target=run_schedule)
-t.start()
+
+# schedule.every().day.at("22:30").do(run_export_submission)
+# t = Thread(target=run_schedule)
+# t.start()
 
 __all__ = [controllers, assets, app, db, exceptions, oidc, mail]
 
 if __name__ == '__main__':
-
     app.run(use_reloader=False)

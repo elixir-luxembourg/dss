@@ -181,9 +181,10 @@ $(document).ready(function () {
             },
             error: function (xhr, status, error) {
                 if (error === VALIDATION_ERROR) {
-                    refresh_bean_list("contacts");
-                    $("#contacts_inline_editor").html(xhr.responseText);
+                    refresh_bean_list("studies");
+                    $("#studies_inline_editor").html(xhr.responseText);
                     displayInlineError("Please check the validity of your input in highlighted places");
+                    bind_widgets();
                 }
             }
 

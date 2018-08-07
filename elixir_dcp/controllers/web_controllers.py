@@ -515,8 +515,6 @@ def edit_submission_dish(dish_id):
     if request.method == 'GET':
         dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
         result_form = forms.StudyDishForm(obj=dish_rec)
-        # if dish_rec.study_types_json:
-        #     result_form.study_types.data = json.loads(dish_rec.study_types_json)
         if dish_rec.data_types_json:
             result_form.data_types.data = json.loads(dish_rec.data_types_json)
 
@@ -530,8 +528,6 @@ def edit_submission_dish(dish_id):
 
             if posted_form.data_types.data:
                 dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
-            # if posted_form.study_types.data:
-            #     dish_rec.study_types_json = json.dumps(posted_form.study_types.data)
             db.session.add(dish_rec)
             db.session.commit()
 
