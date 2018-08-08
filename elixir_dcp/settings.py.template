@@ -1,12 +1,20 @@
 from elixir_dcp.scripts.db import START_UP_DATA
+import os
+
+
 basedir = os.path.abspath(os.path.dirname(__file__))
-app_data_basedir = os.path.join(basedir, '../../app-data/')
+APP_DATA_BASE_DIR = os.path.abspath(os.path.join(basedir, '../../app-data/'))
+
+#Above command does noti work on the deployment server CentOS, so when deploying use below
+# APP_DATA_BASE_DIR = '/home/elixirdcp/app-data'
+
 class Config(object):
 
     # name of the application
     TITLE = 'ELIXIR-LU Data Submission System'
     SECRET_KEY = b'deneme'
-    SQLALCHEMY_DATABASE_URI ='sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')
+
+    SQLALCHEMY_DATABASE_URI ='sqlite:///' + os.path.join(APP_DATA_BASE_DIR, 'elixir-dcp.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 

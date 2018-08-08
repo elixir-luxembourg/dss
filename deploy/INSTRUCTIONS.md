@@ -26,6 +26,9 @@ sudo passwd elixirdcp
 su elixirdcp
 
 mkdir app-data
+mkdir app-data/uploads
+mkdir app-data/exports
+mkdir app-logs
 ```
 
 ## Get the project
@@ -34,7 +37,7 @@ git clone ssh://git@git-r3lab-server.uni.lu:8022/elixir/elixir-dcp.git
 cd elixir-dcp
 
 
-vi client_secrets.json 
+vi elixir_dcp/client_secrets.json 
 (put in the client id and client secret)
 
 mkdir project_venv
@@ -47,15 +50,16 @@ pip install gunicorn
 ```
 ## Configure Project
 ```bash
+export ELIXIR_DCP_ENV="prod"
 cp elixir_dcp/settings.py.template elixir_dcp/settings.py
+elixir-dcp/manage.py init_db
 ```
 
 
 ## Configure and run nginx 
 ```bash
 sudo mkdir /etc/nginx/conf.d  (if it does not already exist)
-sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-nginx.conf /etc:q
-/nginx/conf.d/elixir-dcp-nginx.conf
+sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-nginx.conf /etc/nginx/conf.d/elixir-dcp-nginx.conf
 sudo vi /etc/nginx/nginx.conf
 ```
 Change nginx.conf so that:
