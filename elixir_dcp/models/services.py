@@ -311,16 +311,16 @@ def export_submission(sub: Submission):
 
     sub_info['studies'] = export_studies(sub)
 
-    sub_info['datasets'] = export_dishes(sub)
+    sub_info['datasets'] = export_datasets(sub)
 
     sub_info['attachments'] = export_attachment_info(sub)
 
     return sub_info
 
 
-def export_dishes(sub: Submission):
+def export_datasets(sub: Submission):
     dataset_list = []
-    for dish in sub.dishes:
+    for dataset in sub.datasets:
         dataset_info = {}
         dataset_info['submission_ref'] = sub.ref_name
         dataset_info['title'] = sub.title
@@ -328,33 +328,34 @@ def export_dishes(sub: Submission):
 
         # TODO Also put here the source study as source project
 
-        dataset_info['source_project'] = dish.study.study_name
+        dataset_info['source_project'] = dataset.study.study_name
         if sub.is_elixir():
             dataset_info['source_type'] = 'From_Elixir_Data_Submitter'
         else:
             dataset_info['source_type'] = 'From_Collaborator'
-        dataset_info['legal_basis_data_collection'] = dish.legal_basis_collection.label
-        dataset_info['legal_basis_data_sharing'] = dish.legal_basis_sharing.label
+        dataset_info['legal_basis_data_collection'] = dataset.legal_basis_collection.label
+        dataset_info['legal_basis_data_sharing'] = dataset.legal_basis_sharing.label
         dataset_info['local_custodian'] = json.loads(sub.collab_local_custodian_json)
         dataset_info['local_project'] = sub.collab_project_name
-        dataset_info['data_types'] = dish.data_type_names()
-        dataset_info['data_size_category'] = dish.estimate_data_size_code
-        dataset_info['data_dictionary_exists'] = dish.metadata_exists
+        dataset_info['data_types'] = dataset.data_type_names()
+        dataset_info['data_notes'] = dataset.data_notes
+        dataset_info['data_size_category'] = dataset.estimate_data_size_code
+        dataset_info['metadata_exists'] = dataset.metadata_exists
         dataset_info[
-            'has_special_subjects'] = dish.subjects_unable_to_consent or dish.subjects_vulnerable or dish.subjects_minors
+            'has_special_subjects'] = dataset.subjects_unable_to_consent or dataset.subjects_vulnerable or dataset.subjects_minors
         subj_notes = ''
-        if dish.subjects_unable_to_consent: subj_notes += 'Subjects unable to consent. '
-        if dish.subjects_vulnerable: subj_notes += 'Other vulnerable subjects. '
-        if dish.subjects_minors: subj_notes += 'Subjects minors. '
-        if dish.subjects_notes: subj_notes += dish.subjects_notes
+        if dataset.subjects_unable_to_consent: subj_notes += 'Subjects unable to consent. '
+        if dataset.subjects_vulnerable: subj_notes += 'Other vulnerable subjects. '
+        if dataset.subjects_minors: subj_notes += 'Subjects minors. '
+        if dataset.subjects_notes: subj_notes += dataset.subjects_notes
 
         if subj_notes: dataset_info['special_subject_notes'] = subj_notes
 
-        dataset_info['consent_status'] = dish.consent_status.label.lower()
-        if dish.consent_notes: dataset_info['consent_notes'] = dish.consent_notes
-        dataset_info['de_identification'] = dish.de_identification_type.label.lower()
+        dataset_info['consent_status'] = dataset.consent_status.label.lower()
+        if dataset.consent_notes: dataset_info['consent_notes'] = dataset.consent_notes
+        dataset_info['de_identification'] = dataset.de_identification_type.label.lower()
         use_restrictions = []
-        for duc_instance in dish.duc_codes:
+        for duc_instance in dataset.duc_codes:
             use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
                                      'note': duc_instance.note})
         dataset_info['use_restrictions'] = use_restrictions

@@ -163,14 +163,19 @@ class SubmissionForm(FlaskForm):
         self.collab_local_custodian.choices = [(c, c) for c in app.config.get('DATA_INIT')['lcsb_pis']]
 
 
-class StudyDishForm(FlaskForm):
+class StudyDatasetForm(FlaskForm):
     """
-    Form for creating or updating DISH for each study within a submission
+    Form for creating or updating Dataset within a submission
     """
-    id = HiddenField('DISH_Id')
+    id = HiddenField('dataset_Id')
     submission_id = HiddenField('Submission Id')
 
-    # Data
+    title = StringField('Title', validators=[DataRequired(),
+                                             Regexp('^[\w\s\-]+$',
+                                                    message="Title must contain only letters, digits, underscore or dash"),
+                                             Length(min=5, max=50,
+                                                    message="Title must be between 5 & 50 characters")])
+
     study_id = SelectField('Study Name', coerce=int, description="Please select the Study name for this Dataset.",
                         validators=[DataRequired()])
     estimate_data_size_code = SelectField('Estimated Total Data Size',
@@ -180,7 +185,10 @@ class StudyDishForm(FlaskForm):
     data_types = SelectMultipleField('Data Type(s)',
                                      description="Please select the categories that would best characterise the types of data within this dataset.",
                                      validators=[DataRequired()])
-    metadata_exists = BooleanField('Metadata Provided',
+    data_notes = TextAreaField('Notes on Data', render_kw={'rows': 3},validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                                                            message="Can only contain letters, digits, dash, comma and dot.")])
+
+    metadata_exists = BooleanField('Is Metadata Provided',
                                    description="Confirmation of whether metadata will be uploaded alongside data. As a minimum we would expect a Data Dictionary to be supplied alongside data.",
                                    default=True)
 
@@ -191,10 +199,12 @@ class StudyDishForm(FlaskForm):
     subjects_minors = BooleanField('Subjects Minors', default=False)
     subjects_vulnerable = BooleanField('Subjects Those Unable to Consent', default=False)
     subjects_unable_to_consent = BooleanField('Other Vulnerable Subjects', default=False)
-    subjects_notes = TextAreaField('Notes on Subjects', render_kw={'rows': 3})
+    subjects_notes = TextAreaField('Notes on Subjects', render_kw={'rows': 3}, validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                                                                  message="Can only contain letters, digits, dash, comma and dot.")])
 
     consent_status_code = SelectField('Consent Status', validators=[DataRequired()])
-    consent_notes = TextAreaField('Notes on Consent', render_kw={'rows': 3})
+    consent_notes = TextAreaField('Notes on Consent', render_kw={'rows': 3}, validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                                                                message="Can only contain letters, digits, dash, comma and dot.")])
     de_identification_type_code = SelectField('De-Identification Type', validators=[DataRequired()])
 
     duc_codes = FieldList \

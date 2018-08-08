@@ -7,7 +7,7 @@ os.environ['ELIXIR_DCP_ENV'] = 'test'
 from flask_testing import TestCase
 from elixir_dcp import db, app
 from elixir_dcp.models.security import Role
-from elixir_dcp.models.submission import SubmissionScope, ConsentStatus, DeIdentificationType
+from elixir_dcp.models.submission import SubmissionScope, ConsentStatus, DeIdentificationType, LegalBasisType
 
 
 class BaseTest(TestCase):
@@ -36,10 +36,10 @@ class BaseTest(TestCase):
         #
         for deid_type in initial_data['deidentification_type']:
             db.session.add(DeIdentificationType(code=deid_type[0], label=deid_type[1]))
-        #
-        # for lb_type in initial_data['legal_basis']:
-        #     db.session.add(LegalBasisType(code=lb_type[0], label=lb_type[1]))
-        #
+
+        for lb_type in initial_data['legal_basis']:
+            db.session.add(LegalBasisType(code=lb_type[0], label=lb_type[1]))
+
         for cons_status in initial_data['consent_status']:
             db.session.add(ConsentStatus(code=cons_status[0], label=cons_status[1]))
         #

@@ -36,7 +36,7 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                                   'Use of data is limited to use within an approved project.'],
                                  ['IS', 'Institution-Specific restrictions',
                                   'Use of data is limited to use within an approved institution.']],
-                 'contact_types': ['PI', 'Researcher', 'Data_Manager', 'Data_Protection_Officer',
+                 'contact_types': ['Principal_Investigator', 'Researcher', 'Data_Manager', 'Data_Protection_Officer',
                                    'Legal_Representative', 'Other'],
                  'names_roles': ['data_provider', 'admin'],
                  'size_categories': [['s', 'Less than 10GB'],
@@ -68,14 +68,17 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                         ('Other_omics_data', 'Other_omics_data'),
 
                     )),
-                   ('Clinical_Imaging', ()),
-                   ('Cell_Imaging', ()),
+                    ('Imaging', (
+                        ('Clinical_Imaging', 'Clinical_Imaging'),
+                        ('Cell_Imaging', 'Cell_Imaging')
+                    )),
                     ('Human_subject_data', (
                         ('Clinical_data', 'Clinical_data'),
                         ('Lifestyle_data', 'Lifestyle_data'),
-                        ('Socio_Economic_Data', 'Socio_Economic_Data')
+                        ('Socio_Economic_Data', 'Socio_Economic_Data'),
+                        ('Other_Phenotype_data', 'Other_Phenotype_data')
                     )),
-                       ('Others', ())
+                    ('Other', 'Other')
                 ),
                  'study_types': [
                      "Observational",

@@ -256,7 +256,7 @@ $(document).ready(function () {
      *
      *
      *
-     * DISH Inline Editor button handlers.
+     * dataset Inline Editor button handlers.
      *
      *
      *
@@ -264,22 +264,22 @@ $(document).ready(function () {
      */
 
 
-    $("#dishes_inline_editor").on('click', 'a#submission_dish_save', function () {
+    $("#datasets_inline_editor").on('click', 'a#submission_dataset_save', function () {
         $.ajax({
-            url: $('#form_submission_dish').attr('data-url'),
+            url: $('#form_submission_dataset').attr('data-url'),
             type: 'post',
-            data: $('#form_submission_dish').serialize(),
+            data: $('#form_submission_dataset').serialize(),
             success: function (result) {
-                refresh_bean_list("dishes");
-                $("#dishes_inline_editor").html(result);
+                refresh_bean_list("datasets");
+                $("#datasets_inline_editor").html(result);
                 displayInlineSuccess("Study saved");
                 bind_widgets();
                 scroll_to_top();
             },
             error: function (xhr, status, error) {
                 if (error === VALIDATION_ERROR) {
-                    refresh_bean_list("dishes");
-                    $("#dishes_inline_editor").html(xhr.responseText);
+                    refresh_bean_list("datasets");
+                    $("#datasets_inline_editor").html(xhr.responseText);
                     displayInlineError("Please check the validity of your input in highlighted places");
                     bind_widgets();
                 }
@@ -287,19 +287,19 @@ $(document).ready(function () {
         });
     });
 
-    $("#dishes_inline_list").on('click', 'a#submission_dish_listing_delete', function () {
+    $("#datasets_inline_list").on('click', 'a#submission_dataset_listing_delete', function () {
 
-        bean_list_delete_handler($(this).attr('data-url'), "dishes");
+        bean_list_delete_handler($(this).attr('data-url'), "datasets");
         displayInlineSuccess("Study deleted");
     });
 
 
-    $("#dishes_inline_list").on('click', 'a#submission_dish_listing_edit', function () {
+    $("#datasets_inline_list").on('click', 'a#submission_dataset_listing_edit', function () {
         $.ajax({
             url: $(this).attr('data-url'),
             type: "get",
             success: function (result) {
-                $("#dishes_inline_editor").html(result);
+                $("#datasets_inline_editor").html(result);
                 bind_widgets();
             },
             error: function () {

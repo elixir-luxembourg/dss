@@ -37,7 +37,7 @@
             </tr>
             <tr>
                 <th scope="row">Date of Finalisation</th>
-                <td>{{ submission_rec.dish_finalised_on or '' }}</td>
+                <td>{{ submission_rec.dataset_finalised_on or '' }}</td>
             </tr>
             <tr>
                 <th scope="row">Category</th>
@@ -114,7 +114,7 @@
         <hr/>
         <table class="table table-bordered">
 
-            {% for dish in submission_rec.dishes %}
+            {% for dataset in submission_rec.datasets %}
             <tr>
                 <td rowspan="10" {% if loop.index % 2== 1 %} bgcolor="#CCC" {% else %} bgcolor="#f2f2f2" {% endif %}>
                     {{loop.index}}
@@ -124,45 +124,45 @@
             <tr>
                 <th scope="row">Study Name</th>
 
-                <td>{% if dish.study %}
-                    {{ dish.study.study_name }}
+                <td>{% if dataset.study %}
+                    {{ dataset.study.study_name }}
                     {% endif %}
                 </td>
             </tr>
 
             <tr>
                 <th scope="row">Subject Minors</th>
-                <td>{{ dish.subjects_minors | replace("True","Yes") | replace("False","No") }}</td>
+                <td>{{ dataset.subjects_minors | replace("True","Yes") | replace("False","No") }}</td>
             </tr>
 
             <tr>
                 <th scope="row">Subjects those unable to consent</th>
-                <td>{{ dish.subjects_unable_to_consent | replace("True","Yes") | replace("False","No") }}</td>
+                <td>{{ dataset.subjects_unable_to_consent | replace("True","Yes") | replace("False","No") }}</td>
             </tr>
             <tr>
                 <th scope="row">Other Vulnerable Subjects</th>
-                <td>{{ dish.subjects_vulnerable | replace("True","Yes") | replace("False","No") }}</td>
+                <td>{{ dataset.subjects_vulnerable | replace("True","Yes") | replace("False","No") }}</td>
             </tr>
             <tr>
                 <th scope="row">Notes on Subjects</th>
-                <td>{{ dish.subjects_notes }}</td>
+                <td>{{ dataset.subjects_notes }}</td>
             </tr>
             <tr>
                 <th scope="row">Consent Status</th>
-                <td>{{ dish.consent_status.label }}</td>
+                <td>{{ dataset.consent_status.label }}</td>
             </tr>
             <tr>
                 <th scope="row">Notes on Consent</th>
-                <td>{{ dish.consent_notes }}</td>
+                <td>{{ dataset.consent_notes }}</td>
             </tr>
             <tr>
                 <th scope="row">De-Identification Type</th>
-                <td>{{ dish.de_identification_type.label }}</td>
+                <td>{{ dataset.de_identification_type.label }}</td>
             </tr>
             <tr>
                 <th scope="row">Use Restrictions</th>
                 <td>
-                    {% for code in dish.duc_codes %}
+                    {% for code in dataset.duc_codes %}
                     <h4>{{ code.get_duc_codes_name(code.ga4gh_code) }}</h4>
                     <p>{{ code.note }}</p>
                     {% endfor %}

@@ -55,12 +55,12 @@ submission_listing_js = Bundle(
         filters='closure_js'
     ),
     output='public/js/submission_listing.min.js')
-submission_dish_inline_js = Bundle(
+submission_dataset_inline_js = Bundle(
     Bundle(
-        'js/submission_dish_inline.js',
+        'js/submission_dataset_inline.js',
         filters='closure_js'
     ),
-    output='public/js/submission_dish_inline.min.js')
+    output='public/js/submission_dataset_inline.min.js')
 
 user_editor_js = Bundle(
     Bundle(

@@ -1,6 +1,6 @@
 # coding=utf-8
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, \
-    StudyDishForm, UploadInfoForm, StudyForm
+    StudyDatasetForm, UploadInfoForm, StudyForm
 from elixir_dcp.models.security import Role
 from wtforms import BooleanField, HiddenField, StringField, PasswordField, SelectMultipleField, SelectField
 from wtforms.fields.html5 import EmailField
@@ -85,12 +85,12 @@ class SignupForm(FlaskForm):
                              render_kw={"placeholder": "City, Country, Postal Code."})
 
     phone_no = StringField('Phone', validators=[
-        OptionalFieldValidator(message="Can only contain digits and dash.", regex_str="^[0-9\s\-\+]+$")])
+        OptionalFieldValidator(message="Can only contain digits, dash and plus.", regex_str="^[0-9\s\-\+]+$")])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.institution.choices = [(c["elu_accession"],
-                                     c["institution_name"] + c["institution_name"] if 'acronym' in c else c[
+                                     c["institution_name"] + ' - ' +c["acronym"] if 'acronym' in c else c[
                                          "institution_name"]) for c in
                                     app.config.get('DATA_INIT')['collab_institutions']]
 
@@ -113,4 +113,4 @@ class UserForm(SignupForm):
         self.assigned_role_ids.choices = [(rol.id, rol.name) for rol in Role.query.all()]
 
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDishForm, UserForm, MyProfileForm]
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, StudyDatasetForm, UserForm, MyProfileForm]

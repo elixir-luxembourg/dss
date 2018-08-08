@@ -48,33 +48,33 @@ def init_db():
 
     db.session.commit()
 
-    sub1 = Submission(ref_name='ELX_LU_SUB-1', title='Submission of Oncotrack data', created_on=datetime.today(),
-                      current_status=SubmissionStatusEnum.draft)
-    sub2 = Submission(ref_name='ELX_LU_SUB-2', title='Submission of Predict-TB  data',
-                      created_on=datetime.today(), current_status=SubmissionStatusEnum.draft)
-    study1 = SubmissionStudy(study_name='Etriks', study_description='Etriks', study_types_json='["exome", "clinical Data"]')
-    sub1.studies.append(study1)
-    study2 = SubmissionStudy(study_name='OncoTrack', study_description='IMI Project',
-                             study_types_json='["exome", "clinical Data"]')
-    sub1.studies.append(study2)
-    contact1 = StudyContact(firstname='Kavita', surname='Rege', category_id=3, email="kavita.rege@uni.lu",
-                                 institution="University of Luxembourg")
-    study1.study_contacts.append(contact1)
-    contact2 = StudyContact(firstname='Pinar', surname='Alper', category_id=2, email="pinar.alper@uni.lu",
-                                 institution="University of Luxembourg")
-    study1.study_contacts.append(contact2)
+    # sub1 = Submission(ref_name='ELX_LU_SUB-1', title='Submission of Oncotrack data', created_on=datetime.today(),
+    #                   current_status=SubmissionStatusEnum.draft)
+    # sub2 = Submission(ref_name='ELX_LU_SUB-2', title='Submission of Predict-TB  data',
+    #                   created_on=datetime.today(), current_status=SubmissionStatusEnum.draft)
+    # study1 = SubmissionStudy(study_name='Etriks', study_description='Etriks Project is ....', study_types_json='["Observational", "Interventional"]')
+    # sub1.studies.append(study1)
+    # study2 = SubmissionStudy(study_name='OncoTrack', study_description='IMI Project....',
+    #                          study_types_json='["Observational", "Interventional"]')
+    # sub1.studies.append(study2)
+    # contact1 = StudyContact(firstname='Kavita', surname='Rege', category_id=3, email="kavita.rege@uni.lu",
+    #                              institution="University of Luxembourg")
+    # study1.study_contacts.append(contact1)
+    # contact2 = StudyContact(firstname='Pinar', surname='Alper', category_id=2, email="pinar.alper@uni.lu",
+    #                              institution="University of Luxembourg")
+    # study1.study_contacts.append(contact2)
 
-    db.session.add(sub1)
-    db.session.add(sub2)
-    db.session.commit()
+    # db.session.add(sub1)
+    # db.session.add(sub2)
+    # db.session.commit()
 
-    u1 = User(first_name='Kavita', last_name='Rege',
-              elixir_sub_id='0a5006e96e96c8b9481af9a16034aebe7dc7c9c5@elixir-europe.org', email='kavita.rege@uni.lu',
-              institution='University of Luxembourg',
-              phone_no='3524666449647')
-    register_new_user(u1)
-    assign_role_to_user(u1, 'admin')
-    assign_role_to_user(u1, 'data_provider')
+    # u1 = User(first_name='Kavita', last_name='Rege',
+    #           elixir_sub_id='0a5006e96e96c8b9481af9a16034aebe7dc7c9c5@elixir-europe.org', email='kavita.rege@uni.lu',
+    #           institution='University of Luxembourg',
+    #           phone_no='3524666449647')
+    # register_new_user(u1)
+    # assign_role_to_user(u1, 'admin')
+    # assign_role_to_user(u1, 'data_provider')
 
     u1 = User(first_name='P\u0131nar', last_name='Alper',
               elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org', email='pinar.alper@uni.lu',

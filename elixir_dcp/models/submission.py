@@ -134,7 +134,7 @@ class Submission(db.Model):
 
     studies = db.relationship("SubmissionStudy", cascade="all, delete-orphan")
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
-    dishes = db.relationship("SubmissionStudyDish", cascade="all, delete-orphan")
+    datasets = db.relationship("SubmissionDataset", cascade="all, delete-orphan")
     uploadinfos = db.relationship("SubmissionUploadInfo", cascade="all, delete-orphan")
 
     def is_deletable(self):
@@ -207,8 +207,8 @@ class DUCCodeInstance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ga4gh_code = db.Column(db.String, db.ForeignKey('ga4gh_codes.code'), nullable=False)
     note = db.Column(db.String(250))
-    study_id = db.Column(db.Integer, db.ForeignKey('submission_dishes.id'), nullable=False)
-    study = db.relationship("SubmissionStudyDish", back_populates="duc_codes")
+    dataset_id = db.Column(db.Integer, db.ForeignKey('submission_datasets.id'), nullable=False)
+    dataset = db.relationship("SubmissionDataset", back_populates="duc_codes")
 
     def get_duc_codes_name(self, ga4gh_code):
         ga4gh_code_name =  GA4GHCodes.query.filter_by(code=ga4gh_code).one_or_none().name
@@ -245,22 +245,25 @@ class SubmissionStudy(db.Model):
             return []
 
 
-class SubmissionStudyDish(db.Model):
-    __tablename__ = 'submission_dishes'
+class SubmissionDataset(db.Model):
+    __tablename__ = 'submission_datasets'
 
     # Data
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String, nullable=False)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
     study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'), nullable=False)
     study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
 
     estimate_data_size_code = db.Column(db.String, db.ForeignKey('data_size_category.code'), nullable=False, default='s')
     data_types_json = db.Column(db.String, nullable=False)
+    data_notes = db.Column(db.String, nullable=True)
     metadata_exists = db.Column(db.Boolean, nullable=False, default=True)
 
     # Ethics & Data Protection
     legal_basis_sharing_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='c')
     legal_basis_sharing = db.relationship('LegalBasisType', foreign_keys=[legal_basis_sharing_code])
+
     legal_basis_collection_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='c')
     legal_basis_collection = db.relationship('LegalBasisType',  foreign_keys=[legal_basis_collection_code])
 
@@ -278,7 +281,7 @@ class SubmissionStudyDish(db.Model):
     de_identification_type_code = db.Column(db.String, db.ForeignKey('deidentification_type.code'), nullable=False, default='p')
     de_identification_type = db.relationship('DeIdentificationType')
 
-    duc_codes = db.relationship("DUCCodeInstance", back_populates="study", cascade="all, delete-orphan")
+    duc_codes = db.relationship("DUCCodeInstance", back_populates="dataset", cascade="all, delete-orphan")
 
 
 

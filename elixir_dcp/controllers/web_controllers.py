@@ -13,7 +13,7 @@ from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert
     get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info, \
     update_user_info, send_email
 from elixir_dcp.models.submission import Submission, SubmissionAttachment, StudyContact, \
-    SubmissionStudyDish, SubmissionUploadInfo, SubmissionStudy, EmailNotification
+    SubmissionDataset, SubmissionUploadInfo, SubmissionStudy, EmailNotification
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 import os
@@ -468,85 +468,84 @@ def delete_submission_attachment(attach_id):
 
 
 """----------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's DISHs."""
+"""AJAX Endpoints for managing a Submission's datasets."""
 """----------------------------------------------------"""
 
 
-@app.route('/submission_dishes_inline/<int:sub_id>', methods=['GET'])
+@app.route('/submission_datasets_inline/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def inline_submission_dishes(sub_id):
+def inline_submission_datasets(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_dishes.html', submission=submission_rec,
-                           dish_form=forms.StudyDishForm(formdata=None,
-                                                         obj=None,
-                                                         sub_id=submission_rec.id))
+    return render_template('submission/_datasets.html', submission=submission_rec,
+                           dataset_form=forms.StudyDatasetForm(formdata=None,
+                                                            obj=None,
+                                                            sub_id=submission_rec.id))
 
 
-@app.route('/submission_dishes/<int:sub_id>', methods=['GET'])
+@app.route('/submission_datasets/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def list_submission_dishes(sub_id):
-    dishes = SubmissionStudyDish.query.filter_by(submission_id=sub_id)
-    return render_template('submission/_dish_columns.html', dishes=dishes)
+def list_submission_datasets(sub_id):
+    datasets = SubmissionDataset.query.filter_by(submission_id=sub_id)
+    return render_template('submission/_dataset_columns.html', datasets=datasets)
 
 
-@app.route('/submission_dish_add/<int:sub_id>', methods=['POST'])
+@app.route('/submission_dataset_add/<int:sub_id>', methods=['POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def add_submission_dish(sub_id):
-    posted_form = forms.StudyDishForm(request.form)
+def add_submission_dataset(sub_id):
+    posted_form = forms.StudyDatasetForm(request.form)
     if posted_form.validate_on_submit() and int(posted_form.submission_id.data) == sub_id:
 
-        dish_rec = SubmissionStudyDish()
-        posted_form.populate_obj(dish_rec)
-        dish_rec.id = None
+        dataset_rec = SubmissionDataset()
+        posted_form.populate_obj(dataset_rec)
+        dataset_rec.id = None
         if posted_form.data_types.data:
-            dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
-        db.session.add(dish_rec)
+            dataset_rec.data_types_json = json.dumps(posted_form.data_types.data)
+        db.session.add(dataset_rec)
         db.session.commit()
-        return render_template('submission/_dish_form.html', dish_form=forms.StudyDishForm(formdata=None,
-                                                                                           obj=None,
-                                                                                           sub_id=sub_id)), 200
+        return render_template('submission/_dataset_form.html', dataset_form=forms.StudyDatasetForm(formdata=None,
+                                                                                              obj=None,
+                                                                                              sub_id=sub_id)), 200
     else:
-        return render_template('submission/_dish_form.html', dish_form=posted_form), 400
+        return render_template('submission/_dataset_form.html', dataset_form=posted_form), 400
 
 
-@app.route('/submission_dish/<int:dish_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudyDish', 'entity_id_key':'dish_id', 'entity_ac_attribute':'submission_id'})
-def edit_submission_dish(dish_id):
+@app.route('/submission_dataset/<int:dataset_id>', methods=['GET', 'POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionDataset', 'entity_id_key':'dataset_id', 'entity_ac_attribute':'submission_id'})
+def edit_submission_dataset(dataset_id):
     if request.method == 'GET':
-        dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
-        result_form = forms.StudyDishForm(obj=dish_rec)
-        if dish_rec.data_types_json:
-            result_form.data_types.data = json.loads(dish_rec.data_types_json)
+        dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
+        result_form = forms.StudyDatasetForm(obj=dataset_rec)
+        if dataset_rec.data_types_json:
+            result_form.data_types.data = json.loads(dataset_rec.data_types_json)
 
-        return render_template('submission/_dish_form.html', dish_form=result_form)
+        return render_template('submission/_dataset_form.html', dataset_form=result_form)
     elif request.method == 'POST':
-        posted_form = forms.StudyDishForm(request.form)
+        posted_form = forms.StudyDatasetForm(request.form)
         if posted_form.validate_on_submit():
 
-            dish_rec = SubmissionStudyDish.query.get_or_404(dish_id)
-            posted_form.populate_obj(dish_rec)
+            dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
+            posted_form.populate_obj(dataset_rec)
 
             if posted_form.data_types.data:
-                dish_rec.data_types_json = json.dumps(posted_form.data_types.data)
-            db.session.add(dish_rec)
+                dataset_rec.data_types_json = json.dumps(posted_form.data_types.data)
+            db.session.add(dataset_rec)
             db.session.commit()
 
             sid = posted_form.submission_id.data
 
-            return render_template('submission/_dish_form.html', dish_form=forms.StudyDishForm(formdata=None,
-                                                                                               obj=None,
-                                                                                               sub_id=sid)), 200
+            return render_template('submission/_dataset_form.html', dataset_form=forms.StudyDatasetForm(formdata=None,
+                                                                                                  obj=None,
+                                                                                                  sub_id=sid)), 200
         else:
-            return render_template('submission/_dish_form.html', dish_form=posted_form), 400
+            return render_template('submission/_dataset_form.html', dataset_form=posted_form), 400
 
 
-@app.route('/submission_dish/<int:dish_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudyDish', 'entity_id_key':'dish_id', 'entity_ac_attribute':'submission_id'})
-def delete_submission_dish(dish_id):
-    dish = SubmissionStudyDish.query.get_or_404(dish_id)
-    db.session.delete(dish)
+@app.route('/submission_dataset/<int:dataset_id>', methods=['DELETE'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionDataset', 'entity_id_key':'dataset_id', 'entity_ac_attribute':'submission_id'})
+def delete_submission_dataset(dataset_id):
+    dataset = SubmissionDataset.query.get_or_404(dataset_id)
+    db.session.delete(dataset)
     db.session.commit()
-    # flash("Study deleted", "success")
     return "", 204
 
 """----------------------------------------------------"""
@@ -618,12 +617,11 @@ def edit_submission_study(study_id):
 
 
 @app.route('/submission_study/<int:study_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudyDish', 'entity_id_key':'dish_id', 'entity_ac_attribute':'submission_id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudy', 'entity_id_key':'study_id', 'entity_ac_attribute':'submission_id'})
 def delete_submission_study(study_id):
     study = SubmissionStudy.query.get_or_404(study_id)
     db.session.delete(study)
     db.session.commit()
-    # flash("Study deleted", "success")
     return "", 204
 
 """----------------------------------------------------"""
