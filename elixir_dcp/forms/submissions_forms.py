@@ -55,7 +55,7 @@ class ContactForm(FlaskForm):
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")],
                        render_kw={"placeholder": "Institutional e-mail"})
 
-    institution = StringField('Institution', validators=[DataRequired(), Regexp('^[\w\s\(\)\-]+$',
+    institution = StringField('Address/Institution', validators=[DataRequired(), Regexp('^[\w\s\(\)\-]+$',
                                                                                 message="Can only contain letters, digits, underscore, dash and parantheses."),
                                                          Length(min=2, max=40,
                                                                 message="Must be 2 to 40 characters long.")])
@@ -163,7 +163,7 @@ class SubmissionForm(FlaskForm):
         self.collab_local_custodian.choices = [(c, c) for c in app.config.get('DATA_INIT')['lcsb_pis']]
 
 
-class StudyDatasetForm(FlaskForm):
+class DatasetForm(FlaskForm):
     """
     Form for creating or updating Dataset within a submission
     """

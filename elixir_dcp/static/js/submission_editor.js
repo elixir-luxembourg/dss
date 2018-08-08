@@ -42,14 +42,15 @@ $(document).ready(function () {
             search: true,
             selectAll: true
         });
-        $.ajax({
-            url: '/autocomplete_institutes'
-        }).done(function (data) {
-            $('.elx-autocomp-institution').autocomplete({
-                source: data,
-                minLength: 2
-            });
-        });
+
+        // $.ajax({
+        //     url: '/autocomplete_institutes'
+        // }).done(function (data) {
+        //     $('.elx-autocomp-institution').autocomplete({
+        //         source: data,
+        //         minLength: 2
+        //     });
+        // });
 
         $("div[data-toggle=fieldset]").each(function () {
             var $this = $(this);

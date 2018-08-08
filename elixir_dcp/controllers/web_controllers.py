@@ -477,9 +477,9 @@ def delete_submission_attachment(attach_id):
 def inline_submission_datasets(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_datasets.html', submission=submission_rec,
-                           dataset_form=forms.StudyDatasetForm(formdata=None,
-                                                            obj=None,
-                                                            sub_id=submission_rec.id))
+                           dataset_form=forms.DatasetForm(formdata=None,
+                                                          obj=None,
+                                                          sub_id=submission_rec.id))
 
 
 @app.route('/submission_datasets/<int:sub_id>', methods=['GET'])
@@ -492,7 +492,7 @@ def list_submission_datasets(sub_id):
 @app.route('/submission_dataset_add/<int:sub_id>', methods=['POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def add_submission_dataset(sub_id):
-    posted_form = forms.StudyDatasetForm(request.form)
+    posted_form = forms.DatasetForm(request.form)
     if posted_form.validate_on_submit() and int(posted_form.submission_id.data) == sub_id:
 
         dataset_rec = SubmissionDataset()
@@ -502,9 +502,9 @@ def add_submission_dataset(sub_id):
             dataset_rec.data_types_json = json.dumps(posted_form.data_types.data)
         db.session.add(dataset_rec)
         db.session.commit()
-        return render_template('submission/_dataset_form.html', dataset_form=forms.StudyDatasetForm(formdata=None,
-                                                                                              obj=None,
-                                                                                              sub_id=sub_id)), 200
+        return render_template('submission/_dataset_form.html', dataset_form=forms.DatasetForm(formdata=None,
+                                                                                               obj=None,
+                                                                                               sub_id=sub_id)), 200
     else:
         return render_template('submission/_dataset_form.html', dataset_form=posted_form), 400
 
@@ -514,13 +514,13 @@ def add_submission_dataset(sub_id):
 def edit_submission_dataset(dataset_id):
     if request.method == 'GET':
         dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
-        result_form = forms.StudyDatasetForm(obj=dataset_rec)
+        result_form = forms.DatasetForm(obj=dataset_rec)
         if dataset_rec.data_types_json:
             result_form.data_types.data = json.loads(dataset_rec.data_types_json)
 
         return render_template('submission/_dataset_form.html', dataset_form=result_form)
     elif request.method == 'POST':
-        posted_form = forms.StudyDatasetForm(request.form)
+        posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
 
             dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
@@ -533,9 +533,9 @@ def edit_submission_dataset(dataset_id):
 
             sid = posted_form.submission_id.data
 
-            return render_template('submission/_dataset_form.html', dataset_form=forms.StudyDatasetForm(formdata=None,
-                                                                                                  obj=None,
-                                                                                                  sub_id=sid)), 200
+            return render_template('submission/_dataset_form.html', dataset_form=forms.DatasetForm(formdata=None,
+                                                                                                   obj=None,
+                                                                                                   sub_id=sid)), 200
         else:
             return render_template('submission/_dataset_form.html', dataset_form=posted_form), 400
 
@@ -705,9 +705,9 @@ def delete_submission_uploadinfo(uploadinfo_id):
 """----------------------------------------------------"""
 
 
-@app.route('/autocomplete_institutes', methods=['GET'])
-def autocomplete_institutes():
-    return Response(dumps(app.config.get('DATA_INIT')['collab_institutions']), mimetype='application/json')
+# @app.route('/autocomplete_institutes', methods=['GET'])
+# def autocomplete_institutes():
+#     return Response(dumps(app.config.get('DATA_INIT')['collab_institutions']), mimetype='application/json')
 
 
 @app.route('/submission/generate_submission_pdf/<int:sub_id>',  methods=['GET'])
