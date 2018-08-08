@@ -26,6 +26,7 @@ sudo passwd elixirdcp
 su elixirdcp
 
 mkdir app-data
+mkdir app-src
 mkdir app-data/uploads
 mkdir app-data/exports
 mkdir app-logs
@@ -33,6 +34,7 @@ mkdir app-logs
 
 ## Get the project
 ```bash
+cd app-src
 git clone ssh://git@git-r3lab-server.uni.lu:8022/elixir/elixir-dcp.git
 cd elixir-dcp
 
