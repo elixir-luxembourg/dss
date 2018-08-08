@@ -54,6 +54,10 @@ pip install gunicorn
 ```bash
 export ELIXIR_DCP_ENV="prod"
 cp elixir_dcp/settings.py.template elixir_dcp/settings.py
+```
+Edit settings.py as necessary
+
+```bash
 elixir-dcp/manage.py init_db
 ```
 

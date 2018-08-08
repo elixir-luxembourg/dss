@@ -19,8 +19,8 @@ class Config(object):
 
 
     UPLOADS_SERVER_PATH = '/attachments'
-    UPLOAD_FOLDER = os.path.join(app_data_basedir, 'uploads')
-    SUBMISSION_EXPORT_FOLDER = os.path.join(app_data_basedir, 'exports')
+    UPLOAD_FOLDER = os.path.join(APP_DATA_BASE_DIR, 'uploads')
+    SUBMISSION_EXPORT_FOLDER = os.path.join(APP_DATA_BASE_DIR, 'exports')
 
     DATA_STEWARDS_MAILS = ['pinar.alper@uni.lu']
 
