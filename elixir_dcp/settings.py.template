@@ -1,6 +1,6 @@
 from elixir_dcp.scripts.db import START_UP_DATA
 basedir = os.path.abspath(os.path.dirname(__file__))
-
+app_data_basedir = os.path.join(basedir, '../../app-data/')
 class Config(object):
 
     # name of the application
@@ -11,8 +11,8 @@ class Config(object):
 
 
     UPLOADS_SERVER_PATH = '/attachments'
-    UPLOAD_FOLDER = os.path.join(basedir, 'app-data/uploads')
-    SUBMISSION_EXPORT_FOLDER = os.path.join(basedir, 'app-data/exports')
+    UPLOAD_FOLDER = os.path.join(app_data_basedir, 'uploads')
+    SUBMISSION_EXPORT_FOLDER = os.path.join(app_data_basedir, 'exports')
 
     DATA_STEWARDS_MAILS = ['pinar.alper@uni.lu']
 
@@ -23,6 +23,10 @@ class Config(object):
     ]
     DATA_INIT = START_UP_DATA
 
+
+    AUTHENTICATION_METHOD = 'AAI'
+
+
     # OIDC config
     OIDC_CLIENT_SECRETS = os.path.join(basedir, 'client_secrets.json')
     OIDC_SCOPES = ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']
@@ -32,7 +36,6 @@ class ProdConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = True
 
-    AUTHENTICATION_METHOD = 'AAI'
     OIDC_COOKIE_SECURE = True
 
     #Flask-Mail config
@@ -46,8 +49,6 @@ class DevConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_DATABASE_URI ='sqlite:///' + os.path.join(basedir, 'dev-elixir-dcp.db')
-
-    AUTHENTICATION_METHOD = 'AAI'  # Possible methods is 'AAI' or 'CONFIG'
 
 
     #Flask-Mail config
