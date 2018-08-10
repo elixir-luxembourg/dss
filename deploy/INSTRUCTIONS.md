@@ -52,10 +52,9 @@ pip install gunicorn
 ```
 ## Configure Project
 ```bash
-export ELIXIR_DCP_ENV="prod"
 cp elixir_dcp/settings.py.template elixir_dcp/settings.py
 ```
-Edit settings.py as necessary
+Edit settings.py as necessary. Set ELIXIR_DCP_ENV to 'prod'.
 
 ```bash
 elixir-dcp/manage.py init_db

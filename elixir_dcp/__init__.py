@@ -30,8 +30,9 @@ def create_application():
     new_app.config['WKHTMLTOPDF_USE_CELERY'] = True
 
     new_app.config.from_object('elixir_dcp.settings.%sConfig' % ELIXIR_DCP_ENV.capitalize())
-
+    new_app.config['ENV'] = ELIXIR_DCP_ENV
     new_app.jinja_env.add_extension('jinja2.ext.i18n')
+
 
     handler = RotatingFileHandler('elixir_dcp_app.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.ERROR)
