@@ -4,6 +4,7 @@ import enum
 import os
 import json
 
+
 class ContactType(db.Model):
     __tablename__ = 'contact_types'
 
@@ -37,7 +38,6 @@ class EmailNotification(db.Model):
     html_body = db.Column(db.String, nullable=False)
 
     created_on = db.Column(db.Date, nullable=False)
-
 
 
 class SubmissionAttachment(db.Model):
@@ -271,7 +271,6 @@ class SubmissionDataset(db.Model):
     subjects_vulnerable = db.Column(db.Boolean, nullable=False, default=False)
     subjects_unable_to_consent = db.Column(db.Boolean, nullable=False, default=False)
     subjects_notes = db.Column(db.String, nullable=True)
-
 
     consent_status_code = db.Column(db.String, db.ForeignKey('consent_status.code'), nullable=False, default='m')
     consent_status = db.relationship('ConsentStatus', foreign_keys=[consent_status_code])

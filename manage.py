@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-from datetime import datetime
+
 from flask_assets import ManageAssets
 from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell, Server
-from elixir_dcp import app, db, mail
-from elixir_dcp.models.submission import ContactType, DataSizeCategory, Submission, StudyContact, \
-    SubmissionStatusEnum, GA4GHCodes, DeIdentificationType, LegalBasisType, ConsentStatus, SubmissionScope, SubmissionStudy
+from elixir_dcp import app, db
+from elixir_dcp.models.submission import ContactType, DataSizeCategory, GA4GHCodes, DeIdentificationType, \
+    LegalBasisType, ConsentStatus, SubmissionScope
 from elixir_dcp.models.security import User, Role
 from elixir_dcp.models.services import assign_role_to_user, register_new_user
 
@@ -31,8 +31,7 @@ def init_db():
         db.session.add(DataSizeCategory(code=category[0], label=category[1]))
 
     for code_triple in initial_data['ga4gh_codes']:
-        db.session.add(GA4GHCodes(code=code_triple[0], name=code_triple[1], description = code_triple[2]))
-
+        db.session.add(GA4GHCodes(code=code_triple[0], name=code_triple[1], description=code_triple[2]))
 
     for deid_type in initial_data['deidentification_type']:
         db.session.add(DeIdentificationType(code=deid_type[0], label=deid_type[1]))

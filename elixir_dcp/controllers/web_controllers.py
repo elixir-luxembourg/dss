@@ -304,7 +304,7 @@ def edit_submission(sub_id):
                                          provider_user_ids=form.provider_user_ids.data if request.form.get('provider_user_ids') else None)
 
             flash('Submission updated', 'success')
-            return redirect(url_for('edit_submission', sub_id=submission_rec.id))
+            return redirect(url_for('edit_submission', sub_id=sub_id))
         else:
             flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/submission.html', submsn_form=form, submission=submission_rec)

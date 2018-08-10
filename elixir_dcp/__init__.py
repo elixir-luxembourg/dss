@@ -19,17 +19,18 @@ from webassets.loaders import PythonLoader as PythonAssetsLoader
 import elixir_dcp.assets as assets
 import elixir_dcp.exceptions as exceptions
 
+from elixir_dcp.settings import ELIXIR_DCP_ENV
+
 __VERSION__ = "0.0.1"
 
 
 def create_application():
     new_app = Flask(__name__)
     wkhtmltopdf = Wkhtmltopdf(new_app)
-    new_app.config['WKHTMLTOPDF_USE_CELERY '] = True
+    new_app.config['WKHTMLTOPDF_USE_CELERY'] = True
 
-    env = os.environ.get('ELIXIR_DCP_ENV', 'dev')  # will default to dev env if no var exported
-    new_app.config.from_object('elixir_dcp.settings.%sConfig' % env.capitalize())
-    new_app.config['ENV'] = env
+    new_app.config.from_object('elixir_dcp.settings.%sConfig' % ELIXIR_DCP_ENV.capitalize())
+
     new_app.jinja_env.add_extension('jinja2.ext.i18n')
 
     handler = RotatingFileHandler('elixir_dcp_app.log', maxBytes=10000, backupCount=1)
