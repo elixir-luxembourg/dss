@@ -13,7 +13,7 @@ from threading import Thread
 from flask_mail import Message
 import json
 import shutil
-from pkg_resources import resource_filename
+
 
 
 def delete_sub(submission_id: str):

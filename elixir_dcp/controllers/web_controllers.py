@@ -1,10 +1,10 @@
 # coding=utf-8
-import base64
 
-from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages, Response, make_response
+
+from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages, make_response
 from flask_login import current_user, login_user, login_required, logout_user
 
-from json import dumps
+
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 
@@ -21,7 +21,7 @@ import uuid
 import shutil
 import json
 import pdfkit
-from elixir_dcp import app, db, oidc, assets
+from elixir_dcp import app, db, oidc
 from werkzeug.utils import secure_filename
 from . import app_authorization
 from .utils import get_names_from_oidc
@@ -590,6 +590,7 @@ def add_submission_study(sub_id):
 
 
 @app.route('/submission_study/<int:study_id>', methods=['GET', 'POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudy', 'entity_id_key':'study_id', 'entity_ac_attribute':'submission_id'})
 def edit_submission_study(study_id):
     if request.method == 'GET':
         study_rec = SubmissionStudy.query.get_or_404(study_id)

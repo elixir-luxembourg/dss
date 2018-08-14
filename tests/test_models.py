@@ -1,14 +1,16 @@
 import json
 
-from tests.base_test import BaseTest
+from tests import BaseTest
 
-from elixir_dcp.models.security import User, UsersRoles
+from elixir_dcp.models.security import User
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionScope, SubmissionAccess, \
     SubmissionDataset, SubmissionAttachment, SubmissionStudy
 from elixir_dcp.models.services import register_new_user, assign_role_to_user, create_sub, steer_sub, \
-    update_submission_basic_info, revert_sub, deactivate_user, delete_sub, export_submission, export_studies, export_datasets
+    update_submission_basic_info, revert_sub, deactivate_user, delete_sub, export_submission
 from elixir_dcp.exceptions import RecordLifecycleException
 from elixir_dcp import db
+
+__author__ = 'Pinar Alper'
 
 class ModelPersistenceTest(BaseTest):
 
