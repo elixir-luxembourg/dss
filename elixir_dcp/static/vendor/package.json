@@ -1,6 +1,6 @@
 {
   "name": "elixir_dcp",
-  "version": "0.2.1-dev",
+  "version": "0.2.1",
   "description": "Elixir Luxembourg - Data and Computing Platform",
   "main": "index.js",
   "scripts": {
