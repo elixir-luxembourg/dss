@@ -234,9 +234,7 @@ def revert_submission(sub_id):
         return "", 400
 
 
-"""------------------------------------"""
-"""------------------------------------"""
-"""------------------------------------"""
+
 
 
 @app.route('/submissions', methods=['GET'])
@@ -308,7 +306,6 @@ def edit_submission(sub_id):
         else:
             flash("Please check the validity of your input in highlighted places", "error")
             return render_template('submission/submission.html', submsn_form=form, submission=submission_rec)
-
 
 
 

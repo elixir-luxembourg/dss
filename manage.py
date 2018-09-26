@@ -87,13 +87,6 @@ def init_db():
 
 
 
-@manager.command
-def test():
-    tests = unittest.TestLoader().discover('tests', pattern='*.py')
-    results = unittest.TextTestRunner(verbosity=1).run(tests)
-    if not results.wasSuccessful():
-        sys.exit(1)
-
 # TODO I don't know what the below command does. FInd out.
 manager.add_command("shell", Shell(use_ipython=True, use_bpython=False))
 
