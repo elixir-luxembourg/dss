@@ -21,7 +21,7 @@ import elixir_dcp.exceptions as exceptions
 
 from elixir_dcp.settings import ELIXIR_DCP_ENV
 
-__VERSION__ = "0.2.0"
+__VERSION__ = "0.2.1-dev"
 
 
 def create_application():
