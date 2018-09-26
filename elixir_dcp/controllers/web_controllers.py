@@ -88,8 +88,6 @@ def oidc_login():
     app.logger.info(
         "oidc_login  token info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
 
-    # if current_user.is_authenticated:
-    #     return redirect(landing_page_for_user(current_user))
     existing_user_record = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
 
     if request.method == 'GET':
@@ -121,7 +119,6 @@ def oidc_login():
                 else:
                     existing_user_info_form = forms.MyProfileForm(obj=current_user)
                     return render_template('security/signup.html', signup_form=existing_user_info_form)
-                 #return redirect(landing_page_for_user(current_user))
     elif request.method == 'POST':
         if existing_user_record is None:
             posted_form = forms.SignupForm(request.form)
@@ -321,14 +318,14 @@ def inline_submission_attachments(sub_id):
     return render_template('submission/_attachments.html', submission=submission_rec,
                            attachment_form=forms.AttachmentForm(formdata=None,
                                                                 obj=None,
-                                                                sub_id=submission_rec.id))
+                                                                sub_id=submission_rec.id)), 200
 
 
 @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def list_submission_attachments(sub_id):
-    attachments = SubmissionAttachment.query.filter_by(submission_id=sub_id)
-    return render_template('submission/_attachment_columns.html', attachments=attachments)
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/_attachment_columns.html', submission = submission_rec), 200
 
 
 def is_allowed_type(filename):
@@ -337,48 +334,50 @@ def is_allowed_type(filename):
            filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 
-@app.route('/submission_attachment_add/<int:sub_id>', methods=['POST'])
+@app.route('/submission_attachment_add/<int:sub_id>', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def add_submission_attachment(sub_id):
-    form = forms.AttachmentForm(request.form)
-    file_validation = True
-    form_validation = form.validate_on_submit()
-    request_files = request.files.getlist(form.file_attachments.name)
-    for file in request_files:
-        # if user does not select file, browser may
-        # submit an empty part without filename.
-        # we therefore check for that.
-        if file.filename == '':
-            file_validation = False
-            form.file_attachments.errors.append('No file(s) selected.')
-        if not is_allowed_type(file.filename):
-            file_validation = False
-            form.file_attachments.errors.append(
-                'File {} is not of allowed type. Only TXT, PDF and PNG files can be uploaded.'.format(file.filename))
-    if (not file_validation) or (not form_validation) or (sub_id != int(form.submission_id.data)):
-        return render_template('submission/_attachment_form.html', attachment_form=form), 400
-    else:
-        attachments_folder = str(uuid.uuid4())
-        path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachments_folder)
-
-        if not os.path.exists(path_on_server):
-            os.makedirs(path_on_server)
-        attachment = SubmissionAttachment()
-        attachment.note = form.note.data
-        attachment.submission_id = form.submission_id.data
-        attachment.folder_name = attachments_folder
-        attachment.file_names = ''
-        for file in request_files:
-            secured_file_name = secure_filename(file.filename)
-            attachment.file_names += secured_file_name + ' '
-            file.save(os.path.join(path_on_server, secured_file_name))
-        db.session.add(attachment)
-        db.session.commit()
-        sid = form.submission_id.data
+    if request.method == 'GET':
         return render_template('submission/_attachment_form.html', attachment_form=forms.AttachmentForm(formdata=None,
                                                                                                         obj=None,
-                                                                                                        sub_id=sid)), 200
+                                                                                                        sub_id=sub_id)), 200
+    elif request.method == 'POST':
+        form = forms.AttachmentForm(request.form)
+        file_validation = True
+        form_validation = form.validate_on_submit()
+        request_files = request.files.getlist(form.file_attachments.name)
+        for file in request_files:
+            # if user does not select file, browser may
+            # submit an empty part without filename.
+            # we therefore check for that.
+            if file.filename == '':
+                file_validation = False
+                form.file_attachments.errors.append('No file(s) selected.')
+            if not is_allowed_type(file.filename):
+                file_validation = False
+                form.file_attachments.errors.append(
+                    'File {} is not of allowed type. Only TXT, PDF and PNG files can be uploaded.'.format(file.filename))
+        if (not file_validation) or (not form_validation) or (sub_id != int(form.submission_id.data)):
+            return render_template('submission/_attachment_form.html', attachment_form=form), 400
+        else:
+            attachments_folder = str(uuid.uuid4())
+            path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachments_folder)
 
+            if not os.path.exists(path_on_server):
+                os.makedirs(path_on_server)
+            attachment = SubmissionAttachment()
+            attachment.note = form.note.data
+            attachment.submission_id = form.submission_id.data
+            attachment.folder_name = attachments_folder
+            attachment.file_names = ''
+            for file in request_files:
+                secured_file_name = secure_filename(file.filename)
+                attachment.file_names += secured_file_name + ' '
+                file.save(os.path.join(path_on_server, secured_file_name))
+            db.session.add(attachment)
+            db.session.commit()
+            flash("Attachment added", "success")
+            return "", 204
 
 @app.route('/submission_attachment/<int:attach_id>', methods=['DELETE'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionAttachment', 'entity_id_key':'attach_id', 'entity_ac_attribute':'submission_id'})
@@ -388,6 +387,7 @@ def delete_submission_attachment(attach_id):
     shutil.rmtree(path_on_server)
     db.session.delete(submission_attachment)
     db.session.commit()
+    flash("Attachment deleted", "success")
     return "", 204
 
 
@@ -484,7 +484,7 @@ def inline_submission_studies(sub_id):
     return render_template('submission/_studies.html', submission=submission_rec,
                            study_form=forms.StudyForm(formdata=None,
                                                           obj=None,
-                                                          sub_id=submission_rec.id), contact_form=forms.ContactForm()),200
+                                                          sub_id=submission_rec.id), contact_form=forms.ContactForm()), 200
 
 
 @app.route('/submission_studies/<int:sub_id>', methods=['GET'])
