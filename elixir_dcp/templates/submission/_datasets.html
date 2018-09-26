@@ -1,19 +1,17 @@
 {% extends "submission/_inline_editor.html" %}
-{% block inline_content %}
+{% set inline_bean_name = 'dataset' %}
 
-    {% with %}
-        {% set datasets = submission.datasets %}
-        <div id="datasets_inline_list"
-             data-url="{{ url_for('list_submission_datasets',sub_id=submission.id) }}" >
-            {% include 'submission/_dataset_columns.html' %}
-        </div>
-    {% endwith %}
-<br/>
-<br/>
-    <div id="datasets_inline_editor">
-        {% include 'submission/_dataset_form.html' %}
-    </div>
+{% block inline_header %}
+{{ super() }}
 {% endblock %}
+
+{% block inline_columns %}
+{% include 'submission/_dataset_columns.html' %}
+{% endblock %}
+
+<br/>
+<br/>
+
 
 
 

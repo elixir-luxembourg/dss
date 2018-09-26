@@ -1,6 +1,6 @@
-{% if uploadinfos %}
-    <table  class="table table-striped table-bordered">
-        <caption>File Checksums:</caption>
+{% if submission.uploadinfos %}
+    <table  class="table table-striped table-bordered" data-url="{{ url_for('list_submission_uploadinfos',sub_id=submission.id) }}">
+        <span class="label label-info">File Checksums</span><br/><br/>
         <thead>
         <tr>
             <th width="30%">Uploaded File Name</th>
@@ -10,18 +10,18 @@
             {% endif %}
         </tr>
         </thead>
-        {% for uploadinfo in uploadinfos %}
+        {% for uploadinfo in submission.uploadinfos %}
             <tr>
                 <td>{{ uploadinfo.file_name }}</td>
                 <td>{{ uploadinfo.md5_checksum_at_provider }}</td>
                 {% if  not readonly %}
                     <td>
-                        <a id="submission_uploadinfo_listing_delete"
+                        <a id="inline_listing_delete"
                            data-url="{{ url_for('delete_submission_uploadinfo',uploadinfo_id=uploadinfo.id) }}"
                            role="button">
                             <i class="material-icons">delete</i>
                         </a>
-                        <a id="submission_uploadinfo_listing_edit"
+                        <a id="inline_listing_edit"
                            data-url="{{ url_for('edit_submission_uploadinfo',uploadinfo_id=uploadinfo.id) }}"
                            role="button">
                             <i class="material-icons">edit</i>

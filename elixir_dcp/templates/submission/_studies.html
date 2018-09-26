@@ -1,16 +1,15 @@
 {% extends "submission/_inline_editor.html" %}
-{% block inline_content %}
-      {% with %}
-            {% set studies = submission.studies %}
-            <div id="studies_inline_list"
-                 data-url="{{ url_for('list_submission_studies',sub_id=submission.id) }}">
-                {% include 'submission/_study_columns.html' %}
-            </div>
+{% set inline_bean_name = 'study' %}
 
-        {% endwith %}
-<br/>
-<br/>
-        <div id="studies_inline_editor">
-            {% include 'submission/_study_form.html' %}
-        </div>
+{% block inline_header %}
+{{ super() }}
 {% endblock %}
+
+{% block inline_columns %}
+    {% include 'submission/_study_columns.html' %}
+{% endblock %}
+
+<br/>
+<br/>
+
+

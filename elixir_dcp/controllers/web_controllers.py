@@ -310,79 +310,6 @@ def edit_submission(sub_id):
             return render_template('submission/submission.html', submsn_form=form, submission=submission_rec)
 
 
-"""----------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's Contacts."""
-"""----------------------------------------------------"""
-
-
-@app.route('/submission_contacts_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def inline_submission_contacts(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_contacts.html', submission=submission_rec,
-                           contact_form=forms.ContactForm(formdata=None,
-                                                          obj=None,
-                                                          sub_id=submission_rec.id))
-
-
-@app.route('/submission_contacts/<int:study_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def list_submission_contacts(study_id):
-    contacts = StudyContact.query.filter_by(study_id=study_id)
-    return render_template('submission/_contact_columns.html', contacts=contacts)
-
-
-@app.route('/add_submission_contact', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def add_submission_contact(study_id):
-
-    posted_form = forms.ContactForm(request.form)
-
-    if posted_form.validate_on_submit() and (int(posted_form.study_id.data) == study_id):
-        contact_rec = StudyContact()
-        posted_form.populate_obj(contact_rec)
-        contact_rec.id = None
-        db.session.add(contact_rec)
-        db.session.commit()
-        return render_template('submission/_contact_form.html', contact_form=forms.ContactForm(formdata=None,
-                                                                                           obj=None,
-                                                                                               study_id=study_id)), 200
-    else:
-
-        return render_template('submission/_contact_form.html', contact_form=posted_form), 400
-
-
-@app.route('/submission_contact/<int:contact_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionContact', 'entity_id_key':'contact_id', 'entity_ac_attribute':'submission_id'})
-def edit_submission_contact(contact_id):
-    if request.method == 'GET':
-        contact_rec = StudyContact.query.get_or_404(contact_id)
-        result_form = forms.ContactForm(obj=contact_rec)
-        return render_template('submission/_contact_form.html', contact_form=result_form)
-    elif request.method == 'POST':
-        posted_form = forms.ContactForm(request.form)
-        if posted_form.validate_on_submit():
-            contact_rec = StudyContact.query.get_or_404(contact_id)
-            posted_form.populate_obj(contact_rec)
-            db.session.add(contact_rec)
-            db.session.commit()
-
-            sid = posted_form.submission_id.data
-
-            return render_template('submission/_contact_form.html', contact_form=forms.ContactForm(formdata=None,
-                                                                                                   obj=None,
-                                                                                                   sub_id=sid)), 200
-        else:
-            return render_template('submission/_contact_form.html', contact_form=posted_form), 400
-
-
-@app.route('/submission_contact/<int:contact_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'StudyContact', 'entity_id_key':'contact_id', 'entity_ac_attribute':'submission_id'})
-def delete_submission_contact(contact_id):
-    submission_contact = StudyContact.query.get_or_404(contact_id)
-    db.session.delete(submission_contact)
-    db.session.commit()
-    return "", 204
 
 
 """-------------------------------------------------------"""
@@ -485,28 +412,32 @@ def inline_submission_datasets(sub_id):
 @app.route('/submission_datasets/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def list_submission_datasets(sub_id):
-    datasets = SubmissionDataset.query.filter_by(submission_id=sub_id)
-    return render_template('submission/_dataset_columns.html', datasets=datasets)
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/_dataset_columns.html', submission=submission_rec)
 
 
-@app.route('/submission_dataset_add/<int:sub_id>', methods=['POST'])
+@app.route('/submission_dataset_add/<int:sub_id>', methods=['GET','POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def add_submission_dataset(sub_id):
-    posted_form = forms.DatasetForm(request.form)
-    if posted_form.validate_on_submit() and int(posted_form.submission_id.data) == sub_id:
-
-        dataset_rec = SubmissionDataset()
-        posted_form.populate_obj(dataset_rec)
-        dataset_rec.id = None
-        if posted_form.data_types.data:
-            dataset_rec.data_types_json = json.dumps(posted_form.data_types.data)
-        db.session.add(dataset_rec)
-        db.session.commit()
+    if request.method == 'GET':
         return render_template('submission/_dataset_form.html', dataset_form=forms.DatasetForm(formdata=None,
                                                                                                obj=None,
                                                                                                sub_id=sub_id)), 200
-    else:
-        return render_template('submission/_dataset_form.html', dataset_form=posted_form), 400
+    elif request.method == 'POST':
+        posted_form = forms.DatasetForm(request.form)
+        if posted_form.validate_on_submit() and int(posted_form.submission_id.data) == sub_id:
+            dataset_rec = SubmissionDataset()
+            posted_form.populate_obj(dataset_rec)
+            dataset_rec.id = None
+            if posted_form.data_types.data:
+                dataset_rec.data_types_json = json.dumps(posted_form.data_types.data)
+            db.session.add(dataset_rec)
+            db.session.commit()
+            flash("Dataset added", "success")
+            return "", 204
+
+        else:
+            return render_template('submission/_dataset_form.html', dataset_form=posted_form), 400
 
 
 @app.route('/submission_dataset/<int:dataset_id>', methods=['GET', 'POST'])
@@ -517,7 +448,6 @@ def edit_submission_dataset(dataset_id):
         result_form = forms.DatasetForm(obj=dataset_rec)
         if dataset_rec.data_types_json:
             result_form.data_types.data = json.loads(dataset_rec.data_types_json)
-
         return render_template('submission/_dataset_form.html', dataset_form=result_form)
     elif request.method == 'POST':
         posted_form = forms.DatasetForm(request.form)
@@ -530,12 +460,8 @@ def edit_submission_dataset(dataset_id):
                 dataset_rec.data_types_json = json.dumps(posted_form.data_types.data)
             db.session.add(dataset_rec)
             db.session.commit()
-
-            sid = posted_form.submission_id.data
-
-            return render_template('submission/_dataset_form.html', dataset_form=forms.DatasetForm(formdata=None,
-                                                                                                   obj=None,
-                                                                                                   sub_id=sid)), 200
+            flash("Dataset updated", "success")
+            return "", 204
         else:
             return render_template('submission/_dataset_form.html', dataset_form=posted_form), 400
 
@@ -546,6 +472,7 @@ def delete_submission_dataset(dataset_id):
     dataset = SubmissionDataset.query.get_or_404(dataset_id)
     db.session.delete(dataset)
     db.session.commit()
+    flash("Dataset deleted", "success")
     return "", 204
 
 """----------------------------------------------------"""
@@ -560,33 +487,38 @@ def inline_submission_studies(sub_id):
     return render_template('submission/_studies.html', submission=submission_rec,
                            study_form=forms.StudyForm(formdata=None,
                                                           obj=None,
-                                                          sub_id=submission_rec.id), contact_form=forms.ContactForm())
+                                                          sub_id=submission_rec.id), contact_form=forms.ContactForm()),200
 
 
 @app.route('/submission_studies/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def list_submission_studies(sub_id):
-    studies = SubmissionStudy.query.filter_by(submission_id=sub_id)
-    return render_template('submission/_study_columns.html', studies=studies, contact_form=forms.ContactForm())
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/_study_columns.html', submission = submission_rec), 200
 
 
-@app.route('/submission_study_add/<int:sub_id>', methods=['POST'])
+@app.route('/submission_study_add/<int:sub_id>', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def add_submission_study(sub_id):
-    posted_form = forms.StudyForm(request.form)
-    if posted_form.validate_on_submit() and (int(posted_form.submission_id.data) == sub_id):
-        study_rec = SubmissionStudy()
-        posted_form.populate_obj(study_rec)
-        study_rec.id = None
-        if posted_form.study_types.data:
-            study_rec.study_types_json = json.dumps(posted_form.study_types.data)
-        db.session.add(study_rec)
-        db.session.commit()
+    if request.method == 'GET':
         return render_template('submission/_study_form.html', study_form=forms.StudyForm(formdata=None,
                                                                                          obj=None,
                                                                                          sub_id=sub_id)), 200
-    else:
-        return render_template('submission/_study_form.html', study_form=posted_form), 400
+    elif request.method == 'POST':
+        posted_form = forms.StudyForm(request.form)
+        if posted_form.validate_on_submit() and (int(posted_form.submission_id.data) == sub_id):
+            study_rec = SubmissionStudy()
+            posted_form.populate_obj(study_rec)
+            study_rec.id = None
+            if posted_form.study_types.data:
+                study_rec.study_types_json = json.dumps(posted_form.study_types.data)
+            db.session.add(study_rec)
+            db.session.commit()
+            flash("Study added", "success")
+            return "", 204
+        else:
+            return render_template('submission/_study_form.html', study_form=posted_form), 400
+
 
 
 @app.route('/submission_study/<int:study_id>', methods=['GET', 'POST'])
@@ -597,7 +529,7 @@ def edit_submission_study(study_id):
         result_form = forms.StudyForm(obj=study_rec)
         if study_rec.study_types_json:
             result_form.study_types.data = json.loads(study_rec.study_types_json)
-        return render_template('submission/_study_form.html', study_form=result_form, contact_form=forms.ContactForm(study_id=study_rec.id))
+        return render_template('submission/_study_form.html', study_form=result_form ), 200
     elif request.method == 'POST':
         posted_form = forms.StudyForm(request.form)
         if posted_form.validate_on_submit():
@@ -607,12 +539,8 @@ def edit_submission_study(study_id):
                 study_rec.study_types_json = json.dumps(posted_form.study_types.data)
             db.session.add(study_rec)
             db.session.commit()
-
-            sid = posted_form.submission_id.data
-
-            return render_template('submission/_study_form.html', study_form=forms.StudyForm(formdata=None,
-                                                                                             obj=None,
-                                                                                             sub_id=sid)), 200
+            flash("Study updated", "success")
+            return "", 204
         else:
             return render_template('submission/_study_form.html', study_form=posted_form), 400
 
@@ -623,6 +551,7 @@ def delete_submission_study(study_id):
     study = SubmissionStudy.query.get_or_404(study_id)
     db.session.delete(study)
     db.session.commit()
+    flash("Study deleted", "success")
     return "", 204
 
 """----------------------------------------------------"""
@@ -643,26 +572,29 @@ def inline_submission_uploadinfos(sub_id):
 @app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def list_submission_uploadinfos(sub_id):
-    uploadinfos = SubmissionUploadInfo.query.filter_by(submission_id=sub_id)
-    return render_template('submission/_uploadinfo_columns.html', uploadinfos=uploadinfos)
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/_uploadinfo_columns.html', submission=submission_rec)
 
-@app.route('/submission_uploadinfo_add/<int:sub_id>', methods=['POST'])
+@app.route('/submission_uploadinfo_add/<int:sub_id>', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
 def add_submission_uploadinfo(sub_id):
-    posted_form = forms.UploadInfoForm(request.form)
-    if posted_form.validate_on_submit():
-        uploadinfo_rec = SubmissionUploadInfo()
-        posted_form.populate_obj(uploadinfo_rec)
-        uploadinfo_rec.id = None
-        db.session.add(uploadinfo_rec)
-        db.session.commit()
-
+    if request.method == 'GET':
         return render_template('submission/_uploadinfo_form.html',
-                       uploadinfo_form=forms.UploadInfoForm(formdata=None,
-                                                            obj=None,
-                                                            sub_id=sub_id)), 200
-    else:
-        return render_template('submission/_uploadinfo_form.html', uploadinfo_form=posted_form), 400
+                               uploadinfo_form=forms.UploadInfoForm(formdata=None,
+                                                                    obj=None,
+                                                                    sub_id=sub_id)), 200
+    elif request.method == 'POST':
+        posted_form = forms.UploadInfoForm(request.form)
+        if posted_form.validate_on_submit():
+            uploadinfo_rec = SubmissionUploadInfo()
+            posted_form.populate_obj(uploadinfo_rec)
+            uploadinfo_rec.id = None
+            db.session.add(uploadinfo_rec)
+            db.session.commit()
+            flash("Checksum added", "success")
+            return "", 204
+        else:
+            return render_template('submission/_uploadinfo_form.html', uploadinfo_form=posted_form), 400
 
 
 @app.route('/submission_uploadinfo/<int:uploadinfo_id>', methods=['GET', 'POST'])
@@ -671,7 +603,7 @@ def edit_submission_uploadinfo(uploadinfo_id):
     if request.method == 'GET':
         uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
         result_form = forms.UploadInfoForm(obj=uploadinfo_rec)
-        return render_template('submission/_uploadinfo_form.html', uploadinfo_form=result_form)
+        return render_template('submission/_uploadinfo_form.html', uploadinfo_form=result_form), 200
     elif request.method == 'POST':
         posted_form = forms.UploadInfoForm(request.form)
         if posted_form.validate_on_submit():
@@ -682,12 +614,8 @@ def edit_submission_uploadinfo(uploadinfo_id):
 
             db.session.add(uploadinfo_rec)
             db.session.commit()
-            sid = posted_form.submission_id.data
-
-            return render_template('submission/_uploadinfo_form.html',
-                                   uploadinfo_form=forms.UploadInfoForm(formdata=None,
-                                                                        obj=None,
-                                                                        sub_id=sid)), 200
+            flash("Checksum updated", "success")
+            return "", 204
         else:
             return render_template('submission/_uploadinfo_form.html', uploadinfo_form=posted_form), 400
 
@@ -698,6 +626,7 @@ def delete_submission_uploadinfo(uploadinfo_id):
     submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
     db.session.delete(submission_uploadinfo)
     db.session.commit()
+    flash("Checksum deleted", "success")
     return "", 204
 
 

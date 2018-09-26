@@ -1,6 +1,6 @@
 {% if attachments %}
-    <table  class="table table-striped table-bordered">
-        <caption>Attachments:</caption>
+    <table  class="table table-striped table-bordered" data-url="{{ url_for('list_submission_attachments',sub_id=submission.id) }}">
+        <span class="label label-info">Attachments</span><br/><br/>
         <thead>
         <tr>
             <th width="40%">Note</th>
@@ -23,7 +23,7 @@
                 </td>
                 {% if  not readonly %}
                     <td>
-                        <a id="submission_attachment_listing_delete"
+                        <a id="inline_listing_delete"
                            data-url="{{ url_for('delete_submission_attachment',attach_id=attachment.id) }}"
                            role="button">
                             <i class="material-icons">delete</i>

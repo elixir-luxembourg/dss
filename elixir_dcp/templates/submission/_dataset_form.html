@@ -1,16 +1,21 @@
 {% import "forms_macros.html" as fmacros %}
 
 <div class="panel panel-default">
-    <div class="panel-heading">{% if dataset_form.id.data %}Update {% else %}Add New {% endif %}Dataset</div>
+    <div class="panel-heading">{% if dataset_form.id.data %}Update {% else %}New {% endif %}Dataset</div>
     <div class="panel-body">
-        <form id="form_submission_dataset" {% if dataset_form.id.data %} data-url="{{ url_for('edit_submission_dataset', dataset_id = dataset_form.id.data)}}"  {% else %} data-url="{{ url_for('add_submission_dataset', sub_id=dataset_form.submission_id.data)}}" {% endif %} >
+        <form id="form_inline_bean" {% if dataset_form.id.data %}
+              data-url="{{ url_for('edit_submission_dataset', dataset_id = dataset_form.id.data)}}" {% else %}
+              data-url="{{ url_for('add_submission_dataset', sub_id=dataset_form.submission_id.data)}}" {% endif %}>
             <fieldset>
-                <legend>Study</legend>
+                <legend>General</legend>
                 {{ dataset_form.hidden_tag() }}
                 {{ fmacros.render_field_with_errors(dataset_form.title) }}
-                 {{ fmacros.render_field_with_errors(dataset_form.study_id, div_col_class="col-md-2",clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_collection_code, div_col_class="col-md-2", clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_code, div_col_class="col-md-2", clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.study_id, div_col_class="col-md-2",clazz="elx-select")
+                }}
+                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_collection_code, div_col_class="col-md-2",
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_code, div_col_class="col-md-2",
+                clazz="elx-select") }}
             </fieldset>
             <div class="form-group row">
             </div>
@@ -72,6 +77,7 @@
                 </div>
             </fieldset>
         </form>
-        <a id="submission_dataset_save" class="save btn btn-raised btn-primary" role="button">Save Dataset Info</a>
+        <a id="inline_bean_save" class="save btn btn-raised btn-primary" role="button">Save</a>
+        <a id="inline_bean_cancel" class="save btn btn-raised btn-primary" role="button">Cancel</a>
     </div>
 </div>

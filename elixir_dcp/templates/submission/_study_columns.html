@@ -1,38 +1,39 @@
-{% if studies %}
-    <table  class="table table-striped table-bordered">
-        <caption>Studies:</caption>
-        <thead>
-        <tr>
-            <th width="25%">Study Name </th>
-            <th width="25%">Study Types</th>
-            <th width="25%"> Study Contact Names</th>
-            {% if  not readonly %}
-                <th width="15%">Actions</th>
-            {% endif %}
-        </tr>
-        </thead>
-        {% for study in studies %}
-            <tr>
-                <td>{{ study.study_name }}</td>
-                <td>{{ study.study_type_names()| join(', ') }}</td>
-                <td>{{ study.study_contacts_names(study.id)| join(', ') }}</td>
-                {% if  not readonly %}
-                    <td>
-                        <a id="submission_study_listing_delete"
-                           data-url="{{ url_for('delete_submission_study',study_id=study.id) }}" role="button">
-                            <i class="material-icons">delete</i>
-                        </a>
-                        <a id="submission_study_listing_edit"
-                           data-url="{{ url_for('edit_submission_study',study_id=study.id) }}" role="button">
-                            <i class="material-icons">edit</i>
-                        </a>
-                    </td>
-                {% endif %}
-            </tr>
-        {% endfor %}
-    </table>
+{% if submission.studies %}
+<table class="table table-striped table-bordered"
+       data-url="{{ url_for('list_submission_studies',sub_id=submission.id) }}">
+    <span class="label label-info">Studies</span><br/><br/>
+    <thead>
+    <tr>
+        <th width="25%">Study Name</th>
+        <th width="25%">Study Types</th>
+        <th width="25%">Study Contact Names</th>
+        {% if not readonly %}
+        <th width="15%">Actions</th>
+        {% endif %}
+    </tr>
+    </thead>
+    {% for study in submission.studies %}
+    <tr>
+        <td>{{ study.study_name }}</td>
+        <td>{{ study.study_type_names()| join(', ') }}</td>
+        <td>{{ study.study_contacts_names(study.id)| join(', ') }}</td>
+        {% if not readonly %}
+        <td>
+            <a id="inline_listing_delete"
+               data-url="{{ url_for('delete_submission_study',study_id=study.id) }}" role="button">
+                <i class="material-icons">delete</i>
+            </a>
+            <a id="inline_listing_edit"
+               data-url="{{ url_for('edit_submission_study',study_id=study.id) }}" role="button">
+                <i class="material-icons">edit</i>
+            </a>
+        </td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
 {% else %}
-    <div  class="text-center">
-        <h3> ___ No Studies defined yet ___</h3>
-    </div>
+<div class="text-center">
+    <h3> ___ No Studies defined yet ___</h3>
+</div>
 {% endif %}

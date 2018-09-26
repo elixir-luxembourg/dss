@@ -7,9 +7,7 @@
 {% assets "submission_editor_js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-{% assets "jsoneditor_js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
+
 {% endblock %}
 
 {% block content %}
@@ -22,7 +20,7 @@
             {% include 'submission/_submission_header.html' %}
             <div class="row">
                 <div class="form-group col-md-11">
-                    <span class="label label-default">Upload Instructions</span><br/><br/>
+                    <span class="label label-info">Upload Instructions</span><br/><br/>
                     {% if submission.upload_instructions %}
                     {% for line in submission.uploads_instructions_lines() %}
                     <label>{{ line|urlize(40, True, '_blank') }}</label><br>
@@ -41,7 +39,7 @@
                 <a {% if current_user.is_admin() %} href="{{ url_for('list_submissions') }}" {% else %}
                    href="{{ url_for('list_my_submissions') }}" {% endif %}
                    class="btn btn-info btn-lg"><span
-                        class="glyphicon glyphicon-remove-circle"
+                        class="glyphicon glyphicon-remove-circle"  style="font-size: xx-large"
                         data-toggle="tooltip"
                         title="Close"></span>
                 </a>
@@ -51,7 +49,7 @@
                 <a name="button_submission_editor_steer"
                    data-url="{{ url_for('steer_submission',sub_id=submission.id) }}"
                    class="btn btn-info btn-lg"><span class="glyphicon glyphicon-forward"
-                                                     data-toggle="tooltip"
+                                                     data-toggle="tooltip"  style="font-size: xx-large"
                                                      title="Proceed to {{ submission.current_status.next_state().value }}"></span>
                 </a>
                 {% endif %}
@@ -61,7 +59,7 @@
                 <a name="button_submission_editor_revert"
                    data-url="{{ url_for('revert_submission',sub_id=submission.id) }}"
                    class="btn btn-info btn-lg"><span class="glyphicon glyphicon-backward"
-                                                     data-toggle="tooltip"
+                                                     data-toggle="tooltip" style="font-size: xx-large"
                                                      title="Revert to {{ submission.current_status.prev_state().value }}"></span>
                 </a>
                 {% endif %}
@@ -90,8 +88,8 @@
             </form>
         </div>
         <div id="submission_form_commands_bar" class="col-md-1">
-            <a href="javascript:;" onclick="document.getElementById('form_submission_basics').submit();"
-               class="btn btn-info btn-lg"><span class="glyphicon glyphicon-floppy-save"
+            <a id="btn_save_submission_basics" href="javascript:;" onclick="document.getElementById('form_submission_basics').submit();"
+               class="btn btn-info btn-lg"><span class="glyphicon glyphicon-floppy-save" style="font-size: xx-large"
                                                  data-toggle="tooltip"
                                                  title="Save"></span>
             </a>
@@ -111,7 +109,7 @@
         <br/>
         <p>In this section you should declare studies for this submission. </p><br/>
         {% with %}
-        {% set studies = submission.studies %}
+        {% set inline_beans = submission.studies %}
         {% set readonly = True %}
         <div class="col-md-10">
             {% include 'submission/_study_columns.html' %}

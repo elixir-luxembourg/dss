@@ -10,7 +10,9 @@
 {% block content %}
 <div class="inline-editor-messages">
 </div>
+{% block inline_header %}
 <div class="row block">
+
     <div class="row">
         <div id="basicinfo" class="col-md-11">
             {% include 'submission/_submission_header.html' %}
@@ -20,14 +22,32 @@
             <a href="{{ url_for('edit_submission',sub_id=submission.id) }}"
                class="btn btn-info btn-lg"><span
                     class="glyphicon glyphicon-remove-circle"
+                    style="font-size: xx-large"
                     data-toggle="tooltip"
                     title="Back to Submission"></span>
             </a>
+
         </div>
     </div>
+
     <br/>
-
-        {% block inline_content %}{% endblock %}
-
+    <div class="row">
+        <div class="col-md-11">
+        </div>
+        <div class="col-md-1">
+            <a class="btn btn-primary btn-lg" id="inline_add_new_button"
+               data-url="{{ url_for('add_submission_'~inline_bean_name,sub_id=submission.id) }}">
+            <span class="glyphicon glyphicon-plus " data-toggle="tooltip"
+                  title="Add new" style="font-size: xx-large; float:right"></span>
+            </a>
+        </div>
+    </div>
+    {% endblock %}
+    <div id="inline_columns_container">
+        {% block inline_columns %}{% endblock %}
+    </div>
+    <div id="inline_form_container">
+        {% block inline_form %}{% endblock %}
+    </div>
 </div>
 {% endblock %}

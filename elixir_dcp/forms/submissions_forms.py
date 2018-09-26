@@ -50,19 +50,23 @@ class ContactForm(FlaskForm):
                                              message="Must be 2 to 20 characters long.")],
                           render_kw={"placeholder": "SURNAME"})
     category_id = SelectField('Type', validators=[DataRequired()],
-                              description="Please specify the role of the contact person, which could be the source study's PI, the data manager, legal rep or DPO of data submitting  institution.",
+                              description="Please specify the role of the contact person, which could be the source study's PI, the data manager, legal rep or DPO of data submitting institution.",
                               coerce=int)
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")],
                        render_kw={"placeholder": "Institutional e-mail"})
 
-    institution = StringField('Address/Institution', validators=[DataRequired(), Regexp('^[\w\s\(\)\-]+$',
-                                                                                message="Can only contain letters, digits, underscore, dash and parantheses."),
+    institution = SelectField('Institution', validators=[DataRequired(), Regexp('^[\w\s]+$',
+                                                                                message="Can only contain letters, digits and underscore."),
                                                          Length(min=2, max=40,
                                                                 message="Must be 2 to 40 characters long.")])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
+        self.institution.choices = [(c["elu_accession"],
+                                     c["institution_name"] + ' - ' +c["acronym"] if 'acronym' in c else c[
+                                         "institution_name"]) for c in
+                                    app.config.get('DATA_INIT')['collab_institutions']]
 
 
 class StudyForm(FlaskForm):
@@ -145,7 +149,7 @@ class SubmissionForm(FlaskForm):
                                              Length(min=15, max=75,
                                                     message="Title must be between 15 & 75 characters")])
 
-    upload_instructions = TextAreaField('Upload Instructions', render_kw={"rows": "6", "columns": "50"})
+    upload_instructions = TextAreaField('Upload Instructions', render_kw={"rows": "", "columns": "50"})
 
     provider_user_ids = SelectMultipleField('Data Provider(s)', coerce=int)
 
@@ -170,7 +174,7 @@ class DatasetForm(FlaskForm):
     id = HiddenField('dataset_Id')
     submission_id = HiddenField('Submission Id')
 
-    title = StringField('Title', validators=[DataRequired(),
+    title = StringField('Dataset Title', validators=[DataRequired(),
                                              Regexp('^[\w\s\-]+$',
                                                     message="Title must contain only letters, digits, underscore or dash"),
                                              Length(min=5, max=50,

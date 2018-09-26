@@ -1,15 +1,13 @@
 {% extends "submission/_inline_editor.html" %}
-{% block inline_content %}
-    {% with %}
-        {% set attachments = submission.attachments %}
-        <div id="attachments_inline_list"
-             data-url="{{ url_for('list_submission_attachments',sub_id=submission.id) }}">
-            {% include 'submission/_attachment_columns.html' %}
-        </div>
-    {% endwith %}
-<br/>
-<br/>
-    <div id="attachments_inline_editor">
-        {% include 'submission/_attachment_form.html' %}
-    </div>
+{% set inline_bean_name = 'attachment' %}
+
+{% block inline_header %}
+{{ super() }}
 {% endblock %}
+
+{% block inline_columns %}
+{% include 'submission/_attachment_columns.html' %}
+{% endblock %}
+
+<br/>
+<br/>

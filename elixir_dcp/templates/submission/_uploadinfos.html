@@ -1,19 +1,14 @@
 {% extends "submission/_inline_editor.html" %}
-{% block inline_content %}
-    {% with %}
-        {% set uploadinfos = submission.uploadinfos %}
-        <div id="uploadinfos_inline_list"
-             data-url="{{ url_for('list_submission_uploadinfos',sub_id=submission.id) }}">
-            {% include 'submission/_uploadinfo_columns.html' %}
-        </div>
-    {% endwith %}
-<br/>
-<br/>
-    <div id="uploadinfos_inline_editor">
-        {% include 'submission/_uploadinfo_form.html' %}
-    </div>
+{% set inline_bean_name = 'uploadinfo' %}
+
+{% block inline_header %}
+{{ super() }}
 {% endblock %}
 
 
+{% block inline_columns %}
+{% include 'submission/_uploadinfo_columns.html' %}
+{% endblock %}
 
-
+<br/>
+<br/>
