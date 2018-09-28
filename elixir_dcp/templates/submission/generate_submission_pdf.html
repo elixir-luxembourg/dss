@@ -37,7 +37,7 @@
             </tr>
             <tr>
                 <th scope="row">Date of Finalisation</th>
-                <td>{{ submission_rec.dataset_finalised_on or '' }}</td>
+                <td>{{ submission_rec.dish_finalised_on or '' }}</td>
             </tr>
             <tr>
                 <th scope="row">Category</th>
@@ -91,13 +91,11 @@
                     <table class="table .table-borderless">
                         <thead>
                         <tr>
-                            <th scope="col">Institution</th>
                             <th scope="col">Name</th>
                             <th scope="col">Role</th>
                         </tr>
                         {% for contact in study.study_contacts %}
                         <tr>
-                            <td>{{ contact.institution }}</td>
                             <td>{{ contact.fullname() }}</td>
                             <td>{{ contact.contact_category.name }}</td>
                         </tr>
@@ -110,11 +108,11 @@
         </table>
     </div>
     <div>
-        <h3>Datasets</h3>
+        <h3>Data Declarations</h3>
         <hr/>
         <table class="table table-bordered">
 
-            {% for dataset in submission_rec.datasets %}
+            {% for datadec in submission_rec.datadecs %}
             <tr>
                 <td rowspan="10" {% if loop.index % 2== 1 %} bgcolor="#CCC" {% else %} bgcolor="#f2f2f2" {% endif %}>
                     {{loop.index}}
@@ -122,47 +120,47 @@
             </tr>
 
             <tr>
-                <th scope="row">Study Name</th>
+                <th scope="row">Source Study</th>
 
-                <td>{% if dataset.study %}
-                    {{ dataset.study.study_name }}
+                <td>{% if datadec.study %}
+                    {{ datadec.study.study_name }}
                     {% endif %}
                 </td>
             </tr>
 
             <tr>
                 <th scope="row">Subject Minors</th>
-                <td>{{ dataset.subjects_minors | replace("True","Yes") | replace("False","No") }}</td>
+                <td>{{ datadec.subjects_minors | replace("True","Yes") | replace("False","No") }}</td>
             </tr>
 
             <tr>
                 <th scope="row">Subjects those unable to consent</th>
-                <td>{{ dataset.subjects_unable_to_consent | replace("True","Yes") | replace("False","No") }}</td>
+                <td>{{ datadec.subjects_unable_to_consent | replace("True","Yes") | replace("False","No") }}</td>
             </tr>
             <tr>
                 <th scope="row">Other Vulnerable Subjects</th>
-                <td>{{ dataset.subjects_vulnerable | replace("True","Yes") | replace("False","No") }}</td>
+                <td>{{ datadec.subjects_vulnerable | replace("True","Yes") | replace("False","No") }}</td>
             </tr>
             <tr>
                 <th scope="row">Notes on Subjects</th>
-                <td>{{ dataset.subjects_notes }}</td>
+                <td>{{ datadec.subjects_notes }}</td>
             </tr>
             <tr>
                 <th scope="row">Consent Status</th>
-                <td>{{ dataset.consent_status.label }}</td>
+                <td>{{ datadec.consent_status.label }}</td>
             </tr>
             <tr>
                 <th scope="row">Notes on Consent</th>
-                <td>{{ dataset.consent_notes }}</td>
+                <td>{{ datadec.consent_notes }}</td>
             </tr>
             <tr>
                 <th scope="row">De-Identification Type</th>
-                <td>{{ dataset.de_identification_type.label }}</td>
+                <td>{{ datadec.de_identification_type.label }}</td>
             </tr>
             <tr>
                 <th scope="row">Use Restrictions</th>
                 <td>
-                    {% for code in dataset.duc_codes %}
+                    {% for code in datadec.duc_codes %}
                     <h4>{{ code.get_duc_codes_name(code.ga4gh_code) }}</h4>
                     <p>{{ code.note }}</p>
                     {% endfor %}

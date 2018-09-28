@@ -1,19 +1,19 @@
 <div class="row">
     <div class="form-group col-md-3">
-        <span class="label label-info">Submission Ref No</span><br/><br/>
-        <label>{{ submission.ref_name }}</label>
+        <span class="label label-info label-large">Submission Ref No</span><br/><br/>
+        <p><strong>{{ submission.ref_name }}</strong></p>
     </div>
     <div class="form-group col-md-3">
-        <span class="label label-info">Title</span><br/><br/>
-        <label>{{ submission.title }}</label>
+        <span class="label label-info label-large">Title</span><br/><br/>
+        <p><strong>{{ submission.title }}</strong></p>
     </div>
     <div class="form-group col-md-3">
-        <span class="label label-info">Created On</span><br/><br/>
-        <label>{{ submission.created_on }}</label>
+        <span class="label label-info label-large">Created On</span><br/><br/>
+        <p><strong>{{ submission.created_on }}</strong></p>
     </div>
     <div class="form-group col-md-3">
-        <span class="label label-info">Data Provider(s)</span><br/><br/>
-        <label>{{ submission.provider_user_names() | join(', ') }} </label>
+        <span class="label label-info label-large">Data Provider(s)</span><br/><br/>
+        <p><strong>{{ submission.provider_user_names() | join(', ') }}</strong></p>
     </div>
 </div>
 

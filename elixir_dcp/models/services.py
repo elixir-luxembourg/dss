@@ -1,6 +1,6 @@
 import os
 
-from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, SubmissionAttachment, \
+from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, \
     EmailNotification
 from elixir_dcp.models.security import User, Role, UsersRoles
 from elixir_dcp.controllers.utils import equal_long_strings
@@ -311,70 +311,70 @@ def export_submission(sub: Submission):
 
     sub_info['studies'] = export_studies(sub)
 
-    sub_info['datasets'] = export_datasets(sub)
+    sub_info['datadecs'] = export_datadecs(sub)
 
-    sub_info['attachments'] = export_attachment_info(sub)
+    # sub_info['attachments'] = export_attachment_info(sub)
 
     return sub_info
 
 
-def export_datasets(sub: Submission):
-    dataset_list = []
-    for dataset in sub.datasets:
-        dataset_info = {}
-        dataset_info['submission_ref'] = sub.ref_name
-        dataset_info['title'] = sub.title
+def export_datadecs(sub: Submission):
+    datadec_list = []
+    for datadec in sub.datadecs:
+        datadec_info = {}
+        datadec_info['submission_ref'] = sub.ref_name
+        datadec_info['title'] = sub.title
         # Put here the title property
 
         # TODO Also put here the source study as source project
 
-        dataset_info['source_project'] = dataset.study.study_name
+        datadec_info['source_project'] = datadec.study.study_name
         if sub.is_elixir():
-            dataset_info['source_type'] = 'From_Elixir_Data_Submitter'
+            datadec_info['source_type'] = 'From_Elixir_Data_Submitter'
         else:
-            dataset_info['source_type'] = 'From_Collaborator'
-        dataset_info['legal_basis_data_collection'] = dataset.legal_basis_collection.label
-        dataset_info['legal_basis_data_sharing'] = dataset.legal_basis_sharing.label
-        dataset_info['local_custodian'] = json.loads(sub.collab_local_custodian_json)
-        dataset_info['local_project'] = sub.collab_project_name
-        dataset_info['data_types'] = dataset.data_type_names()
-        dataset_info['data_notes'] = dataset.data_notes
-        dataset_info['data_size_category'] = dataset.estimate_data_size_code
-        dataset_info['metadata_exists'] = dataset.metadata_exists
-        dataset_info[
-            'has_special_subjects'] = dataset.subjects_unable_to_consent or dataset.subjects_vulnerable or dataset.subjects_minors
+            datadec_info['source_type'] = 'From_Collaborator'
+        datadec_info['legal_basis_data_collection'] = datadec.legal_basis_collection.label
+        datadec_info['legal_basis_data_sharing'] = datadec.legal_basis_sharing.label
+        datadec_info['local_custodian'] = json.loads(sub.collab_local_custodian_json)
+        datadec_info['local_project'] = sub.collab_project_name
+        datadec_info['data_types'] = datadec.data_type_names()
+        datadec_info['data_notes'] = datadec.data_notes
+        datadec_info['data_size_category'] = datadec.estimate_data_size_code
+        datadec_info['metadata_exists'] = datadec.metadata_exists
+        datadec_info[
+            'has_special_subjects'] = datadec.subjects_unable_to_consent or datadec.subjects_vulnerable or datadec.subjects_minors
         subj_notes = ''
-        if dataset.subjects_unable_to_consent: subj_notes += 'Subjects unable to consent. '
-        if dataset.subjects_vulnerable: subj_notes += 'Other vulnerable subjects. '
-        if dataset.subjects_minors: subj_notes += 'Subjects minors. '
-        if dataset.subjects_notes: subj_notes += dataset.subjects_notes
+        if datadec.subjects_unable_to_consent: subj_notes += 'Subjects unable to consent. '
+        if datadec.subjects_vulnerable: subj_notes += 'Other vulnerable subjects. '
+        if datadec.subjects_minors: subj_notes += 'Subjects minors. '
+        if datadec.subjects_notes: subj_notes += datadec.subjects_notes
 
-        if subj_notes: dataset_info['special_subject_notes'] = subj_notes
+        if subj_notes: datadec_info['special_subject_notes'] = subj_notes
 
-        dataset_info['consent_status'] = dataset.consent_status.label.lower()
-        if dataset.consent_notes: dataset_info['consent_notes'] = dataset.consent_notes
-        dataset_info['de_identification'] = dataset.de_identification_type.label.lower()
+        datadec_info['consent_status'] = datadec.consent_status.label.lower()
+        if datadec.consent_notes: datadec_info['consent_notes'] = datadec.consent_notes
+        datadec_info['de_identification'] = datadec.de_identification_type.label.lower()
         use_restrictions = []
-        for duc_instance in dataset.duc_codes:
+        for duc_instance in datadec.duc_codes:
             use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
                                      'note': duc_instance.note})
-        dataset_info['use_restrictions'] = use_restrictions
-        dataset_list.append(dataset_info)
-    return dataset_list
+        datadec_info['use_restrictions'] = use_restrictions
+        datadec_list.append(datadec_info)
+    return datadec_list
 
 
-def export_attachment_info(sub: Submission):
-    attachment_list = []
-    for att in sub.attachments:
-        att_info = {}
-        att_info['description'] = att.note
-        files_list = []
-        names = att.file_names.strip(' \t\n\r').split(" ")
-        for name in names:
-            files_list.append({"$ref": os.path.join(att.folder_name, name)})
-        att_info['files'] = files_list
-        attachment_list.append(att_info)
-    return attachment_list
+# def export_attachment_info(sub: Submission):
+#     attachment_list = []
+#     for att in sub.attachments:
+#         att_info = {}
+#         att_info['description'] = att.note
+#         files_list = []
+#         names = att.file_names.strip(' \t\n\r').split(" ")
+#         for name in names:
+#             files_list.append({"$ref": os.path.join(att.folder_name, name)})
+#         att_info['files'] = files_list
+#         attachment_list.append(att_info)
+#     return attachment_list
 
 
 def export_studies(sub: Submission):
@@ -404,22 +404,22 @@ def schedule_submission_export():
                 os.makedirs(export_directory)
             submission_exportfile = open(os.path.join(export_directory, submission.ref_name + ".json"), "w")
             submission_exportfile.write(json.dumps([export_submission(submission)], indent=4))
-            submission_attachments = SubmissionAttachment.query.filter_by(submission_id=submission.id).all()
-            for attachment in submission_attachments:
+            # submission_attachments = SubmissionAttachment.query.filter_by(submission_id=submission.id).all()
+            # for attachment in submission_attachments:
+            #
+            #     try:
+            #         path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachment.folder_name)
+            #         attachment_folder_name = os.path.join(export_directory, attachment.folder_name)
+            #         if not os.path.exists(attachment_folder_name):
+            #             os.makedirs(attachment_folder_name)
+            #         attachment_file = os.path.join(path_on_server, attachment.file_names)
+            #         os.popen('cp ' + attachment_file + ' ' + attachment_folder_name)
+            #
+            #     except OSError as err:
+            #         err.extend(err.args[0])
 
-                try:
-                    path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachment.folder_name)
-                    attachment_folder_name = os.path.join(export_directory, attachment.folder_name)
-                    if not os.path.exists(attachment_folder_name):
-                        os.makedirs(attachment_folder_name)
-                    attachment_file = os.path.join(path_on_server, attachment.file_names)
-                    os.popen('cp ' + attachment_file + ' ' + attachment_folder_name)
-
-                except OSError as err:
-                    err.extend(err.args[0])
-
-            shutil.make_archive(export_directory, 'zip', export_directory)
-            app.logger.info("Created zip file")
+            # shutil.make_archive(export_directory, 'zip', export_directory)
+            # app.logger.info("Created zip file")
 
             submission.exported = True
             db.session.add(submission)

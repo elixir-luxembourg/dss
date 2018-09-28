@@ -1,6 +1,6 @@
 # coding=utf-8
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, \
-    DatasetForm, UploadInfoForm, StudyForm
+    DatadecForm, UploadInfoForm, StudyForm
 from elixir_dcp.models.security import Role
 from wtforms import BooleanField, HiddenField, StringField, PasswordField, SelectMultipleField, SelectField
 from wtforms.fields.html5 import EmailField
@@ -113,4 +113,4 @@ class UserForm(SignupForm):
         self.assigned_role_ids.choices = [(rol.id, rol.name) for rol in Role.query.all()]
 
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, DatasetForm, UserForm, MyProfileForm]
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, DatadecForm, UserForm, MyProfileForm]

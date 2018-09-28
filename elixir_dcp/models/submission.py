@@ -40,25 +40,25 @@ class EmailNotification(db.Model):
     created_on = db.Column(db.Date, nullable=False)
 
 
-class SubmissionAttachment(db.Model):
-    __tablename__ = 'submission_attachments'
-
-    id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-    note = db.Column(db.String, nullable=False)
-    folder_name = db.Column(db.String, nullable=False)
-    file_names = db.Column(db.String, nullable=False)
-
-    def files_urls(self):
-        if self.file_names is not None:
-            result = []
-            names = self.file_names.strip(' \t\n\r').split(" ")
-            for name in names:
-                result.append(
-                    (os.path.join(os.path.join(app.config.get('UPLOADS_SERVER_PATH'), self.folder_name), name), name))
-                return result
-        else:
-            return None
+# class SubmissionAttachment(db.Model):
+#     __tablename__ = 'submission_attachments'
+#
+#     id = db.Column(db.Integer, primary_key=True)
+#     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+#     note = db.Column(db.String, nullable=False)
+#     folder_name = db.Column(db.String, nullable=False)
+#     file_names = db.Column(db.String, nullable=False)
+#
+#     def files_urls(self):
+#         if self.file_names is not None:
+#             result = []
+#             names = self.file_names.strip(' \t\n\r').split(" ")
+#             for name in names:
+#                 result.append(
+#                     (os.path.join(os.path.join(app.config.get('UPLOADS_SERVER_PATH'), self.folder_name), name), name))
+#                 return result
+#         else:
+#             return None
 
 
 class DeIdentificationType(db.Model):
@@ -133,8 +133,8 @@ class Submission(db.Model):
     submission_accesses = db.relationship('SubmissionAccess', cascade="all, delete-orphan")
 
     studies = db.relationship("SubmissionStudy", cascade="all, delete-orphan")
-    attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
-    datasets = db.relationship("SubmissionDataset", cascade="all, delete-orphan")
+    #attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
+    datadecs = db.relationship("SubmissionDataDeclaration", cascade="all, delete-orphan")
     uploadinfos = db.relationship("SubmissionUploadInfo", cascade="all, delete-orphan")
 
     def is_deletable(self):
@@ -207,8 +207,8 @@ class DUCCodeInstance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ga4gh_code = db.Column(db.String, db.ForeignKey('ga4gh_codes.code'), nullable=False)
     note = db.Column(db.String(250))
-    dataset_id = db.Column(db.Integer, db.ForeignKey('submission_datasets.id'), nullable=False)
-    dataset = db.relationship("SubmissionDataset", back_populates="duc_codes")
+    datadec_id = db.Column(db.Integer, db.ForeignKey('submission_datadecs.id'), nullable=False)
+    datadec = db.relationship("SubmissionDataDeclaration", back_populates="duc_codes")
 
     def get_duc_codes_name(self, ga4gh_code):
         ga4gh_code_name =  GA4GHCodes.query.filter_by(code=ga4gh_code).one_or_none().name
@@ -245,8 +245,8 @@ class SubmissionStudy(db.Model):
             return []
 
 
-class SubmissionDataset(db.Model):
-    __tablename__ = 'submission_datasets'
+class SubmissionDataDeclaration(db.Model):
+    __tablename__ = 'submission_datadecs'
 
     # Data
     id = db.Column(db.Integer, primary_key=True)
@@ -280,7 +280,7 @@ class SubmissionDataset(db.Model):
     de_identification_type_code = db.Column(db.String, db.ForeignKey('deidentification_type.code'), nullable=False, default='p')
     de_identification_type = db.relationship('DeIdentificationType')
 
-    duc_codes = db.relationship("DUCCodeInstance", back_populates="dataset", cascade="all, delete-orphan")
+    duc_codes = db.relationship("DUCCodeInstance", back_populates="datadec", cascade="all, delete-orphan")
 
 
 

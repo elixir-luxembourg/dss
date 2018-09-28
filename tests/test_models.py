@@ -4,7 +4,7 @@ from tests import BaseTest
 
 from elixir_dcp.models.security import User
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionScope, SubmissionAccess, \
-    SubmissionDataset, SubmissionAttachment, SubmissionStudy
+    SubmissionDataDeclaration, SubmissionStudy
 from elixir_dcp.models.services import register_new_user, assign_role_to_user, create_sub, steer_sub, \
     update_submission_basic_info, revert_sub, deactivate_user, delete_sub, export_submission
 from elixir_dcp.exceptions import RecordLifecycleException
@@ -82,8 +82,8 @@ class ModelPersistenceTest(BaseTest):
         self.assertFalse(sub.is_in_progress())
         self.assertEqual(0, len(sub.submission_accesses))
         self.assertEqual(0, len(sub.studies))
-        self.assertEqual(0, len(sub.attachments))
-        self.assertEqual(0, len(sub.datasets))
+        #self.assertEqual(0, len(sub.attachments))
+        self.assertEqual(0, len(sub.datadecs))
         self.assertEqual(0, len(sub.uploadinfos))
         self.assertEqual(0, len(sub.provider_user_names()))
         self.assertEqual(0, len(sub.uploads_instructions_lines()))
@@ -194,53 +194,53 @@ class ModelPersistenceTest(BaseTest):
         db.session.commit()
 
 
-        dataset_rec = SubmissionDataset()
-        dataset_rec.submission_id = submission_rec.id
-        dataset_rec.study_id = study_rec.id
-        dataset_rec.title = 'Test dataset 1'
+        datadec_rec = SubmissionDataDeclaration()
+        datadec_rec.submission_id = submission_rec.id
+        datadec_rec.study_id = study_rec.id
+        datadec_rec.title = 'Test datadec 1'
 
-        dataset_rec.estimate_data_size_code = 'm'
-        dataset_rec.data_types_json = json.dumps(["Genomics_variant_array","RNASeq"])
-        dataset_rec.subjects_minors = True
-        dataset_rec.subjects_notes = 'mothers and babies'
-        dataset_rec.consent_notes = 'Consent is consistent among all subjects'
+        datadec_rec.estimate_data_size_code = 'm'
+        datadec_rec.data_types_json = json.dumps(["Genomics_variant_array","RNASeq"])
+        datadec_rec.subjects_minors = True
+        datadec_rec.subjects_notes = 'mothers and babies'
+        datadec_rec.consent_notes = 'Consent is consistent among all subjects'
 
-        db.session.add(dataset_rec)
+        db.session.add(datadec_rec)
         db.session.commit()
 
 
-        dataset_rec = SubmissionDataset()
-        dataset_rec.submission_id = submission_rec.id
-        dataset_rec.study_id = study_rec.id
-        dataset_rec.title = 'Test dataset 2'
+        datadec_rec = SubmissionDataDeclaration()
+        datadec_rec.submission_id = submission_rec.id
+        datadec_rec.study_id = study_rec.id
+        datadec_rec.title = 'Test datadec 2'
 
-        dataset_rec.estimate_data_size_code = 'l'
-        dataset_rec.data_types_json = json.dumps(["Transcriptome_array","RNASeq"])
-        dataset_rec.consent_status_code = 't'
-        dataset_rec.consent_notes = 'There are three primary consent groups'
+        datadec_rec.estimate_data_size_code = 'l'
+        datadec_rec.data_types_json = json.dumps(["Transcriptome_array","RNASeq"])
+        datadec_rec.consent_status_code = 't'
+        datadec_rec.consent_notes = 'There are three primary consent groups'
 
-        db.session.add(dataset_rec)
+        db.session.add(datadec_rec)
         db.session.commit()
 
 
-        a_rec = SubmissionAttachment()
-        a_rec.submission_id = submission_rec.id
-        a_rec.note = 'Ethics approval'
-        a_rec.folder_name = '1b523cd3-5953-4af2-a0e3-5bd2dde483b5'
-        a_rec.file_names = 'CNER-AVIS20140713-Dr_RK-ND_COLLECTION.pdf'
-
-        db.session.add(a_rec)
-        db.session.commit()
-
-
-        a_rec = SubmissionAttachment()
-        a_rec.submission_id = submission_rec.id
-        a_rec.note = 'Subject Consents and Info Sheet'
-        a_rec.folder_name = '7be19c77-8b8c-4a2c-845b-8764817641e2'
-        a_rec.file_names = 'CA_UNI_SAAR_58_01.pdf 140174_ND_SIS_v8-0_EN_21JUN2017.pdf'
-
-        db.session.add(a_rec)
-        db.session.commit()
+        # a_rec = SubmissionAttachment()
+        # a_rec.submission_id = submission_rec.id
+        # a_rec.note = 'Ethics approval'
+        # a_rec.folder_name = '1b523cd3-5953-4af2-a0e3-5bd2dde483b5'
+        # a_rec.file_names = 'CNER-AVIS20140713-Dr_RK-ND_COLLECTION.pdf'
+        #
+        # db.session.add(a_rec)
+        # db.session.commit()
+        #
+        #
+        # a_rec = SubmissionAttachment()
+        # a_rec.submission_id = submission_rec.id
+        # a_rec.note = 'Subject Consents and Info Sheet'
+        # a_rec.folder_name = '7be19c77-8b8c-4a2c-845b-8764817641e2'
+        # a_rec.file_names = 'CA_UNI_SAAR_58_01.pdf 140174_ND_SIS_v8-0_EN_21JUN2017.pdf'
+        #
+        # db.session.add(a_rec)
+        # db.session.commit()
 
         submission_rec = Submission.query.get_or_404(submission_rec.id)
         exp = export_submission(submission_rec)

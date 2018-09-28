@@ -153,7 +153,7 @@ class SubmissionForm(FlaskForm):
 
     provider_user_ids = SelectMultipleField('Data Provider(s)', coerce=int)
 
-    submission_scope_code = SelectField('Category',  validators=[DataRequired()])
+    submission_scope_code = SelectField('Submitting To',  validators=[DataRequired()])
 
     collab_local_custodian = SelectMultipleField('Recipient PI(s)', validators=[DataRequired()])
 
@@ -167,20 +167,20 @@ class SubmissionForm(FlaskForm):
         self.collab_local_custodian.choices = [(c, c) for c in app.config.get('DATA_INIT')['lcsb_pis']]
 
 
-class DatasetForm(FlaskForm):
+class DatadecForm(FlaskForm):
     """
-    Form for creating or updating Dataset within a submission
+    Form for creating or updating a data declaration within a submission
     """
     id = HiddenField('dataset_Id')
     submission_id = HiddenField('Submission Id')
 
-    title = StringField('Dataset Title', validators=[DataRequired(),
+    title = StringField('Data Title', validators=[DataRequired(),
                                              Regexp('^[\w\s\-]+$',
                                                     message="Title must contain only letters, digits, underscore or dash"),
                                              Length(min=5, max=50,
                                                     message="Title must be between 5 & 50 characters")])
 
-    study_id = SelectField('Study Name', coerce=int, description="Please select the Study name for this Dataset.",
+    study_id = SelectField('Source Study', coerce=int, description="Please select the Source Study for this Dataset.",
                         validators=[DataRequired()])
     estimate_data_size_code = SelectField('Estimated Total Data Size',
                                           description="Please select the estimated size of the dataset that will be subnmitted for this study.",
@@ -189,7 +189,7 @@ class DatasetForm(FlaskForm):
     data_types = SelectMultipleField('Data Type(s)',
                                      description="Please select the categories that would best characterise the types of data within this dataset.",
                                      validators=[DataRequired()])
-    data_notes = TextAreaField('Notes on Data', render_kw={'rows': 3},validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+    data_notes = TextAreaField('Notes/Comments', render_kw={'rows': 3},validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
 
     metadata_exists = BooleanField('Is Metadata Provided',

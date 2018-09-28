@@ -4,7 +4,6 @@
 from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages, make_response
 from flask_login import current_user, login_user, login_required, logout_user
 
-
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
 
@@ -12,8 +11,8 @@ from elixir_dcp.models.security import User
 from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert_sub, \
     get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info, \
     update_user_info, send_email
-from elixir_dcp.models.submission import Submission, SubmissionAttachment, StudyContact, \
-    SubmissionDataset, SubmissionUploadInfo, SubmissionStudy, EmailNotification
+from elixir_dcp.models.submission import Submission, SubmissionDataDeclaration, SubmissionUploadInfo, SubmissionStudy, \
+    EmailNotification
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 import os
@@ -76,17 +75,20 @@ def logout():
     flash('You have logged out of ELIXIR DCP.', 'success')
     return render_template('home.html')
 
+
 @app.after_request
 def disable_caching(response):
     response.headers["Cache-Control"] = "no-cache"
     return response
+
 
 @app.route('/oidc_login', methods=['GET', 'POST'])
 @oidc.require_login
 def oidc_login():
     app.logger.info(g.oidc_id_token)
     app.logger.info(
-        "oidc_login  token info:" + oidc.user_getinfo(['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
+        "oidc_login  token info:" + oidc.user_getinfo(
+            ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
 
     existing_user_record = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
 
@@ -150,6 +152,7 @@ def landing_page_for_user(usr):
     else:
         return url_for('list_my_submissions')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = forms.LoginForm()
@@ -205,7 +208,9 @@ def delete_submission(sub_id):
 
 
 @app.route('/steer/submission/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def steer_submission(sub_id):
     try:
         sub_with_new_state = steer_sub(sub_id)
@@ -215,7 +220,6 @@ def steer_submission(sub_id):
         app.logger.error('ERROR %s', e)
         flash("Unable to transition submission to the next state", 'error')
         return "", 400
-
 
 
 @app.route('/revert/submission/<int:sub_id>', methods=['GET'])
@@ -229,9 +233,6 @@ def revert_submission(sub_id):
         app.logger.error('ERROR %s', e)
         flash("Unable to revert submission to the previous state", 'error')
         return "", 400
-
-
-
 
 
 @app.route('/submissions', methods=['GET'])
@@ -259,7 +260,9 @@ def list_my_submissions():
 
 
 @app.route('/submission/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def get_submission(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     app.logger.info('INFO: Get submission SUB-ID: %s', sub_id)
@@ -276,7 +279,9 @@ def create_submission():
 
 
 @app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def edit_submission(sub_id):
     app.logger.info('INFO: Edit submission SUB-ID: %s', sub_id)
     if request.method == 'GET':
@@ -295,8 +300,10 @@ def edit_submission(sub_id):
                                          submission_scope_code=form.submission_scope_code.data,
                                          collab_local_custodian_json=json.dumps(form.collab_local_custodian.data),
                                          collab_project_name=form.collab_project_name.data,
-                                         upload_instructions=form.upload_instructions.data if request.form.get('upload_instructions') else None,
-                                         provider_user_ids=form.provider_user_ids.data if request.form.get('provider_user_ids') else None)
+                                         upload_instructions=form.upload_instructions.data if request.form.get(
+                                             'upload_instructions') else None,
+                                         provider_user_ids=form.provider_user_ids.data if request.form.get(
+                                             'provider_user_ids') else None)
 
             flash('Submission updated', 'success')
             return redirect(url_for('edit_submission', sub_id=sub_id))
@@ -305,172 +312,181 @@ def edit_submission(sub_id):
             return render_template('submission/submission.html', submsn_form=form, submission=submission_rec)
 
 
-
 """-------------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's Attachments."""
 """-------------------------------------------------------"""
 
-
-@app.route('/submission_attachments_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def inline_submission_attachments(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_attachments.html', submission=submission_rec,
-                           attachment_form=forms.AttachmentForm(formdata=None,
-                                                                obj=None,
-                                                                sub_id=submission_rec.id)), 200
-
-
-@app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def list_submission_attachments(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_attachment_columns.html', submission = submission_rec), 200
-
-
-def is_allowed_type(filename):
-    allowed_extensions = set(['txt', 'pdf', 'png'])
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in allowed_extensions
-
-
-@app.route('/submission_attachment_add/<int:sub_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def add_submission_attachment(sub_id):
-    if request.method == 'GET':
-        return render_template('submission/_attachment_form.html', attachment_form=forms.AttachmentForm(formdata=None,
-                                                                                                        obj=None,
-                                                                                                        sub_id=sub_id)), 200
-    elif request.method == 'POST':
-        form = forms.AttachmentForm(request.form)
-        file_validation = True
-        form_validation = form.validate_on_submit()
-        request_files = request.files.getlist(form.file_attachments.name)
-        for file in request_files:
-            # if user does not select file, browser may
-            # submit an empty part without filename.
-            # we therefore check for that.
-            if file.filename == '':
-                file_validation = False
-                form.file_attachments.errors.append('No file(s) selected.')
-            if not is_allowed_type(file.filename):
-                file_validation = False
-                form.file_attachments.errors.append(
-                    'File {} is not of allowed type. Only TXT, PDF and PNG files can be uploaded.'.format(file.filename))
-        if (not file_validation) or (not form_validation) or (sub_id != int(form.submission_id.data)):
-            return render_template('submission/_attachment_form.html', attachment_form=form), 400
-        else:
-            attachments_folder = str(uuid.uuid4())
-            path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachments_folder)
-
-            if not os.path.exists(path_on_server):
-                os.makedirs(path_on_server)
-            attachment = SubmissionAttachment()
-            attachment.note = form.note.data
-            attachment.submission_id = form.submission_id.data
-            attachment.folder_name = attachments_folder
-            attachment.file_names = ''
-            for file in request_files:
-                secured_file_name = secure_filename(file.filename)
-                attachment.file_names += secured_file_name + ' '
-                file.save(os.path.join(path_on_server, secured_file_name))
-            db.session.add(attachment)
-            db.session.commit()
-            flash("Attachment added", "success")
-            return "", 204
-
-@app.route('/submission_attachment/<int:attach_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionAttachment', 'entity_id_key':'attach_id', 'entity_ac_attribute':'submission_id'})
-def delete_submission_attachment(attach_id):
-    submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
-    path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], submission_attachment.folder_name)
-    shutil.rmtree(path_on_server)
-    db.session.delete(submission_attachment)
-    db.session.commit()
-    flash("Attachment deleted", "success")
-    return "", 204
+# @app.route('/submission_attachments_inline/<int:sub_id>', methods=['GET'])
+# @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+# def inline_submission_attachments(sub_id):
+#     submission_rec = Submission.query.get_or_404(sub_id)
+#     return render_template('submission/_attachments.html', submission=submission_rec,
+#                            attachment_form=forms.AttachmentForm(formdata=None,
+#                                                                 obj=None,
+#                                                                 sub_id=submission_rec.id)), 200
+#
+#
+# @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
+# @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+# def list_submission_attachments(sub_id):
+#     submission_rec = Submission.query.get_or_404(sub_id)
+#     return render_template('submission/_attachment_columns.html', submission = submission_rec), 200
+#
+#
+# def is_allowed_type(filename):
+#     allowed_extensions = set(['txt', 'pdf', 'png'])
+#     return '.' in filename and \
+#            filename.rsplit('.', 1)[1].lower() in allowed_extensions
+#
+#
+# @app.route('/submission_attachment_add/<int:sub_id>', methods=['GET', 'POST'])
+# @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+# def add_submission_attachment(sub_id):
+#     if request.method == 'GET':
+#         return render_template('submission/_attachment_form.html', attachment_form=forms.AttachmentForm(formdata=None,
+#                                                                                                         obj=None,
+#                                                                                                         sub_id=sub_id)), 200
+#     elif request.method == 'POST':
+#         form = forms.AttachmentForm(request.form)
+#         file_validation = True
+#         form_validation = form.validate_on_submit()
+#         request_files = request.files.getlist(form.file_attachments.name)
+#         for file in request_files:
+#             # if user does not select file, browser may
+#             # submit an empty part without filename.
+#             # we therefore check for that.
+#             if file.filename == '':
+#                 file_validation = False
+#                 form.file_attachments.errors.append('No file(s) selected.')
+#             if not is_allowed_type(file.filename):
+#                 file_validation = False
+#                 form.file_attachments.errors.append(
+#                     'File {} is not of allowed type. Only TXT, PDF and PNG files can be uploaded.'.format(file.filename))
+#         if (not file_validation) or (not form_validation) or (sub_id != int(form.submission_id.data)):
+#             return render_template('submission/_attachment_form.html', attachment_form=form), 400
+#         else:
+#             attachments_folder = str(uuid.uuid4())
+#             path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachments_folder)
+#
+#             if not os.path.exists(path_on_server):
+#                 os.makedirs(path_on_server)
+#             attachment = SubmissionAttachment()
+#             attachment.note = form.note.data
+#             attachment.submission_id = form.submission_id.data
+#             attachment.folder_name = attachments_folder
+#             attachment.file_names = ''
+#             for file in request_files:
+#                 secured_file_name = secure_filename(file.filename)
+#                 attachment.file_names += secured_file_name + ' '
+#                 file.save(os.path.join(path_on_server, secured_file_name))
+#             db.session.add(attachment)
+#             db.session.commit()
+#             flash("Attachment added", "success")
+#             return "", 204
+#
+# @app.route('/submission_attachment/<int:attach_id>', methods=['DELETE'])
+# @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionAttachment', 'entity_id_key':'attach_id', 'entity_ac_attribute':'submission_id'})
+# def delete_submission_attachment(attach_id):
+#     submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
+#     path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], submission_attachment.folder_name)
+#     shutil.rmtree(path_on_server)
+#     db.session.delete(submission_attachment)
+#     db.session.commit()
+#     flash("Attachment deleted", "success")
+#     return "", 204
 
 
 """----------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's datasets."""
+"""AJAX Endpoints for managing a Submission's datadecs."""
 """----------------------------------------------------"""
 
 
-@app.route('/submission_datasets_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def inline_submission_datasets(sub_id):
+@app.route('/submission_datadecs_inline/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
+def inline_submission_datadecs(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_datasets.html', submission=submission_rec,
-                           dataset_form=forms.DatasetForm(formdata=None,
+    return render_template('submission/_datadecs.html', submission=submission_rec,
+                           datadec_form=forms.DatadecForm(formdata=None,
                                                           obj=None,
                                                           sub_id=submission_rec.id))
 
 
-@app.route('/submission_datasets/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def list_submission_datasets(sub_id):
+@app.route('/submission_datadecs/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
+def list_submission_datadecs(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_dataset_columns.html', submission=submission_rec)
+    return render_template('submission/_datadec_columns.html', submission=submission_rec)
 
 
-@app.route('/submission_dataset_add/<int:sub_id>', methods=['GET','POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def add_submission_dataset(sub_id):
+@app.route('/submission_datadec_add/<int:sub_id>', methods=['GET', 'POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
+def add_submission_datadec(sub_id):
     if request.method == 'GET':
-        return render_template('submission/_dataset_form.html', dataset_form=forms.DatasetForm(formdata=None,
+        return render_template('submission/_datadec_form.html', datadec_form=forms.DatadecForm(formdata=None,
                                                                                                obj=None,
                                                                                                sub_id=sub_id)), 200
     elif request.method == 'POST':
-        posted_form = forms.DatasetForm(request.form)
+        posted_form = forms.DatadecForm(request.form)
         if posted_form.validate_on_submit() and int(posted_form.submission_id.data) == sub_id:
-            dataset_rec = SubmissionDataset()
-            posted_form.populate_obj(dataset_rec)
-            dataset_rec.id = None
+            datadec_rec = SubmissionDataDeclaration()
+            posted_form.populate_obj(datadec_rec)
+            datadec_rec.id = None
             if posted_form.data_types.data:
-                dataset_rec.data_types_json = json.dumps(posted_form.data_types.data)
-            db.session.add(dataset_rec)
+                datadec_rec.data_types_json = json.dumps(posted_form.data_types.data)
+            db.session.add(datadec_rec)
             db.session.commit()
-            flash("Dataset added", "success")
+            flash("Data declaration added", "success")
             return "", 204
 
         else:
-            return render_template('submission/_dataset_form.html', dataset_form=posted_form), 400
+            return render_template('submission/_datadec_form.html', datadec_form=posted_form), 400
 
 
-@app.route('/submission_dataset/<int:dataset_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionDataset', 'entity_id_key':'dataset_id', 'entity_ac_attribute':'submission_id'})
-def edit_submission_dataset(dataset_id):
+@app.route('/submission_datadec/<int:datadec_id>', methods=['GET', 'POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submissiondatadec', 'entity_id_key': 'datadec_id',
+                                         'entity_ac_attribute': 'submission_id'})
+def edit_submission_datadec(datadec_id):
     if request.method == 'GET':
-        dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
-        result_form = forms.DatasetForm(obj=dataset_rec)
-        if dataset_rec.data_types_json:
-            result_form.data_types.data = json.loads(dataset_rec.data_types_json)
-        return render_template('submission/_dataset_form.html', dataset_form=result_form)
+        datadec_rec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
+        result_form = forms.DatadecForm(obj=datadec_rec)
+        if datadec_rec.data_types_json:
+            result_form.data_types.data = json.loads(datadec_rec.data_types_json)
+        return render_template('submission/_datadec_form.html', datadec_form=result_form)
     elif request.method == 'POST':
-        posted_form = forms.DatasetForm(request.form)
+        posted_form = forms.DatadecForm(request.form)
         if posted_form.validate_on_submit():
 
-            dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
-            posted_form.populate_obj(dataset_rec)
+            datadec_rec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
+            posted_form.populate_obj(datadec_rec)
 
             if posted_form.data_types.data:
-                dataset_rec.data_types_json = json.dumps(posted_form.data_types.data)
-            db.session.add(dataset_rec)
+                datadec_rec.data_types_json = json.dumps(posted_form.data_types.data)
+            db.session.add(datadec_rec)
             db.session.commit()
-            flash("Dataset updated", "success")
+            flash("Data declaration updated", "success")
             return "", 204
         else:
-            return render_template('submission/_dataset_form.html', dataset_form=posted_form), 400
+            return render_template('submission/_datadec_form.html', datadec_form=posted_form), 400
 
 
-@app.route('/submission_dataset/<int:dataset_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionDataset', 'entity_id_key':'dataset_id', 'entity_ac_attribute':'submission_id'})
-def delete_submission_dataset(dataset_id):
-    dataset = SubmissionDataset.query.get_or_404(dataset_id)
-    db.session.delete(dataset)
+@app.route('/submission_datadec/<int:datadec_id>', methods=['DELETE'])
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submissiondatadec', 'entity_id_key': 'datadec_id',
+                                         'entity_ac_attribute': 'submission_id'})
+def delete_submission_datadec(datadec_id):
+    datadec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
+    db.session.delete(datadec)
     db.session.commit()
-    flash("Dataset deleted", "success")
+    flash("Data declaration deleted", "success")
     return "", 204
+
 
 """----------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's Studies."""
@@ -478,24 +494,30 @@ def delete_submission_dataset(dataset_id):
 
 
 @app.route('/submission_studies_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def inline_submission_studies(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_studies.html', submission=submission_rec,
                            study_form=forms.StudyForm(formdata=None,
-                                                          obj=None,
-                                                          sub_id=submission_rec.id), contact_form=forms.ContactForm()), 200
+                                                      obj=None,
+                                                      sub_id=submission_rec.id), contact_form=forms.ContactForm()), 200
 
 
 @app.route('/submission_studies/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def list_submission_studies(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_study_columns.html', submission = submission_rec), 200
+    return render_template('submission/_study_columns.html', submission=submission_rec), 200
 
 
 @app.route('/submission_study_add/<int:sub_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def add_submission_study(sub_id):
     if request.method == 'GET':
         return render_template('submission/_study_form.html', study_form=forms.StudyForm(formdata=None,
@@ -517,16 +539,17 @@ def add_submission_study(sub_id):
             return render_template('submission/_study_form.html', study_form=posted_form), 400
 
 
-
 @app.route('/submission_study/<int:study_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudy', 'entity_id_key':'study_id', 'entity_ac_attribute':'submission_id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'SubmissionStudy', 'entity_id_key': 'study_id',
+                                         'entity_ac_attribute': 'submission_id'})
 def edit_submission_study(study_id):
     if request.method == 'GET':
         study_rec = SubmissionStudy.query.get_or_404(study_id)
         result_form = forms.StudyForm(obj=study_rec)
         if study_rec.study_types_json:
             result_form.study_types.data = json.loads(study_rec.study_types_json)
-        return render_template('submission/_study_form.html', study_form=result_form ), 200
+        return render_template('submission/_study_form.html', study_form=result_form), 200
     elif request.method == 'POST':
         posted_form = forms.StudyForm(request.form)
         if posted_form.validate_on_submit():
@@ -543,7 +566,9 @@ def edit_submission_study(study_id):
 
 
 @app.route('/submission_study/<int:study_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionStudy', 'entity_id_key':'study_id', 'entity_ac_attribute':'submission_id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'SubmissionStudy', 'entity_id_key': 'study_id',
+                                         'entity_ac_attribute': 'submission_id'})
 def delete_submission_study(study_id):
     study = SubmissionStudy.query.get_or_404(study_id)
     db.session.delete(study)
@@ -551,13 +576,16 @@ def delete_submission_study(study_id):
     flash("Study deleted", "success")
     return "", 204
 
+
 """----------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's Upload Info Records."""
 """----------------------------------------------------"""
 
 
 @app.route('/submission_uploadinfos_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def inline_submission_uploadinfos(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_uploadinfos.html', submission=submission_rec,
@@ -567,13 +595,18 @@ def inline_submission_uploadinfos(sub_id):
 
 
 @app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def list_submission_uploadinfos(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template('submission/_uploadinfo_columns.html', submission=submission_rec)
 
+
 @app.route('/submission_uploadinfo_add/<int:sub_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def add_submission_uploadinfo(sub_id):
     if request.method == 'GET':
         return render_template('submission/_uploadinfo_form.html',
@@ -595,7 +628,9 @@ def add_submission_uploadinfo(sub_id):
 
 
 @app.route('/submission_uploadinfo/<int:uploadinfo_id>', methods=['GET', 'POST'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionUploadInfo', 'entity_id_key':'uploadinfo_id', 'entity_ac_attribute':'submission_id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'SubmissionUploadInfo', 'entity_id_key': 'uploadinfo_id',
+                                         'entity_ac_attribute': 'submission_id'})
 def edit_submission_uploadinfo(uploadinfo_id):
     if request.method == 'GET':
         uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
@@ -608,7 +643,6 @@ def edit_submission_uploadinfo(uploadinfo_id):
             uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
             posted_form.populate_obj(uploadinfo_rec)
 
-
             db.session.add(uploadinfo_rec)
             db.session.commit()
             flash("Checksum updated", "success")
@@ -618,7 +652,9 @@ def edit_submission_uploadinfo(uploadinfo_id):
 
 
 @app.route('/submission_uploadinfo/<int:uploadinfo_id>', methods=['DELETE'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'SubmissionUploadInfo', 'entity_id_key':'uploadinfo_id', 'entity_ac_attribute':'submission_id'})
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'SubmissionUploadInfo', 'entity_id_key': 'uploadinfo_id',
+                                         'entity_ac_attribute': 'submission_id'})
 def delete_submission_uploadinfo(uploadinfo_id):
     submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
     db.session.delete(submission_uploadinfo)
@@ -637,27 +673,32 @@ def delete_submission_uploadinfo(uploadinfo_id):
 #     return Response(dumps(app.config.get('DATA_INIT')['collab_institutions']), mimetype='application/json')
 
 
-@app.route('/submission/generate_submission_pdf/<int:sub_id>',  methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+@app.route('/submission/generate_submission_pdf/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
 def generate_submission_pdf(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     rendered = render_template('submission/generate_submission_pdf.html',
                                submission_rec=submission_rec,
-                               png_elx_lu = app.static_folder+'/public/images/'+'ELIXIR_LU_WB.png',
-                               png_lcsb = app.static_folder+'/public/images/'+'LCSB-logo.png',
-                               png_uni =app.static_folder+'/public/images/'+'Uni-LU.png')
+                               png_elx_lu=app.static_folder + '/public/images/' + 'ELIXIR_LU_WB.png',
+                               png_lcsb=app.static_folder + '/public/images/' + 'LCSB-logo.png',
+                               png_uni=app.static_folder + '/public/images/' + 'Uni-LU.png')
     options = {
         'page-size': 'A4',
         'footer-center': '[page] of [topage]',
-        'footer-font-size':'9',
+        'footer-font-size': '9',
         'dpi': 400
     }
 
-    pdf = pdfkit.from_string(rendered, False, css=app.static_folder+'/vendor/node_modules/bootstrap/dist/css/bootstrap.css', options=options)
+    pdf = pdfkit.from_string(rendered, False,
+                             css=app.static_folder + '/vendor/node_modules/bootstrap/dist/css/bootstrap.css',
+                             options=options)
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
     return response
+
 
 @app.route('/notification/<int:notification_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin'])
@@ -672,6 +713,7 @@ def send_notification(notification_id):
         app.logger.error('ERROR  while sending notification email %s', e)
         flash("An error occurred when sending the notification email", 'error')
         return "", 400
+
 
 @app.route('/notifications', methods=['GET'])
 @app_authorization(allowed_roles=['admin'])

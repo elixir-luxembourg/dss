@@ -37,7 +37,7 @@ $(document).ready(function () {
         $('#btn_save_submission_basics').attr('disabled', false);
     });
 
-    $('#btn_save_submission_basics').attr('disabled', true)
+    $('#btn_save_submission_basics').attr('disabled', true);
 
 
     $("#inline_add_new_button").click(function () {
@@ -93,7 +93,7 @@ $(document).ready(function () {
 
             //Add new entry
             $this.find("button[data-toggle=fieldset-add-row]").click(function () {
-                var target = $($(this).data("target"))
+                var target = $($(this).data("target"));
                 console.log(target);
                 var oldrow = target.find("[data-toggle=fieldset-entry]:last");
                 oldrow.find(".elx-select").select2('destroy');

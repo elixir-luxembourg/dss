@@ -15,20 +15,19 @@
 <div class="row block">
 
     <div class="row">
-
         <div id="basicinfo" class="col-md-11">
             {% include 'submission/_submission_header.html' %}
             <div class="row">
                 <div class="form-group col-md-11">
-                    <span class="label label-info">Upload Instructions</span><br/><br/>
+                    <span class="label label-info label-large">Upload Instructions</span><br/><br/>
                     {% if submission.upload_instructions %}
                     {% for line in submission.uploads_instructions_lines() %}
-                    <label>{{ line|urlize(40, True, '_blank') }}</label><br>
+                    <p><strong>{{ line|urlize(40, True, '_blank') }}</strong></p><br>
                     {% endfor %}
 
                     {% else %}
-                    <label>Instructions will be provided once you complete Dataset Declaration and we create an upload
-                        link for you.</label>
+                    <p><strong>Instructions will be provided once you complete Dataset Declaration and we create an upload
+                        link for you.</strong></p>
                     {% endif %}
                 </div>
             </div>
@@ -70,10 +69,12 @@
     {% if current_user.is_admin() or submission.current_status.step_num() == 1 or submission.current_status.step_num()
     ==2 %}
     <div class="row">
-        <div class="col-md-11">
+        <div class="form-group col-md-11">
+            <span class="label label-info label-large">Submission Details</span><br/><br/>
             <form id="form_submission_basics"
                   method="POST"
                   action="{{ url_for('edit_submission',sub_id=submsn_form.id.data) }}">
+                <fieldset>
                 {{ submsn_form.hidden_tag() }}
                 {{ fmacros.render_field_with_errors(submsn_form.title) }}
                 {{ fmacros.render_field_with_errors(submsn_form.submission_scope_code, div_col_class="col-md-2",
@@ -85,6 +86,7 @@
                 {{ fmacros.render_field_with_errors(submsn_form.provider_user_ids, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.upload_instructions) }}
                 {% endif %}
+                </fieldset>
             </form>
         </div>
         <div id="submission_form_commands_bar" class="col-md-1">
@@ -101,100 +103,103 @@
 <div class="row" id="tabs">
     <ul>
         <li><a href="#studies">Studies</a></li>
-        <li><a href="#datasets">Datasets</a></li>
-        <li><a href="#attachments">Attachments</a></li>
-        <li><a href="#uploadinfos">File Checksums</a></li>
-    </ul>
-    <div id="studies">
-        <br/>
-        <p>In this section you should declare studies for this submission. </p><br/>
-        {% with %}
-        {% set inline_beans = submission.studies %}
-        {% set readonly = True %}
-        <div class="col-md-10">
-            {% include 'submission/_study_columns.html' %}
-        </div>
-        {% endwith %}
-        {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
-        submission.current_status.step_num() ==2 %}
-        <div class="col-md-2">
-            <a class="btn btn-primary btn-lg"
-               href="{{ url_for('inline_submission_studies',sub_id=submission.id) }}">
-                <span class="glyphicon glyphicon-pencil" style="font-size: xx-large"></span>
-                Edit<br/>
-                <span>Studies</span><br/>
-            </a>
-        </div>
-        {% endif %}
-    </div>
-    <div id="datasets">
-        <br/>
-        <p>In this section you should declare the datasets that you will be submitting to us. We require a Data Information Sheet to be filled per study.</p><br/>
-        {% with %}
-        {% set datasets = submission.datasets %}
-        {% set readonly = True %}
-        <div class="col-md-10">
-            {% include 'submission/_dataset_columns.html' %}
-        </div>
-        {% endwith %}
-        {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
-        submission.current_status.step_num() ==2 %}
-        <div class="col-md-2">
-            <a class="btn btn-primary btn-lg"
-               href="{{ url_for('inline_submission_datasets',sub_id=submission.id) }}">
-                <span class="glyphicon glyphicon-pencil" style="font-size: xx-large"></span>
-                Edit<br/>
-                <span>Datasets</span><br/>
-            </a>
-        </div>
-        {% endif %}
-    </div>
+        <li><a href="#datasets">Data</a></li>
+        {#  <li><a href="#attachments">Attachments</a></li>#}
+      <li><a href="#uploadinfos">File Checksums</a></li>
+  </ul>
+  <div id="studies">
+      <br/>
+      <p>In this section you should declare studies for this submission. </p><br/>
+      {% with %}
+      {% set inline_beans = submission.studies %}
+      {% set readonly = True %}
+      <div class="col-md-10">
+          {% include 'submission/_study_columns.html' %}
+      </div>
+      {% endwith %}
+      {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+      submission.current_status.step_num() ==2 %}
+      <div class="col-md-2">
+          <a class="btn btn-primary btn-lg"
+             href="{{ url_for('inline_submission_studies',sub_id=submission.id) }}">
+              <span class="glyphicon glyphicon-pencil" style="font-size: xx-large"></span>
+              Edit<br/>
+              <span>Studies</span><br/>
+          </a>
+      </div>
+      {% endif %}
+  </div>
+  <div id="datasets">
+      <br/>
+      <p>In this section you should declare the data that you will be submitting to us.</p><br/>
+      {% with %}
+      {% set datadecs = submission.datadecs %}
+      {% set readonly = True %}
+      <div class="col-md-10">
+          {% include 'submission/_datadec_columns.html' %}
+      </div>
+      {% endwith %}
+      {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+      submission.current_status.step_num() ==2 %}
+      <div class="col-md-2">
+          <a class="btn btn-primary btn-lg"
+             href="{{ url_for('inline_submission_datadecs',sub_id=submission.id) }}">
+              <span class="glyphicon glyphicon-pencil" style="font-size: xx-large"></span>
+              Edit<br/>
+              <span>Data Declarations</span><br/>
+          </a>
+      </div>
+      {% endif %}
+  </div>
+
+    {#
     <div id="attachments">
-        <p>In this section you can upload any documentation that support the information declared in the Dataset
-            section. E.g. a copy of the Ethics Approval for the source study, the template of the Consent Form used
-            during data collection etc.
-            <span style="color:red;font-weight:bold">Please do NOT upload any DATA or METADATA through this section.</span>
-        </p><br/>
-        {% with %}
-        {% set attachments = submission.attachments %}
-        {% set readonly = True %}
-        <div class="col-md-10">
-            {% include 'submission/_attachment_columns.html' %}
-        </div>
-        {% endwith %}
-        {% if current_user.is_admin() or submission.current_status.step_num() == 1 or
-        submission.current_status.step_num() ==2 %}
-        <div class="col-md-2">
-            <a class="btn btn-primary btn-lg"
-               href="{{ url_for('inline_submission_attachments',sub_id=submission.id) }}">
-                <span class="glyphicon glyphicon-pencil" style="font-size: xx-large"></span>
-                Edit<br/>
-                <span>Attachments</span><br/>
-            </a>
-        </div>
-        {% endif %}
-    </div>
-    <div id="uploadinfos">
-        <br/>
-        <p>Once you have uploaded data files, please register the file checksums. This is necessary for us to verify that transfer has occurred without errors.</p><br/>
-        {% with %}
-        {% set uploadinfos = submission.uploadinfos %}
-        {% set readonly = True %}
-        <div class="col-md-10">
-            {% include 'submission/_uploadinfo_columns.html' %}
-        </div>
-        {% endwith %}
-        {% if current_user.is_admin() or submission.current_status.step_num() == 2 %}
-        <div class="col-md-2">
-            <a class="btn btn-primary btn-lg"
-               href="{{ url_for('inline_submission_uploadinfos',sub_id=submission.id) }}">
-                <span class="glyphicon glyphicon-pencil" style="font-size: xx-large"></span>
-                Edit<br/>
-                <span>File Checksums</span><br/>
-            </a>
-        </div>
-        {% endif %}
-    </div>
+      <p>In this section you can upload any documentation that support the information declared in the Dataset
+          section. E.g. a copy of the Ethics Approval for the source study, the template of the Consent Form used
+          during data collection etc.
+          <span style="color:red;font-weight:bold">Please do NOT upload any DATA or METADATA through this section.</span>
+      </p><br/>
+      {% with %}
+      {% set attachments = submission.attachments %}
+      {% set readonly = True %}
+      <div class="col-md-10">
+          {% include 'submission/_attachment_columns.html' %}
+      </div>
+      {% endwith %}
+      {% if current_user.is_admin() or submission.current_status.step_num() == 1 or
+      submission.current_status.step_num() ==2 %}
+      <div class="col-md-2">
+          <a class="btn btn-primary btn-lg"
+             href="{{ url_for('inline_submission_attachments',sub_id=submission.id) }}">
+              <span class="glyphicon glyphicon-pencil" style="font-size: xx-large"></span>
+              Edit<br/>
+              <span>Attachments</span><br/>
+          </a>
+      </div>
+      {% endif %}
+  </div>
+  #}
+  <div id="uploadinfos">
+      <br/>
+      <p>Once you have uploaded data files, please register the file checksums. This is necessary for us to verify that transfer has occurred without errors.</p><br/>
+      {% with %}
+      {% set uploadinfos = submission.uploadinfos %}
+      {% set readonly = True %}
+      <div class="col-md-10">
+          {% include 'submission/_uploadinfo_columns.html' %}
+      </div>
+      {% endwith %}
+      {% if current_user.is_admin() or submission.current_status.step_num() == 2 %}
+      <div class="col-md-2">
+          <a class="btn btn-primary btn-lg"
+             href="{{ url_for('inline_submission_uploadinfos',sub_id=submission.id) }}">
+              <span class="glyphicon glyphicon-pencil" style="font-size: xx-large"></span>
+              Edit<br/>
+              <span>File Checksums</span><br/>
+          </a>
+      </div>
+      {% endif %}
+  </div>
 </div>
 
 {% include 'submission/_submission_progress_bar.html' %}

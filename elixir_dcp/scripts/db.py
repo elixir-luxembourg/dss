@@ -49,8 +49,8 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                  'legal_basis': [['c', 'Consent'],
                                  ['l', 'Legitimate_Interest'],
                                  ['p', 'Public_Interest']],
-                 'submission_scope': [['e', 'ELIXIR'],
-                                      ['c', 'LCSB_Collaboration']],
+                 'submission_scope': [['e', 'ELIXIR-LU Repository'],
+                                      ['c', 'LCSB Collaborator']],
 
                  'data_types': (
                     ('Genotype_data', (
