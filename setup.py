@@ -19,7 +19,7 @@ test_requirements = [
 
 setup(
     name='elixir-dcp',
-    version='0.2.1',
+    version='0.3.0-dev',
     description="Elixir-LU Data and Computing Platform",
     author="Valentin Grouès",
     author_email='valentin.groues@uni.lu',

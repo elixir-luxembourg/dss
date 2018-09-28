@@ -83,7 +83,7 @@ Once done, the commit and the tag needs to be pushed to git.
 
 ## Current Version
 
-**v0.2.1**
+**v0.3.0-dev**
 
 
 
