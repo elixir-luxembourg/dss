@@ -205,11 +205,14 @@ def update_submission_basic_info(submission: Submission, **kwargs):
     if 'submission_scope_code' in kwargs:
         submission.submission_scope_code = kwargs.pop('submission_scope_code')
 
-    if 'collab_local_custodian_json' in kwargs:
-        submission.collab_local_custodian_json = kwargs.pop('collab_local_custodian_json')
+    if 'institution_accession' in kwargs:
+        submission.institution_accession = kwargs.pop('institution_accession')
 
-    if 'collab_project_name' in kwargs:
-        submission.collab_project_name = kwargs.pop('collab_project_name')
+    if 'local_custodians_json' in kwargs:
+        submission.local_custodians_json = kwargs.pop('local_custodians_json')
+
+    if 'local_project_name' in kwargs:
+        submission.local_project_name = kwargs.pop('local_project_name')
 
     db.session.add(submission)
     db.session.commit()
@@ -252,7 +255,7 @@ def update_user_info(usr: User, **kwargs):
     if 'last_name' in kwargs:
         usr.last_name = kwargs.pop('last_name')
     if 'institution' in kwargs:
-        usr.institution = kwargs.pop('institution')
+        usr.institution_accession = kwargs.pop('institution')
     if 'institution_division' in kwargs:
         usr.institution_division = kwargs.pop('institution_division')
     if 'email' in kwargs:
@@ -283,19 +286,22 @@ def update_user_info(usr: User, **kwargs):
 def export_submission(sub: Submission):
     sub_info = {}
 
-    sub_info['submission_ref_name'] = sub.ref_name
+    sub_info['elu_accession'] = sub.ref_name
     sub_info['title'] = sub.title
-    sub_info['created_on'] = sub.created_on.strftime("%Y/%m/%d")
+    sub_info['submitting_institution'] = sub.institution_accession
+    sub_info['created_on'] = sub.created_on.strftime("%Y-%m-%d")
     if sub.dish_finalised_on:
-        sub_info['finalised_on'] = sub.dish_finalised_on.strftime("%Y/%m/%d")
-    sub_info['scope'] = sub.submission_scope.label
+        sub_info['finalised_on'] = sub.dish_finalised_on.strftime("%Y-%m-%d")
+    sub_info['scope'] = sub.submission_scope.code
+    if sub.local_custodians_json:
+        sub_info['local_custodians'] = json.loads(sub.local_custodians_json)
+    if sub.local_project_name:
+        sub_info['local_project'] = sub.local_project_name
 
     submitters = []
     for access in sub.submission_accesses:
         provider_info = {}
-        provider_info['institution'] = access.user.institution
-        if access.user.institution_division:
-            provider_info['institution_division'] = access.user.institution_division
+        provider_info['institution'] = access.user.institution_accession
         provider_info['email'] = access.user.email
         provider_info['first_name'] = access.user.first_name
         provider_info['last_name'] = access.user.last_name
@@ -307,7 +313,7 @@ def export_submission(sub: Submission):
         provider_info['role'] = 'Data_Manager'
         submitters.append(provider_info)
 
-    sub_info['submitters'] = submitters
+    sub_info['data_providers'] = submitters
 
     sub_info['studies'] = export_studies(sub)
 
@@ -322,23 +328,13 @@ def export_datadecs(sub: Submission):
     datadec_list = []
     for datadec in sub.datadecs:
         datadec_info = {}
-        datadec_info['submission_ref'] = sub.ref_name
-        datadec_info['title'] = sub.title
-        # Put here the title property
-
-        # TODO Also put here the source study as source project
-
-        datadec_info['source_project'] = datadec.study.study_name
-        if sub.is_elixir():
-            datadec_info['source_type'] = 'From_Elixir_Data_Submitter'
-        else:
-            datadec_info['source_type'] = 'From_Collaborator'
+        datadec_info['title'] = datadec.title
+        datadec_info['source_study'] = datadec.study.study_name
         datadec_info['legal_basis_data_collection'] = datadec.legal_basis_collection.label
         datadec_info['legal_basis_data_sharing'] = datadec.legal_basis_sharing.label
-        datadec_info['local_custodian'] = json.loads(sub.collab_local_custodian_json)
-        datadec_info['local_project'] = sub.collab_project_name
         datadec_info['data_types'] = datadec.data_type_names()
-        datadec_info['data_notes'] = datadec.data_notes
+        if datadec.data_notes:
+            datadec_info['data_notes'] = datadec.data_notes
         datadec_info['data_size_category'] = datadec.estimate_data_size_code
         datadec_info['metadata_exists'] = datadec.metadata_exists
         datadec_info[
@@ -354,11 +350,13 @@ def export_datadecs(sub: Submission):
         datadec_info['consent_status'] = datadec.consent_status.label.lower()
         if datadec.consent_notes: datadec_info['consent_notes'] = datadec.consent_notes
         datadec_info['de_identification'] = datadec.de_identification_type.label.lower()
+        datadec_info['subject_categories'] = datadec.de_identification_type.label.lower()
         use_restrictions = []
         for duc_instance in datadec.duc_codes:
             use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
                                      'note': duc_instance.note})
-        datadec_info['use_restrictions'] = use_restrictions
+        if use_restrictions:
+            datadec_info['use_restrictions'] = use_restrictions
         datadec_list.append(datadec_info)
     return datadec_list
 
@@ -382,11 +380,21 @@ def export_studies(sub: Submission):
     for stdy in sub.studies:
         study_info = {}
         study_info['title'] = stdy.study_name
-        study_info['study_description'] = stdy.study_description
+        study_info['description'] = stdy.study_description
         study_info['ethics_approval_exists'] = stdy.ethics_approval_exists
         study_info['study_types'] = stdy.study_type_names()
-        study_info['contact_names'] = stdy.study_contacts_names(stdy.id)
+        contacts = []
+        for contact in stdy.study_contacts:
+            contact_info = {}
+            contact_info['first_name'] = contact.firstname
+            contact_info['last_name'] = contact.surname
+            contact_info['role'] = contact.contact_category.name
+            contact_info['email'] = contact.email
+            contact_info['address'] = contact.address
+            contact_info['institution'] = sub.institution_accession
+            contacts.append(contact_info)
 
+        study_info['contacts'] = contacts
         study_list.append(study_info)
 
     return study_list

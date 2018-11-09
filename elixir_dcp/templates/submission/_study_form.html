@@ -18,12 +18,6 @@
             </div>
             <fieldset>
                 <legend>Study Contacts</legend>
-                <div class="form-group row">
-                    <div class="col-md-12">
-                        <p style="color:red;">If contact institution is not found in the options provided, please contact
-                            <img src="/static/public/images/datasteward_contact.png"/></p>
-                    </div>
-                </div>
                 <div class="form-group row {% if study_form.study_contacts.errors %}has-error{% endif %}">
                     <div class="col-md-12">
                         <div data-toggle="fieldset" id="study-contacts-fieldset">
@@ -33,11 +27,11 @@
 
                             <table style="table-layout: fixed">
                                 <tr>
-                                    <th width="15%">Name</th>
-                                    <th width="15%">Surname</th>
+                                    <th width="10%">Name</th>
+                                    <th width="10%">Surname</th>
                                     <th width="15%">Email</th>
                                     <th width="15%">Role</th>
-                                    <th width="35%">Address/Institution</th>
+                                    <th width="45%">Address/Institution</th>
                                     <th width="5%"></th>
                                 </tr>
                                 {% for contact_form in study_form.study_contacts %}
@@ -46,8 +40,7 @@
                                     <td>{{ fmacros.render_field(contact_form.surname) }}</td>
                                     <td>{{ fmacros.render_field(contact_form.email) }}</td>
                                     <td>{{ fmacros.render_field(contact_form.category_id) }}</td>
-                                    <td>{{ fmacros.render_field(contact_form.institution,  width="100", class="elx-select") }}</td>
-
+                                    <td>{{ contact_form.address(rows='3',cols='40')}}</td>
                                     <td>
                                         <button type="button" data-toggle="fieldset-remove-row"
                                                 id="study-contacts-{{ loop.index0 }}-remove">-

@@ -45,13 +45,13 @@
             </tr>
             <tr>
                 <th scope="row">Recipient</th>
-                <td>{{ submission_rec.collab_local_custodian_json|replace('"','') | replace("[", '')| replace("]",
+                <td>{{ submission_rec.local_custodians_json|replace('"','') | replace("[", '')| replace("]",
                     '')|join('')}}
                 </td>
             </tr>
             <tr>
                 <th scope="row">Recipient Project</th>
-                <td>{{ submission_rec.collab_project_name or '' }}</td>
+                <td>{{ submission_rec.local_project_name or '' }}</td>
             </tr>
         </table>
     </div>

@@ -1,4 +1,5 @@
 # coding=utf-8
+from elixir_dcp.controllers.api_controllers import get_elu_partners
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, \
     DatadecForm, UploadInfoForm, StudyForm
 from elixir_dcp.models.security import Role
@@ -67,7 +68,7 @@ class SignupForm(FlaskForm):
                                         Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                         Length(min=2, max=20, message="Must be 2 to 20 characters long.")])
 
-    institution = SelectField('Institution', validators=[DataRequired()])
+    institution_accession = SelectField('Institution', validators=[DataRequired()])
 
     institution_division = StringField('Division/Department',
                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
@@ -89,10 +90,10 @@ class SignupForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
-        self.institution.choices = [(c["elu_accession"],
-                                     c["institution_name"] + ' - ' +c["acronym"] if 'acronym' in c else c[
-                                         "institution_name"]) for c in
-                                    app.config.get('DATA_INIT')['collab_institutions']]
+        self.institution_accession.choices = [(c["elu_accession"],
+                                               c["name"] + ' - ' + c["acronym"] if 'acronym' in c else c[
+                                                   "name"]) for c in
+                                              get_elu_partners()]
 
 
 class MyProfileForm(SignupForm):

@@ -4,10 +4,7 @@ function confirmDialog(msg) {
     $("#common-command-dialog").text("You are about to "+ msg);
     var def = $.Deferred();
     $("#common-command-dialog").dialog({
-        autoOpen: true,
-        hide: true,
         resizable: false,
-        height: 150,
         modal: true,
         buttons: {
             'Continue': function() {

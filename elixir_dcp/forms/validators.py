@@ -2,6 +2,7 @@ import re
 from wtforms.validators import ValidationError
 
 
+
 class OptionalFieldValidator(object):
     """WTForms validation does not work for optional fields.
     Therefore we have added this custom validator that can be instantiated with any regex.

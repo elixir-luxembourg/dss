@@ -5,7 +5,11 @@
 {{ super() }}
 {% endblock %}
 
+{% block inline_header_message %}
+<p>In this section you should declare studies for your submission.</p>
+{% endblock %}
 {% block inline_columns %}
+
     {% include 'submission/_study_columns.html' %}
 {% endblock %}
 

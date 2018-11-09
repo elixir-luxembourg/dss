@@ -18,14 +18,13 @@ from sqlalchemy.exc import OperationalError
 import os
 import uuid
 import shutil
+from werkzeug.utils import secure_filename
 import json
 import pdfkit
 from elixir_dcp import app, db, oidc
-from werkzeug.utils import secure_filename
+
 from . import app_authorization
 from .utils import get_names_from_oidc
-
-__author__ = 'Pinar Alper'
 
 
 @app.route('/', methods=['GET'])
@@ -278,6 +277,15 @@ def create_submission():
     return redirect(url_for('list_submissions'))
 
 
+@app.route('/submission/view/<int:sub_id>', methods=['GET'])
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
+def view_submission(sub_id):
+    submission_rec = Submission.query.get_or_404(sub_id)
+    return render_template('submission/submission.html', submission=submission_rec)
+
+
 @app.route('/submission/edit/<int:sub_id>', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'],
                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
@@ -288,28 +296,28 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info('Sub REC: %s', submission_rec)
         sub_form = forms.SubmissionForm(obj=submission_rec)
-        if submission_rec.collab_local_custodian_json:
-            sub_form.collab_local_custodian.data = json.loads(submission_rec.collab_local_custodian_json)
+        if submission_rec.local_custodians_json:
+            sub_form.local_custodians.data = json.loads(submission_rec.local_custodians_json)
         sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
-        return render_template('submission/submission.html', submsn_form=sub_form, submission=submission_rec)
+        return render_template('submission/_submission_form.html', submsn_form=sub_form)
     elif request.method == 'POST':
         form = forms.SubmissionForm(request.form)
         submission_rec = Submission.query.get_or_404(form.id.data)
         if form.validate_on_submit():
             update_submission_basic_info(submission_rec, title=form.title.data,
                                          submission_scope_code=form.submission_scope_code.data,
-                                         collab_local_custodian_json=json.dumps(form.collab_local_custodian.data),
-                                         collab_project_name=form.collab_project_name.data,
+                                         local_custodians_json=json.dumps(form.local_custodians.data),
+                                         local_project_name=form.local_project_name.data,
+                                         institution_accession=form.institution_accession.data,
                                          upload_instructions=form.upload_instructions.data if request.form.get(
                                              'upload_instructions') else None,
                                          provider_user_ids=form.provider_user_ids.data if request.form.get(
                                              'provider_user_ids') else None)
 
             flash('Submission updated', 'success')
-            return redirect(url_for('edit_submission', sub_id=sub_id))
+            return "", 204
         else:
-            flash("Please check the validity of your input in highlighted places", "error")
-            return render_template('submission/submission.html', submsn_form=form, submission=submission_rec)
+            return render_template('submission/_submission_form.html', submsn_form=form), 400
 
 
 """-------------------------------------------------------"""

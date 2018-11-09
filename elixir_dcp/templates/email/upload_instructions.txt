@@ -4,7 +4,7 @@ The following Submission has new upload instructions. The next step for you is t
 
 Ref Name: {{ submission.ref_name }}
 Title: {{ submission.title }}
-Submission Page: {{ url_for('edit_submission',sub_id=submission.id, _external=True) }}
+Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
 
 
 Once your upload is complete you may  close-off your submission from the Submission Page.

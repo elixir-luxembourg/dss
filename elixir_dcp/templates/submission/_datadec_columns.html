@@ -1,14 +1,14 @@
 {% if submission.datadecs %}
 <table class="table table-striped table-bordered" data-url="{{ url_for('list_submission_datadecs',sub_id=submission.id) }}">
     {% if  not readonly %}
-    <span class="label label-info label-large">Data Declarations</span><br/><br/>
+    <span class="label label-default  label-large">Data Declarations</span><br/><br/>
     {% endif %}
     <thead>
     <tr>
         <th rowspan="2">Title</th>
-        <th rowspan="2">Source Study</th>
+        <th rowspan="2">Source Study/Cohort</th>
         <th rowspan="2">Data Type(s)</th>
-        <th colspan="4" align="center">Data Protection Information</th>
+        <th colspan="4">Data Protection</th>
         {% if not readonly %}
         <th rowspan="2">Actions</th>
         {% endif %}

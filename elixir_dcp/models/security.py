@@ -12,8 +12,8 @@ class User(db.Model):
     phone_no = db.Column(db.String)
     addr_line1 = db.Column(db.String)
     addr_line2 = db.Column(db.String)
-    institution = db.Column(db.String, nullable=False)
-    institution_division = db.Column(db.String)
+    institution_accession = db.Column(db.String, nullable=False)
+    institution_division = db.Column(db.String, nullable=True)
 
     assigned_roles = db.relationship('Role', secondary='users_roles')
 

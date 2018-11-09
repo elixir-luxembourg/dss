@@ -17,46 +17,27 @@ function displayInlineSuccess(msg) {
     resetTimeOut();
 }
 
+//
+// function scroll_to_top() {
+//
+//     $("html, body").animate({scrollTop: 0}, "slow");
+//
+//     return false;
+//
+// }
 
-function scroll_to_top() {
+$(document).ajaxStart(function ()
+{
+    $('body').addClass('wait');
 
-    $("html, body").animate({scrollTop: 0}, "slow");
+}).ajaxComplete(function () {
 
-    return false;
+    $('body').removeClass('wait');
 
-}
-
-
+});
 $(document).ready(function () {
 
     var VALIDATION_ERROR = "BAD REQUEST";
-
-
-
-    $('#form_submission_basics').on('keyup change paste', 'input, select, textarea', function(){
-        $('#btn_save_submission_basics').attr('disabled', false);
-    });
-
-    $('#btn_save_submission_basics').attr('disabled', true);
-
-
-    $("#inline_add_new_button").click(function () {
-        var endpoint = $(this).attr('data-url');
-
-        $.ajax({
-            url: endpoint,
-            type: "get",
-            success: function (result) {
-                $("#inline_form_container").html(result);
-                $('#inline_form_container').show();
-                bind_widgets();
-            },
-            error: function () {
-                alert('An error occurred while trying to load form to add new records.');
-            }
-        });
-        $("#inline_form_container").show();
-    });
 
 
     function bind_widgets() {
@@ -96,7 +77,8 @@ $(document).ready(function () {
                 var target = $($(this).data("target"));
                 console.log(target);
                 var oldrow = target.find("[data-toggle=fieldset-entry]:last");
-                oldrow.find(".elx-select").select2('destroy');
+                //We'd need the below calls for FormField containing selects
+                //oldrow.find(".elx-select").select2('destroy');
                 var row = oldrow.clone(true, true);
                 console.log(row.find(":input")[0]);
                 var elem_id = row.find(":input")[0].id;
@@ -109,12 +91,13 @@ $(document).ready(function () {
                 });
 
                 oldrow.after(row);
-                oldrow.find(".elx-select").select2({
-                    minimumResultsForSearch: -1
-                });
-                row.find(".elx-select").select2({
-                    minimumResultsForSearch: -1
-                });
+                //We'd need the below calls for FormField containing selects
+                // oldrow.find(".elx-select").select2({
+                //     minimumResultsForSearch: -1
+                // });
+                // row.find(".elx-select").select2({
+                //     minimumResultsForSearch: -1
+                // });
             }); //End add new entry
 
             //Remove row
@@ -138,7 +121,6 @@ $(document).ready(function () {
 
     $("#submission_commands_bar").on('click', 'a[name="button_submission_editor_steer"]', function () {
         var endpoint = $(this).attr('data-url');
-
         var res = confirmDialog("steer this Submission to next state").done(function () {
             $.ajax({
                 url: endpoint,
@@ -156,7 +138,7 @@ $(document).ready(function () {
 
     $("#submission_commands_bar").on('click', 'a[name="button_submission_editor_revert"]', function () {
         var endpoint = $(this).attr('data-url');
-        confirmDialog("revert this Submission to its previous state").done(function () {
+        var res = confirmDialog("revert this Submission to its previous state").done(function () {
             $.ajax({
                 url: endpoint,
                 type: "get",
@@ -171,7 +153,48 @@ $(document).ready(function () {
         });
     });
 
+    $("#submission_commands_bar").on('click', 'a[name="button_bean_edit"]', function () {
+        var endpoint = $(this).attr('data-url');
+        $.ajax({
+            url: endpoint,
+            type: "get",
+            success: function (result) {
+                $("#modal_form_container").html(result);
+                bind_widgets();
+                $("#bean_edit_modal").modal('show');
 
+            },
+            error: function () {
+                alert('An error occurred while trying to load edit form.');
+            }
+        });
+    });
+
+    $("#modal_form_container").on('click', 'a#bean_save', function () {
+        $.ajax({
+            url: $('#bean_form').attr('data-url'),
+            type: 'post',
+            data: $('#bean_form').serialize(),
+            success: function (result) {
+                location.reload()
+            },
+            error: function (xhr, status, error) {
+                if (error === VALIDATION_ERROR) {
+                    $("#modal_form_container").html(xhr.responseText);
+                    //displayInlineError("Please check the validity of your input in highlighted places");
+                    bind_widgets();
+                }
+            }
+
+        });
+    });
+
+
+    $("#modal_form_container").on('click', 'a#bean_cancel', function () {
+
+        $("#modal_form_container").html("");
+        $('#bean_edit_modal').modal('hide')
+    });
     /**
      *
      *
@@ -180,6 +203,23 @@ $(document).ready(function () {
      *
      */
 
+    $("#inline_add_new_button").click(function () {
+        var endpoint = $(this).attr('data-url');
+
+        $.ajax({
+            url: endpoint,
+            type: "get",
+            success: function (result) {
+                $("#inline_form_container").html(result);
+                $('#inline_form_container').show();
+                bind_widgets();
+            },
+            error: function () {
+                alert('An error occurred while trying to load form to add new records.');
+            }
+        });
+        $("#inline_form_container").show();
+    });
 
 
     $("#inline_form_container").on('click', 'a#inline_bean_save', function () {

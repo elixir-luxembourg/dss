@@ -4,6 +4,9 @@ import enum
 import os
 import json
 
+from elixir_dcp.controllers.api_controllers import get_elu_partners
+from elixir_dcp.controllers.utils import dict_list_lookup
+
 
 class ContactType(db.Model):
     __tablename__ = 'contact_types'
@@ -118,17 +121,18 @@ class Submission(db.Model):
     __tablename__ = 'submissions'
     id = db.Column(db.Integer, Sequence('submission_id_seq'), primary_key=True)
     ref_name = db.Column(db.String(45), index=True, unique=True, nullable=False, default=uniqid())
-    title = db.Column(db.String(75))
+    title = db.Column(db.String(75), nullable=False)
     created_on = db.Column(db.Date, nullable=False)
     dish_finalised_on = db.Column(db.Date)
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
     exported = db.Column(db.Boolean, nullable=False, default=False)
     upload_instructions = db.Column(db.String)
+    institution_accession = db.Column(db.String)
 
     submission_scope = db.relationship('SubmissionScope')
     submission_scope_code = db.Column(db.String, db.ForeignKey('submission_scope.code'), nullable=False, default='e')
-    collab_local_custodian_json = db.Column(db.String)
-    collab_project_name = db.Column(db.String)
+    local_custodians_json = db.Column(db.String)
+    local_project_name = db.Column(db.String)
 
     submission_accesses = db.relationship('SubmissionAccess', cascade="all, delete-orphan")
 
@@ -154,6 +158,21 @@ class Submission(db.Model):
         for access in self.submission_accesses:
             result.append(access.user.first_name + ' ' + access.user.last_name.upper())
         return result
+
+    def provider_institute_name(self):
+        if self.institution_accession:
+            institutions = get_elu_partners()
+            return dict_list_lookup(institutions, 'elu_accession', self.institution_accession, 'name')
+        else:
+            return None
+
+
+    def local_custodians(self):
+        if self.local_custodians_json:
+            return json.loads(self.local_custodians_json)
+        else:
+            return []
+
 
     def uploads_instructions_lines(self):
         result = []
@@ -182,7 +201,7 @@ class StudyContact(db.Model):
     firstname = db.Column(db.String, nullable=False)
     surname = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
-    institution = db.Column(db.String, nullable=False)
+    address = db.Column(db.String, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('contact_types.id'), nullable=False)
     contact_category = db.relationship('ContactType')
     study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'), nullable=False)
@@ -252,8 +271,10 @@ class SubmissionDataDeclaration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-    study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'), nullable=False)
+    study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'), nullable=True)
     study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
+
+    cohort_accession =  db.Column(db.String, nullable=True)
 
     estimate_data_size_code = db.Column(db.String, db.ForeignKey('data_size_category.code'), nullable=False, default='s')
     data_types_json = db.Column(db.String, nullable=False)

@@ -1,7 +1,7 @@
 {% if submission.uploadinfos %}
     <table  class="table table-striped table-bordered" data-url="{{ url_for('list_submission_uploadinfos',sub_id=submission.id) }}">
         {% if  not readonly %}
-        <span class="label label-info label-large">File Checksums</span><br/><br/>
+        <span class="label label-default  label-large">File Checksums</span><br/><br/>
         {% endif %}
         <thead>
         <tr>

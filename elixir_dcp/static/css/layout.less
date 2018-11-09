@@ -46,6 +46,12 @@ footer {
   padding: 0;
 }
 
+.ui-dialog-titlebar {
+  background-color: @brand-primary;
+}
+.ui-dialog-titlebar-close {
+  visibility: hidden;
+}
 .block {
   border: 1px solid #999;
   background-color: white;
@@ -57,7 +63,6 @@ footer {
   padding: 0;
   margin: 0 0 20px;
 }
-
 
 .form-group .help-block {
   display: block;
@@ -292,4 +297,8 @@ legend
 .label-large {
   vertical-align: super;
   font-size: large;
+}
+body.wait *, body.wait
+{
+  cursor: progress !important;
 }

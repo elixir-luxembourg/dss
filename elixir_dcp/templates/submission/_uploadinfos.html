@@ -5,6 +5,9 @@
 {{ super() }}
 {% endblock %}
 
+{% block inline_header_message %}
+<p>Once you upload data files, please register file checksums. This is required for file verification.</p>
+{% endblock %}
 
 {% block inline_columns %}
 {% include 'submission/_uploadinfo_columns.html' %}

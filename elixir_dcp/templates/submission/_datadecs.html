@@ -5,6 +5,10 @@
 {{ super() }}
 {% endblock %}
 
+{% block inline_header_message %}
+<p>In this section you should declare the data that you will be submitting to us.</p><br/>
+{% endblock %}
+
 {% block inline_columns %}
 {% include 'submission/_datadec_columns.html' %}
 {% endblock %}

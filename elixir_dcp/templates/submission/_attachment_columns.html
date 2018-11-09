@@ -1,7 +1,7 @@
 {% if submission.attachments %}
     <table  class="table table-striped table-bordered" data-url="{{ url_for('list_submission_attachments',sub_id=submission.id) }}">
         {% if  not readonly %}
-        <span class="label label-info label-large">Attachments</span><br/><br/>
+        <span class="label label-default label-large">Attachments</span><br/><br/>
         {% endif %}
         <thead>
         <tr>

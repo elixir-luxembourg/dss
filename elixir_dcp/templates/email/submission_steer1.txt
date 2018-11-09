@@ -5,7 +5,7 @@ ELIXIR Luxembourg has shared with the following Data Submission session. The nex
 
 Ref Name: {{ submission.ref_name }}
 Title: {{ submission.title }}
-Submission Page: {{ url_for('edit_submission',sub_id=submission.id, _external=True) }}
+Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
 
 
 Regards

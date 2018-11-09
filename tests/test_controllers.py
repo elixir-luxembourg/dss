@@ -80,6 +80,6 @@ class ControllersTest(BaseIntegrationTest):
 #         self.assert200(response)
 
 #
-# "collab_local_custodian": ['Some PI', 'Some other PI'],
-# "collab_project_name": "",
+# "local_custodians": ['Some PI', 'Some other PI'],
+# "local_project_name": "",
 # "provider_user_ids": [data_provider.id]

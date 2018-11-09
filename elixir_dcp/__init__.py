@@ -15,6 +15,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wkhtmltopdf import Wkhtmltopdf
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
+from flask_caching import Cache
 
 import elixir_dcp.assets as assets
 import elixir_dcp.exceptions as exceptions
@@ -33,6 +34,8 @@ def create_application():
     new_app.config['ENV'] = ELIXIR_DCP_ENV
     new_app.jinja_env.add_extension('jinja2.ext.i18n')
 
+    new_app.cache = Cache(new_app, config=new_app.config['CACHE_CONFIG'])
+    new_app.cache.clear()
 
     handler = RotatingFileHandler('elixir_dcp_app.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.ERROR)
