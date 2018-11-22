@@ -1,14 +1,12 @@
+<span class="badge badge-dark">Studies</span><br/><br/>
 {% if submission.studies %}
 <table class="table table-striped table-bordered"
        data-url="{{ url_for('list_submission_studies',sub_id=submission.id) }}">
-    {% if  not readonly %}
-    <span class="label label-default  label-large">Studies</span><br/><br/>
-    {% endif %}
     <thead>
     <tr>
         <th width="25%">Study Name</th>
         <th width="25%">Study Types</th>
-        <th width="25%">Study Contact Names</th>
+        <th width="25%">Contacts</th>
         {% if not readonly %}
         <th width="15%">Actions</th>
         {% endif %}

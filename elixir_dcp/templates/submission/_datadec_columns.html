@@ -1,8 +1,8 @@
+
+<span class="badge badge-dark">Data Declarations</span><br/><br/>
+
 {% if submission.datadecs %}
 <table class="table table-striped table-bordered" data-url="{{ url_for('list_submission_datadecs',sub_id=submission.id) }}">
-    {% if  not readonly %}
-    <span class="label label-default  label-large">Data Declarations</span><br/><br/>
-    {% endif %}
     <thead>
     <tr>
         <th rowspan="2">Title</th>
@@ -15,7 +15,7 @@
     </tr>
     <tr>
         <th>De-Identification</th>
-        <th>Special Subjects?</th>
+        <th>Special Subjects</th>
         <th>Consent Status</th>
         <th>Use Conditions</th>
     </tr>
