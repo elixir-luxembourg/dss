@@ -86,6 +86,8 @@ class TestConfig(Config):
     # OIDC config
     OIDC_CLIENT_SECRETS = os.path.join(basedir, 'client_secrets.json')
 
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
+
     ASSETS_DEBUG = True
     TESTING = True
     CACHE_CONFIG = {'CACHE_TYPE': 'null'}
