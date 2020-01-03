@@ -66,17 +66,20 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                          ('MicroRNA_array', 'MicroRNA_array'),
                          ('Metabolomics', 'Metabolomics'),
                          ('Proteomics', 'Proteomics'),
-                         ('Other_omics_data', 'Other_omics_data'),
-
+                         ('Other_omics_data', 'Other_omics_data')
                      )),
                      ('Imaging', (
                          ('Clinical_Imaging', 'Clinical_Imaging'),
-                         ('Cell_Imaging', 'Cell_Imaging')
+                         ('Cell_Imaging', 'Cell_Imaging'),
+                         ('Other_Imaging', 'Other_Imaging')
                      )),
                      ('Human_subject_data', (
                          ('Clinical_data', 'Clinical_data'),
                          ('Lifestyle_data', 'Lifestyle_data'),
                          ('Socio_Economic_Data', 'Socio_Economic_Data'),
+                         ('Ethnic_origin', 'Ethnic_origin'),
+                         ('Biometric_data', 'Biometric_data'),
+                         ('Disease_status', 'Disease_status'),
                          ('Other_Phenotype_data', 'Other_Phenotype_data')
                      )),
                      ('Other', 'Other')
@@ -203,7 +206,7 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                          ]
                      }
                  ],
-                 'collab_institutions': [
+                 'partners': [
                      {
                          "elu_accession": "ELU_I_1",
                          "name": "Integrated Biobank of Luxembourg",
