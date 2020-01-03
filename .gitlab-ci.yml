@@ -1,0 +1,12 @@
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+  - template: SAST.gitlab-ci.yml
+sast:
+  tags: 
+      - privileged
+dependency_scanning:
+  tags: 
+      - privileged
+services:
+- name: docker:stable-dind
+  command: ["--mtu=1458"]
