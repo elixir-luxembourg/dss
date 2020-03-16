@@ -14,7 +14,15 @@ Install dependencies with:
  
 ```bash
 pip install -e .[dev]
+
+# In case of using zsh as your shell, try the following:
+bash -c pip install -e .[dev]
 ```
+
+## Requirements
+ - Python 3.6 or newer
+ - JDK (OpenJDK 11 suffices) 
+ - nodejs and less (`npm install -g less`) 
  
 ## Configuration
 
