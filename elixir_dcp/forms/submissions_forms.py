@@ -165,8 +165,8 @@ class SubmissionForm(FlaskForm):
         self.submission_scope_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['submission_scope']]
         self.local_custodians.choices = [(c, c) for c in app.config.get('DATA_INIT')['lcsb_pis']]
         self.institution_accession.choices = [(c["elu_accession"],
-                                               c["name"] + ' - ' + c["acronym"] if 'acronym' in c else c[
-                                                   "name"]) for c in
+                                               f'{c["name"]} - {c["acronym"]}' if 'acronym' in c and c['acronym'] is not None and 'name' in c else c[
+                                                   "name"] if 'name' in c else '-') for c in
                                               get_elu_partners()]
 
 
