@@ -27,19 +27,19 @@ class ControllersTest(BaseIntegrationTest):
         #
 
         response = self.client.get(url_for('list_submissions'))
-        self.assert403(response)
+        self.assertEqual(response.status_code, 302)
 
         response = self.client.get(url_for('edit_user', user_id=0))
-        self.assert403(response)
+        self.assertEqual(response.status_code, 302)
 
         response = self.client.get(url_for('revert_submission', sub_id=0))
-        self.assert403(response)
+        self.assertEqual(response.status_code, 302)
 
         response = self.client.get(url_for('send_notification', notification_id=0))
-        self.assert403(response)
+        self.assertEqual(response.status_code, 302)
 
         response = self.client.get(url_for('list_notifications'))
-        self.assert403(response)
+        self.assertEqual(response.status_code, 302)
 
 
     def test_access_control2(self):
