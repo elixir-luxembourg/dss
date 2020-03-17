@@ -84,7 +84,7 @@ class TestConfig(Config):
 
     AUTHENTICATION_METHOD = 'CONFIG'  # Possible methods is 'AAI' or 'CONFIG'
     # a dict containing user and password items for CONFIG based authentication
-    AUTHENTICATION_DICT = {'pinar.alper@uni.lu': 'palper', 'pi@some.uni': 'user'}
+    AUTHENTICATION_DICT = {'pinar.alper@uni.lu': 'palper', 'kavita.rege@uni.lu': 'krege'}
 
     # OIDC config
     OIDC_CLIENT_SECRETS = os.path.join(basedir, 'client_secrets.json')
