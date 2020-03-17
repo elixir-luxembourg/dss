@@ -18,6 +18,15 @@ class ControllersTest(BaseIntegrationTest):
 
         self.assertIn("No submissions have been added.", response.data.decode('utf-8'))
 
+    def test_access_control2(self):
+        self.login("pinar.alper@uni.lu", "palper")
+
+        #
+        # User with an admin  role cannot access the following end point
+        #
+
+        response = self.client.get(url_for('list_my_submissions'))
+        self.assert403(response)
 
     def test_access_control1(self):
         self.login("kavita.rege@uni.lu", "krege")
@@ -41,16 +50,6 @@ class ControllersTest(BaseIntegrationTest):
         response = self.client.get(url_for('list_notifications'))
         self.assert403(response)
 
-
-    def test_access_control2(self):
-        self.login("pinar.alper@uni.lu", "palper")
-
-        #
-        # User with an admin  role cannot access the following end point
-        #
-
-        response = self.client.get(url_for('list_my_submissions'))
-        self.assert403(response)
 
 
     def test_submission_create_submission(self):
