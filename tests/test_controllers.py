@@ -18,30 +18,6 @@ class ControllersTest(BaseIntegrationTest):
 
         self.assertIn("No submissions have been added.", response.data.decode('utf-8'))
 
-
-    def test_access_control1(self):
-        self.login("kavita.rege@uni.lu", "krege")
-
-        #
-        # User with a data provider role cannot access the following end points
-        #
-
-        response = self.client.get(url_for('list_submissions'))
-        self.assertEqual(response.status_code, 302)
-
-        response = self.client.get(url_for('edit_user', user_id=0))
-        self.assertEqual(response.status_code, 302)
-
-        response = self.client.get(url_for('revert_submission', sub_id=0))
-        self.assertEqual(response.status_code, 302)
-
-        response = self.client.get(url_for('send_notification', notification_id=0))
-        self.assertEqual(response.status_code, 302)
-
-        response = self.client.get(url_for('list_notifications'))
-        self.assertEqual(response.status_code, 302)
-
-
     def test_access_control2(self):
         self.login("pinar.alper@uni.lu", "palper")
 
@@ -51,6 +27,29 @@ class ControllersTest(BaseIntegrationTest):
 
         response = self.client.get(url_for('list_my_submissions'))
         self.assert403(response)
+
+    def test_access_control1(self):
+        self.login("kavita.rege@uni.lu", "krege")
+
+        #
+        # User with a data provider role cannot access the following end points
+        #
+
+        response = self.client.get(url_for('list_submissions'))
+        self.assert403(response)
+
+        response = self.client.get(url_for('edit_user', user_id=0))
+        self.assert403(response)
+
+        response = self.client.get(url_for('revert_submission', sub_id=0))
+        self.assert403(response)
+
+        response = self.client.get(url_for('send_notification', notification_id=0))
+        self.assert403(response)
+
+        response = self.client.get(url_for('list_notifications'))
+        self.assert403(response)
+
 
 
     def test_submission_create_submission(self):
