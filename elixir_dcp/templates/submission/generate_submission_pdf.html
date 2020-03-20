@@ -37,7 +37,7 @@
             </tr>
             <tr>
                 <th scope="row">Date of Finalisation</th>
-                <td>{{ submission_rec.dish_finalised_on or '' }}</td>
+                <td>{{ submission_rec.finalised_on or '' }}</td>
             </tr>
             <tr>
                 <th scope="row">Category</th>
@@ -70,12 +70,12 @@
             <tr>
                 <th scope="row">Study Name</th>
                 <td>
-                    {{ study.study_name }}
+                    {{ study.name }}
                 </td>
             </tr>
             <tr>
                 <th scope="row">Study Description</th>
-                <td>{{ study.study_description }}</td>
+                <td>{{ study.description }}</td>
             </tr>
             <tr>
                 <th scope="row">Study Type</th>
@@ -123,7 +123,7 @@
                 <th scope="row">Source Study</th>
 
                 <td>{% if datadec.study %}
-                    {{ datadec.study.study_name }}
+                    {{ datadec.study.name }}
                     {% endif %}
                 </td>
             </tr>

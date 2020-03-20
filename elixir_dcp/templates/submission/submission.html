@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% set active_page = 'submission' %}
 {% import "forms_macros.html" as fmacros %}
-{% block title %}Submission Editor{% endblock %}
+{% block title %}View Submission{% endblock %}
 {% block js %}
 {{ super() }}
 {% assets "submission_editor_js" %}
@@ -17,7 +17,7 @@
         <div id="basicinfo" class="col-md-11">
             {% with %}
             {% set details = True %}
-                {% include 'submission/_submission_header.html' %}
+            {% include 'submission/_submission_header.html' %}
             {% endwith %}
         </div>
         {# SIDEBAR BUTTONS #}
@@ -26,136 +26,117 @@
                 <a {% if current_user.is_admin() %} href="{{ url_for('list_submissions') }}" {% else %}
                    href="{{ url_for('list_my_submissions') }}" {% endif %}
                    class="btn btn-info btn-lg"><span
-                        class="glyphicon glyphicon-remove-circle" style="font-size: xx-large"
+                        class="glyphicon glyphicon-remove-circle" style="font-size: large"
                         data-toggle="tooltip"
                         title="Close"></span>
                 </a>
                 {% if submission.current_status.next_state() is not none %}
-                    {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
-                    submission.current_status.step_num() ==2 %}
-                        <a name="button_submission_editor_steer"
-                           data-url="{{ url_for('steer_submission',sub_id=submission.id) }}"
-                           class="btn btn-info btn-lg"><span class="glyphicon glyphicon-forward"
-                                                             data-toggle="tooltip" style="font-size: xx-large"
-                                                             title="Proceed to {{ submission.current_status.next_state().value }}"></span>
-                        </a>
-                    {% endif %}
+                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+                submission.current_status.step_num() ==2 %}
+                <a name="button_submission_editor_steer"
+                   data-url="{{ url_for('steer_submission',sub_id=submission.id) }}"
+                   class="btn btn-info btn-lg"><span class="glyphicon glyphicon-forward"
+                                                     data-toggle="tooltip" style="font-size: large"
+                                                     title="Proceed to {{ submission.current_status.next_state().value }}"></span>
+                </a>
+                {% endif %}
                 {% endif %}
                 {% if submission.current_status.prev_state() is not none %}
-                    {% if current_user.is_admin() %}
-                        <a name="button_submission_editor_revert"
-                           data-url="{{ url_for('revert_submission',sub_id=submission.id) }}"
-                           class="btn btn-info btn-lg"><span class="glyphicon glyphicon-backward"
-                                                             data-toggle="tooltip" style="font-size: xx-large"
-                                                             title="Revert to {{ submission.current_status.prev_state().value }}"></span>
-                        </a>
-                    {% endif %}
+                {% if current_user.is_admin() %}
+                <a name="button_submission_editor_revert"
+                   data-url="{{ url_for('revert_submission',sub_id=submission.id) }}"
+                   class="btn btn-info btn-lg"><span class="glyphicon glyphicon-backward"
+                                                     data-toggle="tooltip" style="font-size: large"
+                                                     title="Revert to {{ submission.current_status.prev_state().value }}"></span>
+                </a>
+                {% endif %}
                 {% endif %}
                 {% if current_user.is_admin() or submission.current_status.step_num() == 1 or submission.current_status.step_num()
                 ==2 %}
-                    <a name="button_bean_edit"
-                       data-url="{{ url_for('edit_submission',sub_id=submission.id) }}"
-                       class="btn btn-info btn-lg"><span class="glyphicon glyphicon-pencil"
-                                                         style="font-size: xx-large"
-                                                         data-toggle="tooltip"
-                                                         title="Edit"></span>
-                    </a>
+                <a name="button_submission_edit"
+                   href="{{ url_for('edit_submission',sub_id=submission.id) }}"
+                   class="btn btn-info btn-lg"><span class="glyphicon glyphicon-pencil"
+                                                     style="font-size: large"
+                                                     data-toggle="tooltip"
+                                                     title="Edit submission"></span>
+                </a>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<div class="row" id="tabs">
-    <ul>
-        <li><a href="#studies">Studies</a></li>
-        <li><a href="#datasets">Data</a></li>
-        {#
-        <li><a href="#attachments">Attachments</a></li>
-        #}
-        <li><a href="#uploadinfos">File Checksums</a></li>
+<div class="row block">
+    <h3>Submission Details <span class="badge badge-warning">incomplete</span></h3>
+    <ul class="nav nav-pills">
+        <li class="active"><a data-toggle="pill" href="#studies">Studies</a></li>
+        <li><a data-toggle="pill" href="#datasets">Data</a></li>
+        <li><a data-toggle="pill" href="#attachments">Attachments</a></li>
+        <li><a data-toggle="pill" href="#uploadinfos">File Checksums</a></li>
     </ul>
-    <div id="studies">
-        {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
-        submission.current_status.step_num() ==2 %}
-        <div class="row">
-            <a class="btn btn-primary btn-lg pull-right"
-               href="{{ url_for('inline_submission_studies',sub_id=submission.id) }}">
-                <span class="glyphicon glyphicon-option-horizontal" style="font-size: xx-large" data-toggle="tooltip"
-                      title="Go to Study Declarations"></span>
-            </a>
-        </div>
+    <div class="tab-content">
+        <div class="tab-pane fade in active" id="studies">
+            <div class="row">
+                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+                submission.current_status.step_num() ==2 %}
+                <a class="btn btn-primary btn-lg pull-right"
+                   href="{{ url_for('add_submission_study',sub_id=submission.id) }}">
 
-        {% endif %}
-        {% with %}
-        {% set inline_beans = submission.studies %}
-        {% set readonly = True %}
-        <div class="row">
-            {% include 'submission/_study_columns.html' %}
+                <span class="glyphicon glyphicon-plus" style="font-size: large" data-toggle="tooltip"
+                      title="Add New Study"></span>
+                </a>
+                {% endif %}
+            </div>
+            <div class="row">
+                {% include 'submission/_study_columns.html' %}
+            </div>
         </div>
-        {% endwith %}
-
-    </div>
-    <div id="datasets">
-        {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
-        submission.current_status.step_num() ==2 %}
-        <div class="row">
-            <a class="btn btn-primary btn-lg pull-right"
-               href="{{ url_for('inline_submission_datadecs',sub_id=submission.id) }}">
-                <span class="glyphicon glyphicon-option-horizontal" style="font-size: xx-large" data-toggle="tooltip"
-                      title="Go to Data Declarations"></span>
-            </a>
+        <div class="tab-pane"  id="datasets">
+            <div class="row">
+                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+                submission.current_status.step_num() ==2 %}
+                <a class="btn btn-primary btn-lg pull-right"
+                   href="{{ url_for('add_submission_datadec',sub_id=submission.id) }}">
+                <span class="glyphicon glyphicon-plus"  style="font-size: large" data-toggle="tooltip"
+                      title="Add New Data Declaration"></span>
+                </a>
+                {% endif %}
+            </div>
+            <div class="row">
+                {% include 'submission/_datadec_columns.html' %}
+            </div>
         </div>
-        {% endif %}
-        {% with %}
-        {% set datadecs = submission.datadecs %}
-        {% set readonly = True %}
-        <div class="row">
-            {% include 'submission/_datadec_columns.html' %}
+        <div class="tab-pane"  id="attachments">
+            <div class="row">
+                {% if current_user.is_admin() or submission.current_status.step_num() == 1 or
+                submission.current_status.step_num() ==2 %}
+                <a class="btn btn-primary btn-lg pull-right"
+                   href="{{ url_for('add_submission_attachment',sub_id=submission.id) }}">
+                <span class="glyphicon glyphicon-plus" style="font-size: large" data-toggle="tooltip"
+                      title="Add new Attachment"></span>
+                </a>
+                {% endif %}
+            </div>
+            <div class="row">
+                {% include 'submission/_attachment_columns.html' %}
+            </div>
         </div>
-        {% endwith %}
-    </div>
-    {#
-    <div id="attachments">
-        {% if current_user.is_admin() or submission.current_status.step_num() == 1 or
-        submission.current_status.step_num() ==2 %}
-        <div class="row">
-            <a class="btn btn-primary btn-lg pull-right"
-               href="{{ url_for('inline_submission_attachments',sub_id=submission.id) }}">
-                <span class="glyphicon glyphicon-option-horizontal" style="font-size: xx-large" data-toggle="tooltip"
-                      title="Go to Attachments"></span>
-            </a>
+        <div class="tab-pane"  id="uploadinfos">
+            <div class="row">
+                {% if current_user.is_admin() or submission.current_status.step_num() == 2 %}
+                <a class="btn btn-primary btn-lg pull-right"
+                   href="{{ url_for('add_submission_uploadinfo',sub_id=submission.id) }}">
+                <span class="glyphicon glyphicon-plus" style="font-size: large" data-toggle="tooltip"
+                      title="Add File Checksums"></span>
+                </a>
+                {% endif %}
+            </div>
+            <div class="row">
+                {% include 'submission/_uploadinfo_columns.html' %}
+            </div>
         </div>
-        {% endif %}
-        {% with %}
-        {% set attachments = submission.attachments %}
-        {% set readonly = True %}
-        <div class="row">
-            {% include 'submission/_attachment_columns.html' %}
-        </div>
-        {% endwith %}
-    </div>
-    #}
-    <div id="uploadinfos">
-        {% if current_user.is_admin() or submission.current_status.step_num() == 2 %}
-        <div class="row">
-            <a class="btn btn-primary btn-lg pull-right"
-               href="{{ url_for('inline_submission_uploadinfos',sub_id=submission.id) }}">
-                <span class="glyphicon glyphicon-option-horizontal" style="font-size: xx-large" data-toggle="tooltip"
-                      title="Go to File Checksums"></span>
-            </a>
-        </div>
-        {% endif %}
-        {% with %}
-        {% set uploadinfos = submission.uploadinfos %}
-        {% set readonly = True %}
-        <div class="row">
-            {% include 'submission/_uploadinfo_columns.html' %}
-        </div>
-        {% endwith %}
     </div>
 </div>
-
 
 <div class="container">
     <div class="modal fade" id="bean_edit_modal" tabindex="-1" role="dialog">
@@ -166,7 +147,7 @@
                 </div>
             </div><!-- modal-content -->
         </div><!-- modal-dialog -->
-    </div><!-- modal EDit Submission-->
+    </div><!-- modal Edit Submission-->
 </div>
 
 {% include 'submission/_submission_progress_bar.html' %}

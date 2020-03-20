@@ -49,7 +49,7 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                  'legal_basis': [['c', 'Consent'],
                                  ['l', 'Legitimate_Interest'],
                                  ['p', 'Public_Interest']],
-                 'submission_scope': [['e', 'ELIXIR-LU Repository'],
+                 'submission_scope': [['e', 'ELIXIR Luxembourg'],
                                       ['c', 'LCSB Collaborator']],
 
                  'data_types': (
@@ -927,7 +927,6 @@ START_UP_DATA = {'ga4gh_codes': [['NRES', 'No restrictions', 'No restrictions on
                               'Jens Schwamborn',
                               'Paul Wilmes',
                               'Emma Schymanski',
-                              'Ines Thiele',
                               'Jorge Goncalves',
                               'Rejko Krüger',
                               'Jochen Schneider',

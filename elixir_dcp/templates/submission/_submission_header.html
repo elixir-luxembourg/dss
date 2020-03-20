@@ -1,52 +1,42 @@
+<h3>Submission Overview <span class="badge badge-warning">incomplete</span></h3>
 <div class="row">
     <div class="form-group col-md-4">
-        <span class="badge badge-dark">Submission Ref.</span><br/><br/>
+        <label>Ref No</label><br/>
         <h4>{{ submission.ref_name }}</h4>
     </div>
     <div class="form-group col-md-4">
-        <span class="badge badge-dark">Title</span><br/><br/>
-        <h4>{{ submission.title }}</h4>
-    </div>
-    <div class="form-group col-md-4">
-        <span class="badge badge-dark">Created On</span><br/><br/>
+        <label>Created On</label><br/>
         <h4>{{ submission.created_on }}</h4>
     </div>
+    <div class="form-group col-md-4">
+        <label>Title</label><br/>
+        <h4>{{ submission.title }}</h4>
+    </div>
+
 </div>
 {% if details %}
 <div class="row">
     <div class="form-group col-md-4">
-        <span class="badge badge-dark">Submitting Institute</span><br/><br/>
+        <label>Submitting Institute</label><br/>
         <h4>{{ submission.provider_institute_name() | default('-', true)}}</h4>
     </div>
     <div class="form-group col-md-8">
-        <span class="badge badge-dark">Submitting Users</span><br/><br/>
+        <label>Submitting Users</label><br/>
         <h4>{{ submission.provider_user_names() | join(', ') }}</h4>
     </div>
 </div>
 <div class="row">
     <div class="form-group col-md-4">
-        <span class="badge badge-dark">Submission Category</span><br/><br/>
+        <label>Submission Category</label><br/>
         <h4>{{ submission.submission_scope.label}}</h4>
     </div>
     <div class="form-group col-md-4">
-        <span class="badge badge-dark">Recipient PIs</span><br/><br/>
+        <label>Recipient PIs</label><br/>
         <h4>{{ submission.local_custodians() | join(', ') }}</h4>
     </div>
     <div class="form-group col-md-4">
-        <span class="badge badge-dark">Recipient Project</span><br/><br/>
+        <label>Recipient Project</label><br/>
         <h4>{{ submission.local_project_name | default('-', true)}}</h4>
-    </div>
-</div>
-<div class="row">
-    <div class="form-group col-md-12">
-        <span class="badge badge-dark">Upload Instructions</span><br/><br/>
-        {% if submission.upload_instructions %}
-        {% for line in submission.uploads_instructions_lines() %}
-        <h4>{{ line|urlize(40, True, '_blank') }}</h4><br/>
-        {% endfor %}
-        {% else %}
-        <h4>Instructions are provided once you complete Study/Data Declaration and we create an upload link for you.</h4>
-        {% endif %}
     </div>
 </div>
 {% endif %}

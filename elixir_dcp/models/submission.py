@@ -43,25 +43,25 @@ class EmailNotification(db.Model):
     created_on = db.Column(db.Date, nullable=False)
 
 
-# class SubmissionAttachment(db.Model):
-#     __tablename__ = 'submission_attachments'
-#
-#     id = db.Column(db.Integer, primary_key=True)
-#     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-#     note = db.Column(db.String, nullable=False)
-#     folder_name = db.Column(db.String, nullable=False)
-#     file_names = db.Column(db.String, nullable=False)
-#
-#     def files_urls(self):
-#         if self.file_names is not None:
-#             result = []
-#             names = self.file_names.strip(' \t\n\r').split(" ")
-#             for name in names:
-#                 result.append(
-#                     (os.path.join(os.path.join(app.config.get('UPLOADS_SERVER_PATH'), self.folder_name), name), name))
-#                 return result
-#         else:
-#             return None
+class SubmissionAttachment(db.Model):
+    __tablename__ = 'submission_attachments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    note = db.Column(db.String, nullable=False)
+    folder_name = db.Column(db.String, nullable=False)
+    file_names = db.Column(db.String, nullable=False)
+
+    def files_urls(self):
+        if self.file_names is not None:
+            result = []
+            names = self.file_names.strip(' \t\n\r').split(" ")
+            for name in names:
+                result.append(
+                    (os.path.join(os.path.join(app.config.get('UPLOADS_SERVER_PATH'), self.folder_name), name), name))
+                return result
+        else:
+            return None
 
 
 class DeIdentificationType(db.Model):
@@ -123,21 +123,20 @@ class Submission(db.Model):
     ref_name = db.Column(db.String(45), index=True, unique=True, nullable=False, default=uniqid())
     title = db.Column(db.String(75), nullable=False)
     created_on = db.Column(db.Date, nullable=False)
-    dish_finalised_on = db.Column(db.Date)
+    finalised_on = db.Column(db.Date)
     current_status = db.Column(db.Enum(SubmissionStatusEnum), nullable=False, default=SubmissionStatusEnum.draft)
     exported = db.Column(db.Boolean, nullable=False, default=False)
-    upload_instructions = db.Column(db.String)
     institution_accession = db.Column(db.String)
-
+    submission_contacts = db.relationship("Contact", back_populates='submission',cascade="all, delete-orphan" )
     submission_scope = db.relationship('SubmissionScope')
     submission_scope_code = db.Column(db.String, db.ForeignKey('submission_scope.code'), nullable=False, default='e')
     local_custodians_json = db.Column(db.String)
     local_project_name = db.Column(db.String)
-
     submission_accesses = db.relationship('SubmissionAccess', cascade="all, delete-orphan")
+    notes = db.Column(db.String(250))
 
     studies = db.relationship("SubmissionStudy", cascade="all, delete-orphan")
-    #attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
+    attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
     datadecs = db.relationship("SubmissionDataDeclaration", cascade="all, delete-orphan")
     uploadinfos = db.relationship("SubmissionUploadInfo", cascade="all, delete-orphan")
 
@@ -174,13 +173,6 @@ class Submission(db.Model):
             return []
 
 
-    def uploads_instructions_lines(self):
-        result = []
-        if self.upload_instructions:
-            for line in self.upload_instructions.split('\n'):
-                result.append(line)
-        return result
-
     def is_elixir(self):
         if self.submission_scope_code == 'e':
             return True
@@ -194,21 +186,27 @@ class Submission(db.Model):
             return True
 
 
-class StudyContact(db.Model):
-    __tablename__ = 'study_contacts'
+
+class Contact(db.Model):
+    __tablename__ = 'contacts'
 
     id = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String, nullable=False)
-    surname = db.Column(db.String, nullable=False)
+    lastname = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
-    address = db.Column(db.String, nullable=False)
+    address = db.Column(db.String)
     category_id = db.Column(db.Integer, db.ForeignKey('contact_types.id'), nullable=False)
     contact_category = db.relationship('ContactType')
-    study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'), nullable=False)
+
+    study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'))
     study = db.relationship("SubmissionStudy", back_populates="study_contacts")
 
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'))
+    submission = db.relationship("Submission", back_populates="submission_contacts")
+
+
     def fullname(self):
-        return self.firstname + " " + self.surname.upper()
+        return self.firstname + " " + self.lastname.upper()
 
 
 class SubmissionUploadInfo(db.Model):
@@ -239,13 +237,16 @@ class SubmissionStudy(db.Model):
     # Study
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
-    study_name = db.Column(db.String, nullable=False)
-    study_description = db.Column(db.String, nullable=False)
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, nullable=False)
+    website = db.Column(db.String, nullable=True)
     ethics_approval_exists = db.Column(db.Boolean, nullable=False, default=False)
+    ethics_approval_no = db.Column(db.String, nullable=True)
     study_types_json = db.Column(db.String, nullable=False)
-    study_contacts = db.relationship("StudyContact", back_populates='study',cascade="all, delete-orphan" )
 
-    def study_type_names(self):
+    study_contacts = db.relationship("Contact", back_populates='study',cascade="all, delete-orphan" )
+
+    def study_feature_names(self):
 
         if self.study_types_json is not None:
             return json.loads(self.study_types_json)
@@ -253,15 +254,12 @@ class SubmissionStudy(db.Model):
         else:
             return []
 
-    def study_contacts_names(self, study_id):
-        contact_fullname = []
-        contacts = StudyContact.query.filter(StudyContact.study_id==study_id).all()
-        if contacts is not None:
-            for contact in contacts:
-                contact_fullname.append(contact.fullname())
-            return contact_fullname
-        else:
-            return []
+    def study_contacts_names(self):
+        contact_fullnames = []
+        for contact in self.study_contacts:
+            contact_fullnames.append(contact.fullname())
+        return contact_fullnames
+
 
 
 class SubmissionDataDeclaration(db.Model):

@@ -7,7 +7,7 @@ from wtforms.validators import DataRequired, Email, Regexp, Length
 
 from elixir_dcp.controllers.api_controllers import get_elu_partners, get_elu_cohorts
 from .validators import OptionalFieldValidator
-from elixir_dcp.models.submission import ContactType, GA4GHCodes, DUCCodeInstance, StudyContact, SubmissionStudy
+from elixir_dcp.models.submission import ContactType, GA4GHCodes, DUCCodeInstance, Contact, SubmissionStudy
 from elixir_dcp import app
 from elixir_dcp.models.services import get_active_users
 
@@ -45,7 +45,7 @@ class ContactForm(FlaskForm):
                                         Length(min=2, max=20,
                                                message="Must be 2 to 20 characters long.")],
                             render_kw={"placeholder": "Name"})
-    surname = StringField('Surname',
+    lastname = StringField('Surname',
                           validators=[DataRequired(),
                                       Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                       Length(min=2, max=20,
@@ -57,12 +57,14 @@ class ContactForm(FlaskForm):
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")],
                        render_kw={"placeholder": "Institutional e-mail"})
 
-    address = TextAreaField('Address/Notes', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+
+    address = TextAreaField('Division/Address', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                                 message="Can only contain letters, digits, dash, comma and dot.")])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
+
 
 
 class StudyForm(FlaskForm):
@@ -72,28 +74,32 @@ class StudyForm(FlaskForm):
     id = HiddenField('study_id')
     submission_id = HiddenField('Submission Id')
 
-    study_name = StringField('Study Name', validators=[DataRequired(), Regexp('^[\w\s\-]+$',
+    name = StringField('Study Name', validators=[DataRequired(), Regexp('^[\w\s\-]+$',
                                                                               message="Name must contain only letters, digits, underscore or dash")])
-    study_description = TextAreaField('Study Description',
+    description = TextAreaField('Study Description',
                                       description="Please provide a short description of the study.",
                                       render_kw={'rows': 3},
                                       validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                          message="Can only contain letters, digits, dash, comma and dot.")])
+    website = StringField('Study Website')
+
     ethics_approval_exists = BooleanField('Confirmation that Ethics Approval Exists',
                                           description="Confirmation that an ethics approval exists for the data collection, sharing and the purposes for which the data is shared.",
                                           default=False)
+    ethics_approval_no = StringField('Ethics/IRB Approval No')
+
     study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
                                       description="Please select the categories that would best characterise the study within which the data has been collected.")
 
-    study_contacts = FieldList(FormField(ContactForm, default=lambda: StudyContact()), min_entries=1,
-                               label='Contacts List')
+    study_contacts = FieldList(FormField(ContactForm, default=lambda: Contact()), min_entries=1,
+                                    label='Contacts List')
+
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         if 'sub_id' in kwargs:
             self.submission_id.data = kwargs['sub_id']
         self.study_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['study_types']]
-
 
 class UploadInfoForm(FlaskForm):
     """
@@ -141,13 +147,11 @@ class SubmissionForm(FlaskForm):
 
     id = HiddenField('Submission_Id')
 
-    title = StringField('Title', validators=[DataRequired(),
+    title = StringField('Submission Title', validators=[DataRequired(),
                                              Regexp('^[\w\s\-]+$',
                                                     message="Title must contain only letters, digits, underscore or dash"),
                                              Length(min=5, max=75,
                                                     message="Title must be between 5 & 75 characters")])
-
-    upload_instructions = TextAreaField('Upload Instructions', render_kw={"rows": "", "columns": "50"})
 
     provider_user_ids = SelectMultipleField('Submitting Users', coerce=int)
 
@@ -159,6 +163,13 @@ class SubmissionForm(FlaskForm):
                                                                                              message="Can only contain letters, digits and underscore.")])
     institution_accession = SelectField('Submitting Institution', validators=[DataRequired()])
 
+    submission_contacts = FieldList(FormField(ContactForm, default=lambda: Contact()), min_entries=3,
+                               label='Contacts List')
+
+    notes = TextAreaField('Remarks', render_kw={'rows': 3},
+                               validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                  message="Can only contain letters, digits, dash, comma and dot.")])
+
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in get_active_users()]
@@ -168,6 +179,7 @@ class SubmissionForm(FlaskForm):
                                                f'{c["name"]} - {c["acronym"]}' if 'acronym' in c and c['acronym'] is not None and 'name' in c else c[
                                                    "name"] if 'name' in c else '-') for c in
                                               get_elu_partners()]
+
 
 
 class DatadecForm(FlaskForm):
@@ -240,7 +252,7 @@ class DatadecForm(FlaskForm):
         self.de_identification_type_code.choices = [(c[0], c[1]) for c in
                                                     app.config.get('DATA_INIT')['deidentification_type']]
         self.data_types.choices = app.config.get('DATA_INIT')['data_types']
-        self.study_id.choices = [(-1, '-')] + [(study.id, study.study_name) for study in
+        self.study_id.choices = [(-1, '-')] + [(study.id, study.name) for study in
                                                SubmissionStudy.query.filter_by(submission_id=self.submission_id.data)]
         self.cohort_accession.choices = [('', '-')] + [(c["elu_accession"], c["title"]) for c in get_elu_cohorts()]
 

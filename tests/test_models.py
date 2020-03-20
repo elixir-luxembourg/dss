@@ -4,7 +4,7 @@ from tests import BaseTest
 
 from elixir_dcp.models.security import User
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionScope, SubmissionAccess, \
-    SubmissionDataDeclaration, SubmissionStudy, StudyContact, ContactType, DUCCodeInstance
+    SubmissionDataDeclaration, SubmissionStudy, Contact, ContactType, DUCCodeInstance
 from elixir_dcp.models.services import register_new_user, assign_role_to_user, create_sub, steer_sub, \
     update_submission_basic_info, revert_sub, deactivate_user, delete_sub, export_submission
 from elixir_dcp.exceptions import RecordLifecycleException
@@ -74,7 +74,6 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(sub.title, 'Test Submission')
         self.assertEqual(sub.ref_name, 'ELX_LU_SUB-1')
         self.assertEqual(sub.current_status, SubmissionStatusEnum.draft)
-        self.assertIsNone(sub.upload_instructions)
         self.assertIsNotNone(sub.created_on)
         self.assertEqual(sub.submission_scope_code, 'e')
 
@@ -86,7 +85,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(0, len(sub.datadecs))
         self.assertEqual(0, len(sub.uploadinfos))
         self.assertEqual(0, len(sub.provider_user_names()))
-        self.assertEqual(0, len(sub.uploads_instructions_lines()))
+        # self.assertEqual(0, len(sub.uploads_instructions_lines()))
         self.assertFalse(sub.has_providers())
 
 
@@ -183,13 +182,13 @@ class ModelPersistenceTest(BaseTest):
 
         study_rec = SubmissionStudy()
         study_rec.submission_id = submission_rec.id
-        study_rec.study_name = 'Test Study ABC'
-        study_rec.study_description = 'This study does blah blah...'
+        study_rec.name = 'Test Study ABC'
+        study_rec.description = 'This study does blah blah...'
         study_rec.ethics_approval_exists = True
         study_rec.study_types_json = json.dumps(["Interventional","Observational"])
-        c1 = StudyContact()
+        c1 = Contact()
         c1.firstname = "John"
-        c1.surname = "Doe"
+        c1.lastname = "Doe"
         c1.email = "john.doe@acme.edu"
         c1.address = "Some Address"
         c1.contact_category = ContactType.query.get_or_404(1)
