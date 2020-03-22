@@ -455,7 +455,7 @@ def edit_submission_datadec(datadec_id):
         if datadec_rec.sci_datatypes_json:
                 result_form.sci_datatypes.data = json.loads(datadec_rec.sci_datatypes_json)
         if datadec_rec.gdpr_datatypes_json:
-            result_form.sci_datatypes.data = json.loads(datadec_rec.gdpr_datatypes_json)
+            result_form.gdpr_datatypes.data = json.loads(datadec_rec.gdpr_datatypes_json)
         return render_template('submission/datadec_form.html', datadec_form=result_form), 200
     elif request.method == 'POST':
         posted_form = forms.DatadecForm(request.form)
