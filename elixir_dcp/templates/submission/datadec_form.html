@@ -27,85 +27,55 @@
                 <legend>General</legend>
                 {{ datadec_form.hidden_tag() }}
                 {{ fmacros.render_field_with_errors(datadec_form.title) }}
-                <div class="form-group row">
-                    <label  class="col-md-2">
-                        Data Source *
-                    </label>
-                </div>
-                <div class="form-group row">
-                    <div class="col-md-6">
-                        {{ fmacros.render_field_with_errors(datadec_form.study_id, div_col_class="col-md-6",clazz="elx-select")}}
-                    </div>
-                    <div class="col-md-6">
-                        {{ fmacros.render_field_with_errors(datadec_form.cohort_accession, div_col_class="col-md-6",clazz="elx-select")}}
-                    </div>
-                </div>
-                <div class="form-group row">
-                </div>
-                {{ fmacros.render_field_with_errors(datadec_form.legal_basis_collection_code, div_col_class="col-md-2",
-                clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(datadec_form.legal_basis_sharing_code, div_col_class="col-md-2",
-                clazz="elx-select") }}
-            </fieldset>
-            <div class="form-group row">
-            </div>
-            <fieldset>
-                <legend>Data</legend>
-                {{ fmacros.render_field_with_errors(datadec_form.estimate_data_size_code, div_col_class="col-md-2",
-                clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(datadec_form.data_types, clazz="elx-multi-select") }}
-                {{ fmacros.render_field_with_errors(datadec_form.data_notes) }}
-                {{ fmacros.render_field_with_errors(datadec_form.metadata_exists) }}
-            </fieldset>
-            <div class="form-group row">
-            </div>
-            <fieldset>
-                <legend>Data Protection</legend>
-                {{ fmacros.render_field_with_errors(datadec_form.subjects_minors) }}
-                {{ fmacros.render_field_with_errors(datadec_form.subjects_vulnerable) }}
-                {{ fmacros.render_field_with_errors(datadec_form.subjects_unable_to_consent) }}
-                {{ fmacros.render_field_with_errors(datadec_form.subjects_notes) }}
-                {{ fmacros.render_field_with_errors(datadec_form.consent_status_code, div_col_class="col-md-2",
-                clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(datadec_form.consent_notes) }}
+                {{ fmacros.render_field_with_errors(datadec_form.study_id, div_col_class="col-md-6",clazz="elx-select")}}
+                {{ fmacros.render_field_with_errors(datadec_form.gdpr_datatypes, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(datadec_form.gdpr_datatypes_notes) }}
+                {{ fmacros.render_field_with_errors(datadec_form.sci_datatypes, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(datadec_form.sci_datatypes_notes) }}
                 {{ fmacros.render_field_with_errors(datadec_form.de_identification_type_code, div_col_class="col-md-2",
                 clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(datadec_form.has_samples) }}
+                {{ fmacros.render_field_with_errors(datadec_form.samples_notes) }}
+                <fieldset>
+                    <legend>Legal Basis of Processing</legend>
+                    {{ fmacros.render_field_with_errors(datadec_form.legal_basis_collection_code, div_col_class="col-md-2",
+                    clazz="elx-select") }}
+                    {{ fmacros.render_field_with_errors(datadec_form.legal_basis_sharing_code, div_col_class="col-md-2",
+                    clazz="elx-select") }}
+                </fieldset>
+                <fieldset>
+                    <legend>Data Subjects and Consent</legend>
+                    {{ fmacros.render_field_with_errors(datadec_form.subject_category_code, div_col_class="col-md-2",
+                    clazz="elx-select") }}
+                    {{ fmacros.render_field_with_errors(datadec_form.has_special_subjects) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.special_subjects_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.consent_status_code, div_col_class="col-md-2",
+                    clazz="elx-select") }}
+                    {{ fmacros.render_field_with_errors(datadec_form.consent_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rs) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rs_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_pub) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_pub_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn_notes) }}
+                </fieldset>
+                <fieldset>
+                    <legend>Other Use Restrictions</legend>
+
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_gs) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_gs_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_other_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.access_form_required) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.dac_approval_required) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.dac_approval_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ip) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ip_notes) }}
+                </fieldset>
             </fieldset>
-            <div class="form-group row">
-            </div>
-            <fieldset>
-                <legend>Use Conditions</legend>
-                <div class="form-group row {% if datadec_form.duc_codes.errors %}has-error{% endif %}">
-                    <div class="col-md-10">
-                        <div data-toggle="fieldset" id="duc-codes-fieldset">
-                            <button type="button" data-toggle="fieldset-add-row" data-target="#duc-codes-fieldset">+
-                            </button>
-                            <table style="width:900px">
-                                <tr>
-                                    <th width="40%">Category</th>
-                                    <th width="55%">Restriction Notes</th>
-                                    <th width="5%"></th>
-                                </tr>
-                                {% for duc_code_instance in datadec_form.duc_codes %}
-                                <tr data-toggle="fieldset-entry">
-                                    <td>{{ duc_code_instance.ga4gh_code }}</td>
-                                    <td>{{ duc_code_instance.note(rows='3',cols='65')}}</td>
-                                    <td>
-                                        <button type="button" data-toggle="fieldset-remove-row"
-                                                id="duc-code-{{ loop.index0 }}-remove">-
-                                        </button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </table>
-                        </div>
-                        {% if datadec_form.duc_codes.errors %}
-                        {% for error in datadec_form.duc_codes.errors %}<p class="help-block">{{ error }}</p>
-                        {% endfor %}
-                        {% endif %}
-                    </div>
-                </div>
-            </fieldset>
+
+
             <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
         </form>
         <a href="{{ url_for('view_submission',sub_id=datadec_form.submission_id.data) }}" role="button">Cancel</a>

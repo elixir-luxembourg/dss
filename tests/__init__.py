@@ -4,7 +4,7 @@ from elixir_dcp import db, app
 from elixir_dcp.models.security import Role
 from elixir_dcp.models.services import register_new_user, assign_role_to_user
 from elixir_dcp.models.submission import SubmissionScope, ConsentStatus, DeIdentificationType, LegalBasisType, \
-    ContactType, GA4GHCodes
+    ContactType
 from elixir_dcp.models.security import User
 
 __author__ = 'Pinar Alper'
@@ -25,13 +25,6 @@ class BaseTest(TestCase):
 
         for name_role in initial_data['names_roles']:
             db.session.add(Role(name=name_role))
-        #
-        # for category in initial_data['size_categories']:
-        #     db.session.add(DataSizeCategory(code=category[0], label=category[1]))
-        #
-        for code_triple in initial_data['ga4gh_codes']:
-            db.session.add(GA4GHCodes(code=code_triple[0], name=code_triple[1], description = code_triple[2]))
-
 
         for deid_type in initial_data['deidentification_type']:
             db.session.add(DeIdentificationType(code=deid_type[0], label=deid_type[1]))

@@ -432,8 +432,10 @@ def add_submission_datadec(sub_id):
             datadec_rec = SubmissionDataDeclaration()
             posted_form.populate_obj(datadec_rec)
             datadec_rec.id = None
-            if posted_form.data_types.data:
-                datadec_rec.data_types_json = json.dumps(posted_form.data_types.data)
+            if posted_form.sci_datatypes.data:
+                datadec_rec.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
+            if posted_form.gdpr_datatypes.data:
+                datadec_rec.gdpr_datatypes_json = json.dumps(posted_form.gdpr_datatypes.data)
             db.session.add(datadec_rec)
             db.session.commit()
             flash("Data declaration added", "success")
@@ -450,8 +452,10 @@ def edit_submission_datadec(datadec_id):
     if request.method == 'GET':
         datadec_rec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
         result_form = forms.DatadecForm(obj=datadec_rec)
-        if datadec_rec.data_types_json:
-            result_form.data_types.data = json.loads(datadec_rec.data_types_json)
+        if datadec_rec.sci_datatypes_json:
+                result_form.sci_datatypes.data = json.loads(datadec_rec.sci_datatypes_json)
+        if datadec_rec.gdpr_datatypes_json:
+            result_form.sci_datatypes.data = json.loads(datadec_rec.gdpr_datatypes_json)
         return render_template('submission/datadec_form.html', datadec_form=result_form), 200
     elif request.method == 'POST':
         posted_form = forms.DatadecForm(request.form)
@@ -460,8 +464,12 @@ def edit_submission_datadec(datadec_id):
             datadec_rec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
             posted_form.populate_obj(datadec_rec)
 
-            if posted_form.data_types.data:
-                datadec_rec.data_types_json = json.dumps(posted_form.data_types.data)
+            if posted_form.sci_datatypes.data:
+                datadec_rec.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
+
+            if posted_form.gdpr_datatypes.data:
+                datadec_rec.gdpr_datatypes_json = json.dumps(posted_form.gdpr_datatypes.data)
+
             db.session.add(datadec_rec)
             db.session.commit()
             flash("Data declaration updated", "success")

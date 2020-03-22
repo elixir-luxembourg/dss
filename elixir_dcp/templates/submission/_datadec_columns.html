@@ -3,9 +3,9 @@
     <thead>
     <tr>
         <th rowspan="2">Title</th>
-        <th rowspan="2">Source Study/Cohort</th>
+        <th rowspan="2">Source Study</th>
         <th rowspan="2">Data Type(s)</th>
-        <th colspan="4">Data Protection</th>
+        <th colspan="3">Data Protection</th>
         {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
         submission.current_status.step_num() ==2 %}
         <th rowspan="2">Actions</th>
@@ -15,7 +15,6 @@
         <th>De-Identification</th>
         <th>Special Subjects</th>
         <th>Consent Status</th>
-        <th>Use Conditions</th>
     </tr>
     </thead>
     {% for datadec in submission.datadecs %}
@@ -30,15 +29,8 @@
             </ul>
         </td>
         <td>{{ datadec.de_identification_type.label }}</td>
-        <td>{{ datadec.special_subjects_status_display() }}</td>
+        <td>{{ datadec.has_special_subjects_display() }}</td>
         <td>{{ datadec.consent_status.label }}</td>
-        <td>
-            <ul>
-                {% for code, name in datadec.duc_codes_names() %}
-                <li> {{ name }}</li>
-                {% endfor %}
-            </ul>
-        </td>
         {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
         submission.current_status.step_num() ==2 %}
         <td>

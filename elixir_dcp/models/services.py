@@ -328,31 +328,24 @@ def export_datadecs(sub: Submission):
         datadec_info['source_study'] = datadec.study.name
         datadec_info['legal_basis_data_collection'] = datadec.legal_basis_collection.label
         datadec_info['legal_basis_data_sharing'] = datadec.legal_basis_sharing.label
-        datadec_info['data_types'] = datadec.data_type_names()
-        if datadec.data_notes:
-            datadec_info['data_notes'] = datadec.data_notes
-        datadec_info['data_size_category'] = datadec.estimate_data_size_code
-        datadec_info['metadata_exists'] = datadec.metadata_exists
+        datadec_info['sci_datatypes'] = datadec.data_type_names()
+        if datadec.sci_datatypes_notes:
+            datadec_info['sci_datatypes_notes'] = datadec.sci_datatypes_notes
         datadec_info[
-            'has_special_subjects'] = datadec.subjects_unable_to_consent or datadec.subjects_vulnerable or datadec.subjects_minors
-        subj_notes = ''
-        if datadec.subjects_unable_to_consent: subj_notes += 'Subjects unable to consent. '
-        if datadec.subjects_vulnerable: subj_notes += 'Other vulnerable subjects. '
-        if datadec.subjects_minors: subj_notes += 'Subjects minors. '
-        if datadec.subjects_notes: subj_notes += datadec.subjects_notes
+            'has_special_subjects'] = datadec.has_special_subjects
 
-        if subj_notes: datadec_info['special_subject_notes'] = subj_notes
+        datadec_info['special_subject_notes'] = datadec.special_subjects_notes
 
         datadec_info['consent_status'] = datadec.consent_status.label.lower()
         if datadec.consent_notes: datadec_info['consent_notes'] = datadec.consent_notes
         datadec_info['de_identification'] = datadec.de_identification_type.label.lower()
         datadec_info['subject_categories'] = datadec.de_identification_type.label.lower()
-        use_restrictions = []
-        for duc_instance in datadec.duc_codes:
-            use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
-                                     'note': duc_instance.note})
-        if use_restrictions:
-            datadec_info['use_restrictions'] = use_restrictions
+        # use_restrictions = []
+        # for duc_instance in datadec.duc_codes:
+        #     use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
+        #                              'note': duc_instance.note})
+        # if use_restrictions:
+        #     datadec_info['use_restrictions'] = use_restrictions
         datadec_list.append(datadec_info)
     return datadec_list
 

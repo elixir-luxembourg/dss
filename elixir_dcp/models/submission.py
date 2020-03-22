@@ -14,18 +14,25 @@ class ContactType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
 
-
-class GA4GHCodes(db.Model):
-    __tablename__ = 'ga4gh_codes'
-
-    code = db.Column(db.String, primary_key=True)
-    name = db.Column(db.String, unique=True, nullable=False)
-    description = db.Column(db.String,  nullable=False)
+class DeIdentificationType(db.Model):
+    __tablename__ = 'deidentification_type'
+    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
+    label = db.Column(db.String, nullable=False)
 
 
-class DataSizeCategory(db.Model):
-    __tablename__ = 'data_size_category'
+class LegalBasisType(db.Model):
+    __tablename__ = 'legalbasis_type'
+    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
+    label = db.Column(db.String, nullable=False)
 
+
+class ConsentStatus(db.Model):
+    __tablename__ = 'consent_status'
+    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
+    label = db.Column(db.String, nullable=False)
+
+class SubjectCategory(db.Model):
+    __tablename__ = 'subject_category'
     code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
     label = db.Column(db.String, nullable=False)
 
@@ -62,24 +69,6 @@ class SubmissionAttachment(db.Model):
                 return result
         else:
             return None
-
-
-class DeIdentificationType(db.Model):
-    __tablename__ = 'deidentification_type'
-    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
-    label = db.Column(db.String, nullable=False)
-
-
-class LegalBasisType(db.Model):
-    __tablename__ = 'legalbasis_type'
-    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
-    label = db.Column(db.String, nullable=False)
-
-
-class ConsentStatus(db.Model):
-    __tablename__ = 'consent_status'
-    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
-    label = db.Column(db.String, nullable=False)
 
 
 class SubmissionStatusEnum(enum.Enum):
@@ -129,7 +118,7 @@ class Submission(db.Model):
     institution_accession = db.Column(db.String)
     submission_contacts = db.relationship("Contact", back_populates='submission',cascade="all, delete-orphan" )
     submission_scope = db.relationship('SubmissionScope')
-    submission_scope_code = db.Column(db.String, db.ForeignKey('submission_scope.code'), nullable=False, default='e')
+    submission_scope_code = db.Column(db.String, db.ForeignKey('submission_scope.code'), nullable=False, default='elu')
     local_custodians_json = db.Column(db.String)
     local_project_name = db.Column(db.String)
     submission_accesses = db.relationship('SubmissionAccess', cascade="all, delete-orphan")
@@ -218,18 +207,6 @@ class SubmissionUploadInfo(db.Model):
     md5_checksum_at_provider = db.Column(db.String(32), nullable=False)
 
 
-class DUCCodeInstance(db.Model):
-    __tablename__ = 'duc_code_instances'
-
-    id = db.Column(db.Integer, primary_key=True)
-    ga4gh_code = db.Column(db.String, db.ForeignKey('ga4gh_codes.code'), nullable=False)
-    note = db.Column(db.String(250))
-    datadec_id = db.Column(db.Integer, db.ForeignKey('submission_datadecs.id'), nullable=False)
-    datadec = db.relationship("SubmissionDataDeclaration", back_populates="duc_codes")
-
-    def get_duc_codes_name(self, ga4gh_code):
-        ga4gh_code_name =  GA4GHCodes.query.filter_by(code=ga4gh_code).one_or_none().name
-        return ga4gh_code_name
 
 
 class SubmissionStudy(db.Model):
@@ -272,56 +249,71 @@ class SubmissionDataDeclaration(db.Model):
     study_id = db.Column(db.Integer, db.ForeignKey('submission_study.id'), nullable=True)
     study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
 
-    cohort_accession =  db.Column(db.String, nullable=True)
+    # cohort_accession =  db.Column(db.String, nullable=True)
 
-    estimate_data_size_code = db.Column(db.String, db.ForeignKey('data_size_category.code'), nullable=False, default='s')
-    data_types_json = db.Column(db.String, nullable=False)
-    data_notes = db.Column(db.String, nullable=True)
-    metadata_exists = db.Column(db.Boolean, nullable=False, default=True)
+    gdpr_datatypes_json = db.Column(db.String, nullable=False)
+    gdpr_datatypes_notes = db.Column(db.String, nullable=True)
 
-    # Ethics & Data Protection
-    legal_basis_sharing_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='c')
-    legal_basis_sharing = db.relationship('LegalBasisType', foreign_keys=[legal_basis_sharing_code])
-
-    legal_basis_collection_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='c')
-    legal_basis_collection = db.relationship('LegalBasisType',  foreign_keys=[legal_basis_collection_code])
-
-    subjects_minors = db.Column(db.Boolean, nullable=False, default=False)
-    subjects_vulnerable = db.Column(db.Boolean, nullable=False, default=False)
-    subjects_unable_to_consent = db.Column(db.Boolean, nullable=False, default=False)
-    subjects_notes = db.Column(db.String, nullable=True)
-
-    consent_status_code = db.Column(db.String, db.ForeignKey('consent_status.code'), nullable=False, default='m')
-    consent_status = db.relationship('ConsentStatus', foreign_keys=[consent_status_code])
-
-    consent_notes = db.Column(db.String, nullable=True)
+    sci_datatypes_json = db.Column(db.String, nullable=False)
+    sci_datatypes_notes = db.Column(db.String, nullable=True)
 
     de_identification_type_code = db.Column(db.String, db.ForeignKey('deidentification_type.code'), nullable=False, default='p')
     de_identification_type = db.relationship('DeIdentificationType')
 
-    duc_codes = db.relationship("DUCCodeInstance", back_populates="datadec", cascade="all, delete-orphan")
+    has_samples = db.Column(db.Boolean, nullable=False, default=False)
+    samples_notes = db.Column(db.String, nullable=True)
 
+    # Ethics & Data Protection
+    legal_basis_sharing_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='61a')
+    legal_basis_sharing = db.relationship('LegalBasisType', foreign_keys=[legal_basis_sharing_code])
 
+    legal_basis_collection_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='61a')
+    legal_basis_collection = db.relationship('LegalBasisType',  foreign_keys=[legal_basis_collection_code])
+    subject_category_code = db.Column(db.String, db.ForeignKey('subject_category.code'), nullable=False, default='ca')
+    subject_category = db.relationship('SubjectCategory',  foreign_keys=[subject_category_code])
 
+    has_special_subjects = db.Column(db.Boolean, nullable=False, default=False)
+    special_subjects_notes = db.Column(db.String, nullable=True)
+
+    consent_status_code = db.Column(db.String, db.ForeignKey('consent_status.code'), nullable=False, default='hm')
+    consent_status = db.relationship('ConsentStatus', foreign_keys=[consent_status_code])
+    consent_notes = db.Column(db.String, nullable=True)
+
+    restriction_rs = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_rs_notes = db.Column(db.String, nullable=True)
+    restriction_gs = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_gs_notes = db.Column(db.String, nullable=True)
+    restriction_us = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_us_notes = db.Column(db.String, nullable=True)
+    restriction_pub = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_pub_notes = db.Column(db.String, nullable=True)
+    restriction_ts = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_ts_notes = db.Column(db.String, nullable=True)
+
+    restriction_ps = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_ps_notes = db.Column(db.String, nullable=True)
+    restriction_ts_lcsb = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_ts_lcsb_notes = db.Column(db.String, nullable=True)
+
+    restriction_rtn  = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_rtn_notes = db.Column(db.String, nullable=True)
+    restriction_other_notes = db.Column(db.String, nullable=True)
+    access_form_required  = db.Column(db.Boolean, nullable=False, default=False)
+    dac_approval_required  = db.Column(db.Boolean, nullable=False, default=False)
+    dac_approval_notes = db.Column(db.String, nullable=True)
+    restriction_ip  = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_ip_notes = db.Column(db.String, nullable=True)
 
     def data_type_names(self):
-        if self.data_types_json is not None:
+        if self.sci_datatypes_json is not None:
 
-            return json.loads(self.data_types_json)
+            return json.loads(self.sci_datatypes_json)
         else:
             return []
 
-    def duc_codes_names(self):
-        result = []
-        if self.duc_codes is not None:
 
-            for duc_code_instance in self.duc_codes:
-                result.append((duc_code_instance.ga4gh_code,
-                               GA4GHCodes.query.filter_by(code=duc_code_instance.ga4gh_code).one_or_none().name))
-        return result
-
-    def special_subjects_status_display(self):
-        if self.subjects_unable_to_consent or self.subjects_vulnerable or self.subjects_minors:
+    def has_special_subjects_display(self):
+        if self.has_special_subjects:
             return "Yes"
         else:
             return "No"

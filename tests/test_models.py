@@ -4,7 +4,7 @@ from tests import BaseTest
 
 from elixir_dcp.models.security import User
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionScope, SubmissionAccess, \
-    SubmissionDataDeclaration, SubmissionStudy, Contact, ContactType, DUCCodeInstance
+    SubmissionDataDeclaration, SubmissionStudy, Contact, ContactType
 from elixir_dcp.models.services import register_new_user, assign_role_to_user, create_sub, steer_sub, \
     update_submission_basic_info, revert_sub, deactivate_user, delete_sub, export_submission
 from elixir_dcp.exceptions import RecordLifecycleException
@@ -55,7 +55,7 @@ class ModelPersistenceTest(BaseTest):
     def test_create_submission(self):
 
 
-        self.assertEqual(2, len(SubmissionScope.query.all()))
+        self.assertEqual(18, len(SubmissionScope.query.all()))
 
 
         # con = db.session.connection()
@@ -75,17 +75,15 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(sub.ref_name, 'ELX_LU_SUB-1')
         self.assertEqual(sub.current_status, SubmissionStatusEnum.draft)
         self.assertIsNotNone(sub.created_on)
-        self.assertEqual(sub.submission_scope_code, 'e')
+        self.assertEqual(sub.submission_scope_code, 'elu')
 
         self.assertTrue(sub.is_deletable())
         self.assertFalse(sub.is_in_progress())
         self.assertEqual(0, len(sub.submission_accesses))
         self.assertEqual(0, len(sub.studies))
-        #self.assertEqual(0, len(sub.attachments))
         self.assertEqual(0, len(sub.datadecs))
         self.assertEqual(0, len(sub.uploadinfos))
         self.assertEqual(0, len(sub.provider_user_names()))
-        # self.assertEqual(0, len(sub.uploads_instructions_lines()))
         self.assertFalse(sub.has_providers())
 
 
@@ -202,16 +200,12 @@ class ModelPersistenceTest(BaseTest):
         datadec_rec.study_id = study_rec.id
         datadec_rec.title = 'Test datadec 1'
 
-        datadec_rec.estimate_data_size_code = 'm'
-        datadec_rec.data_types_json = json.dumps(["Genomics_variant_array","RNASeq"])
+
+        datadec_rec.sci_datatypes_json = json.dumps(["Genomics_variant_array","RNASeq"])
+        datadec_rec.gdpr_datatypes_json = json.dumps(["standard","ethnic"])
         datadec_rec.subjects_minors = True
         datadec_rec.subjects_notes = 'mothers and babies'
         datadec_rec.consent_notes = 'Consent is consistent among all subjects'
-
-        restriction1 =DUCCodeInstance()
-        restriction1.ga4gh_code = "NRES"
-        restriction1.note = "No known restrictions"
-        datadec_rec.duc_codes = [restriction1]
 
         db.session.add(datadec_rec)
         db.session.commit()
@@ -222,15 +216,12 @@ class ModelPersistenceTest(BaseTest):
         datadec_rec2.study_id = study_rec.id
         datadec_rec2.title = 'Test datadec 2'
 
-        datadec_rec2.estimate_data_size_code = 'l'
-        datadec_rec2.data_types_json = json.dumps(["Transcriptome_array","RNASeq"])
-        datadec_rec2.consent_status_code = 't'
+
+        datadec_rec2.sci_datatypes_json = json.dumps(["Transcriptome_array","RNASeq"])
+        datadec_rec2.gdpr_datatypes_json = json.dumps(["standard","ethnic"])
+        datadec_rec2.consent_status_code = 'ht'
         datadec_rec2.consent_notes = 'There are three primary consent groups'
 
-        restriction2 =DUCCodeInstance()
-        restriction2.ga4gh_code = "TS-[XX]"
-        restriction2.note = "Annual renewal of collaboration agreement is necessary"
-        datadec_rec2.duc_codes = [restriction2]
 
         db.session.add(datadec_rec2)
         db.session.commit()
