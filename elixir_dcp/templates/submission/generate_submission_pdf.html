@@ -37,7 +37,7 @@
             </tr>
             <tr>
                 <th scope="row">Date of Finalisation</th>
-                <td>{{ submission_rec.dish_finalised_on or '' }}</td>
+                <td>{{ submission_rec.finalised_on or '' }}</td>
             </tr>
             <tr>
                 <th scope="row">Category</th>
@@ -70,12 +70,12 @@
             <tr>
                 <th scope="row">Study Name</th>
                 <td>
-                    {{ study.study_name }}
+                    {{ study.name }}
                 </td>
             </tr>
             <tr>
                 <th scope="row">Study Description</th>
-                <td>{{ study.study_description }}</td>
+                <td>{{ study.description }}</td>
             </tr>
             <tr>
                 <th scope="row">Study Type</th>
@@ -123,27 +123,18 @@
                 <th scope="row">Source Study</th>
 
                 <td>{% if datadec.study %}
-                    {{ datadec.study.study_name }}
+                    {{ datadec.study.name }}
                     {% endif %}
                 </td>
             </tr>
-
             <tr>
-                <th scope="row">Subject Minors</th>
-                <td>{{ datadec.subjects_minors | replace("True","Yes") | replace("False","No") }}</td>
+                <th scope="row">Special Subjects </th>
+                <td>{{ datadec.has_special_subjects | replace("True","Yes") | replace("False","No") }}</td>
             </tr>
 
             <tr>
-                <th scope="row">Subjects those unable to consent</th>
-                <td>{{ datadec.subjects_unable_to_consent | replace("True","Yes") | replace("False","No") }}</td>
-            </tr>
-            <tr>
-                <th scope="row">Other Vulnerable Subjects</th>
-                <td>{{ datadec.subjects_vulnerable | replace("True","Yes") | replace("False","No") }}</td>
-            </tr>
-            <tr>
-                <th scope="row">Notes on Subjects</th>
-                <td>{{ datadec.subjects_notes }}</td>
+                <th scope="row">Notes on special subjects</th>
+                <td>{{ datadec.special_subjects_notes }}</td>
             </tr>
             <tr>
                 <th scope="row">Consent Status</th>
@@ -157,15 +148,7 @@
                 <th scope="row">De-Identification Type</th>
                 <td>{{ datadec.de_identification_type.label }}</td>
             </tr>
-            <tr>
-                <th scope="row">Use Restrictions</th>
-                <td>
-                    {% for code in datadec.duc_codes %}
-                    <h4>{{ code.get_duc_codes_name(code.ga4gh_code) }}</h4>
-                    <p>{{ code.note }}</p>
-                    {% endfor %}
-                </td>
-            </tr>
+
             {% endfor %}
         </table>
     </div>

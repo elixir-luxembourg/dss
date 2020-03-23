@@ -5,8 +5,8 @@ from flask_assets import ManageAssets
 from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell, Server
 from elixir_dcp import app, db
-from elixir_dcp.models.submission import ContactType, DataSizeCategory, GA4GHCodes, DeIdentificationType, \
-    LegalBasisType, ConsentStatus, SubmissionScope
+from elixir_dcp.models.submission import ContactType, DeIdentificationType, \
+    LegalBasisType, ConsentStatus, SubmissionScope, SubjectCategory
 from elixir_dcp.models.security import User, Role
 from elixir_dcp.models.services import assign_role_to_user, register_new_user
 
@@ -28,20 +28,17 @@ def init_db():
     for name_role in initial_data['names_roles']:
         db.session.add(Role(name=name_role))
 
-    for category in initial_data['size_categories']:
-        db.session.add(DataSizeCategory(code=category[0], label=category[1]))
-
-    for code_triple in initial_data['ga4gh_codes']:
-        db.session.add(GA4GHCodes(code=code_triple[0], name=code_triple[1], description=code_triple[2]))
+    for sub_category in initial_data['subject_category']:
+        db.session.add(SubjectCategory(code=sub_category[0], label=sub_category[1]))
 
     for deid_type in initial_data['deidentification_type']:
         db.session.add(DeIdentificationType(code=deid_type[0], label=deid_type[1]))
 
-    for lb_type in initial_data['legal_basis']:
-        db.session.add(LegalBasisType(code=lb_type[0], label=lb_type[1]))
-
     for cons_status in initial_data['consent_status']:
         db.session.add(ConsentStatus(code=cons_status[0], label=cons_status[1]))
+
+    for lb_type in initial_data['legal_basis']:
+        db.session.add(LegalBasisType(code=lb_type[0], label=lb_type[1]))
 
     for sub_scope in initial_data['submission_scope']:
         db.session.add(SubmissionScope(code=sub_scope[0], label=sub_scope[1]))
@@ -57,6 +54,21 @@ def init_db():
 
     return
 
+    u1 = User(first_name='P\u0131nar', last_name='Alper',
+              elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org', email='pinar.alper@uni.lu',
+              institution_accession='ELU_I_77',
+              phone_no='+352123456789')
+    register_new_user(u1)
+    assign_role_to_user(u1, 'admin')
+
+    return
+
+    u2 = User(first_name='Pinar', last_name='ALPER',
+              elixir_sub_id='428235bf8ea0d7fb3d742abd763d1701db6905bf@elixir-europe.org', email='pinarpink@yahoo.com',
+              institution_accession='ELU_I_51',
+              phone_no='+352123456789')
+    register_new_user(u2)
+    assign_role_to_user(u2, 'data_provider')
 
 
 # TODO I don't know what the below command does. FInd out.

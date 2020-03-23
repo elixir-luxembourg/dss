@@ -1,8 +1,26 @@
+{% extends "layout.html" %}
 {% import "forms_macros.html" as fmacros %}
+{% block title %}Attachment Form{% endblock %}
+{% block js %}
+{{ super() }}
+{% assets "select2_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "submission_editor_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% assets "select2_css" %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+{% endassets %}
+{% endblock %}
+{% block content %}
 <div class="panel panel-default">
-    <div class="panel-heading">New Attachment</div>
+    <div class="panel-heading">Add New Attachment</div>
     <div class="panel-body">
-        <form id="form_inline_bean" enctype="multipart/form-data"
+        <form method="POST" enctype="multipart/form-data"
               data-url="{{ url_for('add_submission_attachment', sub_id=attachment_form.submission_id.data)}}">
             {{ attachment_form.hidden_tag() }}
             {{ fmacros.render_field_with_errors(attachment_form.note) }}
@@ -16,9 +34,9 @@
                     {% endif %}
                 </div>
             </div>
+            <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
         </form>
-        <br></br>
-        <a id="submission_attachment_add" class="save btn btn-raised btn-primary" role="button">Save</a>
-        <a id="inline_bean_cancel" class="save btn btn-raised btn-primary" role="button">Cancel</a>
+        <a href="{{ url_for('view_submission',sub_id=attachment_form.submission_id.data) }}" role="button">Cancel</a>
     </div>
 </div>
+{% endblock %}

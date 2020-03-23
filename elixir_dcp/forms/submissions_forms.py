@@ -7,7 +7,8 @@ from wtforms.validators import DataRequired, Email, Regexp, Length
 
 from elixir_dcp.controllers.api_controllers import get_elu_partners, get_elu_cohorts
 from .validators import OptionalFieldValidator
-from elixir_dcp.models.submission import ContactType, GA4GHCodes, DUCCodeInstance, StudyContact, SubmissionStudy
+from elixir_dcp.models.submission import ContactType, Contact, SubmissionStudy, LegalBasisType, ConsentStatus, \
+    SubjectCategory, DeIdentificationType, SubmissionScope
 from elixir_dcp import app
 from elixir_dcp.models.services import get_active_users
 
@@ -45,7 +46,7 @@ class ContactForm(FlaskForm):
                                         Length(min=2, max=20,
                                                message="Must be 2 to 20 characters long.")],
                             render_kw={"placeholder": "Name"})
-    surname = StringField('Surname',
+    lastname = StringField('Surname',
                           validators=[DataRequired(),
                                       Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                       Length(min=2, max=20,
@@ -57,12 +58,14 @@ class ContactForm(FlaskForm):
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")],
                        render_kw={"placeholder": "Institutional e-mail"})
 
-    address = TextAreaField('Address/Notes', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+
+    address = TextAreaField('Division/Address', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                                 message="Can only contain letters, digits, dash, comma and dot.")])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
+
 
 
 class StudyForm(FlaskForm):
@@ -72,28 +75,32 @@ class StudyForm(FlaskForm):
     id = HiddenField('study_id')
     submission_id = HiddenField('Submission Id')
 
-    study_name = StringField('Study Name', validators=[DataRequired(), Regexp('^[\w\s\-]+$',
+    name = StringField('Study Name', validators=[DataRequired(), Regexp('^[\w\s\-]+$',
                                                                               message="Name must contain only letters, digits, underscore or dash")])
-    study_description = TextAreaField('Study Description',
+    description = TextAreaField('Study Description',
                                       description="Please provide a short description of the study.",
                                       render_kw={'rows': 3},
                                       validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                          message="Can only contain letters, digits, dash, comma and dot.")])
+    website = StringField('Study Website')
+
     ethics_approval_exists = BooleanField('Confirmation that Ethics Approval Exists',
                                           description="Confirmation that an ethics approval exists for the data collection, sharing and the purposes for which the data is shared.",
                                           default=False)
+    ethics_approval_no = StringField('Ethics/IRB Approval No')
+
     study_types = SelectMultipleField('Study Type(s)', validators=[DataRequired()],
                                       description="Please select the categories that would best characterise the study within which the data has been collected.")
 
-    study_contacts = FieldList(FormField(ContactForm, default=lambda: StudyContact()), min_entries=1,
-                               label='Contacts List')
+    study_contacts = FieldList(FormField(ContactForm, default=lambda: Contact()), min_entries=1,
+                                    label='Contacts List')
+
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         if 'sub_id' in kwargs:
             self.submission_id.data = kwargs['sub_id']
         self.study_types.choices = [(c, c) for c in app.config.get('DATA_INIT')['study_types']]
-
 
 class UploadInfoForm(FlaskForm):
     """
@@ -120,18 +127,6 @@ class UploadInfoForm(FlaskForm):
             self.submission_id.data = kwargs['sub_id']
 
 
-class UseConditionCodeForm(FlaskForm):
-    """
-    Form for creating an instance of a Ga4GH code to be included in a DUC group
-    """
-    ga4gh_code = SelectField('GA4GH Code')
-    note = TextAreaField('Note', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
-                                                                    message="Can only contain letters, digits, dash, comma and dot.")])
-
-    def __init__(self, *args, **kwargs):
-        FlaskForm.__init__(self, *args, **kwargs)
-        self.ga4gh_code.choices = [(c.code, c.name) for c in GA4GHCodes.query.all()]
-
 
 class SubmissionForm(FlaskForm):
     """
@@ -141,13 +136,11 @@ class SubmissionForm(FlaskForm):
 
     id = HiddenField('Submission_Id')
 
-    title = StringField('Title', validators=[DataRequired(),
+    title = StringField('Submission Title', validators=[DataRequired(),
                                              Regexp('^[\w\s\-]+$',
                                                     message="Title must contain only letters, digits, underscore or dash"),
                                              Length(min=5, max=75,
                                                     message="Title must be between 5 & 75 characters")])
-
-    upload_instructions = TextAreaField('Upload Instructions', render_kw={"rows": "", "columns": "50"})
 
     provider_user_ids = SelectMultipleField('Submitting Users', coerce=int)
 
@@ -159,15 +152,23 @@ class SubmissionForm(FlaskForm):
                                                                                              message="Can only contain letters, digits and underscore.")])
     institution_accession = SelectField('Submitting Institution', validators=[DataRequired()])
 
+    submission_contacts = FieldList(FormField(ContactForm, default=lambda: Contact()), min_entries=3,
+                               label='Contacts List')
+
+    notes = TextAreaField('Remarks', render_kw={'rows': 3},
+                               validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                  message="Can only contain letters, digits, dash, comma and dot.")])
+
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in get_active_users()]
-        self.submission_scope_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['submission_scope']]
+        self.submission_scope_code.choices = [(c.code, c.label) for c in SubmissionScope.query.all()]
         self.local_custodians.choices = [(c, c) for c in app.config.get('DATA_INIT')['lcsb_pis']]
         self.institution_accession.choices = [(c["elu_accession"],
                                                f'{c["name"]} - {c["acronym"]}' if 'acronym' in c and c['acronym'] is not None and 'name' in c else c[
                                                    "name"] if 'name' in c else '-') for c in
                                               get_elu_partners()]
+
 
 
 class DatadecForm(FlaskForm):
@@ -184,46 +185,98 @@ class DatadecForm(FlaskForm):
                                                          message="Title must be between 5 & 50 characters")])
 
     study_id = SelectField('Study', coerce=int,
-                           description="This field denotes a Study defined by you as part of the submission.")
+                           description="This field denotes a Study defined by you as part of the submission.", validators=[DataRequired()])
 
-    cohort_accession = SelectField('Cohort',
-                                   description="This field denotes a Cohort from  LCSB's common cohorts list.")
+    # cohort_accession = SelectField('Cohort',
+    #                                description="This field denotes a Cohort from  LCSB's common cohorts list.")
 
-    estimate_data_size_code = SelectField('Estimated Total Data Size',
-                                          description="Please select the estimated size of the dataset that will be subnmitted for this study.",
-                                          validators=[DataRequired()])
+    gdpr_datatypes = SelectMultipleField('GDPR Personal data categories',
+                                        description="Please select the categories that would best characterise the types of data within this dataset.",
+                                        validators=[DataRequired()])
 
-    data_types = SelectMultipleField('Data Type(s)',
+    gdpr_datatypes_notes = TextAreaField('Remarks on GDPR personal data categories', render_kw={'rows': 3},
+                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
+
+    sci_datatypes = SelectMultipleField('Scientific datatypes',
                                      description="Please select the categories that would best characterise the types of data within this dataset.",
                                      validators=[DataRequired()])
-    data_notes = TextAreaField('Notes/Comments', render_kw={'rows': 3},
+
+    sci_datatypes_notes = TextAreaField('Remarks on scientific datatypes', render_kw={'rows': 3},
                                validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
-                                                                  message="Can only contain letters, digits, dash, comma and dot.")])
 
-    metadata_exists = BooleanField('Is Metadata Provided',
-                                   description="Confirmation of whether metadata will be uploaded alongside data. As a minimum we would expect a Data Dictionary to be supplied alongside data.",
-                                   default=True)
+                                                                 message="Can only contain letters, digits, dash, comma and dot.")])
+    de_identification_type_code = SelectField('De-Identification Type', validators=[DataRequired()])
+    has_samples = BooleanField('Includes Samples', default=False)
+    samples_notes = StringField('Notes on samples')
 
-    # Ethics & Data Protection
+    # Legal basis TODO: clarify with domain experts.
 
     legal_basis_collection_code = SelectField('Legal Basis of Data Collection', validators=[DataRequired()])
     legal_basis_sharing_code = SelectField('Legal Basis of Data Sharing', validators=[DataRequired()])
-    subjects_minors = BooleanField('Subjects Minors', default=False)
-    subjects_vulnerable = BooleanField('Subjects Those Unable to Consent', default=False)
-    subjects_unable_to_consent = BooleanField('Other Vulnerable Subjects', default=False)
-    subjects_notes = TextAreaField('Notes on Subjects', render_kw={'rows': 3},
-                                   validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
-                                                                      message="Can only contain letters, digits, dash, comma and dot.")])
+
+
+    subject_category_code = SelectField('Subjects Cateory', validators=[DataRequired()])
+    has_special_subjects = BooleanField('Subjects Minors', default=False)
+    special_subjects_notes =TextAreaField('Notes on Subjects', render_kw={'rows': 3},
+                                      validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                         message="Can only contain letters, digits, dash, comma and dot.")])
+
+    # LUse restrictions originating from consent or elsewhere.
 
     consent_status_code = SelectField('Consent Status', validators=[DataRequired()])
     consent_notes = TextAreaField('Notes on Consent', render_kw={'rows': 3},
                                   validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                      message="Can only contain letters, digits, dash, comma and dot.")])
-    de_identification_type_code = SelectField('De-Identification Type', validators=[DataRequired()])
 
-    duc_codes = FieldList \
-        (FormField(UseConditionCodeForm, default=lambda: DUCCodeInstance()), min_entries=1,
-         label='Data Use Restrictions')
+    restriction_rs  = BooleanField('restriction_rs', default=False)
+    restriction_rs_notes =TextAreaField('restriction_ts_notes', render_kw={'rows': 3},
+                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
+
+    restriction_gs  = BooleanField('restriction_gs', default=False)
+    restriction_gs_notes =TextAreaField('restriction_gs_notes', render_kw={'rows': 3},
+                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
+    restriction_us  = BooleanField('restriction_gs', default=False)
+    restriction_us_notes =TextAreaField('restriction_gs_notes', render_kw={'rows': 3},
+                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
+
+    restriction_pub  = BooleanField('restriction_pub', default=False)
+    restriction_pub_notes =TextAreaField('restriction_pub_notes', render_kw={'rows': 3},
+                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
+    restriction_ts  = BooleanField('restriction_ts', default=False)
+    restriction_ts_notes =TextAreaField('restriction_ts_notes', render_kw={'rows': 3},
+                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                            message="Can only contain letters, digits, dash, comma and dot.")])
+    restriction_ps  = BooleanField('restriction_ts', default=False)
+    restriction_ps_notes =TextAreaField('restriction_ts_notes', render_kw={'rows': 3},
+                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
+
+    restriction_ts_lcsb  = BooleanField('restriction_ts', default=False)
+    restriction_ts_notes =TextAreaField('restriction_ts_notes', render_kw={'rows': 3},
+                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
+
+    restriction_rtn  = BooleanField('restriction_rtn', default=False)
+    restriction_rtn_notes =TextAreaField('restriction_rtn_notes', render_kw={'rows': 3},
+                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
+    restriction_other_notes =TextAreaField('restriction_other_notes', render_kw={'rows': 3},
+                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
+    access_form_required  = BooleanField('access_form_required', default=False)
+    dac_approval_required = BooleanField('dac_approval_required', default=False)
+    dac_approval_notes  = TextAreaField('dac_approval__notes', render_kw={'rows': 3},
+                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                            message="Can only contain letters, digits, dash, comma and dot.")])
+    restriction_ip = BooleanField('restriction_ip', default=False)
+    restriction_ip_notes =TextAreaField('restriction_ip_notes', render_kw={'rows': 3},
+                                     validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                                                        message="Can only contain letters, digits, dash, comma and dot.")])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
@@ -232,39 +285,40 @@ class DatadecForm(FlaskForm):
 
         if  self.submission_id.data is None:
             self.submission_id.data = -1
-
-        self.estimate_data_size_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['size_categories']]
-        self.legal_basis_sharing_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['legal_basis']]
-        self.legal_basis_collection_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['legal_basis']]
-        self.consent_status_code.choices = [(c[0], c[1]) for c in app.config.get('DATA_INIT')['consent_status']]
-        self.de_identification_type_code.choices = [(c[0], c[1]) for c in
-                                                    app.config.get('DATA_INIT')['deidentification_type']]
-        self.data_types.choices = app.config.get('DATA_INIT')['data_types']
-        self.study_id.choices = [(-1, '-')] + [(study.id, study.study_name) for study in
+        lb_lookup = [(c.code, c.label) for c in LegalBasisType.query.all()]
+        self.legal_basis_sharing_code.choices = lb_lookup
+        self.legal_basis_collection_code.choices = lb_lookup
+        self.consent_status_code.choices = [(c.code, c.label) for c in ConsentStatus.query.all()]
+        self.subject_category_code.choices = [(c.code, c.label) for c in SubjectCategory.query.all()]
+        self.de_identification_type_code.choices = [(c.code, c.label) for c in DeIdentificationType.query.all()]
+        self.sci_datatypes.choices = app.config.get('DATA_INIT')['sci_datatypes']
+        self.gdpr_datatypes.choices = app.config.get('DATA_INIT')['gdpr_datatypes']
+        self.study_id.choices = [(-1, '-')] + [(study.id, study.name) for study in
                                                SubmissionStudy.query.filter_by(submission_id=self.submission_id.data)]
-        self.cohort_accession.choices = [('', '-')] + [(c["elu_accession"], c["title"]) for c in get_elu_cohorts()]
+        # self.cohort_accession.choices = [('', '-')] + [(c["elu_accession"], c["title"]) for c in get_elu_cohorts()]
 
-    def source_stati(self):
-        empty_study = False
-        if self.study_id.data == -1:
-            empty_study = True
-        empty_cohort = False
-        if not self.cohort_accession.data:
-            empty_cohort =  True
-        return empty_study, empty_cohort
+    # def source_stati(self):
+    #     empty_study = False
+    #     if self.study_id.data == -1:
+    #         empty_study = True
+    #     empty_cohort = False
+    #     if not self.cohort_accession.data:
+    #         empty_cohort =  True
+    #     return empty_study, empty_cohort
+    #
+    #
+    # def validate(self):
+    #     rv = Form.validate(self)
+    #     if not rv:
+    #         return False
+    #     empty_study, empty_cohort = self.source_stati()
+    #     if empty_study and empty_cohort:
+    #         self.study_id.errors.append('Missing input, provide either a study or cohort.')
+    #         self.cohort_accession.errors.append('Missing input, provide either a study or cohort.')
+    #         return False
+    #     if empty_study:
+    #         self.study_id.data = None
+    #     if empty_cohort:
+    #         self.study_id.cohort = None
+    #     return True
 
-
-    def validate(self):
-        rv = Form.validate(self)
-        if not rv:
-            return False
-        empty_study, empty_cohort = self.source_stati()
-        if empty_study and empty_cohort:
-            self.study_id.errors.append('Missing input, provide either a study or cohort.')
-            self.cohort_accession.errors.append('Missing input, provide either a study or cohort.')
-            return False
-        if empty_study:
-            self.study_id.data = None
-        if empty_cohort:
-            self.study_id.cohort = None
-        return True

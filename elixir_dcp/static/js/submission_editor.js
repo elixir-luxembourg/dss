@@ -113,11 +113,6 @@ $(document).ready(function () {
     }
 
 
-    $(function () {
-        $("#tabs").tabs();
-
-    });
-
 
     $("#submission_commands_bar").on('click', 'a[name="button_submission_editor_steer"]', function () {
         var endpoint = $(this).attr('data-url');
@@ -153,134 +148,134 @@ $(document).ready(function () {
         });
     });
 
-    $("#submission_commands_bar").on('click', 'a[name="button_bean_edit"]', function () {
-        var endpoint = $(this).attr('data-url');
-        $.ajax({
-            url: endpoint,
-            type: "get",
-            success: function (result) {
-                $("#modal_form_container").html(result);
-                bind_widgets();
-                $("#bean_edit_modal").modal('show');
+    // $("#submission_commands_bar").on('click', 'a[name="button_bean_edit"]', function () {
+    //     var endpoint = $(this).attr('data-url');
+    //     $.ajax({
+    //         url: endpoint,
+    //         type: "get",
+    //         success: function (result) {
+    //             $("#modal_form_container").html(result);
+    //             bind_widgets();
+    //             $("#bean_edit_modal").modal('show');
+    //
+    //         },
+    //         error: function () {
+    //             alert('An error occurred while trying to load edit form.');
+    //         }
+    //     });
+    // });
 
-            },
-            error: function () {
-                alert('An error occurred while trying to load edit form.');
-            }
-        });
-    });
-
-    $("#modal_form_container").on('click', 'a#bean_save', function () {
-        $.ajax({
-            url: $('#bean_form').attr('data-url'),
-            type: 'post',
-            data: $('#bean_form').serialize(),
-            success: function (result) {
-                location.reload()
-            },
-            error: function (xhr, status, error) {
-                if (error === VALIDATION_ERROR) {
-                    $("#modal_form_container").html(xhr.responseText);
-                    //displayInlineError("Please check the validity of your input in highlighted places");
-                    bind_widgets();
-                }
-            }
-
-        });
-    });
-
-
-    $("#modal_form_container").on('click', 'a#bean_cancel', function () {
-
-        $("#modal_form_container").html("");
-        $('#bean_edit_modal').modal('hide')
-    });
-    /**
-     *
-     *
-     *  Inline Editor common handlers.
-     *
-     *
-     */
-
-    $("#inline_add_new_button").click(function () {
-        var endpoint = $(this).attr('data-url');
-
-        $.ajax({
-            url: endpoint,
-            type: "get",
-            success: function (result) {
-                $("#inline_form_container").html(result);
-                $('#inline_form_container').show();
-                bind_widgets();
-            },
-            error: function () {
-                alert('An error occurred while trying to load form to add new records.');
-            }
-        });
-        $("#inline_form_container").show();
-    });
-
-
-    $("#inline_form_container").on('click', 'a#inline_bean_save', function () {
-
-        $.ajax({
-            url: $('#form_inline_bean').attr('data-url'),
-            type: 'post',
-            data: $('#form_inline_bean').serialize(),
-            success: function (result) {
-                location.reload()
-
-            },
-            error: function (xhr, status, error) {
-                if (error === VALIDATION_ERROR) {
-
-                    $("#inline_form_container").html(xhr.responseText);
-                    displayInlineError("Please check the validity of your input in highlighted places");
-                    bind_widgets();
-                }
-            }
-
-        });
-    });
-
-    $("#inline_form_container").on('click', 'a#inline_bean_cancel', function () {
-
-        $("#inline_form_container").html("");
-        displayInlineError("Form cancelled");
-    });
-
-    $("#inline_columns_container").on('click', 'a#inline_listing_delete', function () {
-        delete_endpoint = $(this).attr('data-url');
-
-        $.ajax({
-            url: delete_endpoint,
-            type: "delete",
-            success: function () {
-                location.reload()
-            },
-            error: function () {
-                alert('An error occurred during deletion');
-            }
-        });
-
-    });
-
-    $("#inline_columns_container").on('click', 'a#inline_listing_edit', function () {
-        $.ajax({
-            url: $(this).attr('data-url'),
-            type: "get",
-            success: function (result) {
-                $("#inline_form_container").html(result);
-                $('#inline_form_container').show();
-                bind_widgets();
-
-            },
-            error: function () {
-                alert('An error occurred while loading the selected record');
-            }
-        });
-    });
+    // $("#modal_form_container").on('click', 'a#bean_save', function () {
+    //     $.ajax({
+    //         url: $('#bean_form').attr('data-url'),
+    //         type: 'post',
+    //         data: $('#bean_form').serialize(),
+    //         success: function (result) {
+    //             location.reload()
+    //         },
+    //         error: function (xhr, status, error) {
+    //             if (error === VALIDATION_ERROR) {
+    //                 $("#modal_form_container").html(xhr.responseText);
+    //                 //displayInlineError("Please check the validity of your input in highlighted places");
+    //                 bind_widgets();
+    //             }
+    //         }
+    //
+    //     });
+    // });
+    //
+    //
+    // $("#modal_form_container").on('click', 'a#bean_cancel', function () {
+    //
+    //     $("#modal_form_container").html("");
+    //     $('#bean_edit_modal').modal('hide')
+    // });
+    // /**
+    //  *
+    //  *
+    //  *  Inline Editor common handlers.
+    //  *
+    //  *
+    //  */
+    //
+    // $("#inline_add_new_button").click(function () {
+    //     var endpoint = $(this).attr('data-url');
+    //
+    //     $.ajax({
+    //         url: endpoint,
+    //         type: "get",
+    //         success: function (result) {
+    //             $("#inline_form_container").html(result);
+    //             $('#inline_form_container').show();
+    //             bind_widgets();
+    //         },
+    //         error: function () {
+    //             alert('An error occurred while trying to load form to add new records.');
+    //         }
+    //     });
+    //     $("#inline_form_container").show();
+    // });
+    //
+    //
+    // $("#inline_form_container").on('click', 'a#inline_bean_save', function () {
+    //
+    //     $.ajax({
+    //         url: $('#form_inline_bean').attr('data-url'),
+    //         type: 'post',
+    //         data: $('#form_inline_bean').serialize(),
+    //         success: function (result) {
+    //             location.reload()
+    //
+    //         },
+    //         error: function (xhr, status, error) {
+    //             if (error === VALIDATION_ERROR) {
+    //
+    //                 $("#inline_form_container").html(xhr.responseText);
+    //                 displayInlineError("Please check the validity of your input in highlighted places");
+    //                 bind_widgets();
+    //             }
+    //         }
+    //
+    //     });
+    // });
+    //
+    // $("#inline_form_container").on('click', 'a#inline_bean_cancel', function () {
+    //
+    //     $("#inline_form_container").html("");
+    //     displayInlineError("Form cancelled");
+    // });
+    //
+    // $("#inline_columns_container").on('click', 'a#inline_listing_delete', function () {
+    //     delete_endpoint = $(this).attr('data-url');
+    //
+    //     $.ajax({
+    //         url: delete_endpoint,
+    //         type: "delete",
+    //         success: function () {
+    //             location.reload()
+    //         },
+    //         error: function () {
+    //             alert('An error occurred during deletion');
+    //         }
+    //     });
+    //
+    // });
+    //
+    // $("#inline_columns_container").on('click', 'a#inline_listing_edit', function () {
+    //     $.ajax({
+    //         url: $(this).attr('data-url'),
+    //         type: "get",
+    //         success: function (result) {
+    //             $("#inline_form_container").html(result);
+    //             $('#inline_form_container').show();
+    //             bind_widgets();
+    //
+    //         },
+    //         error: function () {
+    //             alert('An error occurred while loading the selected record');
+    //         }
+    //     });
+    // });
 
     /**
      *

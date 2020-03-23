@@ -1,11 +1,11 @@
-<span class="badge badge-dark">Attachments</span><br/><br/>
 {% if submission.attachments %}
     <table  class="table table-striped table-bordered" data-url="{{ url_for('list_submission_attachments',sub_id=submission.id) }}">
         <thead>
         <tr>
             <th width="40%">Note</th>
             <th width="50%">File(s)</th>
-            {% if  not readonly %}
+            {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+            submission.current_status.step_num() ==2 %}
                 <th width="15%">Actions</th>
             {% endif %}
         </tr>
@@ -21,10 +21,11 @@
                     </ul>
                 {% endif %}
                 </td>
-                {% if  not readonly %}
+                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+                submission.current_status.step_num() ==2 %}
                     <td>
-                        <a id="inline_listing_delete"
-                           data-url="{{ url_for('delete_submission_attachment',attach_id=attachment.id) }}"
+                        <a
+                           href="{{ url_for('delete_submission_attachment',attach_id=attachment.id) }}"
                            role="button">
                             <i class="material-icons">delete</i>
                         </a>
@@ -35,6 +36,6 @@
     </table>
 {% else %}
     <div class="text-center">
-        <h3> ___ No attachments provided yet ___</h3>
+        <h3> ___  No attachments provided  ___</h3>
     </div>
 {% endif %}

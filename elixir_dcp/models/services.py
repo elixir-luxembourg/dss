@@ -46,7 +46,7 @@ def steer_sub(submission_id: str):
         if target_state == SubmissionStatusEnum.in_progress_metadata:
             send_submission_steer_step1_notification(submission)
         elif target_state == SubmissionStatusEnum.in_progress_data:
-            submission.dish_finalised_on = datetime.today()
+            submission.finalised_on = datetime.today()
             send_submission_steer_step2_notification(submission)
             flash(
                 'An upload link will be created once all information provided is checked and where required signatures are received.',
@@ -194,10 +194,6 @@ def send_async_email_target(app, msg):
 
 
 def update_submission_basic_info(submission: Submission, **kwargs):
-    existing_instructions = submission.upload_instructions
-
-    if 'upload_instructions' in kwargs:
-        submission.upload_instructions = kwargs.pop('upload_instructions')
 
     if 'title' in kwargs:
         submission.title = kwargs.pop('title')
@@ -243,10 +239,10 @@ def update_submission_basic_info(submission: Submission, **kwargs):
                     db.session.delete(rev_acc)
                     db.session.commit()
 
-    any_instruction_changes = not equal_long_strings(existing_instructions, submission.upload_instructions)
-    if any_instruction_changes and submission.is_in_progress():
-        send_upload_instruction_notification(submission)
-        flash('Data Providers are notified of upload instructions', 'info')
+    # any_instruction_changes = not equal_long_strings(existing_instructions, submission.upload_instructions)
+    # if any_instruction_changes and submission.is_in_progress():
+    #     send_upload_instruction_notification(submission)
+    #     flash('Data Providers are notified of upload instructions', 'info')
 
 
 def update_user_info(usr: User, **kwargs):
@@ -290,8 +286,8 @@ def export_submission(sub: Submission):
     sub_info['title'] = sub.title
     sub_info['submitting_institution'] = sub.institution_accession
     sub_info['created_on'] = sub.created_on.strftime("%Y-%m-%d")
-    if sub.dish_finalised_on:
-        sub_info['finalised_on'] = sub.dish_finalised_on.strftime("%Y-%m-%d")
+    if sub.finalised_on:
+        sub_info['finalised_on'] = sub.finalised_on.strftime("%Y-%m-%d")
     sub_info['scope'] = sub.submission_scope.code
     if sub.local_custodians_json:
         sub_info['local_custodians'] = json.loads(sub.local_custodians_json)
@@ -319,7 +315,7 @@ def export_submission(sub: Submission):
 
     sub_info['datadecs'] = export_datadecs(sub)
 
-    # sub_info['attachments'] = export_attachment_info(sub)
+    sub_info['attachments'] = export_attachment_info(sub)
 
     return sub_info
 
@@ -329,74 +325,65 @@ def export_datadecs(sub: Submission):
     for datadec in sub.datadecs:
         datadec_info = {}
         datadec_info['title'] = datadec.title
-        datadec_info['source_study'] = datadec.study.study_name
+        datadec_info['source_study'] = datadec.study.name
         datadec_info['legal_basis_data_collection'] = datadec.legal_basis_collection.label
         datadec_info['legal_basis_data_sharing'] = datadec.legal_basis_sharing.label
-        datadec_info['data_types'] = datadec.data_type_names()
-        if datadec.data_notes:
-            datadec_info['data_notes'] = datadec.data_notes
-        datadec_info['data_size_category'] = datadec.estimate_data_size_code
-        datadec_info['metadata_exists'] = datadec.metadata_exists
+        datadec_info['sci_datatypes'] = datadec.data_type_names()
+        if datadec.sci_datatypes_notes:
+            datadec_info['sci_datatypes_notes'] = datadec.sci_datatypes_notes
         datadec_info[
-            'has_special_subjects'] = datadec.subjects_unable_to_consent or datadec.subjects_vulnerable or datadec.subjects_minors
-        subj_notes = ''
-        if datadec.subjects_unable_to_consent: subj_notes += 'Subjects unable to consent. '
-        if datadec.subjects_vulnerable: subj_notes += 'Other vulnerable subjects. '
-        if datadec.subjects_minors: subj_notes += 'Subjects minors. '
-        if datadec.subjects_notes: subj_notes += datadec.subjects_notes
+            'has_special_subjects'] = datadec.has_special_subjects
 
-        if subj_notes: datadec_info['special_subject_notes'] = subj_notes
+        datadec_info['special_subject_notes'] = datadec.special_subjects_notes
 
         datadec_info['consent_status'] = datadec.consent_status.label.lower()
         if datadec.consent_notes: datadec_info['consent_notes'] = datadec.consent_notes
         datadec_info['de_identification'] = datadec.de_identification_type.label.lower()
         datadec_info['subject_categories'] = datadec.de_identification_type.label.lower()
-        use_restrictions = []
-        for duc_instance in datadec.duc_codes:
-            use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
-                                     'note': duc_instance.note})
-        if use_restrictions:
-            datadec_info['use_restrictions'] = use_restrictions
+        # use_restrictions = []
+        # for duc_instance in datadec.duc_codes:
+        #     use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
+        #                              'note': duc_instance.note})
+        # if use_restrictions:
+        #     datadec_info['use_restrictions'] = use_restrictions
         datadec_list.append(datadec_info)
     return datadec_list
 
 
-# def export_attachment_info(sub: Submission):
-#     attachment_list = []
-#     for att in sub.attachments:
-#         att_info = {}
-#         att_info['description'] = att.note
-#         files_list = []
-#         names = att.file_names.strip(' \t\n\r').split(" ")
-#         for name in names:
-#             files_list.append({"$ref": os.path.join(att.folder_name, name)})
-#         att_info['files'] = files_list
-#         attachment_list.append(att_info)
-#     return attachment_list
+def export_attachment_info(sub: Submission):
+    attachment_list = []
+    for att in sub.attachments:
+        att_info = {}
+        att_info['description'] = att.note
+        files_list = []
+        names = att.file_names.strip(' \t\n\r').split(" ")
+        for name in names:
+            files_list.append({"$ref": os.path.join(att.folder_name, name)})
+        att_info['files'] = files_list
+        attachment_list.append(att_info)
+    return attachment_list
 
 
 def export_studies(sub: Submission):
     study_list = []
     for stdy in sub.studies:
         study_info = {}
-        study_info['title'] = stdy.study_name
-        study_info['description'] = stdy.study_description
+        study_info['title'] = stdy.name
+        study_info['description'] = stdy.description
         study_info['ethics_approval_exists'] = stdy.ethics_approval_exists
-        study_info['study_types'] = stdy.study_type_names()
+        study_info['study_types'] = stdy.study_feature_names()
         contacts = []
         for contact in stdy.study_contacts:
             contact_info = {}
             contact_info['first_name'] = contact.firstname
-            contact_info['last_name'] = contact.surname
+            contact_info['last_name'] = contact.lastname
             contact_info['role'] = contact.contact_category.name
             contact_info['email'] = contact.email
             contact_info['address'] = contact.address
             contact_info['institution'] = sub.institution_accession
             contacts.append(contact_info)
-
         study_info['contacts'] = contacts
         study_list.append(study_info)
-
     return study_list
 
 

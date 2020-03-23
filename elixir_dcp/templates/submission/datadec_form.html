@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% import "forms_macros.html" as fmacros %}
+{% block title %}Data Declaration Form{% endblock %}
+{% block js %}
+{{ super() }}
+{% assets "select2_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "submission_editor_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% assets "select2_css" %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+{% endassets %}
+{% endblock %}
+{% block content %}
+<div class="panel panel-default">
+    <div class="panel-heading">{% if datadec_form.id.data %}Update {% else %}Add New {% endif %}Data Declaration</div>
+    <div class="panel-body">
+        <form method="POST" {% if datadec_form.id.data %}
+              data-url="{{ url_for('edit_submission_datadec', datadec_id = datadec_form.id.data)}}" {% else %}
+              data-url="{{ url_for('add_submission_datadec', sub_id=datadec_form.submission_id.data)}}" {% endif %}>
+            <fieldset>
+                <legend>General</legend>
+                {{ datadec_form.hidden_tag() }}
+                {{ fmacros.render_field_with_errors(datadec_form.title) }}
+                {{ fmacros.render_field_with_errors(datadec_form.study_id, div_col_class="col-md-6",clazz="elx-select")}}
+                {{ fmacros.render_field_with_errors(datadec_form.gdpr_datatypes, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(datadec_form.gdpr_datatypes_notes) }}
+                {{ fmacros.render_field_with_errors(datadec_form.sci_datatypes, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(datadec_form.sci_datatypes_notes) }}
+                {{ fmacros.render_field_with_errors(datadec_form.de_identification_type_code, div_col_class="col-md-2",
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(datadec_form.has_samples) }}
+                {{ fmacros.render_field_with_errors(datadec_form.samples_notes) }}
+                <fieldset>
+                    <legend>Legal Basis of Processing</legend>
+                    {{ fmacros.render_field_with_errors(datadec_form.legal_basis_collection_code, div_col_class="col-md-2",
+                    clazz="elx-select") }}
+                    {{ fmacros.render_field_with_errors(datadec_form.legal_basis_sharing_code, div_col_class="col-md-2",
+                    clazz="elx-select") }}
+                </fieldset>
+                <fieldset>
+                    <legend>Data Subjects and Consent</legend>
+                    {{ fmacros.render_field_with_errors(datadec_form.subject_category_code, div_col_class="col-md-2",
+                    clazz="elx-select") }}
+                    {{ fmacros.render_field_with_errors(datadec_form.has_special_subjects) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.special_subjects_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.consent_status_code, div_col_class="col-md-2",
+                    clazz="elx-select") }}
+                    {{ fmacros.render_field_with_errors(datadec_form.consent_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rs) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rs_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_pub) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_pub_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn_notes) }}
+                </fieldset>
+                <fieldset>
+                    <legend>Other Use Restrictions</legend>
+
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_gs) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_gs_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_other_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.access_form_required) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.dac_approval_required) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.dac_approval_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ip) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ip_notes) }}
+                </fieldset>
+            </fieldset>
+
+
+            <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+        </form>
+        <a href="{{ url_for('view_submission',sub_id=datadec_form.submission_id.data) }}" role="button">Cancel</a>
+    </div>
+</div>
+{% endblock %}
