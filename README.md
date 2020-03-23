@@ -1,6 +1,6 @@
 # Elixir Data and Computing Platform 
 ## Development
-
+## Setting up Development Environment
 
 
 The project_venv folder is for holding the virtual environment. (Elixir DCP has been developed using Python 3.6) 
@@ -26,18 +26,49 @@ bash -c pip install -e .[dev]
  
 ## Configuration
 
-- create a copy of elixir_dcp/settings.py.template as elixir_dcp/settings.py  
-- edit the file settings.py to change the path to the sqlite database `SQLALCHEMY_DATABASE_URI`
-and the secret `SECRET_KEY`.
-For development, any string can be used as a secret key.
-For production, generate a good secret key with:
 
-```python
-import os
-os.urandom(24)
+ * create your ```settings.py``` 
+```bash
+mv elixir_dcp/settings.py.template elixir_dcp/settings.py
 ```
 
-## Running
+ * make database configuration by changing the ```SQLALCHEMY_DATABASE_URI``` variable under ```class Config(object):``` within ```settings.py```:
+ 
+    * Option 1 - SQLLite backend
+        
+        ```SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')```
+        
+    * Option 2 - Postgres backend. 
+    
+        ```SQLALCHEMY_DATABASE_URI = postgresql://[user[:password]@][netloc][:port][/dbname]```
+        
+        The project includes a docker-compose.yml to quickly deploy a postgres database for the application, if you use the default dockerised postgres then the connection string would look like
+        
+        ```SQLALCHEMY_DATABASE_URI = 'postgresql://dish:dish@localhost:4001/dish'```
+        
+ * set the secret key for the application by manipulating the variable `SECRET_KEY`. For development, any string can be used as a secret key. For production, generate a good secret key with the following commands in a python shell:
+
+
+        ```python
+        import os
+        os.urandom(24)
+        ```
+        
+## Initialise the DB
+
+ * (f using dockerised postgres) start the db server:
+ 
+ 
+         ``` docker-compose up ```
+
+ * run initialisation script:
+ 
+ 
+         ```./manage.py init_db```
+ 
+
+
+## Running the app
 
 ```bash
 ./manage.py runserver
