@@ -1,0 +1,14 @@
+PostgreSQL:
+  restart: always
+  image: postgres:10.1
+  ports:
+    - "4001:4001"
+  volumes:
+  environment:
+      POSTGRES_PASSWORD: dish
+      POSTGRES_USER: dish
+      POSTGRES_DB: dish
+      PGPORT: 4001
+  volumes:
+   - pgdata:/var/lib/postgresql/data
+

@@ -65,7 +65,7 @@ def init_db():
 
     u2 = User(first_name='Pinar', last_name='ALPER',
               elixir_sub_id='428235bf8ea0d7fb3d742abd763d1701db6905bf@elixir-europe.org', email='pinarpink@yahoo.com',
-              institution_accession='ELU_I_51',
+              institution_accession='ELU_I_79',
               phone_no='+352123456789')
     register_new_user(u2)
     assign_role_to_user(u2, 'data_provider')
