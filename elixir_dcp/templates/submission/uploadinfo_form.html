@@ -28,8 +28,8 @@
             {{ fmacros.render_field_with_errors(uploadinfo_form.file_name) }}
             {{ fmacros.render_field_with_errors(uploadinfo_form.md5_checksum_at_provider) }}
             <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+            <a href="{{ url_for('view_submission',sub_id=uploadinfo_form.submission_id.data) }}" class="cancel btn btn-raised btn-primary" role="button">Cancel</a>
         </form>
-        <a href="{{ url_for('view_submission',sub_id=uploadinfo_form.submission_id.data) }}" role="button">Cancel</a>
     </div>
 </div>
 {% endblock %}

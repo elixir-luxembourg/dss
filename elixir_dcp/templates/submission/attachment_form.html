@@ -35,8 +35,9 @@
                 </div>
             </div>
             <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+            <a href="{{ url_for('view_submission',sub_id=attachment_form.submission_id.data) }}"  class="cancel btn btn-raised btn-primary" role="button">Cancel</a>
         </form>
-        <a href="{{ url_for('view_submission',sub_id=attachment_form.submission_id.data) }}" role="button">Cancel</a>
+
     </div>
 </div>
 {% endblock %}
