@@ -66,7 +66,7 @@ $(document).ready(function () {
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
     $('[data-toggle="popover"]').popover();
 
-
+    $('[data-toggle="switch"]').bootstrapSwitch();
     $('#query').change(function () {
         $('#sort_by').val('');
     });
