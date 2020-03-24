@@ -1,9 +1,13 @@
 {% extends 'layout.html' %}
+{% import "forms_macros.html" as fmacros %}
 {% set active_page = 'submissions' %}
 {% block title %} Submissions List {% endblock %}
 {% block js %}
     {{ super() }}
     {% assets "submission_listing_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "submission_editor_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% assets "select2_js" %}
@@ -83,14 +87,12 @@
                             <form id="form_submission_create"
                                   method="POST"
                                   action="{{ url_for('create_submission') }}">
-                                <div>
-                                    {{ submsn_create_form.hidden_tag() }}
-                                    <div>{{ submsn_create_form.title.label }}</div>
-                                    <div>{{ submsn_create_form.title }}</div>
-                                </div>
+                                {{ submsn_create_form.hidden_tag() }}
+                                {{ fmacros.render_field_with_errors(submsn_create_form.institution_accession, clazz="elx-select") }}
+                                {{ fmacros.render_field_with_errors(submsn_create_form.title) }}
                                 <div class="modal-footer">
                                     <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
-                                    <button type="button" class="btn btn-dialog" data-dismiss="modal">Cancel</button>
+                                    <button type="button" class="cancel btn btn-raised btn-primary" data-dismiss="modal">Cancel</button>
                                 </div>
                             </form>
                         </div>

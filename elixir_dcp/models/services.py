@@ -71,9 +71,10 @@ def revert_sub(submission_id: str):
         raise RecordLifecycleException("Submission cannot be reverted to its previous state!")
 
 
-def create_sub(title: str):
+def create_sub(title: str, institute_accession:str):
     new_submission = Submission()
     new_submission.title = title
+    new_submission.institution_accession = institute_accession
     new_submission.created_on = datetime.today()
     db.session.add(new_submission)
     db.session.flush()
