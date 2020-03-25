@@ -29,13 +29,15 @@
                 {{ fmacros.render_field_with_errors(submsn_form.submission_scope_code, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.local_custodians, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.local_project_name) }}
-                {{ fmacros.render_field_with_errors(submsn_form.notes) }}
-                <label for="contacts-fieldset">
-                    Submission Contacts
-                </label>
+                <div class="form-group row">
+                    <label for="contacts-fieldset">
+                        {{submsn_form.submission_contacts.label.text}}<span style="color:red">*</span>
+                    </label>
+                    <br/> <span><small class="form-text text-muted">{{submsn_form.submission_contacts.description}}</small></span> <br/>
+                </div>
                 <fieldset id="contacts-fieldset">
                     <div class="form-group row {% if submsn_form.submission_contacts.errors %}has-error{% endif %}">
-                        <div class="col-md-12">
+                        <div class="table-responsive">
                             <div data-toggle="fieldset" id="submsn-contacts-fieldset">
                                 <button type="button" data-toggle="fieldset-add-row" data-target="#submsn-contacts-fieldset">
                                     +
@@ -46,7 +48,7 @@
                                         <th width="10%">Surname</th>
                                         <th width="15%">Email</th>
                                         <th width="15%">Role</th>
-                                        <th width="45%">Affiliation(if different from Submitting Institute)</th>
+                                        <th width="45%">Affiliation(if different from submitting institute)</th>
                                         <th width="5%"></th>
                                     </tr>
                                     {% for contact_form in submsn_form.submission_contacts %}
@@ -72,11 +74,13 @@
                         </div>
                     </div>
                 </fieldset>
+                {{ fmacros.render_field_with_errors(submsn_form.notes) }}
                 {% if current_user.is_admin() %}
                 {{ fmacros.render_field_with_errors(submsn_form.provider_user_ids, clazz="elx-multi-select") }}
                 {% endif %}
                 </fieldset>
             <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+            <a href="{{ url_for('view_submission',sub_id=submsn_form.id.data) }}" class="cancel btn btn-raised btn-primary" role="button">Cancel</a>
         </form>
     </div>
 </div>

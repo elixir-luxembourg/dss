@@ -20,22 +20,29 @@
 <div class="panel panel-default">
     <div class="panel-heading">Add New Attachment</div>
     <div class="panel-body">
+        <p>In this section you can upload documents to support the information
+            provided in the submission forms. E.g. a copy of the Ethics Approval for the source study, a template of the Consent Form used
+            during data collection etc.
+            <span style="font-weight:bold">Please do NOT upload any DATA or METADATA through this section.</span>
+        </p>
         <form method="POST" enctype="multipart/form-data"
               data-url="{{ url_for('add_submission_attachment', sub_id=attachment_form.submission_id.data)}}">
             {{ attachment_form.hidden_tag() }}
-            {{ fmacros.render_field_with_errors(attachment_form.note) }}
             <div>
-                {{ attachment_form.file_attachments.label(class="col-md-2") }}
-                <div class="col-md-8">
-                    <input type=file id="file_attachments" name="file_attachments" multiple>
-                    {% if attachment_form.file_attachments.errors %}
-                    {% for error in attachment_form.file_attachments.errors %}<p class="help-block">{{ error }}</p>
-                    {% endfor %}
-                    {% endif %}
-                </div>
+                <label for="file_attachments">
+                    File(s)<span style="color:red">*</span>
+                </label>
+                <input type=file id="file_attachments" name="file_attachments" multiple>
+                {% if attachment_form.file_attachments.errors %}
+                {% for error in attachment_form.file_attachments.errors %}<p class="help-block">{{ error }}</p>
+                {% endfor %}
+                {% endif %}
             </div>
+            {{ fmacros.render_field_with_errors(attachment_form.note) }}
+            <br/>
             <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
-            <a href="{{ url_for('view_submission',sub_id=attachment_form.submission_id.data) }}"  class="cancel btn btn-raised btn-primary" role="button">Cancel</a>
+            <a href="{{ url_for('view_submission',sub_id=attachment_form.submission_id.data) }}"
+               class="cancel btn btn-raised btn-primary" role="button">Cancel</a>
         </form>
 
     </div>
