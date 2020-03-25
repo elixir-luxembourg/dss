@@ -272,7 +272,7 @@ def get_submission(sub_id):
 @app_authorization(allowed_roles=['admin'])
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
-    submission_rec = create_sub(creation_form.title.data)
+    submission_rec = create_sub(creation_form.title.data, creation_form.institution_accession.data)
     flash('New submission {} created'.format(submission_rec.ref_name), 'success')
     return redirect(url_for('list_submissions'))
 

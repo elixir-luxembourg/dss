@@ -57,7 +57,7 @@ class ControllersTest(BaseIntegrationTest):
 
         d = url_for('create_submission')
         response = self.client.post(url_for('create_submission'),
-                                    data={"title": "Test Submission 123"},
+                                    data={"title": "Test Submission 123", "institution_accession":"ELU_I_9"},
                                     follow_redirects=True)
         data = response.data.decode('utf-8')
         self.assert200(response)

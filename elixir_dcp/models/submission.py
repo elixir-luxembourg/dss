@@ -263,12 +263,21 @@ class SubmissionDataDeclaration(db.Model):
     has_samples = db.Column(db.Boolean, nullable=False, default=False)
     samples_notes = db.Column(db.String, nullable=True)
 
-    # Ethics & Data Protection
-    legal_basis_sharing_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='61a')
-    legal_basis_sharing = db.relationship('LegalBasisType', foreign_keys=[legal_basis_sharing_code])
 
-    legal_basis_collection_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='61a')
-    legal_basis_collection = db.relationship('LegalBasisType',  foreign_keys=[legal_basis_collection_code])
+    legal_basis_collection_std_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='61a')
+    legal_basis_collection_std = db.relationship('LegalBasisType',  foreign_keys=[legal_basis_collection_std_code])
+
+    legal_basis_sharing_std_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='61a')
+    legal_basis_sharing_std = db.relationship('LegalBasisType', foreign_keys=[legal_basis_sharing_std_code])
+
+    legal_basis_collection_spec_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='61a')
+    legal_basis_collection_spec = db.relationship('LegalBasisType',  foreign_keys=[legal_basis_collection_spec_code])
+
+    legal_basis_sharing_spec_code = db.Column(db.String, db.ForeignKey('legalbasis_type.code'), nullable=False, default='61a')
+    legal_basis_sharing_spec = db.relationship('LegalBasisType', foreign_keys=[legal_basis_sharing_spec_code])
+
+    legal_basis_notes = db.Column(db.String, nullable=True)
+
     subject_category_code = db.Column(db.String, db.ForeignKey('subject_category.code'), nullable=False, default='ca')
     subject_category = db.relationship('SubjectCategory',  foreign_keys=[subject_category_code])
 

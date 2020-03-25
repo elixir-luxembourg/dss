@@ -9,6 +9,8 @@ jqueryui_css = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.css')
 jqueryui_js = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.js')
 datatables_js = 'vendor/datatables/datatables.min.js'
 datatables_css = 'vendor/datatables/datatables.min.css'
+switches_js =   'vendor/node_modules/bootstrap-switch/dist/js/bootstrap-switch.min.js'
+switches_css = 'vendor/node_modules/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css'
 
 select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/select2.sortable.js')
 select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
@@ -19,6 +21,7 @@ cookiebanner_js =  Bundle('vendor/cookiebanner.min.js')
 common_css = Bundle(
     'vendor/node_modules/bootstrap/dist/css/bootstrap.css',
     'vendor/node_modules/bootstrap-material-design/dist/css/ripples.css',
+    switches_css,
     jqueryui_css,
     datatables_css,
     select2_css,
@@ -33,6 +36,7 @@ common_js = Bundle(
     'vendor/node_modules/bootstrap/dist/js/bootstrap.js',
     'vendor/node_modules/bootstrap-material-design/dist/js/ripples.js',
     'vendor/node_modules/bootstrap-material-design/dist/js/material.js',
+    switches_js,
     jqueryui_js,
     select2_js,
     datatables_js,

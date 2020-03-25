@@ -34,12 +34,15 @@
             </fieldset>
             <div class="form-group row">
             </div>
-            <label for="contacts-fieldset">
-                Study Contacts
-            </label>
+            <div class="form-group row">
+                <label for="contacts-fieldset">
+                    {{study_form.study_contacts.label.text}}<span style="color:red">*</span>
+                </label>
+                <br/><span><small class="form-text text-muted">{{study_form.study_contacts.description}}</small></span> <br/>
+            </div>
             <fieldset id="contacts-fieldset">
                 <div class="form-group row {% if study_form.study_contacts.errors %}has-error{% endif %}">
-                    <div class="col-md-12">
+                    <div class="table-responsive">
                         <div data-toggle="fieldset" id="study-contacts-fieldset">
                             <button type="button" data-toggle="fieldset-add-row" data-target="#study-contacts-fieldset">
                                 +
@@ -77,8 +80,8 @@
                 </div>
             </fieldset>
             <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+            <a href="{{ url_for('view_submission',sub_id=study_form.submission_id.data) }}"  class="cancel btn btn-raised btn-primary" role="button">Cancel</a>
         </form>
-        <a href="{{ url_for('view_submission',sub_id=study_form.submission_id.data) }}" role="button">Cancel</a>
     </div>
 </div>
 {% endblock %}

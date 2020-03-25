@@ -71,9 +71,10 @@ def revert_sub(submission_id: str):
         raise RecordLifecycleException("Submission cannot be reverted to its previous state!")
 
 
-def create_sub(title: str):
+def create_sub(title: str, institute_accession:str):
     new_submission = Submission()
     new_submission.title = title
+    new_submission.institution_accession = institute_accession
     new_submission.created_on = datetime.today()
     db.session.add(new_submission)
     db.session.flush()
@@ -326,8 +327,11 @@ def export_datadecs(sub: Submission):
         datadec_info = {}
         datadec_info['title'] = datadec.title
         datadec_info['source_study'] = datadec.study.name
-        datadec_info['legal_basis_data_collection'] = datadec.legal_basis_collection.label
-        datadec_info['legal_basis_data_sharing'] = datadec.legal_basis_sharing.label
+        datadec_info['legal_basis_data_collection_std'] = datadec.legal_basis_collection_std.label
+        datadec_info['legal_basis_data_sharing_std'] = datadec.legal_basis_sharing_std.label
+        datadec_info['legal_basis_data_collection_spec'] = datadec.legal_basis_collection_std.label
+        datadec_info['legal_basis_data_sharing_spec'] = datadec.legal_basis_sharing_std.label
+        datadec_info['legal_basis_notes'] = datadec.legal_basis_notes
         datadec_info['sci_datatypes'] = datadec.data_type_names()
         if datadec.sci_datatypes_notes:
             datadec_info['sci_datatypes_notes'] = datadec.sci_datatypes_notes

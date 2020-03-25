@@ -66,7 +66,7 @@ class ModelPersistenceTest(BaseTest):
         # con.execute("PRAGMA foreign_keys=ON")
 
 
-        submission_rec = create_sub('Test Submission')
+        submission_rec = create_sub('Test Submission', 'ELU_I_77')
 
         self.assertEqual(1, len(Submission.query.all()))
         sub = Submission.query.get_or_404(submission_rec.id)
@@ -106,7 +106,7 @@ class ModelPersistenceTest(BaseTest):
 
     # def test_steer_submission(self):
     #
-    #     submission_rec = create_sub('Test Submission')
+    #     submission_rec = create_sub('Test Submission','ELU_I_77')
     #
     #     sub_id = Submission.query.get_or_404(submission_rec.id).id
     #
@@ -167,7 +167,7 @@ class ModelPersistenceTest(BaseTest):
 
     def test_export_submission(self):
 
-        submission_rec = create_sub('Test Submission to be exported.')
+        submission_rec = create_sub('Test Submission to be exported.','ELU_I_5')
 
         u1 = User(first_name='Kavita', last_name='Rege',
                   elixir_sub_id='SOME_ELX_ID', email='kavita.rege@uni.lu',  addr_line1='Meyerhofstraße 1, 69117', addr_line2='Heidelberg, Germany',
