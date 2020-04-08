@@ -64,7 +64,7 @@ $(document).ready(function () {
     $.material.init();
 
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
-    $('[data-toggle="popover"]').popover();
+    // $('[data-toggle="popover"]').popover();
 
     $('[data-toggle="switch"]').bootstrapSwitch();
     $('#query').change(function () {

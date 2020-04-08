@@ -53,31 +53,37 @@ class BaseIntegrationTest(BaseTest):
     def setUp(self):
         super().setUp()
         # create users
-
         self.create_users()
 
     def login(self, username, password):
         return self.client.post('/login', data=dict(
             username=username,
-            password=password
+            password=password,
+            remember=True
         ), follow_redirects=False)
 
 
     def create_users(self):
-        u1 = User(first_name='P\u0131nar', last_name='Alper',
-                  elixir_sub_id='DUMMY_ELX_ID', email='pinar.alper@uni.lu',
+        u1 = User(first_name='Steward', last_name='One',
+                  elixir_sub_id='DUMMY_ELX_ID', email='steward1@uni.lu',
                   institution_accession='ELU_I_77',
                   phone_no='+352123456789')
         register_new_user(u1)
         assign_role_to_user(u1, 'admin')
 
-
-        u2 = User(first_name='Kavita', last_name='Rege',
-                       elixir_sub_id='ANOTHER_DUMMY_ELX_ID', email='kavita.rege@uni.lu',
-                  institution_accession='ELU_I_77',
+        u2 = User(first_name='Submitter', last_name='One',
+                       elixir_sub_id='ANOTHER_DUMMY_ELX_ID', email='submitter1@some.edu',
+                  institution_accession='ELU_I_79',
                        phone_no='+352123456789')
         register_new_user(u2)
         assign_role_to_user(u2, 'data_provider')
+
+        u3 = User(first_name='Submitter', last_name='Two',
+                  elixir_sub_id='YET_ANOTHER_DUMMY_ELX_ID', email='submitter2@some.edu',
+                  institution_accession='ELU_I_79',
+                  phone_no='+352123456789')
+        register_new_user(u3)
+        assign_role_to_user(u3, 'data_provider')
 
 
 

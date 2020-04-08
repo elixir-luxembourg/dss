@@ -1,20 +1,25 @@
 {% extends 'layout.html' %}
+{% import "forms_macros.html" as fmacros %}
 {% set active_page = "login" %}
-{% from "forms_macros.html" import render_field_with_errors, render_field %}
+{% block title %}Login Form{% endblock %}
+{% block js %}
+{{ super() }}
+{% assets "signup_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
 {% block content %}
-    <div class="row well">
+    <div class="panel panel-default">
+        <div class="panel-body">
         <h1 class="text-center">Login</h1>
-        <form class="form-horizontal" action="{{ url_for(login_page) }}" method="POST" name="login_user_form">
+        <form action="{{ url_for(login_page) }}" method="POST" name="login_user_form">
             {{ login_user_form.hidden_tag() }}
-            {{ render_field_with_errors(login_user_form.username) }}
-            {{ render_field_with_errors(login_user_form.password) }}
-            {{ render_field_with_errors(login_user_form.remember) }}
-            {{ render_field(login_user_form.next) }}
-            <div class="form-group">
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary btn-raised">Submit</button>
-                </div>
-            </div>
+            {{ fmacros.render_field_with_errors(login_user_form.username) }}
+            {{ fmacros.render_field_with_errors(login_user_form.password) }}
+            {{ fmacros.render_field_with_errors(login_user_form.remember) }}
+            {{ fmacros.render_field(login_user_form.next) }}
+            <button type="submit" class="btn btn-primary btn-raised">Submit</button>
         </form>
+        </div>
     </div>
 {% endblock %}

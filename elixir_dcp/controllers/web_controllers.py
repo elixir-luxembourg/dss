@@ -1,5 +1,5 @@
 # coding=utf-8
-
+from datetime import datetime
 
 from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages, make_response
 from flask_login import current_user, login_user, login_required, logout_user
@@ -12,7 +12,7 @@ from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert
     get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info, \
     update_user_info, send_email
 from elixir_dcp.models.submission import Submission, SubmissionDataDeclaration, SubmissionUploadInfo, SubmissionStudy, \
-    EmailNotification, SubmissionAttachment
+    EmailNotification, SubmissionAttachment, SubmissionMessage
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 import os
@@ -71,7 +71,7 @@ def logout():
     # TODO: Find a way to sign out of AAI
     oidc.logout()
 
-    flash('You have logged out of ELIXIR DCP.', 'success')
+    flash('You have logged out of Submission System.', 'success')
     return render_template('home.html')
 
 
@@ -188,7 +188,7 @@ def load_user(user_id):
 
 
 """------------------------------------"""
-"""Endpoints for managing  Submissions."""
+"""Endpoints for managing  submissions."""
 """------------------------------------"""
 
 
@@ -320,17 +320,17 @@ def edit_submission(sub_id):
 
 
 """-------------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's Attachments."""
+""" Endpoints for managing a submission's attachments."""
 """-------------------------------------------------------"""
 
-@app.route('/submission_attachments_inline/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-def inline_submission_attachments(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_attachments.html', submission=submission_rec,
-                           attachment_form=forms.AttachmentForm(formdata=None,
-                                                                obj=None,
-                                                                sub_id=submission_rec.id)), 200
+# @app.route('/submission_attachments_inline/<int:sub_id>', methods=['GET'])
+# @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
+# def inline_submission_attachments(sub_id):
+#     submission_rec = Submission.query.get_or_404(sub_id)
+#     return render_template('submission/_attachments.html', submission=submission_rec,
+#                            attachment_form=forms.AttachmentForm(formdata=None,
+#                                                                 obj=None,
+#                                                                 sub_id=submission_rec.id)), 200
 
 
 @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
@@ -404,17 +404,17 @@ def delete_submission_attachment(attach_id):
 
 
 """----------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's datadecs."""
+""" Endpoints for managing a submission's datadecs."""
 """----------------------------------------------------"""
 
 
-@app.route('/submission_datadecs/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'],
-                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
-                                         'entity_ac_attribute': 'id'})
-def list_submission_datadecs(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_datadec_columns.html', submission=submission_rec)
+# @app.route('/submission_datadecs/<int:sub_id>', methods=['GET'])
+# @app_authorization(allowed_roles=['admin', 'data_provider'],
+#                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+#                                          'entity_ac_attribute': 'id'})
+# def list_submission_datadecs(sub_id):
+#     submission_rec = Submission.query.get_or_404(sub_id)
+#     return render_template('submission/_datadec_columns.html', submission=submission_rec)
 
 
 @app.route('/submission_datadec_add/<int:sub_id>', methods=['GET', 'POST'])
@@ -491,16 +491,16 @@ def delete_submission_datadec(datadec_id):
 
 
 """----------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's Studies."""
+""" Endpoints for managing a submission's studies."""
 """----------------------------------------------------"""
 
-@app.route('/submission_studies/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'],
-                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
-                                         'entity_ac_attribute': 'id'})
-def list_submission_studies(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_study_columns.html', submission=submission_rec), 200
+# @app.route('/submission_studies/<int:sub_id>', methods=['GET'])
+# @app_authorization(allowed_roles=['admin', 'data_provider'],
+#                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+#                                          'entity_ac_attribute': 'id'})
+# def list_submission_studies(sub_id):
+#     submission_rec = Submission.query.get_or_404(sub_id)
+#     return render_template('submission/_study_columns.html', submission=submission_rec), 200
 
 
 @app.route('/submission_study_add/<int:sub_id>', methods=['GET', 'POST'])
@@ -567,18 +567,18 @@ def delete_submission_study(study_id):
 
 
 """----------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's Upload Info Records."""
+""" Endpoints for managing a submission's upload info records."""
 """----------------------------------------------------"""
 
 
-
-@app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'],
-                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
-                                         'entity_ac_attribute': 'id'})
-def list_submission_uploadinfos(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
-    return render_template('submission/_uploadinfo_columns.html', submission=submission_rec)
+#
+# @app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
+# @app_authorization(allowed_roles=['admin', 'data_provider'],
+#                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+#                                          'entity_ac_attribute': 'id'})
+# def list_submission_uploadinfos(sub_id):
+#     submission_rec = Submission.query.get_or_404(sub_id)
+#     return render_template('submission/_uploadinfo_columns.html', submission=submission_rec)
 
 
 @app.route('/submission_uploadinfo_add/<int:sub_id>', methods=['GET', 'POST'])
@@ -642,7 +642,47 @@ def delete_submission_uploadinfo(uploadinfo_id):
 
 
 """----------------------------------------------------"""
-"""AJAX Endpoints for autocomplete fields in various forms"""
+""" Endpoints for managing a submission's messages."""
+"""----------------------------------------------------"""
+
+
+# @app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
+# @app_authorization(allowed_roles=['admin', 'data_provider'],
+#                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+#                                          'entity_ac_attribute': 'id'})
+# def list_submission_uploadinfos(sub_id):
+#     submission_rec = Submission.query.get_or_404(sub_id)
+#     return render_template('submission/_uploadinfo_columns.html', submission=submission_rec)
+
+
+@app.route('/submission_message_add/<int:sub_id>', methods=['GET', 'POST'])
+@app_authorization(allowed_roles=['admin', 'data_provider'],
+                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
+                                         'entity_ac_attribute': 'id'})
+def add_submission_message(sub_id):
+    if request.method == 'GET':
+        return render_template('submission/message_form.html',
+                               message_form=forms.MessageForm(formdata=None,
+                                                                    obj=None,
+                                                                    sub_id=sub_id)), 200
+    elif request.method == 'POST':
+        posted_form = forms.MessageForm(request.form)
+        if posted_form.validate_on_submit():
+            message_rec = SubmissionMessage()
+            posted_form.populate_obj(message_rec)
+            message_rec.id = None
+            message_rec.sender_user = current_user
+            message_rec.created_on = datetime.now()
+            db.session.add(message_rec)
+            db.session.commit()
+            flash("Message added", "success")
+            return redirect(url_for('view_submission', sub_id=message_rec.submission_id))
+        else:
+            return render_template('submission/message_form.html', message_form=posted_form), 400
+
+
+"""----------------------------------------------------"""
+""" Miscellaneous endpoints                            """
 """----------------------------------------------------"""
 
 

@@ -45,31 +45,35 @@ def init_db():
 
     db.session.commit()
 
-    u1 = User(first_name='P\u0131nar', last_name='Alper',
-              elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org', email='pinar.alper@uni.lu',
+@manager.command
+def load_demo_users():
+
+    u1 = User(first_name='Steward', last_name='One',
+              elixir_sub_id='steward1@uni.lu', email='steward1@uni.lu',
               institution_accession='ELU_I_77',
               phone_no='+352123456789')
     register_new_user(u1)
     assign_role_to_user(u1, 'admin')
 
-    return
 
-    u1 = User(first_name='P\u0131nar', last_name='Alper',
-              elixir_sub_id='5142d45eeece42e2108f6c3c146745b41db21e87@elixir-europe.org', email='pinar.alper@uni.lu',
-              institution_accession='ELU_I_77',
-              phone_no='+352123456789')
-    register_new_user(u1)
-    assign_role_to_user(u1, 'admin')
 
-    return
-
-    u2 = User(first_name='Pinar', last_name='ALPER',
-              elixir_sub_id='428235bf8ea0d7fb3d742abd763d1701db6905bf@elixir-europe.org', email='pinarpink@yahoo.com',
+    u2 = User(first_name='Submitter', last_name='One',
+              elixir_sub_id='submitter1@some.edu', email='submitter1@some.edu',
               institution_accession='ELU_I_79',
               phone_no='+352123456789')
     register_new_user(u2)
     assign_role_to_user(u2, 'data_provider')
 
+    u3 = User(first_name='Submitter', last_name='Two',
+              elixir_sub_id='submitter2@some.edu', email='submitter2@some.edu',
+              institution_accession='ELU_I_79',
+              phone_no='+352123456789')
+
+
+    register_new_user(u3)
+    assign_role_to_user(u3, 'data_provider')
+
+    return
 
 # TODO I don't know what the below command does. FInd out.
 manager.add_command("shell", Shell(use_ipython=True, use_bpython=False))

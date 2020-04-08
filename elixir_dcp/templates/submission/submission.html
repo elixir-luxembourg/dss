@@ -69,13 +69,29 @@
 <div class="row block">
     <h3>Submission Details <span class="badge badge-warning">incomplete</span></h3>
     <ul class="nav nav-pills">
-        <li class="active"><a data-toggle="pill" href="#studies">Studies</a></li>
+        <li class="active"><a data-toggle="pill" href="#messages">Messages</a></li>
+        <li><a data-toggle="pill" href="#studies">Studies</a></li>
         <li><a data-toggle="pill" href="#datasets">Data</a></li>
         <li><a data-toggle="pill" href="#attachments">Attachments</a></li>
         <li><a data-toggle="pill" href="#uploadinfos">File Checksums</a></li>
     </ul>
     <div class="tab-content">
-        <div class="tab-pane fade in active" id="studies">
+        <div class="tab-pane fade in active" id="messages">
+            <div class="row">
+                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+                submission.current_status.step_num() ==2 %}
+                <a class="btn btn-primary btn-lg pull-right"
+                   href="{{ url_for('add_submission_message',sub_id=submission.id) }}">
+                <span class="glyphicon glyphicon-plus" style="font-size: large" data-toggle="tooltip"
+                      title="Add New Message"></span>
+                </a>
+                {% endif %}
+            </div>
+            <div class="row">
+                {% include 'submission/_message_columns.html' %}
+            </div>
+        </div>
+        <div class="tab-pane" id="studies">
             <div class="row">
                 {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}

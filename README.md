@@ -6,6 +6,7 @@
 The project_venv folder is for holding the virtual environment. (Elixir DCP has been developed using Python 3.6) 
 
 ```bash
+python3 -m venv tutorial-env
 virtualenv --python=/usr/local/bin/python3.6  project_venv
 source ./project_venv/bin/activate
 ```
@@ -66,7 +67,10 @@ mv elixir_dcp/settings.py.template elixir_dcp/settings.py
  
          ```./manage.py init_db```
  
-
+ * if you are making a demo deployment you can create some demo users:
+ 
+ 
+         ```./manage.py load_demo_users```
 
 ## Running the app
 
