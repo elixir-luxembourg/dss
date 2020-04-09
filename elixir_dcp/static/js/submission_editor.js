@@ -41,9 +41,9 @@ $(document).ready(function () {
 
 
     function bind_widgets() {
-
-        /* This is needed for help links */
-        $('[data-toggle="popover"]').popover();
+        //
+        // /* This is needed for help links */
+        // $('[data-toggle="popover"]').popover();
 
         /* A working date selector */
         $(".elx-date").datepicker({dateFormat: 'dd/mm/yy'});
@@ -59,6 +59,7 @@ $(document).ready(function () {
             search: true,
             selectAll: true
         });
+
 
         // $.ajax({
         //     url: '/autocomplete_institutes'

@@ -12,14 +12,17 @@ __author__ = 'Pinar Alper'
 class ControllersTest(BaseIntegrationTest):
 
     def test_get_submissions(self):
-        self.login("pinar.alper@uni.lu", "palper")
+        users = User.query.all()
+        self.assertEqual(3, len(users))
+
+        self.login("steward1@uni.lu", "steward1")
 
         response = self.client.get(url_for('list_submissions'))
 
         self.assertIn("No submissions have been added.", response.data.decode('utf-8'))
 
     def test_access_control2(self):
-        self.login("pinar.alper@uni.lu", "palper")
+        self.login("steward1@uni.lu", "steward1")
 
         #
         # User with an admin  role cannot access the following end point
@@ -29,7 +32,7 @@ class ControllersTest(BaseIntegrationTest):
         self.assert403(response)
 
     def test_access_control1(self):
-        self.login("kavita.rege@uni.lu", "krege")
+        self.login("submitter2@some.edu", "submitter2")
 
         #
         # User with a data provider role cannot access the following end points
@@ -53,7 +56,7 @@ class ControllersTest(BaseIntegrationTest):
 
 
     def test_submission_create_submission(self):
-        self.login("pinar.alper@uni.lu", "palper")
+        self.login("steward1@uni.lu", "steward1")
 
         d = url_for('create_submission')
         response = self.client.post(url_for('create_submission'),

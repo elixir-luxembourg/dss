@@ -16,12 +16,14 @@
 
 
         {% if field.type == 'BooleanField' %}
+
         <input id="{{ field.id }}" name="{{ field.name }}"  type="checkbox" class="col-md-1"
                data-toggle="switch" data-on-color="success" data-off-color="default" data-on-text="Yes" data-off-text="No"
                {% if field.data %} checked="checked" {% endif %}/>
+
         {% else %}
 
-        {{ field(data_toggle= 'tooltip', class= fc_class, **kwargs)|safe }}
+        {{ field(class= fc_class, **kwargs)|safe }}
         {% if field.errors %}
         {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
         {% endif %}

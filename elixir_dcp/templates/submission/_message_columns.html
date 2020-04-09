@@ -1,0 +1,20 @@
+{% if submission.messages %}
+<div class="container">
+    <div class="col-md-10">
+       <ul class="timeline">
+                {% for message in submission.messages %}
+                    <li>
+                        <a href="#">{{ message.sender_user.display_name() }}</a>
+                        <a href="#" class="pull-right">{{ message.created_on}}</a>
+                        <p>{{ message.message_text }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center">
+    <h3> ___  No Messages  ___</h3>
+</div>
+{% endif %}

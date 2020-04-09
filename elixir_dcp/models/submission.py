@@ -128,6 +128,7 @@ class Submission(db.Model):
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
     datadecs = db.relationship("SubmissionDataDeclaration", cascade="all, delete-orphan")
     uploadinfos = db.relationship("SubmissionUploadInfo", cascade="all, delete-orphan")
+    messages = db.relationship("SubmissionMessage", cascade="all, delete-orphan")
 
     def is_deletable(self):
         return self.current_status == SubmissionStatusEnum.draft
@@ -206,6 +207,17 @@ class SubmissionUploadInfo(db.Model):
     file_name = db.Column(db.String(45), nullable=False)
     md5_checksum_at_provider = db.Column(db.String(32), nullable=False)
 
+
+class SubmissionMessage(db.Model):
+    __tablename__ = 'submission_message'
+
+    id = db.Column(db.Integer, primary_key=True)
+    submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    created_on = db.Column(db.Date, nullable=False)
+    sender_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    sender_user = db.relationship("User")
+    message_text = db.Column(db.String, nullable=False)
+    # html_body = db.Column(db.String, nullable=)
 
 
 

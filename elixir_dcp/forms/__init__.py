@@ -1,7 +1,7 @@
 # coding=utf-8
 from elixir_dcp.controllers.api_controllers import get_elu_partners
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, \
-    DatadecForm, UploadInfoForm, StudyForm
+    DatadecForm, UploadInfoForm, StudyForm, MessageForm
 from elixir_dcp.models.security import Role
 from wtforms import BooleanField, HiddenField, StringField, PasswordField, SelectMultipleField, SelectField
 from wtforms.fields.html5 import EmailField
@@ -46,11 +46,11 @@ class RedirectForm(FlaskForm):
 
 
 class LoginForm(RedirectForm):
-    """This form is for test purposes only. We use AAI IdP Proxy for logins to system.
+    """This form is for test/demo purposes only. We use AAI IdP Proxy for logins to system.
     """
     username = EmailField('Username', [DataRequired(), Email("This field requires a valid email address")])
     password = PasswordField('Password', [DataRequired()])
-    remember = BooleanField('Remember me')
+    remember = BooleanField('Remember me',[DataRequired()], default=True)
 
 
 class SignupForm(FlaskForm):
@@ -114,4 +114,4 @@ class UserForm(SignupForm):
         self.assigned_role_ids.choices = [(rol.id, rol.name) for rol in Role.query.all()]
 
 
-__all__ = [SubmissionForm, ContactForm, AttachmentForm, DatadecForm, UserForm, MyProfileForm]
+__all__ = [SubmissionForm, ContactForm, AttachmentForm, DatadecForm, UserForm, MyProfileForm, MessageForm]

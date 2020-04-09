@@ -106,7 +106,7 @@ class StudyForm(FlaskForm):
 
 class UploadInfoForm(FlaskForm):
     """
-    Form for creating records containing name of uploaded files and their checksum at the client.
+    Form for creating records containing name of uploaded files and their checksum before submission.
     This information is used by the data steward to check data integrity after receiving files.
     """
     id = HiddenField('SubmissionUploadInfo_Id')
@@ -128,6 +128,22 @@ class UploadInfoForm(FlaskForm):
         if 'sub_id' in kwargs:
             self.submission_id.data = kwargs['sub_id']
 
+class MessageForm(FlaskForm):
+    """
+    Form for creating messages under a submission.
+    Messages facilitate communication between data submitter and data stewards.
+    """
+    id = HiddenField('SubmissionUploadInfo_Id')
+    submission_id = HiddenField('Submission_Id')
+    message_text = StringField('Message Text', description="Please type your message here.",
+                               render_kw={'rows': 3},
+                               validators=[DataRequired(), Regexp('^[\w\s,\-.]+$',
+                                                                  message="Can only contain letters, digits, dash, comma and dot.")])
+
+    def __init__(self, *args, **kwargs):
+        FlaskForm.__init__(self, *args, **kwargs)
+        if 'sub_id' in kwargs:
+            self.submission_id.data = kwargs['sub_id']
 
 class SubmissionForm(FlaskForm):
     """
@@ -276,7 +292,7 @@ class DatadecForm(FlaskForm):
                                            validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                               message="Can only contain letters, digits, dash, comma and dot.")])
 
-    # LUse restrictions originating from consent or elsewhere.
+    # Use restrictions originating from consent or elsewhere.
 
     consent_status_code = SelectField('Are the consents heterogeneous or homogeneous?',
                                       description="If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous.\
