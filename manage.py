@@ -75,6 +75,16 @@ def load_demo_users():
 
     return
 
+@manager.command
+def create_admin(name, surname, email, elixir_id, institution):
+    u1 = User(first_name=name, last_name=surname,
+              elixir_sub_id=elixir_id, email=email,
+              institution_accession=institution)
+    register_new_user(u1)
+    assign_role_to_user(u1, 'admin')
+
+
+
 # TODO I don't know what the below command does. FInd out.
 manager.add_command("shell", Shell(use_ipython=True, use_bpython=False))
 

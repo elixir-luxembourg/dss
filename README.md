@@ -71,6 +71,13 @@ mv elixir_dcp/settings.py.template elixir_dcp/settings.py
  
  
          ```./manage.py load_demo_users```
+         
+ * in order to create an admin user to bootstrap the application you can use the following command.
+ 
+ 
+         ```./manage.py create_admin John Doe john.doe@acme.edu xxxxx@elixir-europe.org ELU_I_77 ```
+
+
 
 ## Running the app
 
