@@ -1,13 +1,10 @@
-Dear Data Provider,
 
-The following Submission has new upload instructions. The next step for you is to upload data according to these instructions.
+The following Submission has a new message.
 
 Ref Name: {{ submission.ref_name }}
 Title: {{ submission.title }}
 Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
 
-
-Once your upload is complete you may  close-off your submission from the Submission Page.
 
 
 Regards,

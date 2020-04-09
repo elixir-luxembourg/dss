@@ -213,6 +213,7 @@ class SubmissionMessage(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(db.Integer, db.ForeignKey('submissions.id'), nullable=False)
+    submission = db.relationship("Submission", back_populates="messages")
     created_on = db.Column(db.Date, nullable=False)
     sender_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     sender_user = db.relationship("User")

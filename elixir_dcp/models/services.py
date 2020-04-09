@@ -1,18 +1,17 @@
 import os
 
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, \
-    EmailNotification
+    EmailNotification, SubmissionMessage
 from elixir_dcp.models.security import User, Role, UsersRoles
-from elixir_dcp.controllers.utils import equal_long_strings
 from elixir_dcp.exceptions import RecordLifecycleException, RecordNotExistsException
 from elixir_dcp import db, app, mail
 from datetime import datetime
 from flask import flash, render_template
+from flask_login import current_user
 from sqlalchemy import and_
 from threading import Thread
 from flask_mail import Message
 import json
-import shutil
 
 
 
@@ -153,15 +152,17 @@ def send_submission_steer_step3_notification(submission: Submission):
                                   render_template("email/submission_steer3.html", submission=submission))
 
 
-def send_upload_instruction_notification(submission: Submission):
+def send_new_message_notification(submission_message: SubmissionMessage):
     recipients = []
-    for access in submission.submission_accesses:
+    for access in submission_message.submission.submission_accesses:
         recipients.append(access.user.email)
-    persist_and_send_notification("Submission [%s] has new upload instructions" % submission.ref_name,
+    recipients = recipients + app.config.get('DATA_STEWARDS_MAILS')
+    recipients.remove(current_user.email)
+    persist_and_send_notification("Submission [%s] has new message" % submission_message.submission.ref_name,
                                   'noreply@elixir-luxembourg.org',
                                   recipients,
-                                  render_template("email/upload_instructions.txt", submission=submission),
-                                  render_template("email/upload_instructions.html", submission=submission))
+                                  render_template("email/submission_new_message.txt", submission=submission_message.submission),
+                                  render_template("email/submission_new_message.html", submission=submission_message.submission))
 
 
 def persist_and_send_notification(subject, sender, recipients, text_body, html_body):
@@ -240,10 +241,6 @@ def update_submission_basic_info(submission: Submission, **kwargs):
                     db.session.delete(rev_acc)
                     db.session.commit()
 
-    # any_instruction_changes = not equal_long_strings(existing_instructions, submission.upload_instructions)
-    # if any_instruction_changes and submission.is_in_progress():
-    #     send_upload_instruction_notification(submission)
-    #     flash('Data Providers are notified of upload instructions', 'info')
 
 
 def update_user_info(usr: User, **kwargs):

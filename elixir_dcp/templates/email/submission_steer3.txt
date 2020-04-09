@@ -1,6 +1,6 @@
 Dear ELIXIR LU Data Steward,
 
-The following Submission  has been steered to the Completion stage. Please verify the uploaded metadata from the Submission Page below and the data on the upload server.
+The following Submission has been steered to the Completion stage. Please verify the uploaded metadata from the Submission Page below and the data on the upload server.
 
 Ref Name: {{ submission.ref_name }}
 Title: {{ submission.title }}
