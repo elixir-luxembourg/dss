@@ -155,6 +155,13 @@ class Submission(db.Model):
         else:
             return None
 
+    def provider_institute_address(self):
+        if self.institution_accession:
+            institutions = get_elu_partners()
+            return dict_list_lookup(institutions, 'elu_accession', self.institution_accession, 'address')
+        else:
+            return None
+
 
     def local_custodians(self):
         if self.local_custodians_json:
@@ -330,6 +337,13 @@ class SubmissionDataDeclaration(db.Model):
         if self.sci_datatypes_json is not None:
 
             return json.loads(self.sci_datatypes_json)
+        else:
+            return []
+
+    def gdpr_data_type_names(self):
+        if self.gdpr_datatypes_json is not None:
+
+            return json.loads(self.gdpr_datatypes_json)
         else:
             return []
 
