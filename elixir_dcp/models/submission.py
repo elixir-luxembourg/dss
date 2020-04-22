@@ -333,7 +333,7 @@ class SubmissionDataDeclaration(db.Model):
     restriction_ip  = db.Column(db.Boolean, nullable=False, default=False)
     restriction_ip_notes = db.Column(db.String, nullable=True)
 
-    def data_type_names(self):
+    def sci_data_type_names(self):
         if self.sci_datatypes_json is not None:
 
             return json.loads(self.sci_datatypes_json)
