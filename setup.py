@@ -7,20 +7,20 @@ except ImportError:
     from distutils.core import setup
 
 requirements = [
-    'Flask',
-    'Flask-Assets',
-    'Flask-SQLAlchemy',
-    'Flask-Script',
-    'Jinja2',
-    'SQLAlchemy',
-    'Werkzeug',
-    'closure',
+    'Flask==1.1.2',
+    'Flask-Assets==2.0',
+    'Flask-SQLAlchemy==2.4.1',
+    'Flask-Script==2.0.6',
+    'Jinja2==2.11.1',
+    'SQLAlchemy==1.3.16',
+    'Werkzeug==1.0.1',
+    'closure==20191111',
     'flask-caching',
     'Flask-Login',
-    'Flask-WTF',
+    'Flask-WTF==0.14.3',
     'Flask-Migrate',
     'flask-oidc',
-    'Flask-Testing',
+    'Flask-Testing==0.8.0',
     'sqlalchemy-utils',
     'Flask-Mail',
     'Flask-Babel',
@@ -30,8 +30,9 @@ requirements = [
     'pdfkit',
     'flask_wkhtmltopdf',
     'psycopg2==2.7.7',
-    'WTForms-Components',
-    'schedule'
+    'WTForms-Components==0.10.4',
+    'schedule',
+    'WTForms==2.2.1'
 ]
 
 test_requirements = [
