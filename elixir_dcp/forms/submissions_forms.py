@@ -338,9 +338,9 @@ class DatadecForm(FlaskForm):
                                          description="Please describe the time-limit restrictions on data.",
                                          validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
-    restriction_ps = BooleanField('restriction_ts', default=False)
-    restriction_ps_notes = TextAreaField('Notes on', render_kw={'rows': 3},
-                                         description="",
+    restriction_ps = BooleanField('Project restriction: Is the use of data limited to the recipient project?', default=False)
+    restriction_ps_notes = TextAreaField('Notes on project restriction', render_kw={'rows': 3},
+                                         description="Please describe data restrictions related to their use in different project.",
                                          validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
 
