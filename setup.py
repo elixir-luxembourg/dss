@@ -32,7 +32,8 @@ requirements = [
     'psycopg2==2.7.7',
     'WTForms-Components==0.10.4',
     'schedule',
-    'WTForms==2.2.1'
+    'WTForms==2.2.1',
+    'docxtpl==0.9.2',
 ]
 
 test_requirements = [
