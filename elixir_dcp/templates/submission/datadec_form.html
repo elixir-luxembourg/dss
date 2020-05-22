@@ -85,6 +85,8 @@
                 </fieldset>
                 <fieldset>
                     <legend>Specific use restrictions</legend>
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ps) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ps_notes) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_gs) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_gs_notes) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_other_notes) }}
