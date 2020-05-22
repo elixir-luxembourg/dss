@@ -6,7 +6,7 @@
                     <li>
                         <a href="#">{{ message.sender_user.display_name() }}</a>
                         <a href="#" class="pull-right">{{ message.created_on}}</a>
-                        <p>{{ message.message_text }}</p>
+                        <p>{{ message.message_text|safe }}</p>
                     </li>
                 {% endfor %}
             </ul>
