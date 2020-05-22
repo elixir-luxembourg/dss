@@ -157,7 +157,7 @@ def send_new_message_notification(submission_message: SubmissionMessage):
     for access in submission_message.submission.submission_accesses:
         recipients.append(access.user.email)
     recipients = recipients + app.config.get('DATA_STEWARDS_MAILS')
-    recipients.remove(current_user.email)
+
     persist_and_send_notification("Submission [%s] has new message" % submission_message.submission.ref_name,
                                   'noreply@elixir-luxembourg.org',
                                   recipients,
