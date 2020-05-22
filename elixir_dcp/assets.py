@@ -7,6 +7,7 @@ typeahead_js = Bundle('vendor/node_modules/typeahead.js/dist/typeahead.bundle.js
 handlebars_js = Bundle('vendor/node_modules/handlebars/dist/handlebars.js')
 jqueryui_css = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.css')
 jqueryui_js = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.js')
+tm_editor_js = Bundle('vendor/node_modules/tinymce/tinymce.min.js')
 datatables_js = 'vendor/datatables/datatables.min.js'
 datatables_css = 'vendor/datatables/datatables.min.css'
 switches_js =   'vendor/node_modules/bootstrap-switch/dist/js/bootstrap-switch.min.js'

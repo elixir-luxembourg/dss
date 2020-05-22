@@ -135,10 +135,9 @@ class MessageForm(FlaskForm):
     """
     id = HiddenField('SubmissionUploadInfo_Id')
     submission_id = HiddenField('Submission_Id')
-    message_text = StringField('Message Text', description="Please type your message here.",
+    message_text = TextAreaField('Message Text', description="Please type your message here.",
                                render_kw={'rows': 3},
-                               validators=[DataRequired(), Regexp('^[\w\s,\-.]+$',
-                                                                  message="Can only contain letters, digits, dash, comma and dot.")])
+                               )
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
