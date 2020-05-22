@@ -87,7 +87,7 @@ def oidc_login():
     app.logger.info(g.oidc_id_token)
     app.logger.info(
         "oidc_login  token info:" + oidc.user_getinfo(
-            ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']).__str__())
+            ['openid', 'email', 'profile']).__str__())
 
     existing_user_record = User.query.filter_by(elixir_sub_id=oidc.user_getfield("sub")).one_or_none()
 

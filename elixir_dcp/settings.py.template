@@ -41,7 +41,7 @@ class Config(object):
 
      # OIDC config
      OIDC_CLIENT_SECRETS = os.path.join(basedir, 'client_secrets.json')
-     OIDC_SCOPES = ['openid', 'email', 'profile', 'bona_fide_status', 'groupNames']
+     OIDC_SCOPES = ['openid', 'email', 'profile']
      OIDC_COOKIE_SECURE = False
 
 
