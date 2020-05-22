@@ -18,6 +18,10 @@ pip install -e .[dev]
 
 # In case of using zsh as your shell, try the following:
 bash -c pip install -e .[dev]
+
+
+cd elixir_dcp/static/vendor
+npm ci
 ```
 
 ## Requirements
