@@ -10,7 +10,7 @@ before_script:
 
 test:
   script:
-    - cd ../..
+    - cd ../.. && pwd
     - cp elixir_dcp/settings.py.template elixir_dcp/settings.py
     - export ELIXIR_DCP_ENV='test'
     - coverage run setup.py test
