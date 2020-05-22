@@ -5,6 +5,8 @@ before_script:
   - pip install coverage
   - apt update && apt install -yq --no-install-recommends nodejs npm openjdk-11-jdk
   - npm install -g less
+  - cd elixir_dcp/static/vendor
+  - npm ci
 
 test:
   script:
