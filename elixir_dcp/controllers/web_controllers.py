@@ -10,7 +10,7 @@ from elixir_dcp import login_manager
 from elixir_dcp.models.security import User
 from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert_sub, \
     get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info, \
-    update_user_info, send_email, send_new_message_notification
+    update_user_info, send_email_asynch, send_new_message_notification
 from elixir_dcp.models.submission import Submission, SubmissionDataDeclaration, SubmissionUploadInfo, SubmissionStudy, \
     EmailNotification, SubmissionAttachment, SubmissionMessage
 import elixir_dcp.exceptions as exceptions
@@ -710,7 +710,7 @@ def generate_submission_pdf(sub_id):
 def send_notification(notification_id):
     try:
         notification_rec = EmailNotification.query.get_or_404(int(notification_id))
-        send_email(notification_rec)
+        send_email_asynch(notification_rec)
         app.logger.info('INFO: Re-Sent email notification with ID: %s', notification_id)
         flash("Notification email sent!", "success")
         return "", 204

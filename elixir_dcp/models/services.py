@@ -175,19 +175,19 @@ def persist_and_send_notification(subject, sender, recipients, text_body, html_b
     notification.created_on = datetime.today()
     db.session.add(notification)
     db.session.commit()
-    send_email(notification, mode='aysnch')
+    send_email_asynch(notification)
 
 
-def send_email(notification: EmailNotification, mode='synch'):
+def send_email_asynch(notification: EmailNotification):
     msg = Message(notification.subject, sender=notification.sender, recipients=json.loads(notification.recipients_json))
     msg.body = notification.text_body
     msg.html = notification.html_body
-    if mode == 'asynch':
-        thr = Thread(target=send_async_email_target, args=[app, msg])
-        thr.start()
-    else:
-        with app.app_context():
-            mail.send(msg)
+    # if mode == 'asynch':
+    thr = Thread(target=send_async_email_target, args=[app, msg])
+    thr.start()
+    # else:
+    #     with app.app_context():
+    #         mail.send(msg)
 
 
 def send_async_email_target(app, msg):
