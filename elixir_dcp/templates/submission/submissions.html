@@ -3,102 +3,110 @@
 {% set active_page = 'submissions' %}
 {% block title %} Submissions List {% endblock %}
 {% block js %}
-    {{ super() }}
-    {% assets "submission_listing_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-    {% assets "submission_editor_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-    {% assets "select2_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
+{{ super() }}
+{% assets "submission_listing_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "submission_editor_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "select2_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 {% endblock %}
 {% block css %}
-    {{ super() }}
-    {% assets "select2_css" %}
-        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
-    {% endassets %}
+{{ super() }}
+{% assets "select2_css" %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+{% endassets %}
 {% endblock %}
 {% block content %}
-    <div class="row">
-        {% if submissions %}
-            <table class="datatable table table-striped table-bordered" id="submission_list_table">
-                <thead>
-                <tr>
-                    <th>Reference No</th>
-                    <th>Title</th>
-                    <th>Created_On</th>
-                    <th>Status</th>
-                    <th>Data Provider</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for submission in submissions %}
-                    <tr>
-                        <td> {{ submission.ref_name }} </td>
-                        <td> {{ submission.title }} </td>
-                        <td> {{ submission.created_on }} </td>
-                        <td> {{ submission.current_status.value }} </td>
-                        {% if submission.has_providers %}
-                            <td> {{ submission.provider_user_names() | join(', ') }} </td>
-                        {% else %}
-                            <td>  --- </td>
-                        {% endif %}
-                        <td>
-                            <a name="button_submission_listing_edit"
-                               href="{{ url_for('view_submission',sub_id=submission.id) }}" role="button">
-                                <i class="text-info material-icons">visibility</i>
-                            </a>
-                            <a name="button_submission_listing_delete"
-                               data-url="{{ url_for('delete_submission',sub_id=submission.id) }}" role="button">
-                                <i class="text-info material-icons">delete</i>
-                            </a>
-                            <a name="button_generate_submission_pdf"
-                               href="{{ url_for('generate_submission_pdf',sub_id=submission.id) }}" role="button">
-                                <i class="text-info material-icons">picture_as_pdf</i>
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+< class="row">
+{% if submissions %}
+<table class="datatable table table-striped table-bordered" id="submission_list_table">
+    <thead>
+    <tr>
+        <th>Reference No</th>
+        <th>Title</th>
+        <th>Created_On</th>
+        <th>Status</th>
+        <th>Data Provider</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for submission in submissions %}
+    <tr>
+        <td> {{ submission.ref_name }} </td>
+        <td> {{ submission.title }} </td>
+        <td> {{ submission.created_on }} </td>
+        <td> {{ submission.current_status.value }} </td>
+        {% if submission.has_providers %}
+        <td> {{ submission.provider_user_names() | join(', ') }} </td>
         {% else %}
-            <div class="text-center">
-                <h3> No submissions have been added. </h3>
-                <hr class="intro-divider">
-            </div>
+        <td>  --- </td>
         {% endif %}
+        <td>
+            <a name="button_submission_listing_edit"
+               href="{{ url_for('view_submission',sub_id=submission.id) }}" role="button">
+                <i class="text-info material-icons">visibility</i>
+            </a>
+            <a name="button_submission_listing_delete"
+               data-url="{{ url_for('delete_submission',sub_id=submission.id) }}" role="button">
+                <i class="text-info material-icons">delete</i>
+            </a>
+            <div class="btn-group dropdown">
+                <!--Trigger-->
+                <a class="btn dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    <i class="text-info material-icons">more_vert</i>
+                </a>
+                <!--Menu-->
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item"  role="button" href="{{ url_for('generate_submission_docx',sub_id=submission.id) }}">Export as ELIXIR-LU Terms Agreement Annex</a></li>
+                    <li><a class="dropdown-item" role="button" href="{{ url_for('generate_submission_pdf',sub_id=submission.id) }}">Export as PDF</a></li>
+                </ul>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="text-center">
+    <h3> No submissions have been added. </h3>
+    <hr class="intro-divider">
+</div>
+{% endif %}
 
 
-        <div>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#submission_create_modal">Add
-                New Submission
-            </button>
-            <div class="modal fade" id="submission_create_modal" tabindex="-1" role="dialog"
-                 aria-labelledby="submission_create_modal">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">Create New Submission</h4>
+<div>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#submission_create_modal">Add
+        New Submission
+    </button>
+    <div class="modal fade" id="submission_create_modal" tabindex="-1" role="dialog"
+         aria-labelledby="submission_create_modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Create New Submission</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="form_submission_create"
+                          method="POST"
+                          action="{{ url_for('create_submission') }}">
+                        {{ submsn_create_form.hidden_tag() }}
+                        {{ fmacros.render_field_with_errors(submsn_create_form.institution_accession, clazz="elx-select") }}
+                        {{ fmacros.render_field_with_errors(submsn_create_form.title) }}
+                        <div class="modal-footer">
+                            <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
+                            <button type="button" class="cancel btn btn-raised btn-primary" data-dismiss="modal">Cancel</button>
                         </div>
-                        <div class="modal-body">
-                            <form id="form_submission_create"
-                                  method="POST"
-                                  action="{{ url_for('create_submission') }}">
-                                {{ submsn_create_form.hidden_tag() }}
-                                {{ fmacros.render_field_with_errors(submsn_create_form.institution_accession, clazz="elx-select") }}
-                                {{ fmacros.render_field_with_errors(submsn_create_form.title) }}
-                                <div class="modal-footer">
-                                    <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
-                                    <button type="button" class="cancel btn btn-raised btn-primary" data-dismiss="modal">Cancel</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div><!-- modal-content -->
-                </div><!-- modal-dialog -->
-            </div><!-- modal Add New-->
-        </div>
-    </div>
+                    </form>
+                </div>
+            </div><!-- modal-content -->
+        </div><!-- modal-dialog -->
+    </div><!-- modal Add New-->
+</div>
+</div>
 {% endblock %}

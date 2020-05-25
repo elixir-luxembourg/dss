@@ -20,7 +20,6 @@ import uuid
 import shutil
 from werkzeug.utils import secure_filename
 import json
-import pdfkit
 from elixir_dcp import app, db, oidc
 
 from . import app_authorization
@@ -438,7 +437,7 @@ def add_submission_datadec(sub_id):
 
 @app.route('/submission_datadec/<int:datadec_id>', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'],
-                   record_authorization={'entity': 'Submissiondatadec', 'entity_id_key': 'datadec_id',
+                   record_authorization={'entity': 'SubmissionDataDeclaration', 'entity_id_key': 'datadec_id',
                                          'entity_ac_attribute': 'submission_id'})
 def edit_submission_datadec(datadec_id):
     if request.method == 'GET':
@@ -472,7 +471,7 @@ def edit_submission_datadec(datadec_id):
 
 @app.route('/submission_datadec_delete/<int:datadec_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'],
-                   record_authorization={'entity': 'Submissiondatadec', 'entity_id_key': 'datadec_id',
+                   record_authorization={'entity': 'SubmissionDataDeclaration', 'entity_id_key': 'datadec_id',
                                          'entity_ac_attribute': 'submission_id'})
 def delete_submission_datadec(datadec_id):
     datadec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
@@ -677,32 +676,6 @@ def add_submission_message(sub_id):
 # def autocomplete_institutes():
 #     return Response(dumps(app.config.get('DATA_INIT')['collab_institutions']), mimetype='application/json')
 
-
-@app.route('/submission/generate_submission_pdf/<int:sub_id>', methods=['GET'])
-@app_authorization(allowed_roles=['admin', 'data_provider'],
-                   record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
-                                         'entity_ac_attribute': 'id'})
-def generate_submission_pdf(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
-    rendered = render_template('submission/generate_submission_pdf.html',
-                               submission_rec=submission_rec,
-                               png_elx_lu=app.static_folder + '/public/images/' + 'ELIXIR_LU_WB.png',
-                               png_lcsb=app.static_folder + '/public/images/' + 'LCSB-logo.png',
-                               png_uni=app.static_folder + '/public/images/' + 'Uni-LU.png')
-    options = {
-        'page-size': 'A4',
-        'footer-center': '[page] of [topage]',
-        'footer-font-size': '9',
-        'dpi': 400
-    }
-
-    pdf = pdfkit.from_string(rendered, False,
-                             css=app.static_folder + '/vendor/node_modules/bootstrap/dist/css/bootstrap.css',
-                             options=options)
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=output.pdf'
-    return response
 
 
 @app.route('/notification/<int:notification_id>', methods=['GET'])

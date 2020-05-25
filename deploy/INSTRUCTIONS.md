@@ -154,10 +154,12 @@ Go to:  https://elixir-dcp.lcsb.uni.lu  to check if it works
 sudo nginx -s stop
 sudo supervisorctl stop gunicorn
 
-git fetch --all
-git reset --hard origin/master
 
-...make necessary config changes...
+git pull
+pip install -e . --upgrade
+cd elixir_dcp/static/vendor
+npm ci
+
 
 sudo supervisorctl start gunicorn
 sudo nginx

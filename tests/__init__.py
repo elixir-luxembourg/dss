@@ -4,7 +4,7 @@ from elixir_dcp import db, app
 from elixir_dcp.models.security import Role
 from elixir_dcp.models.services import register_new_user, assign_role_to_user
 from elixir_dcp.models.submission import SubmissionScope, ConsentStatus, DeIdentificationType, LegalBasisType, \
-    ContactType
+    ContactType, SubjectCategory
 from elixir_dcp.models.security import User
 
 __author__ = 'Pinar Alper'
@@ -28,6 +28,9 @@ class BaseTest(TestCase):
 
         for deid_type in initial_data['deidentification_type']:
             db.session.add(DeIdentificationType(code=deid_type[0], label=deid_type[1]))
+
+        for subj_cat in initial_data['subject_category']:
+            db.session.add(SubjectCategory(code=subj_cat[0], label=subj_cat[1]))
 
         for lb_type in initial_data['legal_basis']:
             db.session.add(LegalBasisType(code=lb_type[0], label=lb_type[1]))

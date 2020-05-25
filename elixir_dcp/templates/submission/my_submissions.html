@@ -32,6 +32,18 @@
                                href="{{ url_for('view_submission',sub_id=submission.id) }}">
                                 <i class="text-info material-icons">visibility</i>
                             </a>
+                            <div class="btn-group dropdown">
+                                <!--Trigger-->
+                                <a class="btn dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
+                                   aria-haspopup="true" aria-expanded="false">
+                                    <i class="text-info material-icons">more_vert</i>
+                                </a>
+                                <!--Menu-->
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item"  role="button" href="{{ url_for('generate_submission_docx',sub_id=submission.id) }}">Export as ELIXIR-LU Terms Agreement Annex</a></li>
+                                    <li><a class="dropdown-item" role="button" href="{{ url_for('generate_submission_pdf',sub_id=submission.id) }}">Export as PDF</a></li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}

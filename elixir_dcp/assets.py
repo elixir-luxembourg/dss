@@ -10,8 +10,8 @@ jqueryui_js = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.js')
 tm_editor_js = Bundle('vendor/node_modules/tinymce/tinymce.min.js')
 datatables_js = 'vendor/datatables/datatables.min.js'
 datatables_css = 'vendor/datatables/datatables.min.css'
-switches_js =   'vendor/node_modules/bootstrap-switch/dist/js/bootstrap-switch.min.js'
-switches_css = 'vendor/node_modules/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css'
+switches_js =   'vendor/node_modules/bootstrap-switch/dist/js/bootstrap-switch.js'
+switches_css = 'vendor/node_modules/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css'
 
 select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/select2.sortable.js')
 select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')

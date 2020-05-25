@@ -185,7 +185,7 @@ class SubmissionForm(FlaskForm):
                                     label='Submission contacts')
 
     notes = TextAreaField('Remarks',
-                          description="If  there is any information about the study you were unable to provide through the form you may specify it here.",
+                          description="If there is any information about the study you were unable to provide through the form you may specify it here.",
                           render_kw={'rows': 2},
                           validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                              message="Can only contain letters, digits, dash, comma and dot.")])

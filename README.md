@@ -28,6 +28,7 @@ npm ci
  - Python 3.6 or newer
  - JDK (OpenJDK 11 suffices) 
  - nodejs and less (`npm install -g less`) 
+ -`wkhtml2pdf` install suitable version for your dev environment, download [here](https://wkhtmltopdf.org)
  
 ## Configuration
 

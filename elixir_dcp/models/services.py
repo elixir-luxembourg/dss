@@ -282,11 +282,16 @@ def export_submission(sub: Submission):
 
     sub_info['elu_accession'] = sub.ref_name
     sub_info['title'] = sub.title
-    sub_info['submitting_institution'] = sub.institution_accession
+    sub_info['submission_scope_code'] = sub.submission_scope_code
+    sub_info['submitting_institution_accession'] = sub.institution_accession
+    sub_info['submitting_institution_name'] = sub.provider_institute_name()
+    sub_info['submitting_institution_address'] = sub.provider_institute_address()
+
     sub_info['created_on'] = sub.created_on.strftime("%Y-%m-%d")
     if sub.finalised_on:
         sub_info['finalised_on'] = sub.finalised_on.strftime("%Y-%m-%d")
-    sub_info['scope'] = sub.submission_scope.code
+    sub_info['submission_scope_code'] = sub.submission_scope.code
+    sub_info['submission_scope_label'] = sub.submission_scope.label
     if sub.local_custodians_json:
         sub_info['local_custodians'] = json.loads(sub.local_custodians_json)
     if sub.local_project_name:
@@ -320,16 +325,46 @@ def export_submission(sub: Submission):
 
 def export_datadecs(sub: Submission):
     datadec_list = []
+    attrs_to_keep = [
+        'title',
+        'has_samples',
+        'samples_notes',
+        'restriction_rs',
+        'restriction_rs_notes',
+        'restriction_gs',
+        'restriction_gs_notes',
+        'restriction_us',
+        'restriction_us_notes',
+        'restriction_pub',
+        'restriction_pub_notes',
+        'restriction_rtn',
+        'restriction_rtn_notes',
+        'restriction_ip',
+        'restriction_ip_notes',
+        'restriction_ps',
+        'restriction_ps_notes',
+        "has_special_subjects",
+        "special_subjects_notes",
+        'restriction_other_notes',
+        'access_form_required',
+    ]
+
     for datadec in sub.datadecs:
         datadec_info = {}
-        datadec_info['title'] = datadec.title
+        for attr in attrs_to_keep:
+            datadec_info[attr] = getattr(datadec, attr)
+
         datadec_info['source_study'] = datadec.study.name
         datadec_info['legal_basis_data_collection_std'] = datadec.legal_basis_collection_std.label
         datadec_info['legal_basis_data_sharing_std'] = datadec.legal_basis_sharing_std.label
         datadec_info['legal_basis_data_collection_spec'] = datadec.legal_basis_collection_std.label
         datadec_info['legal_basis_data_sharing_spec'] = datadec.legal_basis_sharing_std.label
         datadec_info['legal_basis_notes'] = datadec.legal_basis_notes
-        datadec_info['sci_datatypes'] = datadec.data_type_names()
+
+        datadec_info['sci_datatypes'] = datadec.sci_data_type_names()
+        datadec_info['gdpr_datatypes'] = datadec.gdpr_data_type_names()
+        datadec_info['gdpr_datatypes_notes'] = datadec.gdpr_datatypes_notes
+
         if datadec.sci_datatypes_notes:
             datadec_info['sci_datatypes_notes'] = datadec.sci_datatypes_notes
         datadec_info[
@@ -340,7 +375,7 @@ def export_datadecs(sub: Submission):
         datadec_info['consent_status'] = datadec.consent_status.label.lower()
         if datadec.consent_notes: datadec_info['consent_notes'] = datadec.consent_notes
         datadec_info['de_identification'] = datadec.de_identification_type.label.lower()
-        datadec_info['subject_categories'] = datadec.de_identification_type.label.lower()
+        datadec_info['subject_categories'] = datadec.subject_category.label.lower()
         # use_restrictions = []
         # for duc_instance in datadec.duc_codes:
         #     use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
@@ -371,6 +406,7 @@ def export_studies(sub: Submission):
         study_info = {}
         study_info['title'] = stdy.name
         study_info['description'] = stdy.description
+        study_info['ethics_approval_no'] = stdy.ethics_approval_no
         study_info['ethics_approval_exists'] = stdy.ethics_approval_exists
         study_info['study_types'] = stdy.study_feature_names()
         contacts = []
