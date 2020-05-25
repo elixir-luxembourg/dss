@@ -1,4 +1,10 @@
-<h3>Submission Overview <span class="badge badge-warning">incomplete</span></h3>
+<h3>Submission Overview
+    {% if submission.is_overview_info_complete() %}
+    <span class="badge badge-success">&#10004;</span>
+    {% else %}
+    <span class="badge badge-warning" data-toggle="tooltip" title="Missing information! Please edit submission overview to declare Recipients and Contacts.">&#10069;</span>
+    {% endif %}
+</h3>
 <div class="row">
     <div class="form-group col-md-4">
         <label>Ref No</label><br/>
@@ -12,7 +18,6 @@
         <label>Title</label><br/>
         <h4>{{ submission.title }}</h4>
     </div>
-
 </div>
 {% if details %}
 <div class="row">

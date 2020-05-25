@@ -175,7 +175,11 @@ class Submission(db.Model):
         else:
             return True
 
+    def is_overview_info_complete(self):
+        return self.title and self.submission_contacts
 
+    def is_detail_info_complete(self):
+        return self.studies and self.datadecs
 
 class Contact(db.Model):
     __tablename__ = 'contacts'

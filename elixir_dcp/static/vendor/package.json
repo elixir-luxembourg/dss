@@ -13,6 +13,7 @@
   "author": "Valentin Grouès",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^3.3.7",
     "bootstrap-material-design": "0.x.x",
     "bootstrap-switch": "^3.4.0",
     "chart.js": "^2.9.3",
