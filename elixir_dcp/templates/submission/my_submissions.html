@@ -30,7 +30,7 @@
                         <td>
                             <a name="button_submission_listing_edit"
                                href="{{ url_for('view_submission',sub_id=submission.id) }}">
-                                <i class="text-info material-icons">edit</i>
+                                <i class="text-info material-icons">visibility</i>
                             </a>
                         </td>
                     </tr>
@@ -39,7 +39,7 @@
             </table>
         {% else %}
             <div class="text-center">
-                <h3> No submissions requiring your input. </h3>
+                <h3>No submissions requiring your input.</h3>
                 <hr class="intro-divider">
             </div>
         {% endif %}
