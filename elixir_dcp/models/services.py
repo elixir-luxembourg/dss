@@ -341,6 +341,8 @@ def export_datadecs(sub: Submission):
         'restriction_rtn_notes',
         'restriction_ip',
         'restriction_ip_notes',
+        'restriction_ps',
+        'restriction_ps_notes',
         "has_special_subjects",
         "special_subjects_notes",
         'restriction_other_notes',
