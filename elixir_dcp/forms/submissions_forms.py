@@ -346,7 +346,7 @@ class DatadecForm(FlaskForm):
     restriction_ts_lcsb = BooleanField(
         'Time limit of storage at LCSB: Is the data being sent to ELIXIR-LU/LCSB for a limited duration?',
         default=False)
-    restriction_ts_notes = TextAreaField('Notes on', render_kw={'rows': 3},
+    restriction_ts_lcsb_notes = TextAreaField('Notes on', render_kw={'rows': 3},
                                          description="Please state the agreed end date for data's residence at ELIXIR-LU/LCSB.",
                                          validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
