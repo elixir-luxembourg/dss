@@ -47,8 +47,10 @@ def generate_submission_docx(sub_id):
     template_path = os.path.join(app.root_path, 'templates', 'submission', 'generate_submission_docx.docx')
     doc = DocxTemplate(template_path)
     context = export_submission(sub)
-    print(context)
-    doc.render(context, app.jinja_env)
+    try:
+        doc.render(context, app.jinja_env)
+    except:
+        raise ValueError('Rendering of the DOCX report failed. Are you sure all required values are filled in?')
     doc_io = io.BytesIO()
     doc.save(doc_io)
     doc_io.seek(0)
