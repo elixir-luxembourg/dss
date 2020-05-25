@@ -59,6 +59,10 @@
                                href="{{ url_for('generate_submission_pdf',sub_id=submission.id) }}" role="button">
                                 <i class="text-info material-icons">picture_as_pdf</i>
                             </a>
+                            <a name="button_generate_submission_docx"
+                                href="{{ url_for('generate_submission_docx',sub_id=submission.id) }}" role="button">
+                                <i class="text-info material-icons">insert_drive_file</i>
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}

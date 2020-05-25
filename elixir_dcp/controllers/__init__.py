@@ -42,8 +42,9 @@ def app_authorization(**options):
 
 from . import errors
 from . import web_controllers
+from . import reporters
 from ..models.services import has_access
 
 __author__ = 'Valentin Grouès, Pinar Alper'
 
-__all__ = [errors, web_controllers]
+__all__ = [errors, web_controllers, reporters]
