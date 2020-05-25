@@ -437,7 +437,7 @@ def add_submission_datadec(sub_id):
 
 @app.route('/submission_datadec/<int:datadec_id>', methods=['GET', 'POST'])
 @app_authorization(allowed_roles=['admin', 'data_provider'],
-                   record_authorization={'entity': 'Submissiondatadec', 'entity_id_key': 'datadec_id',
+                   record_authorization={'entity': 'SubmissionDataDeclaration', 'entity_id_key': 'datadec_id',
                                          'entity_ac_attribute': 'submission_id'})
 def edit_submission_datadec(datadec_id):
     if request.method == 'GET':
@@ -471,7 +471,7 @@ def edit_submission_datadec(datadec_id):
 
 @app.route('/submission_datadec_delete/<int:datadec_id>', methods=['GET'])
 @app_authorization(allowed_roles=['admin', 'data_provider'],
-                   record_authorization={'entity': 'Submissiondatadec', 'entity_id_key': 'datadec_id',
+                   record_authorization={'entity': 'SubmissionDataDeclaration', 'entity_id_key': 'datadec_id',
                                          'entity_ac_attribute': 'submission_id'})
 def delete_submission_datadec(datadec_id):
     datadec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
