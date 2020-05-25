@@ -25,7 +25,7 @@
                 <td>{% if datadec.study %} {{ datadec.study.name}} {% endif %}</td>
                 <td>
                     <ul>
-                        {% for name in datadec.data_type_names() %}
+                        {% for name in datadec.sci_data_type_names() %}
                         <li>{{ name }}</li>
                         {% endfor %}
                     </ul>
