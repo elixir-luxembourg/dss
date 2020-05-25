@@ -67,7 +67,7 @@
 </div>
 
 <div class="row block">
-    <h3>Submission Details <span class="badge badge-warning">incomplete</span></h3>
+    <h3>Submission Details</h3>
     <ul class="nav nav-pills">
         <li class="active"><a data-toggle="pill" href="#messages">Messages</a></li>
         <li><a data-toggle="pill" href="#studies">Studies</a></li>
@@ -97,7 +97,6 @@
                 submission.current_status.step_num() ==2 %}
                 <a class="btn btn-primary btn-lg pull-right"
                    href="{{ url_for('add_submission_study',sub_id=submission.id) }}">
-
                 <span class="glyphicon glyphicon-plus" style="font-size: large" data-toggle="tooltip"
                       title="Add New Study"></span>
                 </a>

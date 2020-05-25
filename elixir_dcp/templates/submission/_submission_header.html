@@ -1,4 +1,5 @@
-<h3>Submission Overview <span class="badge badge-warning">incomplete</span></h3>
+<h3>Submission Overview
+    {% if submission.is_info_complete() %} <span class="badge badge-success">&#10003;</span>  {% else %}  <span class="badge badge-warning" data-toggle="tooltip" title="Information incomplete! Please provide Study and Data information">!</span>  {% endif %}  </h3>
 <div class="row">
     <div class="form-group col-md-4">
         <label>Ref No</label><br/>

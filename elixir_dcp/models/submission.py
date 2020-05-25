@@ -175,6 +175,8 @@ class Submission(db.Model):
         else:
             return True
 
+    def is_info_complete(self):
+        return self.studies and self.datadecs
 
 
 class Contact(db.Model):
