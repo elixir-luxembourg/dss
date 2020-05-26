@@ -53,17 +53,7 @@
                     clazz="elx-select") }}
                     {{ fmacros.render_field_with_errors(datadec_form.has_special_subjects) }}
                     {{ fmacros.render_field_with_errors(datadec_form.special_subjects_notes) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.consent_status_code,
-                    clazz="elx-select") }}
-                    {{ fmacros.render_field_with_errors(datadec_form.consent_notes) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rs) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rs_notes) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts_notes) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_pub) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_pub_notes) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn_notes) }}
+
                 </fieldset>
                 <fieldset>
                     <legend>Consent and use restrictions originating from consent</legend>
@@ -72,19 +62,28 @@
                     {{ fmacros.render_field_with_errors(datadec_form.consent_notes) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_rs) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_rs_notes) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_gs) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_gs_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_us) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_us_notes) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_pub) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_pub_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts_notes) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn_notes) }}
+
                 </fieldset>
                 <fieldset>
                     <legend>Specific use restrictions</legend>
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_ps) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_ps_notes) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_gs) }}
-                    {{ fmacros.render_field_with_errors(datadec_form.restriction_gs_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts_lcsb) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_ts_lcsb_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_pub) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_pub_notes) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn) }}
+                    {{ fmacros.render_field_with_errors(datadec_form.restriction_rtn_notes) }}
                     {{ fmacros.render_field_with_errors(datadec_form.restriction_other_notes) }}
                     {{ fmacros.render_field_with_errors(datadec_form.access_form_required) }}
                     <span style="color:red">If an access request form is needed, please make sure you upload the form template as an attachment to this submission.</span>
