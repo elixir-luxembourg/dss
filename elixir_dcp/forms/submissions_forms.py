@@ -328,7 +328,7 @@ class DatadecForm(FlaskForm):
     restriction_pub = BooleanField(
         'Publication requirements: Are there any requirements in case of publications based on the DATA? E.g. papers should cite the cohort study?',
         default=False)
-    restriction_pub_notes = TextAreaField('Notes on retention time', render_kw={'rows': 3},
+    restriction_pub_notes = TextAreaField('Notes on publication requirements', render_kw={'rows': 3},
                                           description="Please describe the publication requirements.",
                                           validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                              message="Can only contain letters, digits, dash, comma and dot.")])
@@ -346,7 +346,7 @@ class DatadecForm(FlaskForm):
     restriction_ts_lcsb = BooleanField(
         'Time limit of storage at LCSB: Is the data being sent to ELIXIR-LU/LCSB for a limited duration?',
         default=False)
-    restriction_ts_lcsb_notes = TextAreaField('Notes on', render_kw={'rows': 3},
+    restriction_ts_lcsb_notes = TextAreaField('Notes on storage duration at ELIXIR-LU/LCSB', render_kw={'rows': 3},
                                          description="Please state the agreed end date for data's residence at ELIXIR-LU/LCSB.",
                                          validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
