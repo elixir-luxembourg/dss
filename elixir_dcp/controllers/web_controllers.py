@@ -356,7 +356,7 @@ def add_submission_attachment(sub_id):
             if file.filename == '':
                 file_validation = False
                 form.file_attachments.errors.append('No file(s) selected.')
-            if not is_allowed_type(file.filename):
+            elif not is_allowed_type(file.filename):
                 file_validation = False
                 form.file_attachments.errors.append(
                     'File {} is not of allowed type. Only TXT, PDF and PNG files can be uploaded.'.format(file.filename))
