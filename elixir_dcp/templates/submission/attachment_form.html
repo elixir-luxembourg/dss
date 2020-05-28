@@ -34,8 +34,13 @@
                 </label>
                 <input type=file id="file_attachments" name="file_attachments" multiple>
                 {% if attachment_form.file_attachments.errors %}
-                {% for error in attachment_form.file_attachments.errors %}<p class="help-block">{{ error }}</p>
-                {% endfor %}
+                <div class="has-error">
+                    {% for error in attachment_form.file_attachments.errors %}
+                        <p class="help-block">{{ error }}</p>
+                    {% endfor %}
+                 </div>
+                {% else %}
+                    <p class="help-block">Only TXT, PDF and PNG files can be uploaded.</p>
                 {% endif %}
             </div>
             {{ fmacros.render_field_with_errors(attachment_form.note) }}
