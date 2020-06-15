@@ -3,6 +3,7 @@ from datetime import datetime
 
 from flask import abort, flash, redirect, render_template, request, url_for, g, get_flashed_messages, make_response
 from flask_login import current_user, login_user, login_required, logout_user
+from wtforms import FieldList, FormField
 
 import elixir_dcp.forms as forms
 from elixir_dcp import login_manager
@@ -12,7 +13,7 @@ from elixir_dcp.models.services import create_sub, delete_sub, steer_sub, revert
     get_in_progress_submissions_shared_with_user, register_new_user, assign_role_to_user, update_submission_basic_info, \
     update_user_info, send_email_asynch, send_new_message_notification
 from elixir_dcp.models.submission import Submission, SubmissionDataDeclaration, SubmissionUploadInfo, SubmissionStudy, \
-    EmailNotification, SubmissionAttachment, SubmissionMessage
+    EmailNotification, SubmissionAttachment, SubmissionMessage, Contact
 import elixir_dcp.exceptions as exceptions
 from sqlalchemy.exc import OperationalError
 import os
@@ -294,13 +295,28 @@ def edit_submission(sub_id):
     if request.method == 'GET':
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info('Sub REC: %s', submission_rec)
-        sub_form = forms.SubmissionForm(obj=submission_rec)
+
+        if current_user.is_admin():
+            class AdminSubmissionForm(forms.SubmissionForm):pass
+            AdminSubmissionForm.submission_contacts = FieldList(FormField(forms.ContactForm, default=lambda: Contact()), min_entries=0, description="You must provide at least three contacts. (1) Main contact who is the signatory on the submission info sheet, another (2) Data protection officer of the submitting institution\
+                                                                                                                      (3) Legal representative for the submitting institution",
+                                                            label='Submission contacts')
+            sub_form = AdminSubmissionForm(obj=submission_rec)
+        else:
+            sub_form = forms.SubmissionForm(obj=submission_rec)
         if submission_rec.local_custodians_json:
             sub_form.local_custodians.data = json.loads(submission_rec.local_custodians_json)
         sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
         return render_template('submission/submission_form.html', submsn_form=sub_form)
     elif request.method == 'POST':
-        form = forms.SubmissionForm(request.form)
+        if current_user.is_admin():
+            class AdminSubmissionForm(forms.SubmissionForm):pass
+            AdminSubmissionForm.submission_contacts = FieldList(FormField(forms.ContactForm, default=lambda: Contact()), min_entries=0, description="You must provide at least three contacts. (1) Main contact who is the signatory on the submission info sheet, another (2) Data protection officer of the submitting institution\
+                                                                                                                      (3) Legal representative for the submitting institution",
+                                                                label='Submission contacts')
+            form = AdminSubmissionForm(request.form)
+        else:
+            form = forms.SubmissionForm(request.form)
         submission_rec = Submission.query.get_or_404(form.id.data)
         if form.validate_on_submit():
             form.populate_obj(submission_rec)
@@ -319,7 +335,7 @@ def edit_submission(sub_id):
 
 
 """-------------------------------------------------------"""
-"""AJAX Endpoints for managing a submission's sttachments."""
+"""AJAX Endpoints for managing a submission's attachments."""
 """-------------------------------------------------------"""
 
 #

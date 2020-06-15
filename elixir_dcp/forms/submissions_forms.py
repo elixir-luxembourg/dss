@@ -1,6 +1,5 @@
-from flask_wtf import FlaskForm, Form
-from wtforms import StringField, HiddenField, BooleanField, TextAreaField, DateField, \
-    FormField, FieldList, RadioField
+from flask_wtf import FlaskForm
+from wtforms import StringField, HiddenField, BooleanField, TextAreaField, FormField, FieldList
 from wtforms_components import SelectField, SelectMultipleField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Email, Regexp, Length
@@ -169,8 +168,7 @@ class SubmissionForm(FlaskForm):
                                         validators=[DataRequired()])
 
     local_custodians = SelectMultipleField('Recipient PI(s)',
-                                           description="If known please specify the Principal Investigator/Researcher that is the recipient of data.",
-                                           validators=[DataRequired()])
+                                           description="If known please specify the Principal Investigator/Researcher that is the recipient of data.")
 
     local_project_name = StringField('Recipient project',
                                      description="If you are making this submission in the context of a  collaboration/project, please specif its name here.",
