@@ -6,7 +6,7 @@
     <div class="form-group">
         <div class="form-group row">
         <label for="{{ field.id }}">
-            {{ field.label.text }} {% if field.flags.required %}<span style="color:red">*</span>{% endif %}
+            {{ field.label.text }} {% if field.flags.required %}<span class="text-danger">*</span>{% endif %}
         </label>
             {% if field.description %}
             <br/> <span><small class="form-text text-muted">{{field.description}}</small></span> <br/>

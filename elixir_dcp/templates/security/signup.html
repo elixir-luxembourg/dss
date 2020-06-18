@@ -25,15 +25,13 @@
         {{ fmacros.render_field_with_errors(signup_form.first_name) }}
         {{ fmacros.render_field_with_errors(signup_form.last_name) }}
         {{ fmacros.render_field_with_errors(signup_form.email) }}
-        <br/>
-        <br/>
+        {{ fmacros.render_field_with_errors(signup_form.institution_accession, clazz="elx-select") }}
         <div class="form-group row">
             <div class="col-md-9">
-                <p style="color:red;">Can not find your institution in the below list, please contact
+                <p class="text-danger">Can not find your institution in the list, then please contact:
                     <img src="/static/public/images/datasteward_contact.png"/></p>
             </div>
         </div>
-        {{ fmacros.render_field_with_errors(signup_form.institution_accession, clazz="elx-select") }}
         {{ fmacros.render_field_with_errors(signup_form.institution_division) }}
         {{ fmacros.render_field_with_errors(signup_form.addr_line1) }}
         {{ fmacros.render_field_with_errors(signup_form.addr_line2) }}

@@ -129,7 +129,7 @@ def send_submission_steer_step1_notification(submission: Submission):
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
     persist_and_send_notification("Submission [%s] initiated" % submission.ref_name,
-                                  'noreply@elixir-luxembourg.org',
+                                  'noreply@uni.lu',
                                   recipients,
                                   render_template("email/submission_steer1.txt", submission=submission),
                                   render_template("email/submission_steer1.html", submission=submission))
@@ -138,7 +138,7 @@ def send_submission_steer_step1_notification(submission: Submission):
 def send_submission_steer_step2_notification(submission: Submission):
     persist_and_send_notification(
         "Submission [%s] steered to Data Upload, needs Upload Instructions" % submission.ref_name,
-        'noreply@elixir-luxembourg.org',
+        'noreply@uni.lu',
         app.config.get('DATA_STEWARDS_MAILS'),
         render_template("email/submission_steer2.txt", submission=submission),
         render_template("email/submission_steer2.html", submission=submission))
@@ -146,7 +146,7 @@ def send_submission_steer_step2_notification(submission: Submission):
 
 def send_submission_steer_step3_notification(submission: Submission):
     persist_and_send_notification("Submission [%s] steered to Completion, needs Verification" % submission.ref_name,
-                                  'noreply@elixir-luxembourg.org',
+                                  'noreply@uni.lu',
                                   app.config.get('DATA_STEWARDS_MAILS'),
                                   render_template("email/submission_steer3.txt", submission=submission),
                                   render_template("email/submission_steer3.html", submission=submission))
@@ -159,7 +159,7 @@ def send_new_message_notification(submission_message: SubmissionMessage):
     recipients = recipients + app.config.get('DATA_STEWARDS_MAILS')
 
     persist_and_send_notification("Submission [%s] has new message" % submission_message.submission.ref_name,
-                                  'noreply@elixir-luxembourg.org',
+                                  'noreply@uni.lu',
                                   recipients,
                                   render_template("email/submission_new_message.txt", submission=submission_message.submission),
                                   render_template("email/submission_new_message.html", submission=submission_message.submission))
