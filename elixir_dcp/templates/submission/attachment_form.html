@@ -23,14 +23,14 @@
         <p>In this section you can upload documents to support the information
             provided in the submission forms. E.g. a copy of the Ethics Approval for the source study, a template of the Consent Form used
             during data collection etc.
-            <span style="font-weight:bold">Please do NOT upload any DATA or METADATA through this section.</span>
+            <span  class="text-danger">Please do NOT upload any DATA or METADATA through this section.</span>
         </p>
         <form method="POST" enctype="multipart/form-data"
               data-url="{{ url_for('add_submission_attachment', sub_id=attachment_form.submission_id.data)}}">
             {{ attachment_form.hidden_tag() }}
             <div>
                 <label for="file_attachments">
-                    File(s)<span style="color:red">*</span>
+                    File(s)<span class="text-danger">*</span>
                 </label>
                 <input type=file id="file_attachments" name="file_attachments" multiple>
                 {% if attachment_form.file_attachments.errors %}
