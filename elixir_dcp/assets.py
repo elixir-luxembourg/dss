@@ -81,11 +81,3 @@ notification_listing_js = Bundle(
         filters='closure_js'
     ),
     output='public/js/notification_listing.min.js')
-
-signup_js = Bundle(
-    Bundle(
-        'js/signup.js',
-        filters='closure_js'
-    ),
-    output='public/js/signup.min.js')
-

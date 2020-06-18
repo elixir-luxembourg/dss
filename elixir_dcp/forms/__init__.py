@@ -58,34 +58,34 @@ class SignupForm(FlaskForm):
     """
 
     elixir_sub_id = HiddenField('Elixir Sub ID')
-    first_name = StringField('First Name', validators=[DataRequired(),
+    first_name = StringField('First Name',  description="Your name.", validators=[DataRequired(),
                                                        Regexp('^[\w\s]+$',
                                                               message="Can only contain letters, digits and underscore."),
                                                        Length(min=2, max=20,
                                                               message="Must be 2 to 20 characters long.")])
-    last_name = StringField('Last Name',
+    last_name = StringField('Last Name', description="Your surname.",
                             validators=[DataRequired(),
                                         Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                         Length(min=2, max=20, message="Must be 2 to 20 characters long.")])
 
-    institution_accession = SelectField('Institution', validators=[DataRequired()])
+    institution_accession = SelectField('Institution', description="Your home organisation.", validators=[DataRequired()])
 
-    institution_division = StringField('Division/Department',
+    institution_division = StringField('Division/Department', description="Your division within the home organisation.",
                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
 
-    email = EmailField('E Mail', validators=[DataRequired(), Email("Requires an email address.")],
+    email = EmailField('E Mail',  description="Your institutional email.", validators=[DataRequired(), Email("Requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
 
-    addr_line1 = StringField('Address Line 1', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+    addr_line1 = StringField('Address Line 1', description="Your postal address.", validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                                   message="Can only contain letters, digits, dash, comma and dot.")],
                              render_kw={"placeholder": "Street Address."})
 
-    addr_line2 = StringField('Address Line 2', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+    addr_line2 = StringField('Address Line 2',  description="Your postal address.", validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
                                                                                   message="Can only contain letters, digits, dash, comma and dot.")],
                              render_kw={"placeholder": "City, Country, Postal Code."})
 
-    phone_no = StringField('Phone', validators=[
+    phone_no = StringField('Phone',  description="Phone number.", validators=[
         OptionalFieldValidator(message="Can only contain digits, dash and plus.", regex_str="^[0-9\s\-\+]+$")])
 
     def __init__(self, *args, **kwargs):
