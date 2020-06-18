@@ -22,10 +22,10 @@ cookiebanner_js =  Bundle('vendor/cookiebanner.min.js')
 common_css = Bundle(
     'vendor/node_modules/bootstrap/dist/css/bootstrap.css',
     'vendor/node_modules/bootstrap-material-design/dist/css/ripples.css',
-    switches_css,
     jqueryui_css,
     datatables_css,
     select2_css,
+    switches_css,
     Bundle(
         'css/layout.less',
         filters='less'
@@ -37,12 +37,12 @@ common_js = Bundle(
     'vendor/node_modules/bootstrap/dist/js/bootstrap.js',
     'vendor/node_modules/bootstrap-material-design/dist/js/ripples.js',
     'vendor/node_modules/bootstrap-material-design/dist/js/material.js',
-    switches_js,
     jqueryui_js,
     select2_js,
     datatables_js,
     handlebars_js,
     typeahead_js,
+    switches_js,
     'js/main.js',
     filters='closure_js',
     output='public/js/common.min.js', debug=False)
