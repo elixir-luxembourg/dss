@@ -27,45 +27,82 @@
                 }, 50);
         }
     </script>
+    <script>
+        const settings = {
+            expires: "180",
+            matomoURL: "https://analytics.lcsb.uni.lu/hub/",
+            siteID: "9", //you get this siteID by sending an email to lcsb-r3@uni.lu
+            accept_all_text: "Aggregate statistics cookies accepted",
+            only_necessary_text: "Only necessary cookies accepted",
+            doNotTrack_text: "Do Not Track is enabled",
+            cookieName: "lap",
+            bots: /bot|crawler|spider|crawling/i,
+            timeout_hidebanner: "500",
+            cookieDomain: "*.lux-covid19.lu"
+        };
+    </script>
+    <script src="https://analytics.lcsb.uni.lu/lap/static/js/jquery.min.js"></script>
+    <script src="https://analytics.lcsb.uni.lu/lap/static/js/lap.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://analytics.lcsb.uni.lu/lap/static/css/lap.css" />
+
 </head>
 <body>
 
 
-<div id="wrap">
-    {% block container %}
-        <div class="container" id="main-container">
-            {% block header %}
-                {% with active_page=active_page %}
-                    {% include 'header.html' %}
-                {% endwith %}
-            {% endblock %}
-            {% block navbar %}
-                {% with active_page=active_page %}
-                    {% include 'navbar.html' %}
-                {% endwith %}
-            {% endblock %}
-            {{ macros.show_flashes() }}
-            {% block content %}{% endblock %}
+    <div id="wrap">
+        {% block container %}
+            <div class="container" id="main-container">
+                {% block header %}
+                    {% with active_page=active_page %}
+                        {% include 'header.html' %}
+                    {% endwith %}
+                {% endblock %}
+                {% block navbar %}
+                    {% with active_page=active_page %}
+                        {% include 'navbar.html' %}
+                    {% endwith %}
+                {% endblock %}
+                {{ macros.show_flashes() }}
+                {% block content %}{% endblock %}
 
-            <div id="common-command-dialog" title="Confirm" class="dialog-body" style="display:none">
-                <!-- Fragment displayed within a JQuery UI Dialog  -->
-                <p>
-                    You are about to <span id="command-dialog-text"></span>!
-                </p>
+                <div id="common-command-dialog" title="Confirm" class="dialog-body" style="display:none">
+                    <!-- Fragment displayed within a JQuery UI Dialog  -->
+                    <p>
+                        You are about to <span id="command-dialog-text"></span>!
+                    </p>
+                </div>
+            </div>
+        {% endblock %}
+    </div>
+    {% block footer %}{% include 'footer.html' %}{% endblock %}
+    {% block extra_content %}{% endblock %}
+    {% block js %}
+        {% assets "common_js" %}
+            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
+    {% endblock %}
+    <div id="lap-cookies-banner">
+        <div class="banner-intro">
+            <div class="close-button">
+                <a class="lap-refuse">
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="banner-img">
+                <img src="https://analytics.lcsb.uni.lu/lap/static/logos/r3-logo.svg" type="image/svg+xml"/>
+            </div>
+            <div class="banner-title">This website needs some cookies and similar means to function.</div>
+            <div class="banner-text">If you permit us, we will use those means to collect data on your visits for aggregated
+                statistics to improve our service.
             </div>
         </div>
-    {% endblock %}
-</div>
-{% block footer %}{% include 'footer.html' %}{% endblock %}
-{% block extra_content %}{% endblock %}
-{% block js %}
-    {% assets "common_js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-    {% assets "cookiebanner_js" %}
-        <script type="text/javascript" id="cookiebanner" data-height="64px" data-moreinfo="https://www.elixir-europe.org/legal/cookies" data-message="This site uses cookies in order to remember your login information. By continuing to visit this site you agree to our use of cookies."
-                src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-{% endblock %}
+
+        <div class="banner-buttons">
+            <a class="btn lap-accept">Accept cookies for aggregated statistics</a>
+            <a class="btn lap-refuse">No thanks, only technically necessary cookies</a>
+            <a class="btn lap-cookies-more" href="privacy-policy">More information</a>
+        </div>
+    </div>
 </body>
 </html>
