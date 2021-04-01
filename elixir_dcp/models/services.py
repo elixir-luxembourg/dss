@@ -413,7 +413,18 @@ def export_datadecs(sub: Submission):
         datadec_info['legal_basis_data_sharing_spec'] = datadec.legal_basis_sharing_std.label
         datadec_info['legal_basis_notes'] = datadec.legal_basis_notes
 
-        #datadec_info['sci_datatypes'] = datadec.sci_data_type_names()
+        if datadec.dac_approval_required:
+            if datadec.access_form_required:
+                datadec_dict["access_category"] = "open-access"
+                datadec_dict["access_procedure"] = "No additional form is needed to request access."
+            else:
+                datadec_dict["access_category"] = "registered-access" 
+                datadec_dict["access_procedure"] = "Additional form is needed to request access."
+        else:
+            datadec_dict["access_category"] = "controlled-access"
+            datadec_dict["access_procedure"] = datadec.dac_approval_notes
+      
+        datadec_info['sci_datatypes'] = datadec.sci_data_type_names()
         datadec_info['gdpr_datatypes'] = datadec.gdpr_data_type_names()
         datadec_info['gdpr_datatypes_notes'] = datadec.gdpr_datatypes_notes
 
