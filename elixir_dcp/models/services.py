@@ -377,24 +377,17 @@ def export_submission(sub: Submission):
 
 def export_datadecs(sub: Submission):
     datadec_list = []
-    attrs_to_keep = [
-        'title'
-    ]
 
     for datadec in sub.datadecs:
         datadec_info = {}
         
-        datadec_info['title'] datadec.title
+        datadec_info['title'] = datadec.title
         
         datadec_info['use_restrictions'] = export_datadec_restrictions(datadec)
         
         if datadec.restriction_ts_lcsb:
             datadec_info['storage_end_date'] = datadec.restriction_ts_lcsb_notes
-            
         
-        for attr in attrs_to_keep:
-            datadec_info[attr] = getattr(datadec, attr)
-        datadec_info['data_types'] = datadec.sci_data_type_names()
         datadec_info['source_study'] = datadec.study.name
         datadec_info['legal_basis_data_collection_std'] = datadec.legal_basis_collection_std.label
         datadec_info['legal_basis_data_sharing_std'] = datadec.legal_basis_sharing_std.label
