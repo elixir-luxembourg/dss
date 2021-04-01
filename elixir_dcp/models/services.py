@@ -380,9 +380,7 @@ def export_datadecs(sub: Submission):
     attrs_to_keep = [
         'title',
         'has_samples',
-        'samples_notes',
-        "has_special_subjects",
-        "special_subjects_notes"
+        'samples_notes'
     ]
 
     for datadec in sub.datadecs:
@@ -423,9 +421,8 @@ def export_datadecs(sub: Submission):
 
         if datadec.sci_datatypes_notes:
             datadec_info['sci_datatypes_notes'] = datadec.sci_datatypes_notes
-        datadec_info[
-            'has_special_subjects'] = datadec.has_special_subjects
-
+        
+        datadec_info['has_special_subjects'] = datadec.has_special_subjects
         datadec_info['special_subject_notes'] = datadec.special_subjects_notes
 
         datadec_info['consent_status'] = datadec.consent_status.label.lower()
