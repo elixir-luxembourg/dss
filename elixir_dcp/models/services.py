@@ -378,9 +378,7 @@ def export_submission(sub: Submission):
 def export_datadecs(sub: Submission):
     datadec_list = []
     attrs_to_keep = [
-        'title',
-        'has_samples',
-        'samples_notes'
+        'title'
     ]
 
     for datadec in sub.datadecs:
@@ -415,7 +413,7 @@ def export_datadecs(sub: Submission):
             datadec_dict["access_category"] = "controlled-access"
             datadec_dict["access_procedure"] = datadec.dac_approval_notes
       
-        datadec_info['sci_datatypes'] = datadec.sci_data_type_names()
+        datadec_info['data_types'] = datadec.sci_data_type_names()
         datadec_info['gdpr_datatypes'] = datadec.gdpr_data_type_names()
         datadec_info['gdpr_datatypes_notes'] = datadec.gdpr_datatypes_notes
 
@@ -424,6 +422,11 @@ def export_datadecs(sub: Submission):
         
         datadec_info['has_special_subjects'] = datadec.has_special_subjects
         datadec_info['special_subject_notes'] = datadec.special_subjects_notes
+
+        if datadec.has_samples:
+            datadec_info['data_types'].append("Samples")
+            if datadec.data_types_notes:
+                datadec_info['data_types_notes'] +=  " Notes on samples: " + datadec.data_types_notes
 
         datadec_info['consent_status'] = datadec.consent_status.label.lower()
         if datadec.consent_notes: datadec_info['consent_notes'] = datadec.consent_notes
