@@ -381,28 +381,21 @@ def export_datadecs(sub: Submission):
         'title',
         'has_samples',
         'samples_notes',
-        'restriction_rs',
-        'restriction_rs_notes',
-        'restriction_gs',
-        'restriction_gs_notes',
-        'restriction_us',
-        'restriction_us_notes',
-        'restriction_pub',
-        'restriction_pub_notes',
-        'restriction_rtn',
-        'restriction_rtn_notes',
-        'restriction_ip',
-        'restriction_ip_notes',
-        'restriction_ps',
-        'restriction_ps_notes',
         "has_special_subjects",
-        "special_subjects_notes",
-        'restriction_other_notes',
-        'access_form_required',
+        "special_subjects_notes"
     ]
 
     for datadec in sub.datadecs:
         datadec_info = {}
+        
+        datadec_info['title'] datadec.title
+        
+        datadec_info['use_restrictions'] = export_datadec_restrictions(datadec)
+        
+        if datadec.restriction_ts_lcsb:
+            datadec_info['storage_end_date'] = datadec.restriction_ts_lcsb_notes
+            
+        
         for attr in attrs_to_keep:
             datadec_info[attr] = getattr(datadec, attr)
         datadec_info['data_types'] = datadec.sci_data_type_names()
@@ -474,6 +467,40 @@ def export_legal_bases(sub: Submission):
         legal_bases.append(legal_base_info_collection_std)
     return legal_bases
 
+
+
+def export_datadec_restrictions(datadec: SubmissionDataDeclaration) -> List[Dict]:
+    restriction_list = []
+    
+    restriction_codes = {
+        'rs': "RS-[XX]",
+        'gs': "GS-[XX]",
+        'us': "US",
+        'pub': "PUB",
+        'rtn': "RTN",
+        'ip': "IP",
+        'ps': "PS",
+        'ts_lcsb': 'TS-[XX]',
+        'ts': 'TS-[XX]'
+    }
+    datadec_form = DatadecForm()
+    for prefix, restriction_code in enumerate(restriction_codes):
+        restriction_dict = {}
+        restriction_dict['use_class'] = restriction_code
+        restriction_dict['use_restriction_rule'] = 'CONSTRAINT' if getattr(datadec, f'restriction_{code}') else 'NO CONSTRAINT'
+        restriction_dict['use_class_note'] = getattr(datadec_form, f'restriction_{code}').label
+        restriction_dict['use_restriction_note'] = getattr(datadec, f'restriction_{code}_notes')
+        restriction_list.append(restriction_dict)
+        
+    if datadec.restriction_other_notes:
+        restriction_other_dict = {}
+        restriction_other_dict['use_class'] = "Other"
+        restriction_other_dict['use_restriction_rule'] = 'CONSTRAINT'
+        restriction_other_dict['use_class_note'] = getattr(datadec_form, f'restriction_other_notes').description
+        restriction_other_dict['use_restriction_note'] = getattr(datadec, f'restriction_{code}_notes')
+        restriction_list.append(restriction_other_dict)
+
+    return restriction_list
 
 
 def export_attachment_info(sub: Submission):
