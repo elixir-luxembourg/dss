@@ -33,9 +33,7 @@ requirements = [
     'WTForms-Components==0.10.4',
     'schedule',
     'WTForms==2.2.1',
-    'docxtpl==0.9.2',
-    'Celery==4.0.0',
-    
+    'docxtpl==0.9.2'
 ]
 
 test_requirements = [

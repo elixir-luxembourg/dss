@@ -503,15 +503,15 @@ def export_studies(sub: Submission):
     return study_list
 
 
-def schedule_submission_export():
+def schedule_submission_export(path_to_json_directory=None, export_all_submissions=False, submissions_to_export=None):
     app.logger.info("export schedule started")
-    all_submissions = Submission.query.filter_by(current_status=SubmissionStatusEnum.completed)
+    submissions = get_submissions_to_export(export_all_submissions, submissions_to_export)
     app.logger.info("schedule_submission_export")
-
-    if all_submissions.count() > 0:
-        for submission in all_submissions:
-            
-            export_directory = os.path.join(app.config.get('SUBMISSION_EXPORT_FOLDER'), submission.ref_name)
+    if path_to_json_directory is None:
+        path_to_json_directory = os.path.join(app.config.get('SUBMISSION_EXPORT_FOLDER'))
+    if submissions.count() > 0:
+        for submission in submissions:
+            export_directory = os.path.join(path_to_json_directory, submission.ref_name)
             app.logger.info(export_directory)
             if not os.path.exists(export_directory):
                 os.makedirs(export_directory)
@@ -548,3 +548,18 @@ def schedule_submission_export():
             
 
 
+def get_submissions_to_export(export_all_submissions=False, submissions_to_export=None):
+    if export_all_submissions:
+        submissions = Submission.query.filter_by(current_status=SubmissionStatusEnum.completed)
+    else:
+        submissions = Submission.query.filter_by(current_status=SubmissionStatusEnum.completed, exported=False)
+    
+    if submissions_to_export:
+        submissions_indexes = []
+        for idx, submission in enumerate(submissions):
+            if submission.title in submissions_to_export:
+                submissions_indexes.append(idx)
+            else:
+                app.logger.warnings(f"Submission {submission.title} not found. Skipping...")    
+            submissions = submissions_sub[submissions_indexes]
+    return submissions

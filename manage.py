@@ -5,6 +5,8 @@ from flask_assets import ManageAssets
 from flask_migrate import MigrateCommand
 from flask_script import Manager, Shell, Server
 from elixir_dcp import app, db
+
+from elixir_dcp.commands.export_submissions import ExportSubmissionsCommand
 from elixir_dcp.models.submission import ContactType, DeIdentificationType, \
     LegalBasisType, ConsentStatus, SubmissionScope, SubjectCategory
 from elixir_dcp.models.security import User, Role
@@ -15,6 +17,7 @@ manager.add_command("runserver", Server(host="127.0.0.1", port=5000))
 
 manager.add_command('db', MigrateCommand)
 
+manager.add_command('export_submissions', ExportSubmissionsCommand())
 
 @manager.command
 def init_db():
