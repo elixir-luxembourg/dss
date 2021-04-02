@@ -276,11 +276,13 @@ def update_user_info(usr: User, **kwargs):
     db.session.add(usr)
     db.session.commit()
 
-
+'''
 def export_submission(sub: Submission):
     sub_info = {}
 
-    sub_info['elu_accession'] = sub.ref_name
+    #sub_info['elu_accession'] = sub.ref_name
+    sub_info['source'] = 'https://elixir-dcp.lcsb.uni.lu/'
+    sub_info['name'] = sub.ref_name
     sub_info['title'] = sub.title
     sub_info['submission_scope_code'] = sub.submission_scope_code
     sub_info['submitting_institution_accession'] = sub.institution_accession
@@ -316,12 +318,62 @@ def export_submission(sub: Submission):
 
     sub_info['studies'] = export_studies(sub)
 
-    sub_info['datadecs'] = export_datadecs(sub)
+    sub_info['data_declarations'] = export_datadecs(sub)
 
     sub_info['attachments'] = export_attachment_info(sub)
 
     return sub_info
+'''
 
+def export_submission(sub: Submission):
+    sub_info = {}
+
+    #sub_info['elu_accession'] = sub.ref_name
+    sub_info['source'] = 'https://elixir-dcp.lcsb.uni.lu/'
+    sub_info['contacts'] = sub.submission_contacts
+    sub_info['name'] = sub.ref_name
+    sub_info['title'] = sub.title
+    sub_info['submission_scope_code'] = sub.submission_scope_code
+    sub_info['submitting_institution_accession'] = sub.institution_accession
+    sub_info['submitting_institution_name'] = sub.provider_institute_name()
+    sub_info['submitting_institution_address'] = sub.provider_institute_address()
+
+    sub_info['created_on'] = sub.created_on.strftime("%Y-%m-%d")
+    if sub.finalised_on:
+        sub_info['finalised_on'] = sub.finalised_on.strftime("%Y-%m-%d")
+    sub_info['submission_scope_code'] = sub.submission_scope.code
+    sub_info['submission_scope_label'] = sub.submission_scope.label
+    if sub.local_custodians_json:
+        sub_info['local_custodians'] = json.loads(sub.local_custodians_json)
+    if sub.local_project_name:
+        sub_info['local_project'] = sub.local_project_name
+
+    submitters = []
+    for access in sub.submission_accesses:
+        provider_info = {}
+        provider_info['institution'] = access.user.institution_accession
+        provider_info['email'] = access.user.email
+        provider_info['first_name'] = access.user.first_name
+        provider_info['last_name'] = access.user.last_name
+        provider_info['phone_no'] = access.user.phone_no
+
+        if access.user.addr_line1 or access.user.addr_line2:
+            provider_info['address'] = (access.user.addr_line1 or '') + ' ' + (access.user.addr_line2 or '')
+
+        provider_info['role'] = 'Data_Manager'
+        submitters.append(provider_info)
+
+    sub_info['data_providers'] = submitters
+
+    sub_info['studies'] = export_studies(sub)
+
+    sub_info['data_declarations'] = export_datadecs(sub)
+
+    sub_info['legal_bases'] = export_legal_bases(sub)
+
+    sub_info['attachments'] = export_attachment_info(sub)
+
+    return sub_info
 
 def export_datadecs(sub: Submission):
     datadec_list = []
@@ -353,7 +405,7 @@ def export_datadecs(sub: Submission):
         datadec_info = {}
         for attr in attrs_to_keep:
             datadec_info[attr] = getattr(datadec, attr)
-
+        datadec_info['data_types'] = datadec.sci_data_type_names()
         datadec_info['source_study'] = datadec.study.name
         datadec_info['legal_basis_data_collection_std'] = datadec.legal_basis_collection_std.label
         datadec_info['legal_basis_data_sharing_std'] = datadec.legal_basis_sharing_std.label
@@ -361,7 +413,7 @@ def export_datadecs(sub: Submission):
         datadec_info['legal_basis_data_sharing_spec'] = datadec.legal_basis_sharing_std.label
         datadec_info['legal_basis_notes'] = datadec.legal_basis_notes
 
-        datadec_info['sci_datatypes'] = datadec.sci_data_type_names()
+        #datadec_info['sci_datatypes'] = datadec.sci_data_type_names()
         datadec_info['gdpr_datatypes'] = datadec.gdpr_data_type_names()
         datadec_info['gdpr_datatypes_notes'] = datadec.gdpr_datatypes_notes
 
@@ -384,6 +436,33 @@ def export_datadecs(sub: Submission):
         #     datadec_info['use_restrictions'] = use_restrictions
         datadec_list.append(datadec_info)
     return datadec_list
+
+def export_legal_bases(sub: Submission):
+    legal_bases=[]
+    for datadec in sub.datadecs:
+        legal_base_info_collection_std = {}
+
+        legal_base_info_collection_std['data_declarations'] = datadec.title
+        legal_base_info_collection_std['legal_basis_codes'] = datadec.legal_basis_collection_std.label #regex
+        legal_base_info_collection_std['personal_data_codes'] = 'Standard'
+     
+        
+        legal_base_info_collection_std['legal_basis_notes'] = 'What is the legal basis according to Art. 6.1 GDPR for the collection of standard (non-sensitive) personal data?'
+
+        #datadec_info['sci_datatypes'] = datadec.sci_data_type_names()
+        #legal_base_info['gdpr_datatypes'] = datadec.gdpr_data_type_names()
+        #legal_base_info['gdpr_datatypes_notes'] = datadec.gdpr_datatypes_notes
+        #legal_bases.append(legal_base_info)
+        #legal_base_info_collection_spec = {}
+        #legal_base_info['data_declarations'] = datadec.title
+        #legal_base_info['legal_basis_codes'] = datadec.legal_basis_collection_spec.label #regex
+        #legal_base_info['personal_data_codes'] = 'Special'
+     
+        
+        #legal_base_info['legal_basis_notes'] = 'What is the legal basis according to Art. 6.1 GDPR for the collection of standard (non-sensitive) personal data?'
+        legal_bases.append(legal_base_info_collection_std)
+    return legal_bases
+
 
 
 def export_attachment_info(sub: Submission):
@@ -426,16 +505,26 @@ def export_studies(sub: Submission):
 
 def schedule_submission_export():
     app.logger.info("export schedule started")
-    all_submissions = Submission.query.filter_by(current_status=SubmissionStatusEnum.completed, exported=False)
+    all_submissions = Submission.query.filter_by(current_status=SubmissionStatusEnum.completed)
     app.logger.info("schedule_submission_export")
+
     if all_submissions.count() > 0:
         for submission in all_submissions:
+            
             export_directory = os.path.join(app.config.get('SUBMISSION_EXPORT_FOLDER'), submission.ref_name)
             app.logger.info(export_directory)
             if not os.path.exists(export_directory):
                 os.makedirs(export_directory)
+
+            with open( os.path.join(export_directory, submission.ref_name + ".json"), 'w') as jsonfile:
+                json.dump({
+                        "$schema": "https://git-r3lab.uni.lu/pinar.alper/metadata-tools/raw/master/metadata_tools/resources/elu-dataset.json",
+                        "items": [export_submission(submission)]}, jsonfile, indent=4)
+    
+            '''
             submission_exportfile = open(os.path.join(export_directory, submission.ref_name + ".json"), "w")
             submission_exportfile.write(json.dumps([export_submission(submission)], indent=4))
+            '''
             # submission_attachments = SubmissionAttachment.query.filter_by(submission_id=submission.id).all()
             # for attachment in submission_attachments:
             #
@@ -456,5 +545,6 @@ def schedule_submission_export():
             submission.exported = True
             db.session.add(submission)
             db.session.commit()
+            
 
 

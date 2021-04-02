@@ -12,6 +12,7 @@ class ContactType(db.Model):
     __tablename__ = 'contact_types'
 
     id = db.Column(db.Integer, primary_key=True)
+    
     name = db.Column(db.String, unique=True, nullable=False)
 
 class DeIdentificationType(db.Model):
@@ -188,6 +189,19 @@ class Submission(db.Model):
     def is_detail_info_complete(self):
         return self.studies and self.datadecs
 
+    def to_dict(self):
+        dict_sub = []
+        dict_sub.append({'id' : self.id, 
+        'ref_name': self.ref_name,
+        'title': self.title,
+        'submission_contacts' : self.submission_contacts,
+        'local_custodians_json' : self.local_custodians_json,
+        'local_project_name' : self.local_project_name,
+        'studies' : self.studies})
+        return(dict_sub)
+
+
+
 class Contact(db.Model):
     __tablename__ = 'contacts'
 
@@ -208,6 +222,15 @@ class Contact(db.Model):
 
     def fullname(self):
         return self.firstname + " " + self.lastname.upper()
+
+    def to_dict(self):
+
+        dict_contact = []
+        dict_contact.append({'firsname' : self.firstname, 
+        'lastname': self.lastname,
+        'email': self.email,
+        'adresse' : self.address})
+        return(dict_contact)
 
 
 class SubmissionUploadInfo(db.Model):
@@ -260,6 +283,17 @@ class SubmissionStudy(db.Model):
         for contact in self.study_contacts:
             contact_fullnames.append(contact.fullname())
         return contact_fullnames
+
+
+    def to_dict(self):
+
+        dict_study = []
+        dict_study.append({'name': self.name,
+        'description': self.description,
+        'website' : self.website,
+        'ethics_approval_exists' : self.ethics_approval_exists,
+        'ethics_approval_no' : self.ethics_approval_no})
+        return(dict_study)
 
 
 
@@ -357,6 +391,40 @@ class SubmissionDataDeclaration(db.Model):
             return "Yes"
         else:
             return "No"
+    
+
+
+
+    def to_dict(self):
+
+        dict_data = []
+        dict_data.append({'title': self.title,
+        'gdpr_datatypes_json': self.gdpr_datatypes_json,
+        'gdpr_datatypes_notes' : self.gdpr_datatypes_notes,
+        'sci_datatypes_json' : self.sci_datatypes_json,
+        'sci_datatypes_notes' : self.sci_datatypes_notes,
+        'de_identification_type_code' : self.de_identification_type_code,
+        'de_identification_type' : self.de_identification_type,
+        'has_samples' : self.has_samples,
+        'samples_notes' : self.samples_notes,
+        'legal_basis_collection_std_code' : self.legal_basis_collection_std_code,
+        'legal_basis_collection_std' : self.legal_basis_collection_std,
+        'legal_basis_sharing_std_code' : self.legal_basis_sharing_std_code,
+        'legal_basis_sharing_std' : self.legal_basis_sharing_std,
+        'legal_basis_collection_spec_code' : self.legal_basis_collection_spec_code,
+        'legal_basis_collection_spec' : self.legal_basis_collection_spec,
+        'legal_basis_sharing_spec_code' : self.legal_basis_sharing_spec_code,
+        'legal_basis_sharing_spec' : self.legal_basis_sharing_spec,
+        'legal_basis_notes' : self.legal_basis_notes,
+        'subject_category_code' : self.subject_category_code,
+        'subject_category' : self.subject_category,
+        'has_special_subjects' : self.has_special_subjects,
+        'special_subjects_notes' : self.special_subjects_notes,
+        'consent_status_code' : self.consent_status_code,
+        'consent_status' : self.consent_status,
+        'consent_notes' : self.consent_notes
+        })
+        return(dict_data)
 
 
 class SubmissionAccess(db.Model):
