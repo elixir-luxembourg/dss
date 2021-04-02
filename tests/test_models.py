@@ -6,7 +6,8 @@ from elixir_dcp.models.security import User
 from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionScope, SubmissionAccess, \
     SubmissionDataDeclaration, SubmissionStudy, Contact, ContactType
 from elixir_dcp.models.services import register_new_user, assign_role_to_user, create_sub, steer_sub, \
-    update_submission_basic_info, revert_sub, deactivate_user, delete_sub, export_submission
+    update_submission_basic_info, revert_sub, deactivate_user, delete_sub
+from elixir_dcp.importer.submission_exporter import SubmissionExporter
 from elixir_dcp.exceptions import RecordLifecycleException
 from elixir_dcp import db
 
@@ -247,7 +248,8 @@ class ModelPersistenceTest(BaseTest):
         # db.session.commit()
 
         submission_rec = Submission.query.get_or_404(submission_rec.id)
-        exp = export_submission(submission_rec)
+        exporter = SubmissionExporter()
+        exp = exporter.export_submission(submission_rec)
         print(json.dumps(exp, indent=4))
 
 
