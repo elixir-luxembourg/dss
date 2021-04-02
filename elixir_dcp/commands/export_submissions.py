@@ -1,5 +1,5 @@
 from flask_script import Command, Manager, Option
-from elixir_dcp.models.services import schedule_submission_export
+from elixir_dcp.importer.importer_utils import schedule_submission_export
 from elixir_dcp import app
 from typing import List
 
