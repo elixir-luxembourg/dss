@@ -228,7 +228,8 @@ class Contact(db.Model):
             'first_name' : self.firstname, 
             'last_name': self.lastname,
             'email': self.email,
-            'adresses' : self.address}
+            'role': self.contact_category.name,
+            'address' : self.address}
         return base_dict
 
 

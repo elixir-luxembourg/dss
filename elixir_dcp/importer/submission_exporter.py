@@ -1,6 +1,6 @@
 from elixir_dcp.models.submission import Submission, SubmissionStudy, SubmissionDataDeclaration
 from typing import List, Dict
-from elixir_dcp.forms.submissions_forms import DatadecForm
+from elixir_dcp.forms.submissions_forms import DatadecForm, Contact
 from elixir_dcp import db, app
 from io import StringIO
 import os
@@ -79,7 +79,10 @@ class SubmissionExporter:
 
         #sub_info['elu_accession'] = sub.ref_name
         sub_info['source'] = 'https://elixir-dcp.lcsb.uni.lu/'
-        sub_info['contacts'] = [contact.to_dict() for contact in sub.submission_contacts]
+        sub_info['contacts'] = []
+        for contact in sub.submission_contacts:
+                contact_info = self.export_contact(sub, contact)
+                sub_info['contacts'].append(contact_info)
         sub_info['name'] = sub.ref_name
         sub_info['title'] = sub.title
         sub_info['submission_scope_code'] = sub.submission_scope_code
@@ -258,8 +261,7 @@ class SubmissionExporter:
             attachment_list.append(att_info)
         return attachment_list
 
-    @staticmethod
-    def export_studies(sub: Submission):
+    def export_studies(self, sub: Submission):
         study_list = []
         for stdy in sub.studies:
             study_info = {}
@@ -270,14 +272,14 @@ class SubmissionExporter:
             study_info['study_types'] = stdy.study_feature_names()
             contacts = []
             for contact in stdy.study_contacts:
-                contact_info = {}
-                contact_info['first_name'] = contact.firstname
-                contact_info['last_name'] = contact.lastname
-                contact_info['role'] = contact.contact_category.name
-                contact_info['email'] = contact.email
-                contact_info['address'] = contact.address
-                contact_info['institution'] = sub.institution_accession
+                contact_info = self.export_contact(sub, contact)
                 contacts.append(contact_info)
             study_info['contacts'] = contacts
             study_list.append(study_info)
         return study_list
+    
+    @staticmethod
+    def export_contact(sub: Submission, contact: Contact):
+        contact_info = contact.to_dict()
+        contact_info['affiliations'] = [sub.institution_accession]
+        return contact_info
