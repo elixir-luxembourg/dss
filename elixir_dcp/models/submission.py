@@ -225,10 +225,10 @@ class Contact(db.Model):
 
     def to_dict(self):
         base_dict = {
-            'firsname' : self.firstname, 
-            'lastname': self.lastname,
+            'first_name' : self.firstname, 
+            'last_name': self.lastname,
             'email': self.email,
-            'adresse' : self.address}
+            'adresses' : self.address}
         return base_dict
 
 
