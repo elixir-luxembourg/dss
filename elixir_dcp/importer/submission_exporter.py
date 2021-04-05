@@ -5,6 +5,7 @@ from elixir_dcp import db, app
 from io import StringIO
 import os
 import json
+import re
 
 class SubmissionExporter:
     def __init__(self, objects=None):
@@ -189,28 +190,51 @@ class SubmissionExporter:
     @staticmethod
     def export_legal_bases(sub: Submission):
         legal_bases=[]
+       
+        datadec_form = DatadecForm()
+        
         for datadec in sub.datadecs:
+            
             legal_base_info_collection_std = {}
 
             legal_base_info_collection_std['data_declarations'] = datadec.title
-            legal_base_info_collection_std['legal_basis_codes'] = datadec.legal_basis_collection_std.label #regex
+            legal_base_info_collection_std['legal_basis_codes'] = re.search(r'([0-9].*)\)', datadec.legal_basis_collection_std.label).group(1) #regex
             legal_base_info_collection_std['personal_data_codes'] = 'Standard'
-        
+            legal_base_info_collection_std['legal_basis_notes'] = getattr(datadec_form, f'legal_basis_collection_std_code').label.text
             
-            legal_base_info_collection_std['legal_basis_notes'] = 'What is the legal basis according to Art. 6.1 GDPR for the collection of standard (non-sensitive) personal data?'
-
-            #datadec_info['sci_datatypes'] = datadec.sci_data_type_names()
-            #legal_base_info['gdpr_datatypes'] = datadec.gdpr_data_type_names()
-            #legal_base_info['gdpr_datatypes_notes'] = datadec.gdpr_datatypes_notes
-            #legal_bases.append(legal_base_info)
-            #legal_base_info_collection_spec = {}
-            #legal_base_info['data_declarations'] = datadec.title
-            #legal_base_info['legal_basis_codes'] = datadec.legal_basis_collection_spec.label #regex
-            #legal_base_info['personal_data_codes'] = 'Special'
-        
-            
-            #legal_base_info['legal_basis_notes'] = 'What is the legal basis according to Art. 6.1 GDPR for the collection of standard (non-sensitive) personal data?'
             legal_bases.append(legal_base_info_collection_std)
+
+
+            legal_base_info_collection_spec = {}
+
+            legal_base_info_collection_spec['data_declarations'] = datadec.title
+            legal_base_info_collection_spec['legal_basis_codes'] = re.search(r'([0-9].*)\)', datadec.legal_basis_collection_spec.label).group(1) #regex
+            legal_base_info_collection_spec['personal_data_codes'] = 'Special'
+            legal_base_info_collection_spec['legal_basis_notes'] = getattr(datadec_form, f'legal_basis_collection_spec_code').label.text
+            
+            legal_bases.append(legal_base_info_collection_spec)
+
+
+            legal_base_info_sharing_std = {}
+
+            legal_base_info_sharing_std['data_declarations'] = datadec.title
+            legal_base_info_sharing_std['legal_basis_codes'] = re.search(r'([0-9].*)\)', datadec.legal_basis_sharing_std.label).group(1) #regex
+            legal_base_info_sharing_std['personal_data_codes'] = 'Standard'
+            legal_base_info_sharing_std['legal_basis_notes'] = getattr(datadec_form, f'legal_basis_sharing_std_code').label.text
+            
+            legal_bases.append(legal_base_info_sharing_std)
+
+            legal_base_info_sharing_spec = {}
+
+            legal_base_info_sharing_spec['data_declarations'] = datadec.title
+            legal_base_info_sharing_spec['legal_basis_codes'] = re.search(r'([0-9].*)\)', datadec.legal_basis_sharing_spec.label).group(1)#regex
+            legal_base_info_sharing_spec['personal_data_codes'] = 'Special'
+            legal_base_info_sharing_spec['legal_basis_notes'] = getattr(datadec_form, f'legal_basis_sharing_spec_code').label.text
+            
+            legal_bases.append(legal_base_info_sharing_spec)
+
+
+
         return legal_bases
         
     @staticmethod
@@ -235,6 +259,8 @@ class SubmissionExporter:
             restriction_dict['use_restriction_rule'] = 'CONSTRAINT' if getattr(datadec, f'restriction_{restriction_code}') else 'NO CONSTRAINT'
             restriction_dict['use_class_note'] = getattr(datadec_form, f'restriction_{restriction_code}').label.text
             restriction_dict['use_restriction_note'] = getattr(datadec, f'restriction_{restriction_code}_notes')
+    
+
             restriction_list.append(restriction_dict)
             
         if datadec.restriction_other_notes:
@@ -246,6 +272,8 @@ class SubmissionExporter:
             restriction_list.append(restriction_other_dict)
 
         return restriction_list
+
+
         
     @staticmethod
     def export_attachment_info(sub: Submission):
@@ -283,3 +311,4 @@ class SubmissionExporter:
         contact_info = contact.to_dict()
         contact_info['affiliations'] = [sub.institution_accession]
         return contact_info
+
