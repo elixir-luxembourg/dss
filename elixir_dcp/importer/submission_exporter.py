@@ -189,53 +189,50 @@ class SubmissionExporter:
 
     @staticmethod
     def export_legal_bases(sub: Submission):
-        legal_bases=[]
+        def parse_label(legal_basis_label: str):
+            return re.search(r'([0-9].*)\)', legal_basis_label).group(1)
+            
+        legal_bases = []
        
         datadec_form = DatadecForm()
         
         for datadec in sub.datadecs:
             
             legal_base_info_collection_std = {}
-
             legal_base_info_collection_std['data_declarations'] = datadec.title
-            legal_base_info_collection_std['legal_basis_codes'] = re.search(r'([0-9].*)\)', datadec.legal_basis_collection_std.label).group(1) #regex
+            legal_base_info_collection_std['legal_basis_codes'] = parse_label(datadec.legal_basis_collection_std.label)
             legal_base_info_collection_std['personal_data_codes'] = 'Standard'
-            legal_base_info_collection_std['legal_basis_notes'] = getattr(datadec_form, f'legal_basis_collection_std_code').label.text
+            legal_base_info_collection_std['legal_basis_notes'] = datadec_form.legal_basis_collection_std_code.label.text
             
             legal_bases.append(legal_base_info_collection_std)
 
-
             legal_base_info_collection_spec = {}
-
             legal_base_info_collection_spec['data_declarations'] = datadec.title
-            legal_base_info_collection_spec['legal_basis_codes'] = re.search(r'([0-9].*)\)', datadec.legal_basis_collection_spec.label).group(1) #regex
+            legal_base_info_collection_spec['legal_basis_codes'] = parse_label(datadec.legal_basis_collection_spec.label)
             legal_base_info_collection_spec['personal_data_codes'] = 'Special'
-            legal_base_info_collection_spec['legal_basis_notes'] = getattr(datadec_form, f'legal_basis_collection_spec_code').label.text
+            legal_base_info_collection_spec['legal_basis_notes'] = datadec_form.legal_basis_collection_spec_code.label.text
             
             legal_bases.append(legal_base_info_collection_spec)
 
-
             legal_base_info_sharing_std = {}
-
             legal_base_info_sharing_std['data_declarations'] = datadec.title
-            legal_base_info_sharing_std['legal_basis_codes'] = re.search(r'([0-9].*)\)', datadec.legal_basis_sharing_std.label).group(1) #regex
+            legal_base_info_sharing_std['legal_basis_codes'] = parse_label(datadec.legal_basis_sharing_std.label)
             legal_base_info_sharing_std['personal_data_codes'] = 'Standard'
-            legal_base_info_sharing_std['legal_basis_notes'] = getattr(datadec_form, f'legal_basis_sharing_std_code').label.text
+            legal_base_info_sharing_std['legal_basis_notes'] = datadec_form.legal_basis_sharing_std_code.label.text
             
             legal_bases.append(legal_base_info_sharing_std)
 
             legal_base_info_sharing_spec = {}
-
             legal_base_info_sharing_spec['data_declarations'] = datadec.title
-            legal_base_info_sharing_spec['legal_basis_codes'] = re.search(r'([0-9].*)\)', datadec.legal_basis_sharing_spec.label).group(1)#regex
+            legal_base_info_sharing_spec['legal_basis_codes'] = parse_label(datadec.legal_basis_sharing_spec.label)
             legal_base_info_sharing_spec['personal_data_codes'] = 'Special'
-            legal_base_info_sharing_spec['legal_basis_notes'] = getattr(datadec_form, f'legal_basis_sharing_spec_code').label.text
+            legal_base_info_sharing_spec['legal_basis_notes'] = datadec_form.legal_basis_sharing_spec_code.label.text
             
             legal_bases.append(legal_base_info_sharing_spec)
 
-
-
         return legal_bases
+        
+        
         
     @staticmethod
     def export_datadec_restrictions(datadec: SubmissionDataDeclaration) -> List[Dict]:
