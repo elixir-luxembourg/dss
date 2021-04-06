@@ -237,7 +237,7 @@ class SubmissionExporter:
     @staticmethod
     def export_datadec_restrictions(datadec: SubmissionDataDeclaration) -> List[Dict]:
         restriction_list = []
-        
+    
         restriction_codes = {
             'rs': "RS-[XX]",
             'gs': "GS-[XX]",
@@ -250,28 +250,27 @@ class SubmissionExporter:
             'ts': 'TS-[XX]'
         }
         datadec_form = DatadecForm()
-        for prefix, restriction_code in enumerate(restriction_codes):
+        for field_prefix, restriction_code in restriction_codes.items():
             restriction_dict = {}
             restriction_dict['use_class'] = restriction_code
-            restriction_dict['use_restriction_rule'] = 'CONSTRAINT' if getattr(datadec, f'restriction_{restriction_code}') else 'NO CONSTRAINT'
-            restriction_dict['use_class_note'] = getattr(datadec_form, f'restriction_{restriction_code}').label.text
-            restriction_dict['use_restriction_note'] = getattr(datadec, f'restriction_{restriction_code}_notes')
-    
+            restriction_dict['use_restriction_rule'] = 'CONSTRAINT' if getattr(datadec, f'restriction_{field_prefix}') else 'NO CONSTRAINT'
+            restriction_dict['use_class_note'] = getattr(datadec_form, f'restriction_{field_prefix}').label.text
+            restriction_dict['use_restriction_note'] = getattr(datadec, f'restriction_{field_prefix}_notes')
 
             restriction_list.append(restriction_dict)
-            
+
         if datadec.restriction_other_notes:
             restriction_other_dict = {}
             restriction_other_dict['use_class'] = "Other"
             restriction_other_dict['use_restriction_rule'] = 'CONSTRAINT'
-            restriction_other_dict['use_class_note'] = getattr(datadec_form, f'restriction_other_notes').description
-            restriction_other_dict['use_restriction_note'] = getattr(datadec, f'restriction_{restriction_code}_notes')
+            restriction_other_dict['use_class_note'] = datadec_form.restriction_other_notes.description
+            restriction_other_dict['use_restriction_note'] = datadec.restriction_other_notes
             restriction_list.append(restriction_other_dict)
 
         return restriction_list
 
 
-        
+
     @staticmethod
     def export_attachment_info(sub: Submission):
         attachment_list = []
