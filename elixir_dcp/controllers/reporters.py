@@ -8,7 +8,7 @@ from elixir_dcp.controllers import app_authorization
 import os
 import io
 from flask import send_file
-from ..models.services import export_submission
+from elixir_dcp.importer.submission_exporter import SubmissionExporter
 import pdfkit
 
 @app.route('/submission/generate_submission_pdf/<int:sub_id>', methods=['GET'])
@@ -46,7 +46,8 @@ def generate_submission_docx(sub_id):
     sub = Submission.query.get_or_404(sub_id)
     template_path = os.path.join(app.root_path, 'templates', 'submission', 'generate_submission_docx.docx')
     doc = DocxTemplate(template_path)
-    context = export_submission(sub)
+    exporter = SubmissionExporter()
+    context = exporter.export_submission(sub)
     try:
         doc.render(context, app.jinja_env)
     except:

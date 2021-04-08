@@ -276,11 +276,13 @@ def update_user_info(usr: User, **kwargs):
     db.session.add(usr)
     db.session.commit()
 
-
+'''
 def export_submission(sub: Submission):
     sub_info = {}
 
-    sub_info['elu_accession'] = sub.ref_name
+    #sub_info['elu_accession'] = sub.ref_name
+    sub_info['source'] = 'https://elixir-dcp.lcsb.uni.lu/'
+    sub_info['name'] = sub.ref_name
     sub_info['title'] = sub.title
     sub_info['submission_scope_code'] = sub.submission_scope_code
     sub_info['submitting_institution_accession'] = sub.institution_accession
@@ -316,145 +318,9 @@ def export_submission(sub: Submission):
 
     sub_info['studies'] = export_studies(sub)
 
-    sub_info['datadecs'] = export_datadecs(sub)
+    sub_info['data_declarations'] = export_datadecs(sub)
 
     sub_info['attachments'] = export_attachment_info(sub)
 
     return sub_info
-
-
-def export_datadecs(sub: Submission):
-    datadec_list = []
-    attrs_to_keep = [
-        'title',
-        'has_samples',
-        'samples_notes',
-        'restriction_rs',
-        'restriction_rs_notes',
-        'restriction_gs',
-        'restriction_gs_notes',
-        'restriction_us',
-        'restriction_us_notes',
-        'restriction_pub',
-        'restriction_pub_notes',
-        'restriction_rtn',
-        'restriction_rtn_notes',
-        'restriction_ip',
-        'restriction_ip_notes',
-        'restriction_ps',
-        'restriction_ps_notes',
-        "has_special_subjects",
-        "special_subjects_notes",
-        'restriction_other_notes',
-        'access_form_required',
-    ]
-
-    for datadec in sub.datadecs:
-        datadec_info = {}
-        for attr in attrs_to_keep:
-            datadec_info[attr] = getattr(datadec, attr)
-
-        datadec_info['source_study'] = datadec.study.name
-        datadec_info['legal_basis_data_collection_std'] = datadec.legal_basis_collection_std.label
-        datadec_info['legal_basis_data_sharing_std'] = datadec.legal_basis_sharing_std.label
-        datadec_info['legal_basis_data_collection_spec'] = datadec.legal_basis_collection_std.label
-        datadec_info['legal_basis_data_sharing_spec'] = datadec.legal_basis_sharing_std.label
-        datadec_info['legal_basis_notes'] = datadec.legal_basis_notes
-
-        datadec_info['sci_datatypes'] = datadec.sci_data_type_names()
-        datadec_info['gdpr_datatypes'] = datadec.gdpr_data_type_names()
-        datadec_info['gdpr_datatypes_notes'] = datadec.gdpr_datatypes_notes
-
-        if datadec.sci_datatypes_notes:
-            datadec_info['sci_datatypes_notes'] = datadec.sci_datatypes_notes
-        datadec_info[
-            'has_special_subjects'] = datadec.has_special_subjects
-
-        datadec_info['special_subject_notes'] = datadec.special_subjects_notes
-
-        datadec_info['consent_status'] = datadec.consent_status.label.lower()
-        if datadec.consent_notes: datadec_info['consent_notes'] = datadec.consent_notes
-        datadec_info['de_identification'] = datadec.de_identification_type.label.lower()
-        datadec_info['subject_categories'] = datadec.subject_category.label.lower()
-        # use_restrictions = []
-        # for duc_instance in datadec.duc_codes:
-        #     use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
-        #                              'note': duc_instance.note})
-        # if use_restrictions:
-        #     datadec_info['use_restrictions'] = use_restrictions
-        datadec_list.append(datadec_info)
-    return datadec_list
-
-
-def export_attachment_info(sub: Submission):
-    attachment_list = []
-    for att in sub.attachments:
-        att_info = {}
-        att_info['description'] = att.note
-        files_list = []
-        names = att.file_names.strip(' \t\n\r').split(" ")
-        for name in names:
-            files_list.append({"$ref": os.path.join(att.folder_name, name)})
-        att_info['files'] = files_list
-        attachment_list.append(att_info)
-    return attachment_list
-
-
-def export_studies(sub: Submission):
-    study_list = []
-    for stdy in sub.studies:
-        study_info = {}
-        study_info['title'] = stdy.name
-        study_info['description'] = stdy.description
-        study_info['ethics_approval_no'] = stdy.ethics_approval_no
-        study_info['ethics_approval_exists'] = stdy.ethics_approval_exists
-        study_info['study_types'] = stdy.study_feature_names()
-        contacts = []
-        for contact in stdy.study_contacts:
-            contact_info = {}
-            contact_info['first_name'] = contact.firstname
-            contact_info['last_name'] = contact.lastname
-            contact_info['role'] = contact.contact_category.name
-            contact_info['email'] = contact.email
-            contact_info['address'] = contact.address
-            contact_info['institution'] = sub.institution_accession
-            contacts.append(contact_info)
-        study_info['contacts'] = contacts
-        study_list.append(study_info)
-    return study_list
-
-
-def schedule_submission_export():
-    app.logger.info("export schedule started")
-    all_submissions = Submission.query.filter_by(current_status=SubmissionStatusEnum.completed, exported=False)
-    app.logger.info("schedule_submission_export")
-    if all_submissions.count() > 0:
-        for submission in all_submissions:
-            export_directory = os.path.join(app.config.get('SUBMISSION_EXPORT_FOLDER'), submission.ref_name)
-            app.logger.info(export_directory)
-            if not os.path.exists(export_directory):
-                os.makedirs(export_directory)
-            submission_exportfile = open(os.path.join(export_directory, submission.ref_name + ".json"), "w")
-            submission_exportfile.write(json.dumps([export_submission(submission)], indent=4))
-            # submission_attachments = SubmissionAttachment.query.filter_by(submission_id=submission.id).all()
-            # for attachment in submission_attachments:
-            #
-            #     try:
-            #         path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachment.folder_name)
-            #         attachment_folder_name = os.path.join(export_directory, attachment.folder_name)
-            #         if not os.path.exists(attachment_folder_name):
-            #             os.makedirs(attachment_folder_name)
-            #         attachment_file = os.path.join(path_on_server, attachment.file_names)
-            #         os.popen('cp ' + attachment_file + ' ' + attachment_folder_name)
-            #
-            #     except OSError as err:
-            #         err.extend(err.args[0])
-
-            # shutil.make_archive(export_directory, 'zip', export_directory)
-            # app.logger.info("Created zip file")
-
-            submission.exported = True
-            db.session.add(submission)
-            db.session.commit()
-
-
+'''
