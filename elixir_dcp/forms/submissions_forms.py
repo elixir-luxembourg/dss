@@ -193,7 +193,7 @@ class SubmissionForm(FlaskForm):
         self.provider_user_ids.choices = [(usr.id, usr.display_name()) for usr in get_active_users()]
         self.submission_scope_code.choices = [(c.code, c.label) for c in SubmissionScope.query.all()]
         self.local_custodians.choices = [(c, c) for c in app.config.get('DATA_INIT')['lcsb_pis']]
-        self.institution_accession.choices = [(c["elu_accession"],
+        self.institution_accession.choices = [(c["external_id"],
                                                f'{c["name"]} - {c["acronym"]}' if 'acronym' in c and c[
                                                                                                          'acronym'] is not None and 'name' in c else
                                                c[
@@ -390,7 +390,7 @@ class DatadecForm(FlaskForm):
         self.gdpr_datatypes.choices = app.config.get('DATA_INIT')['gdpr_datatypes']
         self.study_id.choices = [(-1, '-')] + [(study.id, study.name) for study in
                                                SubmissionStudy.query.filter_by(submission_id=self.submission_id.data)]
-        # self.cohort_accession.choices = [('', '-')] + [(c["elu_accession"], c["title"]) for c in get_elu_cohorts()]
+        # self.cohort_accession.choices = [('', '-')] + [(c["external_id"], c["title"]) for c in get_elu_cohorts()]
 
         # def source_stati(self):
         #     empty_study = False

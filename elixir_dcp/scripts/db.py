@@ -115,7 +115,7 @@ START_UP_DATA = {
                  ],
                  'cohorts': [
                      {
-                         "elu_accession": "ELU_C_1",
+                         "external_id": "ELU_C_1",
                          "title": "LuxPARK",
                          "ombudsman": [
                              "Rejko Kr\u00fcger"
@@ -131,7 +131,7 @@ START_UP_DATA = {
                  ],
                  'partners': [
                      {
-                         "elu_accession": "ELU_I_1",
+                         "external_id": "ELU_I_1",
                          "name": "Integrated Biobank of Luxembourg",
                          "geo_category": "National",
                          "sector_category": "PUBLIC",
@@ -139,7 +139,7 @@ START_UP_DATA = {
                          "acronym": "IBBL"
                      },
                      {
-                         "elu_accession": "ELU_I_9",
+                         "external_id": "ELU_I_9",
                          "name": "Centre Hospitalier de Luxembourg",
                          "geo_category": "National",
                          "sector_category": "PUBLIC",
@@ -148,7 +148,7 @@ START_UP_DATA = {
 
                      },
                      {
-                         "elu_accession": "ELU_I_77",
+                         "external_id": "ELU_I_77",
                          "name": "Luxembourg Centre for Systems Biomedicine",
                          "geo_category": "National",
                          "sector_category": "PUBLIC",
@@ -156,7 +156,7 @@ START_UP_DATA = {
                          "acronym": "LCSB"
                      },
                      {
-                         "elu_accession": "ELU_I_79",
+                         "external_id": "ELU_I_79",
                          "name": "Luxembourg institute of health",
                          "geo_category": "National",
                          "sector_category": "PUBLIC",

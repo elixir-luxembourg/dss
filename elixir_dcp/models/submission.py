@@ -152,14 +152,14 @@ class Submission(db.Model):
     def provider_institute_name(self):
         if self.institution_accession:
             institutions = get_elu_partners()
-            return dict_list_lookup(institutions, 'elu_accession', self.institution_accession, 'name')
+            return dict_list_lookup(institutions, 'external_id', self.institution_accession, 'name')
         else:
             return None
 
     def provider_institute_address(self):
         if self.institution_accession:
             institutions = get_elu_partners()
-            return dict_list_lookup(institutions, 'elu_accession', self.institution_accession, 'address')
+            return dict_list_lookup(institutions, 'external_id', self.institution_accession, 'address')
         else:
             return None
 
