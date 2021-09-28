@@ -90,7 +90,7 @@ class SignupForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
-        self.institution_accession.choices = [(c["elu_accession"],
+        self.institution_accession.choices = [(c["external_id"],
                                                f'{c["name"]} - {c["acronym"]}' if 'acronym' in c and c['acronym'] is not None and 'name' in c else c[
                                                    "name"] if 'name' in c else '-') for c in
                                                get_elu_partners()]

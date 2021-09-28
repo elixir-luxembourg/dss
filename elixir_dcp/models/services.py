@@ -280,7 +280,7 @@ def update_user_info(usr: User, **kwargs):
 def export_submission(sub: Submission):
     sub_info = {}
 
-    #sub_info['elu_accession'] = sub.ref_name
+    #sub_info['external_id'] = sub.ref_name
     sub_info['source'] = 'https://elixir-dcp.lcsb.uni.lu/'
     sub_info['name'] = sub.ref_name
     sub_info['title'] = sub.title
