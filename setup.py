@@ -34,7 +34,8 @@ requirements = [
     'schedule',
     'WTForms==2.2.1',
     'docxtpl==0.9.2',
-    'Celery==4.4.7'
+    'Celery==4.4.7',
+    'markupsafe==2.0.1',
 ]
 
 test_requirements = [
