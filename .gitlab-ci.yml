@@ -1,6 +1,5 @@
-image: "python:3.12"
-
 test:
+  image: "python:3.12"
   before_script:
     - pip install --upgrade pip setuptools wheel
     - pip install -e .[dev] --default-timeout=180
