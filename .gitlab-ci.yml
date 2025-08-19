@@ -1,9 +1,9 @@
-image: "python:3.7"
+image: "python:3.12"
 
 before_script:
-  - pip install -e .  --default-timeout=180
-  - pip install coverage
-  - apt update && apt install -yq --no-install-recommends nodejs npm openjdk-11-jdk
+  - pip install --upgrade pip setuptools wheel
+  - pip install -e .[dev] --default-timeout=180
+  - apt-get update && apt-get install -yq --no-install-recommends nodejs npm openjdk-11-jdk
   - npm install -g less
   - cd elixir_dcp/static/vendor
   - npm ci
@@ -13,7 +13,7 @@ test:
     - cd ../../.. && pwd
     - cp elixir_dcp/settings.py.template elixir_dcp/settings.py
     - export ELIXIR_DCP_ENV='test'
-    - coverage run setup.py test
+    - pytest --cov=elixir_dcp --cov-report=term-missing
     - coverage report -m
 
 include:
