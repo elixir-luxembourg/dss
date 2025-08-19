@@ -12,7 +12,6 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_oidc import OpenIDConnect
 from flask_sqlalchemy import SQLAlchemy
-from flask_wkhtmltopdf import Wkhtmltopdf
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 from flask_caching import Cache
@@ -27,9 +26,6 @@ __VERSION__ = "0.4.0-dev"
 
 def create_application():
     new_app = Flask(__name__)
-    wkhtmltopdf = Wkhtmltopdf(new_app)
-    new_app.config['WKHTMLTOPDF_USE_CELERY'] = True
-
     new_app.config.from_object('elixir_dcp.settings.%sConfig' % ELIXIR_DCP_ENV.capitalize())
     new_app.config['ENV'] = ELIXIR_DCP_ENV
     new_app.jinja_env.add_extension('jinja2.ext.i18n')
@@ -109,7 +105,20 @@ class CredentialsPersistentStore:
 
 credentials_store = CredentialsPersistentStore(persist_db=db)
 
-oidc = OpenIDConnect(app=app, credentials_store=credentials_store)
+if authentication_method == 'AAI':
+    oidc = OpenIDConnect(app=app, credentials_store=credentials_store)
+else:
+    class DummyOIDC:
+        """Minimal mock to prevent AttributeErrors when OIDC is not used"""
+        def require_login(self, func):
+            return func
+        def logout(self):
+            pass
+        def user_getinfo(self, *args, **kwargs):
+            return {}
+        def user_getfield(self, *args, **kwargs):
+            return None
+    oidc = DummyOIDC()
 
 # Setup Flask-Mail
 mail = Mail(app)

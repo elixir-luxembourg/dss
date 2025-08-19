@@ -3,8 +3,7 @@ from elixir_dcp.controllers.api_controllers import get_elu_partners
 from elixir_dcp.forms.submissions_forms import AttachmentForm, ContactForm, SubmissionForm, \
     DatadecForm, UploadInfoForm, StudyForm, MessageForm
 from elixir_dcp.models.security import Role
-from wtforms import BooleanField, HiddenField, StringField, PasswordField, SelectMultipleField, SelectField
-from wtforms.fields.html5 import EmailField
+from wtforms import BooleanField, HiddenField, StringField, PasswordField, SelectMultipleField, SelectField, EmailField
 from flask_wtf import FlaskForm
 from flask import redirect, request
 from urllib.parse import urlparse, urljoin
@@ -59,34 +58,34 @@ class SignupForm(FlaskForm):
 
     elixir_sub_id = HiddenField('Elixir Sub ID')
     first_name = StringField('First Name',  description="Your name.", validators=[DataRequired(),
-                                                       Regexp('^[\w\s]+$',
+                                                       Regexp(r'^[\w\s]+$',
                                                               message="Can only contain letters, digits and underscore."),
                                                        Length(min=2, max=20,
                                                               message="Must be 2 to 20 characters long.")])
     last_name = StringField('Last Name', description="Your surname.",
                             validators=[DataRequired(),
-                                        Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
+                                        Regexp(r'^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                         Length(min=2, max=20, message="Must be 2 to 20 characters long.")])
 
     institution_accession = SelectField('Institution', description="Your home organisation.", validators=[DataRequired()])
 
     institution_division = StringField('Division/Department', description="Your division within the home organisation.",
-                                       validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                       validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
 
     email = EmailField('E Mail',  description="Your institutional email.", validators=[DataRequired(), Email("Requires an email address.")],
                        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."})
 
-    addr_line1 = StringField('Address Line 1', description="Your postal address.", validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+    addr_line1 = StringField('Address Line 1', description="Your postal address.", validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                                   message="Can only contain letters, digits, dash, comma and dot.")],
                              render_kw={"placeholder": "Street Address."})
 
-    addr_line2 = StringField('Address Line 2',  description="Your postal address.", validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+    addr_line2 = StringField('Address Line 2',  description="Your postal address.", validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                                   message="Can only contain letters, digits, dash, comma and dot.")],
                              render_kw={"placeholder": "City, Country, Postal Code."})
 
     phone_no = StringField('Phone',  description="Phone number.", validators=[
-        OptionalFieldValidator(message="Can only contain digits, dash and plus.", regex_str="^[0-9\s\-\+]+$")])
+        OptionalFieldValidator(message="Can only contain digits, dash and plus.", regex_str=r"^[0-9\s\-\+]+$")])
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)

@@ -16,7 +16,7 @@ def app_authorization(**options):
         def decorated_view(*args, **kwargs):
             if request.method in EXEMPT_METHODS:
                 return func(*args, **kwargs)
-            elif current_app.login_manager._login_disabled:
+            elif current_app.config.get('LOGIN_DISABLED'):
                 return func(*args, **kwargs)
             elif not current_user.is_authenticated:
                 return current_app.login_manager.unauthorized()
@@ -27,7 +27,8 @@ def app_authorization(**options):
                     params = options.get('record_authorization')
                     my_entity_name =  getattr(submission_models_module, params['entity'])
                     my_entity_id = kwargs[params['entity_id_key']]
-                    my_entity = db.session.query(my_entity_name).get(my_entity_id)
+                    # SQLAlchemy 2.0 style - use session.get() for primary key lookups
+                    my_entity = db.session.get(my_entity_name, my_entity_id)
                     my_attribute = getattr(my_entity,params['entity_ac_attribute'])
                     if not has_access(current_user.get_id(), my_attribute):
                         return render_template('error.html', message="Error 403 - Unauthorized", show_home_link=True), 403

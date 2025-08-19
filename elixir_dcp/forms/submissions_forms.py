@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, BooleanField, TextAreaField, FormField, FieldList
+from wtforms import StringField, HiddenField, BooleanField, TextAreaField, FormField, FieldList, EmailField
 from wtforms_components import SelectField, SelectMultipleField
-from wtforms.fields.html5 import EmailField
 from wtforms.validators import DataRequired, Email, Regexp, Length
 
 from elixir_dcp.controllers.api_controllers import get_elu_partners, get_elu_cohorts
@@ -19,7 +18,7 @@ class AttachmentForm(FlaskForm):
     id = HiddenField('Attachment_Id')
     note = StringField('Attachment description',
                        description="Please provide a brief description of the document you\'re uploading.",
-                       validators=[DataRequired(), Regexp('^[\w\s]+$', message="Note can only contain letters, ."),
+                       validators=[DataRequired(), Regexp(r'^[\w\s]+$', message="Note can only contain letters, ."),
                                    Length(min=2, max=40,
                                           message="Must be 2 to 40 characters long.")])
     submission_id = HiddenField('Submission_Id')
@@ -41,13 +40,13 @@ class ContactForm(FlaskForm):
     """
     firstname = StringField('Name',
                             validators=[DataRequired(),
-                                        Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
+                                        Regexp(r'^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                         Length(min=2, max=20,
                                                message="Must be 2 to 20 characters long.")],
                             render_kw={"placeholder": "Name"})
     lastname = StringField('Surname',
                            validators=[DataRequired(),
-                                       Regexp('^[\w\s]+$', message="Can only contain letters, digits and underscore."),
+                                       Regexp(r'^[\w\s]+$', message="Can only contain letters, digits and underscore."),
                                        Length(min=2, max=20,
                                               message="Must be 2 to 20 characters long.")],
                            render_kw={"placeholder": "SURNAME"})
@@ -57,7 +56,7 @@ class ContactForm(FlaskForm):
     email = EmailField('Email', [DataRequired(), Email("This field requires an email address.")],
                        render_kw={"placeholder": "Institutional e-mail"})
 
-    address = TextAreaField('Division/Address', validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+    address = TextAreaField('Division/Address', validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                                    message="Can only contain letters, digits, dash, comma and dot.")])
 
     def __init__(self, *args, **kwargs):
@@ -73,12 +72,12 @@ class StudyForm(FlaskForm):
     submission_id = HiddenField('Submission_Id')
 
     name = StringField('Title', description="Please specify the shortname or acronym for the study.",
-                       validators=[DataRequired(), Regexp('^[\w\s\-]+$',
+                       validators=[DataRequired(), Regexp(r'^[\w\s\-]+$',
                                                           message="Name must contain only letters, digits, underscore or dash")])
     description = TextAreaField('Description',
                                 description="Please provide a short textual summary of the study purpose, goals and method.",
                                 render_kw={'rows': 3},
-                                validators=[DataRequired(), Regexp('^[\w\s,\-.]+$',
+                                validators=[DataRequired(), Regexp(r'^[\w\s,\-.]+$',
                                                                    message="Can only contain letters, digits, dash, comma and dot.")])
     website = StringField('Website URL',
                           description="Please provide a short description of the study.", )
@@ -111,14 +110,14 @@ class UploadInfoForm(FlaskForm):
     id = HiddenField('SubmissionUploadInfo_Id')
     submission_id = HiddenField('Submission_Id')
     file_name = StringField('Name', description="Please specify the name of the file that has been uploaded.",
-                            validators=[DataRequired(), Regexp('^[\w\s\-.]+$',
+                            validators=[DataRequired(), Regexp(r'^[\w\s\-.]+$',
                                                                message="Can only contain letters, digits and underscore."),
                                         Length(min=5, max=40,
                                                message="Must be 5 to 40 characters long.")],
                             render_kw={"placeholder": "Only the name of the file without folder information."})
     md5_checksum_at_provider = StringField('File Checksum',
                                            description="Please specify the md5 checksum at your side. This information will be used by us to verify that the file has been transmitted without errors.",
-                                           validators=[DataRequired(), Regexp('^[\w]+$',
+                                           validators=[DataRequired(), Regexp(r'^[\w]+$',
                                                                               message="Can only letters and digits.")],
                                            render_kw={"placeholder": "32 Characters checksum."})
 
@@ -154,7 +153,7 @@ class SubmissionForm(FlaskForm):
     title = StringField('Title',
                         description="Please provide a short descriptive title for the submission. ELIXIR LU data stewards  may refer this title when communicating with you.",
                         validators=[DataRequired(),
-                                    Regexp('^[\w\s\-]+$',
+                                    Regexp(r'^[\w\s\-]+$',
                                            message="Title must contain only letters, digits, underscore or dash"),
                                     Length(min=5, max=75,
                                            message="Title must be between 5 & 75 characters")])
@@ -172,7 +171,7 @@ class SubmissionForm(FlaskForm):
 
     local_project_name = StringField('Recipient project',
                                      description="If you are making this submission in the context of a  collaboration/project, please specif its name here.",
-                                     validators=[OptionalFieldValidator(regex_str='^[\w\s]+$',
+                                     validators=[OptionalFieldValidator(regex_str=r'^[\w\s]+$',
                                                                         message="Can only contain letters, digits and underscore.")])
     institution_accession = SelectField('Submitting institution',
                                         description="Please select institute that is making the submission.",
@@ -185,7 +184,7 @@ class SubmissionForm(FlaskForm):
     notes = TextAreaField('Remarks',
                           description="If there is any information about the study you were unable to provide through the form you may specify it here.",
                           render_kw={'rows': 2},
-                          validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                          validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                              message="Can only contain letters, digits, dash, comma and dot.")])
 
     def __init__(self, *args, **kwargs):
@@ -211,7 +210,7 @@ class DatadecForm(FlaskForm):
     title = StringField('Title',
                         description="Please provide a short descriptive title for the  dataset. ELIXIR LU data stewards  may refer this title when communicating with you.",
                         validators=[DataRequired(),
-                                    Regexp('^[\w\s\-]+$',
+                                    Regexp(r'^[\w\s\-]+$',
                                            message="Title must contain only letters, digits, underscore or dash"),
                                     Length(min=5, max=50,
                                            message="Title must be between 5 & 50 characters")])
@@ -231,7 +230,7 @@ class DatadecForm(FlaskForm):
     gdpr_datatypes_notes = TextAreaField('Remarks on GDPR personal data categories in the dataset',
                                          description="If your have remarks  - e.g. to explain \'other personal data\' - please provide it here.",
                                          render_kw={'rows': 3},
-                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                         validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
 
     sci_datatypes = SelectMultipleField('Scientific datatypes in the dataset',
@@ -241,7 +240,7 @@ class DatadecForm(FlaskForm):
     sci_datatypes_notes = TextAreaField('Remarks on scientific datatypes in the dataset',
                                         description="If your have other remarks about the data types - e.g. to explain \'Other\' data - please provide it here.",
                                         render_kw={'rows': 3},
-                                        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                        validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
 
                                                                            message="Can only contain letters, digits, dash, comma and dot.")])
     de_identification_type_code = SelectField('Is the DATA anonymised or pseudonymised?',
@@ -281,12 +280,12 @@ class DatadecForm(FlaskForm):
                                         description="Please denote the category of human subjects to which the data relates.",
                                         validators=[DataRequired()])
     has_special_subjects = BooleanField('Does the dataset contain data of \'Special Subjects\'?',
-                                        description="\'Special Subjects\' refers to minors or subjects unable to give consent e.g. mentally impaired subjects\.",
+                                        description="'Special Subjects' refers to minors or subjects unable to give consent e.g. mentally impaired subjects.",
                                         default=False)
     special_subjects_notes = TextAreaField('Notes on \'Special Subjects\'',
                                            description="Please provide a brief description of these \'Special Subjects\'.",
                                            render_kw={'rows': 3},
-                                           validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                           validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                               message="Can only contain letters, digits, dash, comma and dot.")])
 
     # Use restrictions originating from consent or elsewhere.
@@ -297,7 +296,7 @@ class DatadecForm(FlaskForm):
                                       validators=[DataRequired()])
     consent_notes = TextAreaField('Notes on consent', render_kw={'rows': 3},
                                   description="If the consent is Heterogeneous, please specify the data dictionary item (column) that specifies consent groups in data.",
-                                  validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                  validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                      message="Can only contain letters, digits, dash, comma and dot.")])
 
     restriction_rs = BooleanField(
@@ -305,7 +304,7 @@ class DatadecForm(FlaskForm):
         default=False)
     restriction_rs_notes = TextAreaField('Notes on limited scope of research', render_kw={'rows': 3},
                                          description="Please describe research/disease areas restriction on data.",
-                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                         validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
 
     restriction_gs = BooleanField(
@@ -313,14 +312,14 @@ class DatadecForm(FlaskForm):
         default=False)
     restriction_gs_notes = TextAreaField('Notes on geographic restriction', render_kw={'rows': 3},
                                          description="Please describe geographic restrictions on data.",
-                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                         validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
     restriction_us = BooleanField(
         'Restricted type of recipients: Does consent limit the type of recipient? E.g. data can be sent only to public institutions.',
         default=False)
     restriction_us_notes = TextAreaField('Notes on restricted type of recipients', render_kw={'rows': 3},
                                          description="Please describe the recipient restrictions on data.",
-                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                         validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
 
     restriction_pub = BooleanField(
@@ -328,17 +327,17 @@ class DatadecForm(FlaskForm):
         default=False)
     restriction_pub_notes = TextAreaField('Notes on publication requirements', render_kw={'rows': 3},
                                           description="Please describe the publication requirements.",
-                                          validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                          validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                              message="Can only contain letters, digits, dash, comma and dot.")])
     restriction_ts = BooleanField('Retention time: Does consent contain clauses that put time-limits on the use of data?', default=False)
     restriction_ts_notes = TextAreaField('Notes on retention time.', render_kw={'rows': 3},
                                          description="Please describe the time-limit restrictions on data.",
-                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                         validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
     restriction_ps = BooleanField('Project restriction: Is the use of data limited to the recipient project?', default=False)
     restriction_ps_notes = TextAreaField('Notes on project restriction', render_kw={'rows': 3},
                                          description="Please describe data restrictions related to their use in different project.",
-                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                         validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
 
     restriction_ts_lcsb = BooleanField(
@@ -346,29 +345,29 @@ class DatadecForm(FlaskForm):
         default=False)
     restriction_ts_lcsb_notes = TextAreaField('Notes on storage duration at ELIXIR-LU/LCSB', render_kw={'rows': 3},
                                          description="Please state the agreed end date for data's residence at ELIXIR-LU/LCSB.",
-                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                         validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
 
     restriction_rtn = BooleanField('Data return requirements: Is there a requirement to return data or documents to the database/resource?', default=False)
     restriction_rtn_notes = TextAreaField(
         'Notes on data return requirements', render_kw={'rows': 3},
         description="Is there a requirement to return data or documents to the database/resource?",
-        validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+        validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                            message="Can only contain letters, digits, dash, comma and dot.")])
     restriction_other_notes = TextAreaField('Other restrictions', render_kw={'rows': 3},
                                             description="If there are any other restrictions on  DATA, please describe them here.",
-                                            validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                            validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                                message="Can only contain letters, digits, dash, comma and dot.")])
     access_form_required = BooleanField('Will all researchers accessing the DATA need to sign an access request form?', default=False)
     dac_approval_required = BooleanField('Will access require Data Access Committee (DAC) approval?', default=False)
     dac_approval_notes = TextAreaField('Notes on DAC approval procedure', render_kw={'rows': 3},
                                        description="If a DAC Approval is needed please describe the required procedure.",
-                                       validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                       validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                           message="Can only contain letters, digits, dash, comma and dot.")])
     restriction_ip = BooleanField('Are there any Intellectual Property (IP) retrictions/requirements when using the data?', default=False)
     restriction_ip_notes = TextAreaField('Notes on IP restrictions', render_kw={'rows': 3},
                                          description="If there are IP requirements please decribe them here.",
-                                         validators=[OptionalFieldValidator(regex_str='^[\w\s,\-.]+$',
+                                         validators=[OptionalFieldValidator(regex_str=r'^[\w\s,\-.]+$',
                                                                             message="Can only contain letters, digits, dash, comma and dot.")])
 
     def __init__(self, *args, **kwargs):

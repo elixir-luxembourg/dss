@@ -1,14 +1,20 @@
-PostgreSQL:
-  restart: always
-  image: postgres:10.1
-  ports:
-    - "4001:4001"
-  volumes:
-  environment:
-      POSTGRES_PASSWORD: dish
-      POSTGRES_USER: dish
-      POSTGRES_DB: dish
-      PGPORT: 4001
-  volumes:
-   - pgdata:/var/lib/postgresql/data
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: elixirdcp
+      POSTGRES_PASSWORD: elixirdcp
+      POSTGRES_DB: elixirdcp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elixirdcp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+volumes:
+  postgres_data:

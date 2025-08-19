@@ -1,5 +1,4 @@
 from elixir_dcp import db
-from flask_login._compat import text_type
 
 
 class User(db.Model):
@@ -30,7 +29,7 @@ class User(db.Model):
 
     def get_id(self):
         try:
-            return text_type(self.id)
+            return str(self.id)
         except AttributeError:
             raise NotImplementedError('No `id` attribute - override `get_id`')
 

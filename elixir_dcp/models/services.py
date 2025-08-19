@@ -8,7 +8,7 @@ from elixir_dcp import db, app, mail
 from datetime import datetime
 from flask import flash, render_template
 from flask_login import current_user
-from sqlalchemy import and_
+from sqlalchemy import and_, select
 from threading import Thread
 from flask_mail import Message
 import json
@@ -232,10 +232,11 @@ def update_submission_basic_info(submission: Submission, **kwargs):
                         usr = User.query.filter_by(id=user_id).one_or_none()
                         flash('Submission shared with %s' % usr.display_name(), 'info')
 
-            revoked_acesses = db.session.query(SubmissionAccess).filter(
+            stmt = select(SubmissionAccess).filter(
                 and_(SubmissionAccess.submission_id == submission.id,
                      SubmissionAccess.user_id.notin_(
                          new_shared_user_ids)))
+            revoked_acesses = db.session.execute(stmt).scalars().all()
             if revoked_acesses is not None:
                 for rev_acc in revoked_acesses:
                     db.session.delete(rev_acc)
