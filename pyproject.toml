@@ -10,14 +10,10 @@ authors = [
     {name = "Valentin Grouès", email = "valentin.groues@uni.lu"}
 ]
 keywords = ["elixir"]
-requires-python = ">=3.8"
+requires-python = ">=3.12"
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
