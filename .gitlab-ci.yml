@@ -3,7 +3,7 @@ test:
   before_script:
     - pip install --upgrade pip setuptools wheel
     - pip install -e .[dev] --default-timeout=180
-    - apt-get update && apt-get install -y openjdk-17-jdk-headless nodejs npm
+    - apt-get update && apt-get install -y openjdk-21-jdk-headless nodejs npm
     - npm install -g less
     - cd elixir_dcp/static/vendor
     - npm ci

@@ -98,8 +98,8 @@ cd ../../../
 ```
 
 ## Requirements
- - Python 3.8 or newer
- - JDK (OpenJDK 11 suffices) 
+ - Python 3.12 or newer
+ - JDK (OpenJDK 21 suffices) 
  - nodejs and less (`npm install -g less`)
  
 ## Configuration
