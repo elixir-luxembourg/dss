@@ -1,14 +1,13 @@
 image: "python:3.12"
 
-before_script:
-  - pip install --upgrade pip setuptools wheel
-  - pip install -e .[dev] --default-timeout=180
-  - apt-get update && apt-get install -yq --no-install-recommends nodejs npm default-jdk
-  - npm install -g less
-  - cd elixir_dcp/static/vendor
-  - npm ci
-
 test:
+  before_script:
+    - pip install --upgrade pip setuptools wheel
+    - pip install -e .[dev] --default-timeout=180
+    - apt-get update && apt-get install -yq --no-install-recommends nodejs npm default-jdk
+    - npm install -g less
+    - cd elixir_dcp/static/vendor
+    - npm ci
   script:
     - cd ../../.. && pwd
     - cp elixir_dcp/settings.py.template elixir_dcp/settings.py
