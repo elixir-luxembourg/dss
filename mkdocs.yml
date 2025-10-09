@@ -1,0 +1,62 @@
+site_name: Data Submission System (DSS)
+theme:
+  name: material
+  palette:
+      - scheme: default
+        primary: deep green
+        accent: blue grey
+        toggle:
+          icon: material/weather-night
+          name: Switch to dark mode
+      - scheme: slate
+        primary: orange
+        accent: blue
+        toggle:
+          icon: material/weather-sunny
+          name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details  
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  - search
+  - mermaid2
+
+
+nav:
+  - Home: overview.md
+  - User Guide:
+      - Overview: USER_WORKFLOWS.md#overview
+      - Roles & Permissions: USER_WORKFLOWS.md#user-roles-and-permissions
+      - Workflows:
+          - Submission Lifecycle: USER_WORKFLOWS.md#submission-lifecycle
+          - Admin Workflow: USER_WORKFLOWS.md#admin-workflow
+          - Data Provider Workflow: USER_WORKFLOWS.md#data-provider-workflow
+          - Complete Submission Process: USER_WORKFLOWS.md#complete-submission-process
+      - Authentication & Access:
+          - Authentication: USER_WORKFLOWS.md#authentication
+          - Authorization Rules: USER_WORKFLOWS.md#authorization-rules
+      - Notifications: USER_WORKFLOWS.md#email-notifications
+      - Quick Reference: USER_WORKFLOWS.md#workflow-summary
+  - Submission System:
+      - System Overview: submission-system_specs.md
+      - Scenarios:
+          - Provider/Clinician Submission: submission-system_specs.md#submission-from-a-service-provider--clinicians--less-involved-parties
+          - Legal Support & Contracts: submission-system_specs.md#legal-support-linda---metadata-collection-and-a-contract-negotiation-phase
+          - Big Data Hosting: submission-system_specs.md#big-data-hosting-projects---biomap--immniverse
+          - ELIXIR Hosting: submission-system_specs.md#elixir-hosting
+          - Internal Submission: submission-system_specs.md#internal-data-submission
+      - Technical & Design:
+          - Naming & Roles: submission-system_specs.md#define-who-is-provider-submit...
+          - System Differences: submission-system_specs.md#how-this-system-differs-from-systems-used-for-other-sumbmissions-daisy-eln-platforms-ibridges-yoda-
+          - Technical TODOs: submission-system_specs.md#todo
+          - Data Model Entities: USER_WORKFLOWS.md#data-model-key-entities
+          - Implementation Notes: USER_WORKFLOWS.md#technical-implementation-notes
+
+
