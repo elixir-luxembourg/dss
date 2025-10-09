@@ -137,3 +137,5 @@ project_venv
 
 elixir_dcp/static/vendor/node_modules/
 
+# Draw.IO
+*.drawio.bkp
