@@ -98,44 +98,6 @@ flowchart TD
     style EmailSent2 fill:#6bcf7f
 ```
 
-### Sumbmitter Capabilities Summary
-
-**Submission Management:**
-- ✅ View own submissions (any state)
-- ✅ Edit any submission (Draft / MetadataSubmission only)
-- ✅ Delete submissions (Draft state only)
-- ✅ Steer submissions forward through states (Draft <-> MetadataSubmission -> Approval only)
-- ✅ Revert submissions to previous states (Draft <-> MetadataSubmission)
-- ✅ Assign data recipient users to submissions (Draft only)
-
-**Content Management:**
-- ✅ Add/edit/delete submission contacts (draft / MetadataSubmission only)
-- ✅ Add/edit/delete studies (draft / MetadataSubmission only)
-- ✅ Add/edit/delete data declarations (draft / MetadataSubmission only)
-- ✅ Add/delete attachments (draft / MetadataSubmission only)
-- ✅ Add/edit/delete upload info (draft / MetadataSubmission only)
-- ✅ Add messages (anytime)
-
-## Recipient permissions
-- ✅ View own submissions (any state)
-
-## Admin permissions
-
-**User Management:**
-- ✅ View all users
-- ✅ Edit user information
-- ✅ Assign/modify user global roles
-
-**System Administration:**
-- ✅ View all email notifications
-- ✅ Resend notifications manually
-
-```mermaid
-  Dashboard --> UserMgmt[User Management]
-    UserMgmt --> ListUsers[View All Users]
-    ListUsers --> EditUser[Edit User Info/Roles]
-```
-
 ### DataSteward Capabilities Summary
 
 **Submission Management:**
@@ -203,42 +165,6 @@ On top of that, its reponsible for steering submission from Approval -> Data upl
 
  ✅ Any user can create a submission - become submitter.
 
-
-## Workflow Rules & Constraints
-
-### State Transition Rules
-
-1. **Draft → MetadataSubmission**
-   - ✅ Requires: At least one submitter and one recipient assigned, receiving project selected.
-   - ✅ Who can trigger:  Submitter only
-   - 📧 Notification: Sent to submitter and recipient
-
-2. **MetadataSubmission → Approval Data Upload**
-   - ✅ Requires: Metadata should be complete (recommended, not enforced)
-   - ✅ Who can trigger: Submitter
-   - 📧 Notification: Sent to data stewards
-   - 📅 Records `finalised_on` date
-
-3. **Approval -> Data Upload**
-    - Requires: Validation by DataSteward
-    - Who can trigger: DataSteward
-    - Notification: Sent to submitter
-    - Records `metadata_approved_on` date
-
-3. **Data Upload → Completion**
-   - ✅ Requires: Data uploaded (verified externally)
-   - ✅ Who can trigger: DataSteward or Recipient
-   - 📧 Notification: Sent to data stewards
-
-4. **Revert (Any State → Previous State)**
-   - ✅ Who can trigger: DataSteward only
-   - ❌ Cannot revert from Draft (no previous state)
-
-### Deletion Rules
-
-- ✅ Can delete: Submissions in Draft state only
-- ❌ Cannot delete: Any submission that has progressed beyond Draft
-- ✅ Who can delete: Submitter or DataSteward
 
 ### File Upload Constraints
 
