@@ -102,7 +102,6 @@ flowchart TD
 
 **Submission Management:**
 
-
 ## Data Steward Workflow
 
 ```mermaid
@@ -142,6 +141,10 @@ flowchart TD
 Data steward can do what normal users can do and even become submitter.
 On top of that, its reponsible for steering submission from Approval -> Data upload
 
+## Permissions
+
+ ✅ Any user can create a submission - become submitter.
+
 
 | Permission / Action                        | Admin | Data Steward | Submitter | Recipient |
 |--------------------------------------------|:-----:|:------------:|:---------:|:---------:|
@@ -150,8 +153,9 @@ On top of that, its reponsible for steering submission from Approval -> Data upl
 | Assign/modify global roles                 |  ✅   |      ❌      |    ❌     |    ❌     |
 | View all submissions                       |  ✅   |      ✅      |    ❌     |    ❌     |
 | View assigned submissions                  |  ❌   |      ✅      |    ✅     |    ✅     |
-| Create submission                          |  ❌   |      ✅      |    ✅      |   ✅      |
+| Create submission (including "Create copy")|  ❌   |      ✅      |    ✅      |   ✅     |
 | Edit submission (Draft/MetadataSubmission) |  ❌   |      ✅      |    ✅     |    ❌     |
+| Export submission as PDF / JSON            | ❌    |      ✅      |    ✅.    |    ✅.    |
 | Delete submission (Draft only)             |  ❌   |      ✅      |    ✅     |    ❌     |
 | Steer submission forward                   |  ❌   |      ✅      |   from Draft and MetadataSubmission     |    ❌     |
 | Revert submission to previous state        |  ❌   |      ✅      |    ❌     |    ❌     |
@@ -162,12 +166,3 @@ On top of that, its reponsible for steering submission from Approval -> Data upl
 | Add messages                               |  ❌   |      ✅      |    ✅     |    ✅     |
 | View notifications                         |  ✅   |      ✅      |    ❌     |    ❌     |
 | Resend notifications                       |  ✅   |      ✅      |    ❌     |    ❌     |
-
- ✅ Any user can create a submission - become submitter.
-
-
-### File Upload Constraints
-
-- **Allowed file types**: PDF, TXT, PNG
-- **File size**: Controlled by server configuration
-- **Storage**: Files stored in `UPLOAD_FOLDER` with UUID-based folder names
