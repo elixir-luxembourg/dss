@@ -1,42 +1,34 @@
 {% macro render_field_with_errors(field) %}
-{% set clazz = kwargs.pop('clazz',"") %}
-{% set fc_class = "form-control " +  clazz %}
+    {% set clazz = kwargs.pop('clazz',"") %}
+    {% set fc_class = "form-control " +  clazz %}
 
-<div class=" {% if field.errors %}has-error{% endif %}">
-    <div class="form-group">
-        <div class="form-group row">
-        <label for="{{ field.id }}">
-            {{ field.label.text }} {% if field.flags.required %}<span class="text-danger">*</span>{% endif %}
-        </label>
+    {% if field.type == 'BooleanField' %}
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="{{ field.id }}" name="{{ field.name }}" {% if field.data %}checked{% endif %}>
+            <label class="form-check-label" for="{{ field.id }}">{{ field.label.text }}</label>
             {% if field.description %}
-            <br/> <span><small class="form-text text-muted">{{field.description}}</small></span> <br/>
+                <div class="form-text">{{ field.description }}</div>
+            {% endif %}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
             {% endif %}
         </div>
-
-
-
-        {% if field.type == 'BooleanField' %}
-
-        <input id="{{ field.id }}" name="{{ field.name }}"  type="checkbox" class="col-md-1"
-               data-toggle="switch" data-on-color="success" data-off-color="default" data-on-text="Yes" data-off-text="No"
-               {% if field.data %} checked="checked" {% endif %}/>
-
-        {% else %}
-
-        {{ field(class= fc_class, **kwargs)|safe }}
-        {% if field.errors %}
-        {% for error in field.errors %}<p class="help-block">{{ error }}</p>{% endfor %}
-        {% endif %}
-
-        {% endif %}
-
-
-    </div>
-</div>
+    {% else %}
+        <div class="mb-3">
+            <label for="{{ field.id }}" class="form-label">
+                {{ field.label.text }} {% if field.flags.required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+            {% if field.description %}
+                <div class="form-text mb-1">{{ field.description }}</div>
+            {% endif %}
+            {{ field(class=fc_class + (' is-invalid' if field.errors else '')) }}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endif %}
 {% endmacro %}
-
-
-{% macro render_field(field) %}
-<p>{{ field(**kwargs)|safe }}</p>
-{% endmacro %}
-
