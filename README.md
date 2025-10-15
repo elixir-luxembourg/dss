@@ -10,6 +10,14 @@
 ./run_dev.sh
 ```
 
+### Daily Development (2 terminals)
+```bash
+# Terminal 2: Auto-compile SCSS on file changes (layout.scss, _custom-colors.scss, etc.)
+cd elixir_dcp/static/vendor && npm run watch:css
+```
+
+Edit `.scss` files → auto-recompiles → refresh browser to see changes! For production: `npm run build:css`
+
 Application runs at http://127.0.0.1:5000
 
 ## Research Data Submission Process

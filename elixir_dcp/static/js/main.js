@@ -61,11 +61,9 @@ window.setTimeout(function() {
 
 $(document).ready(function () {
 
-    $.material.init();
 
     $("body").tooltip({ selector: '[data-toggle=tooltip]' });
 
-    $('[data-toggle="switch"]').bootstrapSwitch();
     $('.dropdown-toggle').dropdown();
 
     $('#query').change(function () {

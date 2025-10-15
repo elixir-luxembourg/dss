@@ -8,41 +8,34 @@ handlebars_js = Bundle('vendor/node_modules/handlebars/dist/handlebars.js')
 jqueryui_css = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.css')
 jqueryui_js = Bundle('vendor/node_modules/jquery-ui-dist/jquery-ui.js')
 tm_editor_js = Bundle('vendor/node_modules/tinymce/tinymce.min.js')
-datatables_js = 'vendor/datatables/datatables.min.js'
-datatables_css = 'vendor/datatables/datatables.min.css'
-switches_js =   'vendor/node_modules/bootstrap-switch/dist/js/bootstrap-switch.js'
-switches_css = 'vendor/node_modules/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css'
 
-select2_js = Bundle('vendor/select2/js/select2.full.js', 'vendor/select2/js/select2.sortable.js')
-select2_css = Bundle('vendor/select2/css/select2.css', 'vendor/select2/css/select2-bootstrap.css')
+datatables_css = 'vendor/node_modules/datatables.net-bs5/css/dataTables.bootstrap5.min.css'
+datatables_js = Bundle('vendor/node_modules/datatables.net/js/dataTables.min.js',
+                       'vendor/node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js')
+
+select2_js = Bundle('vendor/node_modules/select2/dist/js/select2.full.js', 
+                    'vendor/select2/js/select2.sortable.js')
+select2_css = Bundle('vendor/node_modules/select2/dist/css/select2.min.css',
+                     'public/css/select2-custom.css')
 
 
 common_css = Bundle(
-    'vendor/node_modules/bootstrap/dist/css/bootstrap.css',
-    'vendor/node_modules/bootstrap-material-design/dist/css/ripples.css',
+    'public/css/bootstrap-custom.css',
+    'vendor/node_modules/bootstrap-icons/font/bootstrap-icons.css',
     jqueryui_css,
     datatables_css,
     select2_css,
-    switches_css,
-    Bundle(
-        'css/layout.less',
-        filters='less'
-    ),
     filters='cssmin', output='public/css/common.min.css', debug=False)
 
 common_js = Bundle(
     'vendor/node_modules/jquery/dist/jquery.js',
-    'vendor/node_modules/bootstrap/dist/js/bootstrap.js',
-    'vendor/node_modules/bootstrap-material-design/dist/js/ripples.js',
-    'vendor/node_modules/bootstrap-material-design/dist/js/material.js',
+    'vendor/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
     jqueryui_js,
     select2_js,
     datatables_js,
     handlebars_js,
     typeahead_js,
-    switches_js,
     'js/main.js',
-    filters='closure_js',
     output='public/js/common.min.js', debug=False)
 
 submission_editor_js = Bundle(

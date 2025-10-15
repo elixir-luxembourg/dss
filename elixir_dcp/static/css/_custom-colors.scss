@@ -1,0 +1,39 @@
+// DSS Custom Colors for Bootstrap 5
+// Based on original layout.less brand colors
+
+// Base color palette
+$orange: #EF7503;
+$blue: #118ED6;
+$red: #a52d24;
+$green: #4bb543;
+$yellow: #FFC107;
+$teal: #17a2b8;
+$cyan: #0dcaf0;
+$purple: #6f42c1;
+$pink: #d63384;
+$indigo: #6610f2;
+
+// Gray scale
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+$primary: $orange;
+$secondary: $gray-600;
+$success: $green;
+$info: $blue;
+$warning: $yellow;
+$danger: $red;
+$light: $gray-100;
+$dark: $gray-800;
+
+$lux-blue: $blue;
+$brand-primary: $orange;
+$brand-danger: $red;
+$background-color: #eee;
