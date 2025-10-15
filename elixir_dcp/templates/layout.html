@@ -2,107 +2,117 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
     <title>{{ config.get('TITLE', 'Submission System') }} - {% block title %}Home{% endblock %}</title>
+
     {% block meta %}
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
     {% endblock %}
-    <link rel="shortcut icon" href="{{ url_for('static',filename='favicon.ico') }}">
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
     {% block css %}
         {% assets "common_css" %}
-            <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+            <link rel="stylesheet" href="{{ ASSET_URL }}">
         {% endassets %}
-        <!-- Material Design fonts -->
-        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
-        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">
+        <!-- Optional Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+        <!-- Bootstrap Icons (already added in your npm setup) -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     {% endblock %}
-    <script type="text/javascript">
+
+    <script>
         function defer(method) {
-            if (window.jQuery)
-                method();
-            else
-                setTimeout(function () {
-                    defer(method)
-                }, 50);
+            if (window.jQuery) method();
+            else setTimeout(function() { defer(method); }, 50);
         }
     </script>
+
+    <!-- Matomo / LCSB Analytics Settings -->
     <script>
         const settings = {
             expires: "180",
             matomoURL: "https://analytics.lcsb.uni.lu/hub/",
-            siteID: "9", //you get this siteID by sending an email to lcsb-r3@uni.lu
+            siteID: "9",
             accept_all_text: "Aggregate statistics cookies accepted",
             only_necessary_text: "Only necessary cookies accepted",
             doNotTrack_text: "Do Not Track is enabled",
             cookieName: "lap",
             bots: /bot|crawler|spider|crawling/i,
             timeout_hidebanner: "500",
-            cookieDomain: "" // ".lcsb.uni.lu"
+            cookieDomain: ""
         };
     </script>
+
     <script src="https://analytics.lcsb.uni.lu/lap/static/js/jquery.min.js"></script>
     <script src="https://analytics.lcsb.uni.lu/lap/static/js/lap.js"></script>
-
-    <link rel="stylesheet" type="text/css" href="https://analytics.lcsb.uni.lu/lap/static/css/lap.css" />
-
+    <link rel="stylesheet" href="https://analytics.lcsb.uni.lu/lap/static/css/lap.css" />
 </head>
-<body>
 
+<body class="bg-light">
+<div id="wrap">
+    {% block container %}
+        <div class="container py-4" id="main-container">
+            {% block header %}
+                {% with active_page=active_page %}
+                    {% include 'header.html' %}
+                {% endwith %}
+            {% endblock %}
 
-    <div id="wrap">
-        {% block container %}
-            <div class="container" id="main-container">
-                {% block header %}
-                    {% with active_page=active_page %}
-                        {% include 'header.html' %}
-                    {% endwith %}
-                {% endblock %}
-                {% block navbar %}
-                    {% with active_page=active_page %}
-                        {% include 'navbar.html' %}
-                    {% endwith %}
-                {% endblock %}
-                {{ macros.show_flashes() }}
-                {% block content %}{% endblock %}
+            {% block navbar %}
+                {% with active_page=active_page %}
+                    {% include 'navbar.html' %}
+                {% endwith %}
+            {% endblock %}
 
-                <div id="common-command-dialog" title="Confirm" class="dialog-body" style="display:none">
-                    <!-- Fragment displayed within a JQuery UI Dialog  -->
-                    <p>
-                        You are about to <span id="command-dialog-text"></span>!
-                    </p>
-                </div>
+            {{ macros.show_flashes() }}
+            {% block content %}{% endblock %}
+
+            <div id="common-command-dialog" title="Confirm" class="dialog-body d-none">
+                <p>You are about to <span id="command-dialog-text"></span>!</p>
             </div>
-        {% endblock %}
-    </div>
-    {% block footer %}{% include 'footer.html' %}{% endblock %}
-    {% block extra_content %}{% endblock %}
-    {% block js %}
-        {% assets "common_js" %}
-            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-        {% endassets %}
+        </div>
     {% endblock %}
-    <div id="lap-cookies-banner">
-        <div class="banner-intro">
-            <div class="close-button">
-                <a class="lap-refuse">
-                    <i class="fa fa-times" aria-hidden="true"></i>
-                </a>
-            </div>
-            <div class="banner-img">
-                <img src="https://analytics.lcsb.uni.lu/lap/static/logos/r3-logo.svg" type="image/svg+xml"/>
-            </div>
-            <div class="banner-title">This website needs some cookies and similar means to function.</div>
-            <div class="banner-text">If you permit us, we will use those means to collect data on your visits for aggregated
-                statistics to improve our service.
-            </div>
-        </div>
+</div>
 
-        <div class="banner-buttons">
-            <a class="btn lap-accept">Accept cookies for aggregated statistics</a>
-            <a class="btn lap-refuse">No thanks, only technically necessary cookies</a>
-            <a class="btn lap-cookies-more" href="privacy-policy">More information</a>
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}
+
+{% block extra_content %}{% endblock %}
+
+{% block js %}
+    {% assets "common_js" %}
+        <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+
+<!-- Cookie Banner -->
+<div id="lap-cookies-banner" class="border-top bg-white shadow-sm p-3 mt-4">
+    <div class="banner-intro mb-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="banner-img">
+                <img src="https://analytics.lcsb.uni.lu/lap/static/logos/r3-logo.svg" alt="LCSB logo" height="40">
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary lap-refuse">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <div class="banner-title fw-bold mt-2">
+            This website needs some cookies and similar means to function.
+        </div>
+        <div class="banner-text small text-muted">
+            If you permit us, we will use those means to collect data on your visits for aggregated
+            statistics to improve our service.
         </div>
     </div>
+
+    <div class="banner-buttons d-flex flex-wrap gap-2 mt-3">
+        <a class="btn btn-primary lap-accept">Accept cookies for aggregated statistics</a>
+        <a class="btn btn-outline-secondary lap-refuse">No thanks, only technically necessary cookies</a>
+        <a class="btn btn-link lap-cookies-more" href="privacy-policy">More information</a>
+    </div>
+</div>
 </body>
 </html>

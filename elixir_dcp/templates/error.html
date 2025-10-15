@@ -2,18 +2,27 @@
 
 {% block title %}{{ title | default('Error') }}{% endblock %}
 
-
 {% block content %}
-    <div class="well">
+    <div class="d-flex flex-column justify-content-start align-items-center vh-100 bg-light shadow-sm text-center pt-5">
+        <!-- Icon -->
+        <div class="mb-3">
+            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 120px;"></i>
+        </div>
 
-        <h1><i style="font-size: 200px;vertical-align: middle;" class="red material-icons">error</i>
-            {{ message }}
-        </h1>
+        <!-- Error message -->
+        <h1 class="display-4 fw-bold mb-2">{{ message }}</h1>
+
+        <!-- Explanation if available -->
         {% if explanation %}
-            <p>{{ explanation }}</p>
+            <p class="lead text-muted mb-4">{{ explanation }}</p>
         {% endif %}
+
+        <!-- Call to action -->
         {% if show_home_link %}
-            <p class="text-center"><a href="/">Go to home page</a></p>
+            <a href="/" class="btn btn-primary btn-lg mt-2">
+                <i class="bi bi-house-door-fill me-2"></i>
+                Return to Home
+            </a>
         {% endif %}
     </div>
 {% endblock %}

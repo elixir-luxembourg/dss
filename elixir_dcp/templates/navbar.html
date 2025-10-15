@@ -1,75 +1,75 @@
 {% set menu_bar_items = config.get('APP_MENU_BAR_ITEMS') -%}
 {% set active_page = active_page|default('home') -%}
-<div class="row">
-    <div class="navbar navbar-info">
-        <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header" style="float:none;">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
-                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                {# <a class="navbar-brand" href="/">Navigation</a>#}
-            </div>
-            <div>
-                <ul class="nav navbar-nav">
-                    <li class="active">
-                        <a href="{{ url_for('home') }}"><span class="glyphicon glyphicon-home"></span> Home </a>
-                    </li>
-                </ul>
-                    {% if current_user.is_authenticated %} 
-                        {% for name, link, sub_items, role in menu_bar_items %}
-                            {% if current_user.assigned_roles|selectattr("name", "equalto",role)|list|count > 0 %} 
-                                <ul class="nav navbar-nav">
-                                {% if link %}
-                                    <li><a href="{{ url_for(link) }}">{{ name|e }}</a></li>
-                                {% else %}
-                                    <li class="dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                            <strong>{{ name }}</strong>
-                                            <span class="glyphicon glyphicon-chevron-down"></span>
-                                        </a>
-                                        <ul class="dropdown-menu">
-                                            {% for sub_item_name, sub_item_link in sub_items %}
-                                                <li><a href="{{ url_for(sub_item_link) }}">{{ sub_item_name }}</a></li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                {% endif %}
-                                </ul>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
 
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <span class="glyphicon glyphicon-user"></span>
-                            {% if current_user.is_authenticated %} 
-                                <strong>{{ current_user.display_name() }}</strong>
-                            {% else %}
-                                <strong>Anonymous</strong>
-                            {% endif %}
-                            <span class="glyphicon glyphicon-chevron-down"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            {% if current_user.is_authenticated %}
-                                <li><a href="{{ url_for('logout') }}">Logout</a>
-                                </li>
-                                <li><a href="{{ url_for(login_page) }}">My Profile</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-3">
+    <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand" href="{{ url_for('home') }}">
+            <i class="bi bi-house-door-fill"></i> Home
+        </a>
+
+        <!-- Toggler -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Content -->
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% if current_user.is_authenticated %}
+                    {% for name, link, sub_items, role in menu_bar_items %}
+                        {% if current_user.assigned_roles|selectattr("name", "equalto", role)|list|count > 0 %}
+                            {% if link %}
+                                <li class="nav-item">
+                                    <a class="nav-link {% if active_page == name %}active{% endif %}"
+                                       href="{{ url_for(link) }}">{{ name|e }}</a>
                                 </li>
                             {% else %}
-                                <li><a href="{{ url_for(login_page) }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">Login</a>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown{{ loop.index }}"
+                                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {{ name }}
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown{{ loop.index }}">
+                                        {% for sub_item_name, sub_item_link in sub_items %}
+                                            <li><a class="dropdown-item" href="{{ url_for(sub_item_link) }}">{{ sub_item_name }}</a></li>
+                                        {% endfor %}
+                                    </ul>
                                 </li>
                             {% endif %}
-                        </ul>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </ul>
 
-                    </li>
-                </ul>
-            </div>
+            <!-- Right side user menu -->
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#"
+                       id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        {% if current_user.is_authenticated %}
+                            <strong>{{ current_user.display_name() }}</strong>
+                        {% else %}
+                            <strong>Anonymous</strong>
+                        {% endif %}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        {% if current_user.is_authenticated %}
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for(login_page) }}">My Profile</a></li>
+                        {% else %}
+                            <li>
+                                <a class="dropdown-item"
+                                   href="{{ url_for(login_page) }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">
+                                    Login
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </li>
+            </ul>
         </div>
     </div>
-</div>
+</nav>
