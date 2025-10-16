@@ -1,45 +1,60 @@
 import json
 
+from elixir_dcp import db
+from elixir_dcp.importer.submission_exporter import SubmissionExporter
+from elixir_dcp.models.security import User
+from elixir_dcp.models.services import (
+    assign_role_to_user,
+    create_sub,
+    deactivate_user,
+    delete_sub,
+    register_new_user,
+    update_submission_basic_info,
+)
+from elixir_dcp.models.submission import (
+    Contact,
+    ContactType,
+    Submission,
+    SubmissionAccess,
+    SubmissionDataDeclaration,
+    SubmissionScope,
+    SubmissionStatusEnum,
+    SubmissionStudy,
+)
 from tests import BaseTest
 
-from elixir_dcp.models.security import User
-from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionScope, SubmissionAccess, \
-    SubmissionDataDeclaration, SubmissionStudy, Contact, ContactType
-from elixir_dcp.models.services import register_new_user, assign_role_to_user, create_sub, steer_sub, \
-    update_submission_basic_info, revert_sub, deactivate_user, delete_sub
-from elixir_dcp.importer.submission_exporter import SubmissionExporter
-from elixir_dcp.exceptions import RecordLifecycleException
-from elixir_dcp import db
+__author__ = "Pinar Alper"
 
-__author__ = 'Pinar Alper'
 
 class ModelPersistenceTest(BaseTest):
-
-
     def test_users_roles(self):
-        u1 = User(first_name='P\u0131nar', last_name='Alper',
-                  elixir_sub_id='DUMMY_ELX_ID', email='pinar.alper@uni.lu',
-                  institution_accession='ELU_I_77',
-                  phone_no='+352123456789')
+        u1 = User(
+            first_name="P\u0131nar",
+            last_name="Alper",
+            elixir_sub_id="DUMMY_ELX_ID",
+            email="pinar.alper@uni.lu",
+            institution_accession="ELU_I_77",
+            phone_no="+352123456789",
+        )
         register_new_user(u1)
-        assign_role_to_user(u1, 'admin')
+        assign_role_to_user(u1, "admin")
 
         users = User.query.all()
         self.assertEqual(1, len(users))
         pinar = users[0]
 
-        self.assertEqual('P\u0131nar', pinar.first_name)
-        self.assertEqual('Alper', pinar.last_name)
-        self.assertEqual('DUMMY_ELX_ID', pinar.elixir_sub_id)
-        self.assertEqual('pinar.alper@uni.lu', pinar.email)
-        self.assertEqual('+352123456789', pinar.phone_no)
-        self.assertEqual('ELU_I_77', pinar.institution_accession)
+        self.assertEqual("P\u0131nar", pinar.first_name)
+        self.assertEqual("Alper", pinar.last_name)
+        self.assertEqual("DUMMY_ELX_ID", pinar.elixir_sub_id)
+        self.assertEqual("pinar.alper@uni.lu", pinar.email)
+        self.assertEqual("+352123456789", pinar.phone_no)
+        self.assertEqual("ELU_I_77", pinar.institution_accession)
 
         self.assertEqual(1, len(pinar.assigned_roles))
         self.assertTrue(pinar.is_active())
         self.assertTrue(pinar.is_admin())
 
-        assign_role_to_user(pinar, 'data_provider')
+        assign_role_to_user(pinar, "data_provider")
         users = User.query.all()
         self.assertEqual(1, len(users))
         pinar = users[0]
@@ -52,12 +67,8 @@ class ModelPersistenceTest(BaseTest):
         pinar = users[0]
         self.assertFalse(pinar.is_active())
 
-
     def test_create_submission(self):
-
-
         self.assertEqual(18, len(SubmissionScope.query.all()))
-
 
         # con = db.session.connection()
         # res = con.execute("select sqlite_version();")
@@ -66,17 +77,16 @@ class ModelPersistenceTest(BaseTest):
         #
         # con.execute("PRAGMA foreign_keys=ON")
 
-
-        submission_rec = create_sub('Test Submission', 'ELU_I_77')
+        submission_rec = create_sub("Test Submission", "ELU_I_77")
 
         self.assertEqual(1, len(Submission.query.all()))
         sub = Submission.query.get_or_404(submission_rec.id)
         sub_id = sub.id
-        self.assertEqual(sub.title, 'Test Submission')
-        self.assertEqual(sub.ref_name, 'ELX_LU_SUB-1')
+        self.assertEqual(sub.title, "Test Submission")
+        self.assertEqual(sub.ref_name, "ELX_LU_SUB-1")
         self.assertEqual(sub.current_status, SubmissionStatusEnum.draft)
         self.assertIsNotNone(sub.created_on)
-        self.assertEqual(sub.submission_scope_code, 'elu')
+        self.assertEqual(sub.submission_scope_code, "elu")
 
         self.assertTrue(sub.is_deletable())
         self.assertFalse(sub.is_in_progress())
@@ -87,23 +97,26 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(0, len(sub.provider_user_names()))
         self.assertFalse(sub.has_providers())
 
-
-        u1 = User(first_name='Kavita', last_name='Rege',
-                  elixir_sub_id='SOME_ELX_ID', email='kavita.rege@uni.lu',
-                  institution_accession='ELU_I_77',
-                  phone_no='+352123456789')
+        u1 = User(
+            first_name="Kavita",
+            last_name="Rege",
+            elixir_sub_id="SOME_ELX_ID",
+            email="kavita.rege@uni.lu",
+            institution_accession="ELU_I_77",
+            phone_no="+352123456789",
+        )
         usr = register_new_user(u1)
         update_submission_basic_info(sub, provider_user_ids=[usr.id])
 
-
-        self.assertEqual(1, len(Submission.query.get_or_404(sub_id).submission_accesses))
+        self.assertEqual(
+            1, len(Submission.query.get_or_404(sub_id).submission_accesses)
+        )
 
         delete_sub(sub_id)
         self.assertEqual(0, len(Submission.query.all()))
 
-        #Testing delete-orphan annotations on the relations of Submission
+        # Testing delete-orphan annotations on the relations of Submission
         self.assertEqual(0, len(SubmissionAccess.query.all()))
-
 
     # def test_steer_submission(self):
     #
@@ -165,26 +178,35 @@ class ModelPersistenceTest(BaseTest):
     #     else:
     #         self.fail('Expected Exception not raised')
 
-
     def test_export_submission(self):
+        submission_rec = create_sub("Test Submission to be exported.", "ELU_I_5")
 
-        submission_rec = create_sub('Test Submission to be exported.','ELU_I_5')
-
-        u1 = User(first_name='Kavita', last_name='Rege',
-                  elixir_sub_id='SOME_ELX_ID', email='kavita.rege@uni.lu',  addr_line1='Meyerhofstraße 1, 69117', addr_line2='Heidelberg, Germany',
-                  institution_accession='ELU_I_2',
-                  phone_no='+352123456789')
+        u1 = User(
+            first_name="Kavita",
+            last_name="Rege",
+            elixir_sub_id="SOME_ELX_ID",
+            email="kavita.rege@uni.lu",
+            addr_line1="Meyerhofstraße 1, 69117",
+            addr_line2="Heidelberg, Germany",
+            institution_accession="ELU_I_2",
+            phone_no="+352123456789",
+        )
         usr = register_new_user(u1)
 
-        update_submission_basic_info(submission_rec, institution_accession= "ELU_I_5", provider_user_ids=[usr.id], local_project_name='Submitting to NCER PD Diagnosis project', local_custodians_json=json.dumps(['Enrico Glaab', 'Rudi Balling']))
-
+        update_submission_basic_info(
+            submission_rec,
+            institution_accession="ELU_I_5",
+            provider_user_ids=[usr.id],
+            local_project_name="Submitting to NCER PD Diagnosis project",
+            local_custodians_json=json.dumps(["Enrico Glaab", "Rudi Balling"]),
+        )
 
         study_rec = SubmissionStudy()
         study_rec.submission_id = submission_rec.id
-        study_rec.name = 'Test Study ABC'
-        study_rec.description = 'This study does blah blah...'
+        study_rec.name = "Test Study ABC"
+        study_rec.description = "This study does blah blah..."
         study_rec.ethics_approval_exists = True
-        study_rec.study_types_json = json.dumps(["Interventional","Observational"])
+        study_rec.study_types_json = json.dumps(["Interventional", "Observational"])
         c1 = Contact()
         c1.firstname = "John"
         c1.lastname = "Doe"
@@ -195,38 +217,34 @@ class ModelPersistenceTest(BaseTest):
         db.session.add(study_rec)
         db.session.commit()
 
-
         datadec_rec = SubmissionDataDeclaration()
         datadec_rec.submission_id = submission_rec.id
         datadec_rec.study_id = study_rec.id
-        datadec_rec.title = 'Test datadec 1'
+        datadec_rec.title = "Test datadec 1"
 
-
-        datadec_rec.sci_datatypes_json = json.dumps(["Genomics_variant_array","RNASeq"])
-        datadec_rec.gdpr_datatypes_json = json.dumps(["standard","ethnic"])
+        datadec_rec.sci_datatypes_json = json.dumps(
+            ["Genomics_variant_array", "RNASeq"]
+        )
+        datadec_rec.gdpr_datatypes_json = json.dumps(["standard", "ethnic"])
         datadec_rec.subjects_minors = True
-        datadec_rec.subjects_notes = 'mothers and babies'
-        datadec_rec.consent_notes = 'Consent is consistent among all subjects'
+        datadec_rec.subjects_notes = "mothers and babies"
+        datadec_rec.consent_notes = "Consent is consistent among all subjects"
 
         db.session.add(datadec_rec)
         db.session.commit()
 
-
         datadec_rec2 = SubmissionDataDeclaration()
         datadec_rec2.submission_id = submission_rec.id
         datadec_rec2.study_id = study_rec.id
-        datadec_rec2.title = 'Test datadec 2'
+        datadec_rec2.title = "Test datadec 2"
 
-
-        datadec_rec2.sci_datatypes_json = json.dumps(["Transcriptome_array","RNASeq"])
-        datadec_rec2.gdpr_datatypes_json = json.dumps(["standard","ethnic"])
-        datadec_rec2.consent_status_code = 'ht'
-        datadec_rec2.consent_notes = 'There are three primary consent groups'
-
+        datadec_rec2.sci_datatypes_json = json.dumps(["Transcriptome_array", "RNASeq"])
+        datadec_rec2.gdpr_datatypes_json = json.dumps(["standard", "ethnic"])
+        datadec_rec2.consent_status_code = "ht"
+        datadec_rec2.consent_notes = "There are three primary consent groups"
 
         db.session.add(datadec_rec2)
         db.session.commit()
-
 
         # a_rec = SubmissionAttachment()
         # a_rec.submission_id = submission_rec.id
@@ -251,5 +269,3 @@ class ModelPersistenceTest(BaseTest):
         exporter = SubmissionExporter()
         exp = exporter.export_submission(submission_rec)
         print(json.dumps(exp, indent=4))
-
-

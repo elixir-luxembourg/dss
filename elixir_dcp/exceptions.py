@@ -1,5 +1,4 @@
-# coding=utf-8
-__author__ = 'Valentin Grouès'
+__author__ = "Valentin Grouès"
 
 
 class ElixirDCPException(Exception):
@@ -16,5 +15,3 @@ class RecordNotExistsException(ElixirDCPException):
 
 class RecordLifecycleException(ElixirDCPException):
     pass
-
-

@@ -55,7 +55,8 @@ dev = [
     "bumpversion",
     "coverage",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "ruff"
 ]
 test = [
     "coverage",

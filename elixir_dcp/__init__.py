@@ -1,12 +1,12 @@
 import json
 import logging
-import os
 import time
 from logging.handlers import RotatingFileHandler
 
 import schedule
 from flask import Flask
 from flask_assets import Environment
+from flask_caching import Cache
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
@@ -14,26 +14,27 @@ from flask_oidc import OpenIDConnect
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
-from flask_caching import Cache
 
 import elixir_dcp.assets as assets
 import elixir_dcp.exceptions as exceptions
-
 from elixir_dcp.settings import ELIXIR_DCP_ENV
+
 
 __VERSION__ = "0.4.0-dev"
 
 
 def create_application():
     new_app = Flask(__name__)
-    new_app.config.from_object('elixir_dcp.settings.%sConfig' % ELIXIR_DCP_ENV.capitalize())
-    new_app.config['ENV'] = ELIXIR_DCP_ENV
-    new_app.jinja_env.add_extension('jinja2.ext.i18n')
+    new_app.config.from_object(
+        "elixir_dcp.settings.%sConfig" % ELIXIR_DCP_ENV.capitalize()
+    )
+    new_app.config["ENV"] = ELIXIR_DCP_ENV
+    new_app.jinja_env.add_extension("jinja2.ext.i18n")
 
-    new_app.cache = Cache(new_app, config=new_app.config['CACHE_CONFIG'])
+    new_app.cache = Cache(new_app, config=new_app.config["CACHE_CONFIG"])
     new_app.cache.clear()
 
-    handler = RotatingFileHandler('elixir_dcp_app.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler("elixir_dcp_app.log", maxBytes=10000, backupCount=1)
     handler.setLevel(logging.ERROR)
     new_app.logger.addHandler(handler)
     return new_app
@@ -44,10 +45,10 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_message_category = "error"
 
-authentication_method = app.config.get('AUTHENTICATION_METHOD', 'CONFIG')
-if authentication_method == 'CONFIG':
+authentication_method = app.config.get("AUTHENTICATION_METHOD", "CONFIG")
+if authentication_method == "CONFIG":
     login_manager.login_view = "login"
-elif authentication_method == 'AAI':
+elif authentication_method == "AAI":
     login_manager.login_view = "oidc_login"
 else:
     raise ValueError("Unsupported authentication method")
@@ -65,7 +66,7 @@ migrate = Migrate(app, db)
 
 
 class OidcCredentials(db.Model):
-    __tablename__ = 'oidc_credentials'
+    __tablename__ = "oidc_credentials"
 
     cred_key = db.Column(db.String, primary_key=True)
     cred_val = db.Column(db.String)
@@ -105,48 +106,51 @@ class CredentialsPersistentStore:
 
 credentials_store = CredentialsPersistentStore(persist_db=db)
 
-if authentication_method == 'AAI':
+if authentication_method == "AAI":
     oidc = OpenIDConnect(app=app, credentials_store=credentials_store)
 else:
+
     class DummyOIDC:
         """Minimal mock to prevent AttributeErrors when OIDC is not used"""
+
         def require_login(self, func):
             return func
+
         def logout(self):
             pass
+
         def user_getinfo(self, *args, **kwargs):
             return {}
+
         def user_getfield(self, *args, **kwargs):
             return None
+
     oidc = DummyOIDC()
 
 # Setup Flask-Mail
 mail = Mail(app)
 
-app.add_template_global(login_manager.login_view, 'login_page')
+app.add_template_global(login_manager.login_view, "login_page")
 
 
-@app.template_filter('dt')
+@app.template_filter("dt")
 def _jinja2_filter_datetime(date, fmt=None):
     if date is None:
         return None
     if fmt:
         return date.strftime(fmt)
     else:
-        return date.strftime('%Y-%m-%d,  %H:%M')
+        return date.strftime("%Y-%m-%d,  %H:%M")
 
 
-@app.template_filter('date')
+@app.template_filter("date")
 def _jinja2_filter_date(date, fmt=None):
-    return _jinja2_filter_datetime(date, '%Y-%m-%d')
+    return _jinja2_filter_datetime(date, "%Y-%m-%d")
 
 
 @app.context_processor
 def inject_now():
-    return {'version': __VERSION__}
-
-
-from . import controllers, models
+    return {"version": __VERSION__}
 
 
 def run_export_submission():
@@ -163,7 +167,10 @@ def run_schedule():
 # t = Thread(target=run_schedule)
 # t.start()
 
+# Import controllers and models after all other objects are created to avoid circular imports
+from . import controllers, models  # noqa: E402
+
 __all__ = [controllers, assets, app, db, exceptions, oidc, mail]
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(use_reloader=False)
