@@ -83,21 +83,20 @@ flowchart LR
 ```
 
 ## Development
-## Setting up Development Environment
 
-
-The project_venv folder is for holding the virtual environment. (Elixir DCP supports Python 3.8+) 
+### Setup (Python 3.12+)
 
 ```bash
-# Create virtual environment
-python3 -m venv project_venv
+# pip
+python3 -m venv venv
 source ./project_venv/bin/activate
-```
+pip install -e '.[dev]'
 
-Install dependencies with:
- 
-```bash
-pip install -e .[dev]
+# with UV
+pip install uv
+uv venv venv
+source ./venv/bin/activate
+uv pip install -e '.[dev]'
 
 # Frontend dependencies
 cd elixir_dcp/static/vendor
@@ -133,20 +132,9 @@ The platform supports two authentication methods:
 ### 3. Configure database
 Update the `SQLALCHEMY_DATABASE_URI` variable in `settings.py`:
  
-* **Option 1 - SQLite backend (development)**
-    ```python
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')
-    ```
-    
-* **Option 2 - PostgreSQL backend (production)**
-    ```python
-    SQLALCHEMY_DATABASE_URI = 'postgresql://[user[:password]@][netloc][:port][/dbname]'
-    ```
-    
-    The project includes a docker compose configuration for PostgreSQL:
-    ```python
-    SQLALCHEMY_DATABASE_URI = 'postgresql://elixirdcp:elixirdcp@localhost:5432/elixirdcp'
-    ```
+```python
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')
+```
 
 ### 4. Set secret key
 For development, any string can be used. For production, generate a secure key:
@@ -156,18 +144,6 @@ os.urandom(24)
 ```
         
 ## Database Initialization
-
-### Start database (if using Docker PostgreSQL)
-
-1. Copy the environment template and customize if needed:
-```bash
-cp .env.template .env
-```
-
-2. Start the PostgreSQL container:
-```bash
-docker compose up
-```
 
 ### Initialize database with default data
 ```bash
@@ -218,16 +194,41 @@ The application will be available at http://127.0.0.1:5000
 ```
 
 ## Testing
- 
-Run tests with pytest:
-```bash
-pytest
 
-# With coverage
-pytest --cov=elixir_dcp
+**Install dependencies:**
+
+```bash
+# Install project dependencies (includes pytest, ruff, etc.)
+pip install -e '.[dev]'
+
+# or with UV
+pip install uv
+uv pip install -e '.[dev]'
 ```
 
-Run tests with multiple Python versions using tox:
+**Run tests:**
+
+```bash
+pytest
+pytest --cov=elixir_dcp  # with coverage
+
+# or with UV:
+uv run pytest
+uv run pytest --cov=elixir_dcp
+```
+
+**Lint and format:**
+
+```bash
+ruff check .
+ruff format .
+
+# or with UV:
+uvx ruff check .
+uvx ruff format .
+```
+
+**Multiple Python versions:**
 ```bash
 tox
 ```

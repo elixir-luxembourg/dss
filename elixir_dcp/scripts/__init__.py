@@ -1,3 +1,1 @@
-# coding=utf-8
-
-__author__ = 'Pinar Alper'
+__author__ = "Pinar Alper"

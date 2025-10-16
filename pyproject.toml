@@ -38,7 +38,6 @@ dependencies = [
     "webassets==3.0.0",
     "requests==2.32.4",
     "weasyprint==66.0",
-    "psycopg2-binary==2.9.10",
     "WTForms-Components==0.11.0",
     "schedule==1.2.2",
     "WTForms==3.2.1",
@@ -56,7 +55,8 @@ dev = [
     "bumpversion",
     "coverage",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "ruff"
 ]
 test = [
     "coverage",

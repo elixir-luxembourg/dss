@@ -13,10 +13,10 @@ ELIXIR_DCP_ENV = 'dev'
 class Config(object):
 
      # name of the application
-     TITLE = 'Submission System'
-     SECRET_KEY = b'deneme'
+     TITLE = 'Data Submission System'
+     SECRET_KEY = b'secret-key-change-me'
 
-     SQLALCHEMY_DATABASE_URI = 'postgresql://xxx:xxxxx@localhost:5432/xxxxxx'
+     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')
      SQLALCHEMY_TRACK_MODIFICATIONS = False
 
      UPLOADS_SERVER_PATH = '/attachments'

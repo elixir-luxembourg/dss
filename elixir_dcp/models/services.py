@@ -1,18 +1,21 @@
-import os
-
-from elixir_dcp.models.submission import Submission, SubmissionStatusEnum, SubmissionAccess, \
-    EmailNotification, SubmissionMessage
-from elixir_dcp.models.security import User, Role, UsersRoles
-from elixir_dcp.exceptions import RecordLifecycleException, RecordNotExistsException
-from elixir_dcp import db, app, mail
-from datetime import datetime
-from flask import flash, render_template
-from flask_login import current_user
-from sqlalchemy import and_, select
-from threading import Thread
-from flask_mail import Message
 import json
+from datetime import datetime
+from threading import Thread
 
+from flask import flash, render_template
+from flask_mail import Message
+from sqlalchemy import and_, select
+
+from elixir_dcp import app, db, mail
+from elixir_dcp.exceptions import RecordLifecycleException, RecordNotExistsException
+from elixir_dcp.models.security import Role, User, UsersRoles
+from elixir_dcp.models.submission import (
+    EmailNotification,
+    Submission,
+    SubmissionAccess,
+    SubmissionMessage,
+    SubmissionStatusEnum,
+)
 
 
 def delete_sub(submission_id: str):
@@ -26,7 +29,9 @@ def delete_sub(submission_id: str):
 
 
 def has_access(user_id: str, submission_id: str):
-    access = SubmissionAccess.query.filter_by(submission_id=submission_id, user_id=user_id).one_or_none()
+    access = SubmissionAccess.query.filter_by(
+        submission_id=submission_id, user_id=user_id
+    ).one_or_none()
     if access is not None:
         return True
     else:
@@ -37,10 +42,20 @@ def steer_sub(submission_id: str):
     submission = Submission.query.get_or_404(submission_id)
     target_state = submission.current_status.next_state()
     if target_state is None:
-        raise RecordLifecycleException("Submission cannot be steered to the next state!")
-    elif target_state == SubmissionStatusEnum.in_progress_metadata and not submission.has_providers():
-        flash('You need to specify a data provider user before initiating a submission', 'error')
-        raise RecordLifecycleException("Submission cannot be steered to the next state!")
+        raise RecordLifecycleException(
+            "Submission cannot be steered to the next state!"
+        )
+    elif (
+        target_state == SubmissionStatusEnum.in_progress_metadata
+        and not submission.has_providers()
+    ):
+        flash(
+            "You need to specify a data provider user before initiating a submission",
+            "error",
+        )
+        raise RecordLifecycleException(
+            "Submission cannot be steered to the next state!"
+        )
     else:
         if target_state == SubmissionStatusEnum.in_progress_metadata:
             send_submission_steer_step1_notification(submission)
@@ -48,8 +63,9 @@ def steer_sub(submission_id: str):
             submission.finalised_on = datetime.today()
             send_submission_steer_step2_notification(submission)
             flash(
-                'An upload link will be created once all information provided is checked and where required signatures are received.',
-                'success')
+                "An upload link will be created once all information provided is checked and where required signatures are received.",
+                "success",
+            )
         elif target_state == SubmissionStatusEnum.completed:
             send_submission_steer_step3_notification(submission)
         submission.current_status = target_state
@@ -67,17 +83,19 @@ def revert_sub(submission_id: str):
         db.session.commit()
         return submission
     else:
-        raise RecordLifecycleException("Submission cannot be reverted to its previous state!")
+        raise RecordLifecycleException(
+            "Submission cannot be reverted to its previous state!"
+        )
 
 
-def create_sub(title: str, institute_accession:str):
+def create_sub(title: str, institute_accession: str):
     new_submission = Submission()
     new_submission.title = title
     new_submission.institution_accession = institute_accession
     new_submission.created_on = datetime.today()
     db.session.add(new_submission)
     db.session.flush()
-    new_submission.ref_name = "ELX_LU_SUB-{}".format(new_submission.id)
+    new_submission.ref_name = f"ELX_LU_SUB-{new_submission.id}"
     db.session.commit()
     return new_submission
 
@@ -88,8 +106,17 @@ def get_in_progress_submissions_shared_with_user(user_id: str):
     for access in submission_accesses:
         submission_ids.append(access.submission_id)
 
-    return Submission.query.filter(and_(Submission.id.in_(submission_ids), Submission.current_status.in_(
-        [SubmissionStatusEnum.in_progress_metadata, SubmissionStatusEnum.in_progress_data])))
+    return Submission.query.filter(
+        and_(
+            Submission.id.in_(submission_ids),
+            Submission.current_status.in_(
+                [
+                    SubmissionStatusEnum.in_progress_metadata,
+                    SubmissionStatusEnum.in_progress_data,
+                ]
+            ),
+        )
+    )
 
 
 def assign_role_to_user(user: User, role_name: str):
@@ -128,41 +155,55 @@ def send_submission_steer_step1_notification(submission: Submission):
     recipients = []
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
-    persist_and_send_notification("Submission [%s] initiated" % submission.ref_name,
-                                  'noreply@uni.lu',
-                                  recipients,
-                                  render_template("email/submission_steer1.txt", submission=submission),
-                                  render_template("email/submission_steer1.html", submission=submission))
+    persist_and_send_notification(
+        "Submission [%s] initiated" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template("email/submission_steer1.txt", submission=submission),
+        render_template("email/submission_steer1.html", submission=submission),
+    )
 
 
 def send_submission_steer_step2_notification(submission: Submission):
     persist_and_send_notification(
-        "Submission [%s] steered to Data Upload, needs Upload Instructions" % submission.ref_name,
-        'noreply@uni.lu',
-        app.config.get('DATA_STEWARDS_MAILS'),
+        "Submission [%s] steered to Data Upload, needs Upload Instructions"
+        % submission.ref_name,
+        "noreply@uni.lu",
+        app.config.get("DATA_STEWARDS_MAILS"),
         render_template("email/submission_steer2.txt", submission=submission),
-        render_template("email/submission_steer2.html", submission=submission))
+        render_template("email/submission_steer2.html", submission=submission),
+    )
 
 
 def send_submission_steer_step3_notification(submission: Submission):
-    persist_and_send_notification("Submission [%s] steered to Completion, needs Verification" % submission.ref_name,
-                                  'noreply@uni.lu',
-                                  app.config.get('DATA_STEWARDS_MAILS'),
-                                  render_template("email/submission_steer3.txt", submission=submission),
-                                  render_template("email/submission_steer3.html", submission=submission))
+    persist_and_send_notification(
+        "Submission [%s] steered to Completion, needs Verification"
+        % submission.ref_name,
+        "noreply@uni.lu",
+        app.config.get("DATA_STEWARDS_MAILS"),
+        render_template("email/submission_steer3.txt", submission=submission),
+        render_template("email/submission_steer3.html", submission=submission),
+    )
 
 
 def send_new_message_notification(submission_message: SubmissionMessage):
     recipients = []
     for access in submission_message.submission.submission_accesses:
         recipients.append(access.user.email)
-    recipients = recipients + app.config.get('DATA_STEWARDS_MAILS')
+    recipients = recipients + app.config.get("DATA_STEWARDS_MAILS")
 
-    persist_and_send_notification("Submission [%s] has new message" % submission_message.submission.ref_name,
-                                  'noreply@uni.lu',
-                                  recipients,
-                                  render_template("email/submission_new_message.txt", submission=submission_message.submission),
-                                  render_template("email/submission_new_message.html", submission=submission_message.submission))
+    persist_and_send_notification(
+        "Submission [%s] has new message" % submission_message.submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template(
+            "email/submission_new_message.txt", submission=submission_message.submission
+        ),
+        render_template(
+            "email/submission_new_message.html",
+            submission=submission_message.submission,
+        ),
+    )
 
 
 def persist_and_send_notification(subject, sender, recipients, text_body, html_body):
@@ -179,7 +220,11 @@ def persist_and_send_notification(subject, sender, recipients, text_body, html_b
 
 
 def send_email_asynch(notification: EmailNotification):
-    msg = Message(notification.subject, sender=notification.sender, recipients=json.loads(notification.recipients_json))
+    msg = Message(
+        notification.subject,
+        sender=notification.sender,
+        recipients=json.loads(notification.recipients_json),
+    )
     msg.body = notification.text_body
     msg.html = notification.html_body
     # if mode == 'asynch':
@@ -196,27 +241,26 @@ def send_async_email_target(app, msg):
 
 
 def update_submission_basic_info(submission: Submission, **kwargs):
+    if "title" in kwargs:
+        submission.title = kwargs.pop("title")
 
-    if 'title' in kwargs:
-        submission.title = kwargs.pop('title')
+    if "submission_scope_code" in kwargs:
+        submission.submission_scope_code = kwargs.pop("submission_scope_code")
 
-    if 'submission_scope_code' in kwargs:
-        submission.submission_scope_code = kwargs.pop('submission_scope_code')
+    if "institution_accession" in kwargs:
+        submission.institution_accession = kwargs.pop("institution_accession")
 
-    if 'institution_accession' in kwargs:
-        submission.institution_accession = kwargs.pop('institution_accession')
+    if "local_custodians_json" in kwargs:
+        submission.local_custodians_json = kwargs.pop("local_custodians_json")
 
-    if 'local_custodians_json' in kwargs:
-        submission.local_custodians_json = kwargs.pop('local_custodians_json')
-
-    if 'local_project_name' in kwargs:
-        submission.local_project_name = kwargs.pop('local_project_name')
+    if "local_project_name" in kwargs:
+        submission.local_project_name = kwargs.pop("local_project_name")
 
     db.session.add(submission)
     db.session.commit()
 
-    if 'provider_user_ids' in kwargs:
-        new_shared_user_ids = kwargs.get('provider_user_ids')
+    if "provider_user_ids" in kwargs:
+        new_shared_user_ids = kwargs.get("provider_user_ids")
         if new_shared_user_ids is not None:
             for user_id in new_shared_user_ids:
                 if not has_access(user_id, submission.id):
@@ -230,12 +274,14 @@ def update_submission_basic_info(submission: Submission, **kwargs):
                     if submission.is_in_progress():
                         send_submission_steer_step1_notification(submission)
                         usr = User.query.filter_by(id=user_id).one_or_none()
-                        flash('Submission shared with %s' % usr.display_name(), 'info')
+                        flash("Submission shared with %s" % usr.display_name(), "info")
 
             stmt = select(SubmissionAccess).filter(
-                and_(SubmissionAccess.submission_id == submission.id,
-                     SubmissionAccess.user_id.notin_(
-                         new_shared_user_ids)))
+                and_(
+                    SubmissionAccess.submission_id == submission.id,
+                    SubmissionAccess.user_id.notin_(new_shared_user_ids),
+                )
+            )
             revoked_acesses = db.session.execute(stmt).scalars().all()
             if revoked_acesses is not None:
                 for rev_acc in revoked_acesses:
@@ -243,27 +289,26 @@ def update_submission_basic_info(submission: Submission, **kwargs):
                     db.session.commit()
 
 
-
 def update_user_info(usr: User, **kwargs):
-    if 'first_name' in kwargs:
-        usr.first_name = kwargs.pop('first_name')
-    if 'last_name' in kwargs:
-        usr.last_name = kwargs.pop('last_name')
-    if 'institution' in kwargs:
-        usr.institution_accession = kwargs.pop('institution')
-    if 'institution_division' in kwargs:
-        usr.institution_division = kwargs.pop('institution_division')
-    if 'email' in kwargs:
-        usr.email = kwargs.pop('email')
-    if 'addr_line1' in kwargs:
-        usr.addr_line1 = kwargs.pop('addr_line1')
-    if 'addr_line2' in kwargs:
-        usr.addr_line2 = kwargs.pop('addr_line2')
-    if 'phone_no' in kwargs:
-        usr.phone_no = kwargs.pop('phone_no')
+    if "first_name" in kwargs:
+        usr.first_name = kwargs.pop("first_name")
+    if "last_name" in kwargs:
+        usr.last_name = kwargs.pop("last_name")
+    if "institution" in kwargs:
+        usr.institution_accession = kwargs.pop("institution")
+    if "institution_division" in kwargs:
+        usr.institution_division = kwargs.pop("institution_division")
+    if "email" in kwargs:
+        usr.email = kwargs.pop("email")
+    if "addr_line1" in kwargs:
+        usr.addr_line1 = kwargs.pop("addr_line1")
+    if "addr_line2" in kwargs:
+        usr.addr_line2 = kwargs.pop("addr_line2")
+    if "phone_no" in kwargs:
+        usr.phone_no = kwargs.pop("phone_no")
 
-    if 'assigned_role_ids' in kwargs:
-        new_assigned_role_ids = set(kwargs.pop('assigned_role_ids'))
+    if "assigned_role_ids" in kwargs:
+        new_assigned_role_ids = set(kwargs.pop("assigned_role_ids"))
         old_assigned_role_ids = set(usr.assigned_role_ids())
         to_be_added = new_assigned_role_ids - old_assigned_role_ids
         to_be_removed = old_assigned_role_ids - new_assigned_role_ids
@@ -277,7 +322,8 @@ def update_user_info(usr: User, **kwargs):
     db.session.add(usr)
     db.session.commit()
 
-'''
+
+"""
 def export_submission(sub: Submission):
     sub_info = {}
 
@@ -324,4 +370,4 @@ def export_submission(sub: Submission):
     sub_info['attachments'] = export_attachment_info(sub)
 
     return sub_info
-'''
+"""
