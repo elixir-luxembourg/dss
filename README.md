@@ -133,20 +133,9 @@ The platform supports two authentication methods:
 ### 3. Configure database
 Update the `SQLALCHEMY_DATABASE_URI` variable in `settings.py`:
  
-* **Option 1 - SQLite backend (development)**
-    ```python
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')
-    ```
-    
-* **Option 2 - PostgreSQL backend (production)**
-    ```python
-    SQLALCHEMY_DATABASE_URI = 'postgresql://[user[:password]@][netloc][:port][/dbname]'
-    ```
-    
-    The project includes a docker compose configuration for PostgreSQL:
-    ```python
-    SQLALCHEMY_DATABASE_URI = 'postgresql://elixirdcp:elixirdcp@localhost:5432/elixirdcp'
-    ```
+```python
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')
+```
 
 ### 4. Set secret key
 For development, any string can be used. For production, generate a secure key:
@@ -156,18 +145,6 @@ os.urandom(24)
 ```
         
 ## Database Initialization
-
-### Start database (if using Docker PostgreSQL)
-
-1. Copy the environment template and customize if needed:
-```bash
-cp .env.template .env
-```
-
-2. Start the PostgreSQL container:
-```bash
-docker compose up
-```
 
 ### Initialize database with default data
 ```bash

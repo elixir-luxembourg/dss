@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip setuptools wheel
+        pip install -e .[dev]
+        sudo apt-get update && sudo apt-get install -y openjdk-21-jdk-headless nodejs npm
+        npm install -g less
+        cd elixir_dcp/static/vendor
+        npm ci
+    
+    - name: Run tests
+      run: |
+        cp elixir_dcp/settings.py.template elixir_dcp/settings.py
+        export ELIXIR_DCP_ENV='test'
+        pytest --cov=elixir_dcp --cov-report=term-missing
+        coverage report -m
