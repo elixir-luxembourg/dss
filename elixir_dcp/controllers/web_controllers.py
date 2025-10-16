@@ -108,6 +108,22 @@ def disable_caching(response):
 @app.route("/oidc_login", methods=["GET", "POST"])
 @oidc.require_login
 def oidc_login():
+    # If user is already authenticated, handle profile view/update
+    if current_user.is_authenticated:
+        if request.method == "POST":
+            posted_form = forms.MyProfileForm(request.form)
+            if posted_form.validate_on_submit():
+                update_user_info(current_user, **posted_form.data)
+                flash("Your profile is updated.", "success")
+                return redirect(landing_page_for_user(current_user))
+            else:
+                flash("Please check the validity of your input in highlighted places.", "error")
+                return render_template("security/signup.html", signup_form=posted_form)
+        else:  # GET
+            profile_form = forms.MyProfileForm(obj=current_user)
+            return render_template("security/signup.html", signup_form=profile_form)
+
+    # OIDC authentication flow
     app.logger.info(g.oidc_id_token)
     app.logger.info(
         "oidc_login  token info:"
@@ -150,21 +166,15 @@ def oidc_login():
                     500,
                 )
             else:
-                if not current_user.is_authenticated:
-                    login_user(existing_user_record, remember=True)
-                    nextt = request.args.get("next")
+                login_user(existing_user_record, remember=True)
+                nextt = request.args.get("next")
 
-                    app.logger.info(get_flashed_messages())
-                    if not forms.is_safe_url(nextt):
-                        return abort(404)
-                    else:
-                        return redirect(
-                            nextt or landing_page_for_user(existing_user_record)
-                        )
+                app.logger.info(get_flashed_messages())
+                if not forms.is_safe_url(nextt):
+                    return abort(404)
                 else:
-                    existing_user_info_form = forms.MyProfileForm(obj=current_user)
-                    return render_template(
-                        "security/signup.html", signup_form=existing_user_info_form
+                    return redirect(
+                        nextt or landing_page_for_user(existing_user_record)
                     )
     elif request.method == "POST":
         if existing_user_record is None:
@@ -183,18 +193,6 @@ def oidc_login():
                     "error",
                 )
                 return render_template("security/signup.html", signup_form=posted_form)
-        elif current_user.is_authenticated:
-            posted_form = forms.MyProfileForm(request.form)
-            if posted_form.validate_on_submit():
-                update_user_info(current_user, **posted_form.data)
-                flash("Your profile is updated.", "success")
-                return redirect(landing_page_for_user(current_user))
-            else:
-                flash(
-                    "Please check the validity of your input in highlighted places.",
-                    "error",
-                )
-                return render_template("security/signup.html", signup_form=posted_form)
 
 
 def landing_page_for_user(usr):
@@ -206,6 +204,22 @@ def landing_page_for_user(usr):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # If user is already authenticated, handle profile view/update
+    if current_user.is_authenticated:
+        if request.method == "POST":
+            posted_form = forms.MyProfileForm(request.form)
+            if posted_form.validate_on_submit():
+                update_user_info(current_user, **posted_form.data)
+                flash("Your profile is updated.", "success")
+                return redirect(landing_page_for_user(current_user))
+            else:
+                flash("Please check the validity of your input in highlighted places.", "error")
+                return render_template("security/signup.html", signup_form=posted_form)
+        else:  # GET
+            profile_form = forms.MyProfileForm(obj=current_user)
+            return render_template("security/signup.html", signup_form=profile_form)
+
+    # Original login logic
     form = forms.LoginForm()
     if form.validate_on_submit():
         email = form.username.data
