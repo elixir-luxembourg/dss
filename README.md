@@ -209,16 +209,21 @@ uv pip install -e '.[dev]'
 **Run tests:**
 
 ```bash
+pytest
 pytest --cov=elixir_dcp  # with coverage
+
+# or with UV:
+uv run pytest
+uv run pytest --cov=elixir_dcp
 ```
 
 **Lint and format:**
 
 ```bash
 ruff check .
-ruff format --check .
+ruff format .
 
-# if UV installed:
+# or with UV:
 uvx ruff check .
 uvx ruff format .
 ```

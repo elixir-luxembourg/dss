@@ -64,5 +64,5 @@ jobs:
         run: |
           cp elixir_dcp/settings.py.template elixir_dcp/settings.py
           export ELIXIR_DCP_ENV='test'
-          pytest --cov=elixir_dcp --cov-report=term-missing
+          uv run pytest --cov=elixir_dcp --cov-report=term-missing
           coverage report -m
