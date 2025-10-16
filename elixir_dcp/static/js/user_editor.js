@@ -1,5 +1,7 @@
 $(document).ready(function () {
-    $('[data-toggle="popover"]').popover();
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function(el) {
+        new bootstrap.Popover(el);
+    });
     $('.elx-select').select2({
         search: true
     });

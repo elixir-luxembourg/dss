@@ -1,8 +1,8 @@
-var csrftoken = $('meta[name=csrf-token]').attr('content');
+let csrftoken = $('meta[name=csrf-token]').attr('content');
 
 function confirmDialog(msg) {
     $("#common-command-dialog").text("You are about to "+ msg);
-    var def = $.Deferred();
+    let def = $.Deferred();
     $("#common-command-dialog").dialog({
         resizable: false,
         modal: true,
@@ -33,12 +33,12 @@ $.ajaxSetup({
 $.extend(
     {
         redirectPost: function (location, args) {
-            var form = $('<form>');
+            let form = $('<form>');
             form.attr("method", "post");
             form.attr("action", location);
 
             $.each(args, function (key, value) {
-                var field = $('<input>');
+                let field = $('<input>');
 
                 field.attr("type", "hidden");
                 field.attr("name", key);
@@ -46,7 +46,7 @@ $.extend(
 
                 form.append(field);
             });
-            var field = $('<input type="hidden" name="csrf_token">').attr('value', csrftoken);
+            let field = $('<input type="hidden" name="csrf_token">').attr('value', csrftoken);
             form.append(field);
             $(form).appendTo('body').submit();
         }
@@ -54,27 +54,33 @@ $.extend(
 
 window.setTimeout(function() {
     $(".alert").fadeTo(1000, 0).slideUp(1000, function(){
-        $(".alert-dismissible").alert('close');
-        //$(this).remove();
+        let alertElement = document.querySelector(".alert-dismissible");
+        if (alertElement) {
+            let alert = bootstrap.Alert.getInstance(alertElement);
+            if (alert) {
+                alert.close();
+            }
+        }
     });
 }, 6000);
 
 $(document).ready(function () {
-
-
-    $("body").tooltip({ selector: '[data-toggle=tooltip]' });
-
-    $('.dropdown-toggle').dropdown();
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+        new bootstrap.Tooltip(el);
+    });
 
     $('#query').change(function () {
         $('#sort_by').val('');
     });
-    $('.start-collapsed').collapse('hide');
-    $('.start-visible').collapse('show');
+
+    document.querySelectorAll('.start-collapsed').forEach(function(el) {
+        let collapse = new bootstrap.Collapse(el, { toggle: false });
+        collapse.hide();
+    });
+    document.querySelectorAll('.start-visible').forEach(function(el) {
+        let collapse = new bootstrap.Collapse(el, { toggle: false });
+        collapse.show();
+    });
+
     $('table.datatable').dataTable();
-
-
-
-
 });
-

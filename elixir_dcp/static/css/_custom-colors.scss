@@ -1,39 +1,42 @@
-// DSS Custom Colors for Bootstrap 5
-// Based on original layout.less brand colors
+$brand-primary: #083452;
+$alternative-color: #f7941d;
+$alternative-color-light: #fcdab1;
+$alternative-color-medium: #f4ad69;
+$alternative-color-darker: #874000;
 
-// Base color palette
-$orange: #EF7503;
-$blue: #118ED6;
-$red: #a52d24;
-$green: #4bb543;
-$yellow: #FFC107;
+$blue: #083452;
+$orange: #f7941d;
+$orange-light: #fcdab1;
+$red: #B71C1C;
+$green: #4caf50;
+$yellow: #f0ad4e;
 $teal: #17a2b8;
-$cyan: #0dcaf0;
+$cyan: #03a9f4;
 $purple: #6f42c1;
 $pink: #d63384;
-$indigo: #6610f2;
+$indigo: #3f51b5;
 
-// Gray scale
-$gray-100: #f8f9fa;
-$gray-200: #e9ecef;
-$gray-300: #dee2e6;
-$gray-400: #ced4da;
-$gray-500: #adb5bd;
-$gray-600: #6c757d;
-$gray-700: #495057;
-$gray-800: #343a40;
+$gray-100: #f5f5f5;
+$gray-200: #eee;
+$gray-300: #ddd;
+$gray-400: #ccc;
+$gray-500: #999;
+$gray-600: #777;
+$gray-700: #555;
+$gray-800: #333;
 $gray-900: #212529;
 
-$primary: $orange;
+$primary: $brand-primary;
 $secondary: $gray-600;
 $success: $green;
-$info: $blue;
-$warning: $yellow;
+$info: $cyan;
+$warning: $orange;
 $danger: $red;
 $light: $gray-100;
 $dark: $gray-800;
 
 $lux-blue: $blue;
-$brand-primary: $orange;
 $brand-danger: $red;
 $background-color: #eee;
+$footer-color: white;
+$labels-color: #bdbdbd;

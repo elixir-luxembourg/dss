@@ -177,45 +177,6 @@ class StudyForm(FlaskForm):
         ]
 
 
-class UploadInfoForm(FlaskForm):
-    """
-    Form for creating records containing name of uploaded files and their checksum before submission.
-    This information is used by the data steward to check data integrity after receiving files.
-    """
-
-    id = HiddenField("SubmissionUploadInfo_Id")
-    submission_id = HiddenField("Submission_Id")
-    file_name = StringField(
-        "Name",
-        description="Please specify the name of the file that has been uploaded.",
-        validators=[
-            DataRequired(),
-            Regexp(
-                r"^[\w\s\-.]+$",
-                message="Can only contain letters, digits and underscore.",
-            ),
-            Length(min=5, max=40, message="Must be 5 to 40 characters long."),
-        ],
-        render_kw={
-            "placeholder": "Only the name of the file without folder information."
-        },
-    )
-    md5_checksum_at_provider = StringField(
-        "File Checksum",
-        description="Please specify the md5 checksum at your side. This information will be used by us to verify that the file has been transmitted without errors.",
-        validators=[
-            DataRequired(),
-            Regexp(r"^[\w]+$", message="Can only letters and digits."),
-        ],
-        render_kw={"placeholder": "32 Characters checksum."},
-    )
-
-    def __init__(self, *args, **kwargs):
-        FlaskForm.__init__(self, *args, **kwargs)
-        if "sub_id" in kwargs:
-            self.submission_id.data = kwargs["sub_id"]
-
-
 class MessageForm(FlaskForm):
     """
     Form for creating messages under a submission.

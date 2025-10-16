@@ -19,38 +19,48 @@
 {% block content %}
     <div class="row">
         {% if users %}
-            <table class="datatable table table-striped table-bordered" id="user_list_table">
-                <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Active</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for user in users %}
+        <div class="col-12">
+            <div class="card shadow-sm rounded-4 p-4 mb-4">
+                <h2 class="fw-bold text-primary mb-3">Users List</h2>
+                <table class="datatable table table-hover table-borderless align-middle" id="user_list_table">
+                    <thead class="table-light border-bottom border-secondary border-opacity-25">
                     <tr>
-                        <td> {{ user.first_name }} </td>
-                        <td> {{ user.last_name }} </td>
-                        <td> {{ user.email }} </td>
-                        <td> {{ user.active_user}} </td>
-                        <td>
-                            <a name="button_user_listing_edit"
-                               href="{{ url_for('edit_user',user_id=user.id) }}" role="button">
-                                <i class="text-info material-icons">edit</i>
-                            </a>
-                        </td>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Email</th>
+                        <th>Active</th>
+                        <th>Actions</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <div class="text-center">
-                <h3> No user definitions exist. </h3>
-                <hr class="intro-divider">
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr class="border-bottom border-secondary border-opacity-10">
+                            <td> {{ user.first_name }} </td>
+                            <td> {{ user.last_name }} </td>
+                            <td> {{ user.email }} </td>
+                            <td> {{ user.active_user}} </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a name="button_user_listing_edit"
+                                       href="{{ url_for('edit_user',user_id=user.id) }}"
+                                       class="text-info"
+                                       title="Edit">
+                                        <i class="bi bi-pencil-fill fs-5"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <h5 class="text-secondary">No users found</h5>
+            </div>
+        </div>
         {% endif %}
 
 

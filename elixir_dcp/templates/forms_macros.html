@@ -21,7 +21,7 @@
                 {{ field.label.text }} {% if field.flags.required %}<span class="text-danger">*</span>{% endif %}
             </label>
             {% if field.description %}
-                <div class="form-text mb-1">{{ field.description }}</div>
+                <div class="form-text mb-2">{{ field.description }}</div>
             {% endif %}
             {{ field(class=fc_class + (' is-invalid' if field.errors else '')) }}
             {% if field.errors %}

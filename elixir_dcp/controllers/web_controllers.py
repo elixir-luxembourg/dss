@@ -44,7 +44,6 @@ from elixir_dcp.models.submission import (
     SubmissionDataDeclaration,
     SubmissionMessage,
     SubmissionStudy,
-    SubmissionUploadInfo,
 )
 
 from . import app_authorization
@@ -770,109 +769,6 @@ def delete_submission_study(study_id):
     db.session.commit()
     flash("Study deleted", "success")
     return redirect(url_for("view_submission", sub_id=study.submission_id))
-
-
-"""----------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's Upload Info Records."""
-"""----------------------------------------------------"""
-
-#
-#
-# @app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
-# @app_authorization(allowed_roles=['admin', 'data_provider'],
-#                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
-#                                          'entity_ac_attribute': 'id'})
-# def list_submission_uploadinfos(sub_id):
-#     submission_rec = Submission.query.get_or_404(sub_id)
-#     return render_template('submission/_uploadinfo_columns.html', submission=submission_rec)
-
-
-@app.route("/submission_uploadinfo_add/<int:sub_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["admin", "data_provider"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
-def add_submission_uploadinfo(sub_id):
-    if request.method == "GET":
-        return render_template(
-            "submission/uploadinfo_form.html",
-            uploadinfo_form=forms.UploadInfoForm(
-                formdata=None, obj=None, sub_id=sub_id
-            ),
-        ), 200
-    elif request.method == "POST":
-        posted_form = forms.UploadInfoForm(request.form)
-        if posted_form.validate_on_submit():
-            uploadinfo_rec = SubmissionUploadInfo()
-            posted_form.populate_obj(uploadinfo_rec)
-            uploadinfo_rec.id = None
-            db.session.add(uploadinfo_rec)
-            db.session.commit()
-            flash("Checksum added", "success")
-            return redirect(
-                url_for("view_submission", sub_id=uploadinfo_rec.submission_id)
-            )
-        else:
-            return render_template(
-                "submission/uploadinfo_form.html", uploadinfo_form=posted_form
-            ), 400
-
-
-@app.route("/submission_uploadinfo/<int:uploadinfo_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["admin", "data_provider"],
-    record_authorization={
-        "entity": "SubmissionUploadInfo",
-        "entity_id_key": "uploadinfo_id",
-        "entity_ac_attribute": "submission_id",
-    },
-)
-def edit_submission_uploadinfo(uploadinfo_id):
-    if request.method == "GET":
-        uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
-        result_form = forms.UploadInfoForm(obj=uploadinfo_rec)
-        return render_template(
-            "submission/uploadinfo_form.html", uploadinfo_form=result_form
-        ), 200
-    elif request.method == "POST":
-        posted_form = forms.UploadInfoForm(request.form)
-        if posted_form.validate_on_submit():
-            uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
-            posted_form.populate_obj(uploadinfo_rec)
-
-            db.session.add(uploadinfo_rec)
-            db.session.commit()
-            flash("Checksum updated", "success")
-            return redirect(
-                url_for("view_submission", sub_id=uploadinfo_rec.submission_id)
-            )
-        else:
-            return render_template(
-                "submission/uploadinfo_form.html", uploadinfo_form=posted_form
-            ), 400
-
-
-@app.route("/submission_uploadinfo_delete/<int:uploadinfo_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["admin", "data_provider"],
-    record_authorization={
-        "entity": "SubmissionUploadInfo",
-        "entity_id_key": "uploadinfo_id",
-        "entity_ac_attribute": "submission_id",
-    },
-)
-def delete_submission_uploadinfo(uploadinfo_id):
-    submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
-    db.session.delete(submission_uploadinfo)
-    db.session.commit()
-    flash("Checksum deleted", "success")
-    return redirect(
-        url_for("view_submission", sub_id=submission_uploadinfo.submission_id)
-    )
 
 
 """----------------------------------------------------"""

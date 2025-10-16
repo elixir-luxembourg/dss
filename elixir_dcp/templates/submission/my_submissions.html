@@ -8,51 +8,74 @@
     {% endassets %}
 {% endblock %}
 {% block content %}
-    <div class="row">
+    <div class="card shadow-sm rounded-4 p-4 mb-4">
+        <h2 class="fw-bold text-primary mb-3">My Submissions</h2>
+
         {% if my_submissions %}
-            <table class="datatable table table-striped table-bordered" id="submission_list_table">
-                <thead>
-                <tr>
-                    <th>Ref No</th>
-                    <th>Title</th>
-                    <th>Created_On</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for submission in my_submissions %}
+            <div class="table-responsive">
+                <table class="table table-hover table-borderless align-middle" id="submission_list_table">
+                    <thead class="table-light border-bottom border-secondary border-opacity-25">
                     <tr>
-                        <td> {{ submission.ref_name }} </td>
-                        <td> {{ submission.title }} </td>
-                        <td> {{ submission.created_on }} </td>
-                        <td> {{ submission.current_status.value }} </td>
-                        <td>
-                            <a name="button_submission_listing_edit"
-                               href="{{ url_for('view_submission',sub_id=submission.id) }}">
-                                <i class="text-info material-icons">visibility</i>
-                            </a>
-                            <div class="btn-group dropdown">
-                                <!--Trigger-->
-                                <a class="btn dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
-                                   aria-haspopup="true" aria-expanded="false">
-                                    <i class="text-info material-icons">more_vert</i>
-                                </a>
-                                <!--Menu-->
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item"  role="button" href="{{ url_for('generate_submission_docx',sub_id=submission.id) }}">Export as ELIXIR-LU Terms Agreement Annex</a></li>
-                                    <li><a class="dropdown-item" role="button" href="{{ url_for('generate_submission_pdf',sub_id=submission.id) }}">Export as PDF</a></li>
-                                </ul>
-                            </div>
-                        </td>
+                        <th>Reference No</th>
+                        <th>Title</th>
+                        <th>Created On</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for submission in my_submissions %}
+                        <tr class="border-bottom border-secondary border-opacity-10">
+                            <td>{{ submission.ref_name }}</td>
+                            <td>{{ submission.title }}</td>
+                            <td>{{ submission.created_on }}</td>
+                            <td>
+                                {% if submission.current_status.value == 'Pending' %}
+                                    <span class="badge bg-warning text-dark">{{ submission.current_status.value }}</span>
+                                {% elif submission.current_status.value == 'Approved' %}
+                                    <span class="badge bg-success">{{ submission.current_status.value }}</span>
+                                {% elif submission.current_status.value == 'Rejected' %}
+                                    <span class="badge bg-danger">{{ submission.current_status.value }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ submission.current_status.value }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a name="button_submission_listing_edit"
+                                       href="{{ url_for('view_submission',sub_id=submission.id) }}"
+                                       class="text-info" title="View">
+                                        <i class="bi bi-eye-fill fs-5"></i>
+                                    </a>
+                                    <div class="dropdown position-static">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                                id="dropdownMenu{{ submission.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu{{ submission.id }}">
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('generate_submission_docx',sub_id=submission.id) }}">
+                                                    Export as ELIXIR-LU Terms Agreement Annex
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ url_for('generate_submission_pdf',sub_id=submission.id) }}">
+                                                    Export as PDF
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% else %}
-            <div class="text-center">
-                <h3>No submissions requiring your input.</h3>
-                <hr class="intro-divider">
+            <div class="text-center py-5">
+                <h5 class="text-secondary">No submissions requiring your input.</h5>
+                <hr class="my-4">
             </div>
         {% endif %}
     </div>

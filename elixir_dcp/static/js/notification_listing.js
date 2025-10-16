@@ -1,8 +1,8 @@
 $(document).ready(function () {
 
     $("#notification_list_table").on('click', 'a[name="button_notification_listing_send"]', function () {
-        var endpoint = $(this).attr('data-url');
-        confirmDialog("re-send notification").then(function() {
+        let endpoint = $(this).attr('data-url');
+        confirmDialog("re-send notification").done(function() {
             $.ajax({
                 url: endpoint,
                 type: "get",

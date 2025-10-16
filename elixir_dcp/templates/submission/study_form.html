@@ -17,9 +17,9 @@
 {% endassets %}
 {% endblock %}
 {% block content %}
-<div class="panel panel-default">
-    <div class="panel-heading">{% if study_form.id.data %}Update {% else %}Add New {% endif %}Study</div>
-    <div class="panel-body">
+<div class="card shadow-sm rounded-4 mb-4">
+    <div class="card-header bg-primary text-white fw-bold">{% if study_form.id.data %}Update {% else %}Add New {% endif %}Study</div>
+    <div class="card-body p-4">
         <form method="POST" {% if study_form.id.data %}
               data-url="{{ url_for('edit_submission_study', study_id = study_form.id.data)}}" {% else %}
               data-url="{{ url_for('add_submission_study', sub_id=study_form.submission_id.data)}}" {% endif %}>
@@ -32,20 +32,20 @@
                 {{ fmacros.render_field_with_errors(study_form.ethics_approval_no) }}
                 {{ fmacros.render_field_with_errors(study_form.study_types, clazz="elx-multi-select") }}
             </fieldset>
-            <div class="form-group row">
+            <div class="mb-3 row">
             </div>
-            <div class="form-group row">
+            <div class="mb-3 row">
                 <label for="contacts-fieldset">
                     {{study_form.study_contacts.label.text}}<span class="text-danger">*</span>
                 </label>
                 <br/><span><small class="form-text text-muted">{{study_form.study_contacts.description}}</small></span> <br/>
             </div>
             <fieldset id="contacts-fieldset">
-                <div class="form-group row {% if study_form.study_contacts.errors %}has-error{% endif %}">
+                <div class="mb-3 row {% if study_form.study_contacts.errors %}is-invalid{% endif %}">
                     <div class="table-responsive">
-                        <div data-toggle="fieldset" id="study-contacts-fieldset">
-                            <button type="button" data-toggle="fieldset-add-row" data-target="#study-contacts-fieldset">
-                                +
+                        <div data-bs-toggle="fieldset" id="study-contacts-fieldset">
+                            <button type="button" class="btn btn-primary btn-sm mb-3" data-bs-toggle="fieldset-add-row" data-target="#study-contacts-fieldset">
+                                <i class="bi bi-plus-lg"></i> Add Contact
                             </button>
                             <table>
                                 <tr>
@@ -57,15 +57,16 @@
                                     <th width="5%"></th>
                                 </tr>
                                 {% for contact_form in study_form.study_contacts %}
-                                <tr data-toggle="fieldset-entry">
+                                <tr data-bs-toggle="fieldset-entry">
                                     <td>{{ fmacros.render_field(contact_form.firstname) }}</td>
                                     <td>{{ fmacros.render_field(contact_form.lastname) }}</td>
                                     <td>{{ fmacros.render_field(contact_form.email) }}</td>
                                     <td>{{ fmacros.render_field(contact_form.category_id) }}</td>
                                     <td>{{ contact_form.address(rows='3',cols='30')}}</td>
                                     <td>
-                                        <button type="button" data-toggle="fieldset-remove-row"
-                                                id="study-contacts-{{ loop.index0 }}-remove">-
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="fieldset-remove-row"
+                                                id="study-contacts-{{ loop.index0 }}-remove">
+                                            <i class="bi bi-trash-fill"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -73,14 +74,20 @@
                             </table>
                         </div>
                         {% if study_form.study_contacts.errors %}
-                        {% for error in study_form.study_contacts.errors %}<p class="help-block">{{ error }}</p>
+                        {% for error in study_form.study_contacts.errors %}<p class="invalid-feedback d-block">{{ error }}</p>
                         {% endfor %}
                         {% endif %}
                     </div>
                 </div>
             </fieldset>
-            <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
-            <a href="{{ url_for('view_submission',sub_id=study_form.submission_id.data) }}"  class="cancel btn btn-raised btn-primary" role="button">Cancel</a>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Save
+                </button>
+                <a href="{{ url_for('view_submission',sub_id=study_form.submission_id.data) }}" class="btn btn-secondary" role="button">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
         </form>
     </div>
 </div>

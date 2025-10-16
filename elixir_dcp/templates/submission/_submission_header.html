@@ -1,45 +1,45 @@
-<h3>Submission Overview
+<h3 class="fw-bold text-primary">Submission Overview
     {% if submission.is_overview_info_complete() %}
-    <span class="badge badge-success">&#10004;</span>
+    <span class="badge bg-success">&#10004;</span>
     {% else %}
-    <span class="badge badge-warning" data-toggle="tooltip" title="Missing information! Please edit submission overview to declare Recipients and Contacts.">&#10069;</span>
+    <span class="badge bg-warning text-dark" data-bs-toggle="tooltip" title="Missing information! Please edit submission overview to declare Recipients and Contacts.">&#10069;</span>
     {% endif %}
 </h3>
-<div class="row">
-    <div class="form-group col-md-4">
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
         <label>Ref No</label><br/>
         <h4>{{ submission.ref_name }}</h4>
     </div>
-    <div class="form-group col-md-4">
+    <div class="col-md-4">
         <label>Created On</label><br/>
         <h4>{{ submission.created_on }}</h4>
     </div>
-    <div class="form-group col-md-4">
+    <div class="col-md-4">
         <label>Title</label><br/>
         <h4>{{ submission.title }}</h4>
     </div>
 </div>
 {% if details %}
-<div class="row">
-    <div class="form-group col-md-4">
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
         <label>Submitting Institute</label><br/>
         <h4>{{ submission.provider_institute_name() | default('-', true)}}</h4>
     </div>
-    <div class="form-group col-md-8">
+    <div class="col-md-8">
         <label>Submitting Users</label><br/>
         <h4>{{ submission.provider_user_names() | join(', ') }}</h4>
     </div>
 </div>
-<div class="row">
-    <div class="form-group col-md-4">
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
         <label>Submission Category</label><br/>
         <h4>{{ submission.submission_scope.label}}</h4>
     </div>
-    <div class="form-group col-md-4">
+    <div class="col-md-4">
         <label>Recipient PIs</label><br/>
         <h4>{{ submission.local_custodians() | join(', ') }}</h4>
     </div>
-    <div class="form-group col-md-4">
+    <div class="col-md-4">
         <label>Recipient Project</label><br/>
         <h4>{{ submission.local_project_name | default('-', true)}}</h4>
     </div>

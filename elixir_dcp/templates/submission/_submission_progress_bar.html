@@ -1,31 +1,39 @@
 
-<div class="row bs-wizard" style="border-bottom:0;margin-top: 5%;">
+<div class="row bs-wizard border-bottom-0 mt-5">
     {% with %}
         {% set stp = submission.current_status.step_num() %}
-        <div class="col-xs-3 bs-wizard-step {% if stp < 0 %} disabled {% elif stp == 0 %} active  {% elif stp > 0 %} complete {% endif %}">
+        <div class="col-3 bs-wizard-step {% if stp < 0 %} disabled {% elif stp == 0 %} active  {% elif stp > 0 %} complete {% endif %}">
             <div class="text-center bs-wizard-stepnum">1 - Initiation</div>
-            <div class="progress"><div class="progress-bar"></div></div>
+            <div class="progress" role="progressbar" aria-label="Step 1 progress" aria-valuenow="{% if stp >= 0 %}100{% else %}0{% endif %}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar {% if stp == 0 %}bg-info{% elif stp > 0 %}bg-success{% endif %}"></div>
+            </div>
             <a href="#" class="bs-wizard-dot"></a>
             <div class="bs-wizard-info text-center">Data Steward initiates submission.</div>
         </div>
 
-        <div class="col-xs-3 bs-wizard-step {% if stp < 1 %} disabled {% elif stp == 1 %} active  {% elif stp > 1 %} complete {% endif %}">
+        <div class="col-3 bs-wizard-step {% if stp < 1 %} disabled {% elif stp == 1 %} active  {% elif stp > 1 %} complete {% endif %}">
             <div class="text-center bs-wizard-stepnum">2 - Form filling</div>
-            <div class="progress"><div class="progress-bar"></div></div>
+            <div class="progress" role="progressbar" aria-label="Step 2 progress" aria-valuenow="{% if stp >= 1 %}100{% else %}0{% endif %}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar {% if stp == 1 %}bg-info{% elif stp > 1 %}bg-success{% endif %}"></div>
+            </div>
             <a href="#" class="bs-wizard-dot"></a>
             <div class="bs-wizard-info text-center">Data Provider fills-in submission forms. </div>
         </div>
 
-        <div class="col-xs-3 bs-wizard-step {% if stp < 2 %} disabled {% elif stp == 2 %} active  {% elif stp > 2 %} complete {% endif %}">
+        <div class="col-3 bs-wizard-step {% if stp < 2 %} disabled {% elif stp == 2 %} active  {% elif stp > 2 %} complete {% endif %}">
             <div class="text-center bs-wizard-stepnum">3 - Data upload</div>
-            <div class="progress"><div class="progress-bar"></div></div>
+            <div class="progress" role="progressbar" aria-label="Step 3 progress" aria-valuenow="{% if stp >= 2 %}100{% else %}0{% endif %}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar {% if stp == 2 %}bg-info{% elif stp > 2 %}bg-success{% endif %}"></div>
+            </div>
             <a href="#" class="bs-wizard-dot"></a>
             <div class="bs-wizard-info text-center">Data Provider uploads data.</div>
         </div>
 
-        <div class="col-xs-3 bs-wizard-step {% if stp < 3 %} disabled {% elif stp == 3 %} active  {% elif stp > 3 %} complete {% endif %}">
+        <div class="col-3 bs-wizard-step {% if stp < 3 %} disabled {% elif stp == 3 %} active  {% elif stp > 3 %} complete {% endif %}">
             <div class="text-center bs-wizard-stepnum">4 - Completion</div>
-            <div class="progress"><div class="progress-bar"></div></div>
+            <div class="progress" role="progressbar" aria-label="Step 4 progress" aria-valuenow="{% if stp >= 3 %}100{% else %}0{% endif %}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar {% if stp == 3 %}bg-info{% elif stp > 3 %}bg-success{% endif %}"></div>
+            </div>
             <a href="#" class="bs-wizard-dot"></a>
             <div class="bs-wizard-info text-center">Data Steward confirms receipt of data.</div>
         </div>
@@ -33,6 +41,4 @@
 </div>
 
 
-<div class="span">
-    <div class="spacer10"></div>
-</div>
+<div class="my-3"></div>
