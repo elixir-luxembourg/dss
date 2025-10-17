@@ -1,25 +1,32 @@
 let csrftoken = $('meta[name=csrf-token]').attr('content');
 
 function confirmDialog(msg) {
-    $("#common-command-dialog").text("You are about to "+ msg);
+    // Update modal message
+    $("#command-dialog-text").text("You are about to " + msg + "!");
+
+    // Create deferred promise
     let def = $.Deferred();
-    $("#common-command-dialog").dialog({
-        resizable: false,
-        modal: true,
-        buttons: {
-            'Continue': function() {
-                def.resolve();
-                $( this ).dialog( "close" );
-            },
-            'Cancel': function() {
-                def.reject();
-                $( this ).dialog( "close" );
-            }
-        },
-        close: function() {
-            $(this).remove();
+
+    // Get or create Bootstrap modal instance
+    let modalElement = document.getElementById('common-command-dialog');
+    let modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+
+    // Handle continue button click
+    $('#confirm-dialog-continue').off('click').on('click', function() {
+        def.resolve();
+        modal.hide();
+    });
+
+    // Handle modal dismiss/cancel (reject the promise)
+    $(modalElement).off('hidden.bs.modal').on('hidden.bs.modal', function() {
+        if (def.state() === 'pending') {
+            def.reject();
         }
     });
+
+    // Show the modal
+    modal.show();
+
     return def.promise();
 }
 $.ajaxSetup({

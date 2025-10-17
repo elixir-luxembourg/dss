@@ -3,9 +3,11 @@ $(document).ready(function () {
         new bootstrap.Popover(el);
     });
     $('.elx-select').select2({
+        theme: 'bootstrap-5',
         search: true
     });
     $('.elx-multi-select').select2({
+        theme: 'bootstrap-5',
         columns: 2,
         search: true,
         selectAll: true,

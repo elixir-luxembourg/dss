@@ -1,7 +1,7 @@
 
 {% if submission.attachments %}
 <div class="container">
-    <div class="col-md-10">
+    <div class="col-md-12">
         <table class="table table-hover table-borderless align-middle">
             <thead class="table-light border-bottom border-secondary border-opacity-25">
             <tr>
@@ -28,12 +28,12 @@
                 {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}
                 <td>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center justify-content-end gap-2">
                         <a href="{{ url_for('delete_submission_attachment',attach_id=attachment.id) }}"
-                           class="text-danger"
-                           title="Delete"
+                           class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"
                            role="button">
-                            <i class="bi bi-trash-fill fs-5"></i>
+                            <i class="bi bi-trash"></i>
+                            <span>Delete</span>
                         </a>
                     </div>
                 </td>

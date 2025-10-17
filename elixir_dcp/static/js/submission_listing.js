@@ -42,6 +42,7 @@ $(document).ready(function () {
             success: function (result) {
                 $("#submission_share_modal_body").html(result);
                 $('.elx-multi-select').select2({
+                    theme: 'bootstrap-5',
                     columns: 2,
                     search: true,
                     selectAll: true,

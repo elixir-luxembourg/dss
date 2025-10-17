@@ -17,10 +17,12 @@
 {% endassets %}
 {% endblock %}
 {% block content %}
-<div class="card shadow-sm rounded-4 mb-4">
-    <div class="card-header bg-primary text-white fw-bold">Add New Attachment</div>
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 fw-semibold">Add New Attachment</h5>
+    </div>
     <div class="card-body p-4">
-        <p>In this section you can upload documents to support the information
+        <p class="mb-3">In this section you can upload documents to support the information
             provided in the submission forms. E.g. a copy of the Ethics Approval for the source study, a template of the Consent Form used
             during data collection etc.
             <span  class="text-danger">Please do NOT upload any DATA or METADATA through this section.</span>
@@ -29,8 +31,8 @@
               data-url="{{ url_for('add_submission_attachment', sub_id=attachment_form.submission_id.data)}}">
             {{ attachment_form.hidden_tag() }}
             <div class="mb-3">
-                <label for="file_attachments" class="form-label">
-                    File(s)<span class="text-danger">*</span>
+                <label for="file_attachments" class="form-label fw-medium">
+                    File(s) <span class="text-danger">*</span>
                 </label>
                 <input type=file id="file_attachments" name="file_attachments" class="form-control" multiple>
                 {% if attachment_form.file_attachments.errors %}
@@ -40,14 +42,14 @@
                     {% endfor %}
                  </div>
                 {% else %}
-                    <p class="form-text text-muted">Only TXT, PDF and PNG files can be uploaded.</p>
+                    <small class="text-muted">Only TXT, PDF and PNG files can be uploaded.</small>
                 {% endif %}
             </div>
             {{ fmacros.render_field_with_errors(attachment_form.note) }}
             <div class="d-flex gap-2 mt-4">
                 <input type="submit" class="save btn btn-primary" value="Save"/>
                 <a href="{{ url_for('view_submission',sub_id=attachment_form.submission_id.data) }}"
-                   class="cancel btn btn-secondary" role="button">Cancel</a>
+                   class="cancel btn btn-outline-secondary" role="button">Cancel</a>
             </div>
         </form>
 

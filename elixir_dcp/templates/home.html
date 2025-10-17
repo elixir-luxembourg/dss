@@ -1,16 +1,14 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-    <div class="container py-5">
-
-        <div class="row g-5">
+    <div class="row g-4">
 
             <!-- MAIN CONTENT -->
             <div class="col-lg-8">
 
                 <!-- Introduction Card -->
-                <div class="card shadow-sm rounded-4 mb-5" id="home-description">
-                    <div class="card-body p-5">
+                <div class="card border shadow-sm mb-4" id="home-description">
+                    <div class="card-body p-4">
                         <p class="fs-5 text-secondary mb-4">
                             This site is targeted for data providers, who want to submit
                             Human Data to the ELIXIR-LU Data Repository or to Collaborators
@@ -39,8 +37,8 @@
                 </div>
 
                 <!-- About Us Card -->
-                <div class="card shadow-sm rounded-4 p-4" id="home-description-2">
-                    <h2 class="fw-bold text-primary mb-3">About Us</h2>
+                <div class="card border shadow-sm p-4" id="home-description-2">
+                    <h2 class="fw-semibold text-primary mb-3">About Us</h2>
                     <p class="fs-5 text-secondary mb-4">
                         ELIXIR Luxembourg and the Luxembourg Centre for Systems Biomedicine (LCSB) collaborate to provide a
                         secure and reliable platform for sharing and managing human research data. Learn more about our partner organizations below:
@@ -66,27 +64,39 @@
                 <div class="d-flex flex-column gap-4">
 
                     <!-- Data Catalog Card -->
-                    <div class="card shadow-sm rounded-4 p-4 bg-white">
-                        <h2 class="fw-bold text-dark mb-3">
-                            <a href="https://datacatalog.elixir-luxembourg.org" class="text-primary text-decoration-none">
-                                Explore our Data Catalog!
-                            </a>
-                        </h2>
-                        <p class="fs-5 text-secondary mt-3">
-                            If you'd like to deposit data to the ELIXIR Luxembourg Repository and have questions, please contact us at:
-                        </p>
-                        <img src="/static/public/images/datasteward_contact.png"
-                             class="img-fluid rounded mt-3"
-                             alt="Data Steward contact" style="max-width: 250px;">
+                    <div class="card border shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-semibold text-dark mb-3">
+                                <a href="https://datacatalog.elixir-luxembourg.org" class="text-primary text-decoration-none">
+                                    Explore our Data Catalog!
+                                </a>
+                            </h5>
+                            <p class="card-text text-secondary mb-3">
+                                If you'd like to deposit data to the ELIXIR Luxembourg Repository and have questions, please contact us at:
+                            </p>
+                            <div class="text-center">
+                                <img src="/static/public/images/datasteward_contact.png"
+                                     class="img-fluid rounded w-75"
+                                     alt="Data Steward contact">
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Twitter Card -->
-                    <div class="card shadow-sm rounded-4 p-4 bg-white">
-                        <a class="twitter-timeline" data-height="400"
-                           href="https://twitter.com/elixir_lu?ref_src=twsrc%5Etfw">
-                            Tweets by elixir_lu
-                        </a>
-                        <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                    <!-- Follow Us on X Card -->
+                    <div class="card border shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-semibold text-dark mb-3">Follow Us on X</h5>
+                            <p class="card-text text-secondary mb-3">
+                                Stay updated with the latest news and announcements from ELIXIR Luxembourg.
+                            </p>
+                            <a href="https://twitter.com/elixir_lu"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-twitter-x"></i>
+                                <span>Follow @elixir_lu</span>
+                            </a>
+                        </div>
                     </div>
 
                 </div>
@@ -94,5 +104,4 @@
             </div>
 
         </div>
-    </div>
 {% endblock %}

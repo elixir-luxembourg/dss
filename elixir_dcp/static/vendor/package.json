@@ -1,7 +1,7 @@
 {
   "name": "elixir_dcp",
   "version": "0.4.0-dev",
-  "description": "Elixir Luxembourg - Data and Computing Platform",
+  "description": "Elixir Luxembourg - Data Submission System (DSS)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -20,6 +20,7 @@
   "author": "Valentin Grouès",
   "license": "ISC",
   "dependencies": {
+    "@fontsource/roboto": "^5.2.8",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "chart.js": "^4.5.0",

@@ -6,11 +6,11 @@
 </a>
 
 <nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom mb-4" aria-label="Main navigation">
-    <div class="container-fluid px-3 px-lg-4">
+    <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-2 fw-semibold text-dark" href="{{ url_for('home') }}">
             <i class="bi bi-database-fill fs-4"></i>
-            <span class="d-none d-sm-inline">Elixir DCP</span>
-            <span class="d-inline d-sm-none">DCP</span>
+            <span class="d-none d-sm-inline">Elixir DSS</span>
+            <span class="d-inline d-sm-none">DSS</span>
         </a>
 
         <button class="navbar-toggler border-0 shadow-none text-dark" type="button" data-bs-toggle="collapse"
@@ -71,16 +71,14 @@
 
             <div class="d-flex align-items-center">
                 <div class="dropdown">
-                    <button class="btn btn-sm d-flex align-items-center gap-2 border-0 shadow-none px-2 py-2 rounded text-dark"
+                    <button class="btn d-flex align-items-center gap-2 border-0 shadow-none rounded px-3 py-2"
                             type="button"
                             id="userDropdown"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             aria-label="User menu">
-                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-body-secondary border p-2">
-                            <i class="bi bi-person"></i>
-                        </span>
-                        <span class="d-none d-md-inline fw-medium fs-6">
+                        <i class="bi bi-person-circle fs-4 text-secondary"></i>
+                        <span class="d-none d-md-inline fw-medium text-dark">
                             {% if current_user.is_authenticated %}
                                 {{ current_user.display_name() }}
                             {% else %}
@@ -89,15 +87,13 @@
                         </span>
                         <i class="bi bi-chevron-down d-none d-md-inline text-secondary"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end border shadow-sm mt-2 p-2 rounded-3" aria-labelledby="userDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end border shadow-sm mt-2 p-2 rounded-3" style="min-width: 280px;" aria-labelledby="userDropdown">
                         {% if current_user.is_authenticated %}
-                            <li class="px-2 py-2 mb-2 bg-body-tertiary rounded">
-                                <div class="d-flex align-items-start gap-2">
-                                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0 bg-primary-subtle border border-primary border-2 p-2">
-                                        <i class="bi bi-person-circle text-primary fs-5"></i>
-                                    </span>
+                            <li class="px-3 py-3 mb-2 bg-body-secondary rounded">
+                                <div class="d-flex align-items-center gap-3">
+                                    <i class="bi bi-person-circle fs-2 text-dark"></i>
                                     <div class="flex-grow-1 overflow-hidden">
-                                        <div class="fw-semibold fs-6 text-dark">{{ current_user.display_name() }}</div>
+                                        <div class="fw-semibold text-dark">{{ current_user.display_name() }}</div>
                                         <div class="text-muted text-truncate small">
                                             {% if current_user.assigned_roles %}
                                                 {{ current_user.assigned_roles[0].name }}
@@ -106,30 +102,27 @@
                                     </div>
                                 </div>
                             </li>
-                            <li><hr class="dropdown-divider my-1"></li>
                             <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 rounded py-2 fs-6" href="{{ url_for(login_page) }}">
+                                <a class="dropdown-item d-flex align-items-center gap-2 rounded py-2" href="{{ url_for(login_page) }}">
                                     <i class="bi bi-person"></i>
-                                    My Profile
+                                    <span>My Profile</span>
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider my-1"></li>
                             <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 rounded py-2 fs-6 text-danger" href="{{ url_for('logout') }}">
+                                <a class="dropdown-item d-flex align-items-center gap-2 rounded py-2 text-danger" href="{{ url_for('logout') }}">
                                     <i class="bi bi-box-arrow-right"></i>
-                                    Log out
+                                    <span>Log out</span>
                                 </a>
                             </li>
                         {% else %}
-                            <li class="px-2 py-2 mb-2 bg-body-tertiary rounded">
-                                <div class="text-muted fs-6">Not signed in</div>
+                            <li class="px-3 py-3 mb-2 bg-body-secondary rounded">
+                                <div class="text-muted">Not signed in</div>
                             </li>
-                            <li><hr class="dropdown-divider my-1"></li>
                             <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2 rounded py-2 fs-6"
+                                <a class="dropdown-item d-flex align-items-center gap-2 rounded py-2"
                                    href="{{ url_for(login_page) }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">
                                     <i class="bi bi-box-arrow-in-right"></i>
-                                    Sign in
+                                    <span>Sign in</span>
                                 </a>
                             </li>
                         {% endif %}

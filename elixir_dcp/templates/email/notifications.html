@@ -8,43 +8,64 @@
     {% endassets %}
 {% endblock %}
 {% block content %}
-    <div class="row">
-        {% if notifications %}
-            <table class="datatable table table-striped table-bordered" id="notification_list_table">
-                <thead>
-                <tr>
-                    <th>Subject</th>
-                    <th>Recipients</th>
-                    <th>Message</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for notification in notifications %}
-                    <tr>
-                        <td> {{ notification.subject }} </td>
-                        <td> {{ notification.recipients_json }} </td>
-                        <td> {{ notification.text_body}} </td>
-                        <td>
-                            <a name="button_notification_listing_send"
-                               data-url="{{ url_for('send_notification',notification_id=notification.id) }}" class="btn btn-info btn-lg">
-                                <span class="glyphicon glyphicon-send"
-                                      data-toggle="tooltip"
-                                      title="Resend this notification"></span>
+    <div class="card border shadow-sm mb-4">
+        <!-- Card Header with Title -->
+        <div class="card-header bg-white border-bottom">
+            <h2 class="fw-semibold text-primary mb-0">Notifications</h2>
+        </div>
 
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <!-- Card Body with Email Cards -->
+        <div class="card-body p-4">
+        {% if notifications %}
+            <!-- Email Cards Loop -->
+            {% for notification in notifications %}
+            <div class="card border shadow-sm mb-3">
+                <!-- Email Header: Subject + Resend Button -->
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-envelope text-primary"></i>
+                            <h5 class="fw-semibold text-dark mb-0">{{ notification.subject }}</h5>
+                        </div>
+                        <button type="button"
+                                name="button_notification_listing_send"
+                                data-url="{{ url_for('send_notification',notification_id=notification.id) }}"
+                                class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2"
+                                data-bs-toggle="tooltip"
+                                title="Resend this notification"
+                                aria-label="Resend notification">
+                            <i class="bi bi-send"></i>
+                            <span>Resend</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Email Body: Recipients + Message -->
+                <div class="card-body p-4">
+                    <!-- Recipients -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-people text-secondary"></i>
+                        <span class="text-secondary">
+                            <strong>To:</strong> {{ notification.recipients_json }}
+                        </span>
+                    </div>
+
+                    <!-- Message Body -->
+                    <div class="bg-body-tertiary rounded p-3">
+                        <p class="mb-0 text-dark">{{ notification.text_body }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
         {% else %}
-            <div class="text-center">
-                <h3> No notifications exist. </h3>
-                <hr class="intro-divider">
+            <div class="bg-light border rounded p-4 d-flex align-items-center gap-3">
+                <i class="bi bi-inbox fs-1 text-secondary"></i>
+                <div>
+                    <strong>No notifications exist.</strong>
+                    <p class="mb-0 text-muted">Email notifications sent to users will appear here.</p>
+                </div>
             </div>
         {% endif %}
-
-
+        </div>
     </div>
 {% endblock %}

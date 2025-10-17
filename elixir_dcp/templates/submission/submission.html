@@ -12,114 +12,340 @@
 
 {% block content %}
 
-<div class="card shadow-sm rounded-4 mb-4 p-4">
-    <div class="row g-3">
-        <div id="basicinfo" class="col-lg-9">
-            {% with %}
-            {% set details = True %}
-            {% include 'submission/_submission_header.html' %}
-            {% endwith %}
-        </div>
-        <div id="submission_commands_bar" class="col-lg-3">
-            <div class="btn-group-vertical d-grid gap-2" role="group" aria-label="Submission actions">
+<div class="card border shadow-sm mb-4">
+    <!-- Card Header with Title and Action Buttons -->
+    <div class="card-header bg-white border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <h5 class="fw-semibold mb-0 text-primary">Submission Overview</h5>
+                {% if submission.is_overview_info_complete() %}
+                <span class="badge bg-success">✓</span>
+                {% else %}
+                <span class="badge bg-warning text-dark" data-bs-toggle="tooltip" title="Missing information! Please edit submission overview to declare Recipients and Contacts.">!</span>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2">
                 <a {% if current_user.is_admin() %} href="{{ url_for('list_submissions') }}" {% else %}
                    href="{{ url_for('list_my_submissions') }}" {% endif %}
-                   class="btn btn-info" data-bs-toggle="tooltip" data-bs-placement="left" title="Close">
-                    <i class="bi bi-x-circle-fill"></i>
+                   class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="d-none d-lg-inline">Close</span>
                 </a>
-                {% if submission.current_status.next_state() is not none %}
-                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <a name="button_submission_editor_steer"
-                   data-url="{{ url_for('steer_submission',sub_id=submission.id) }}"
-                   class="btn btn-info" data-bs-toggle="tooltip" data-bs-placement="left" title="Proceed to {{ submission.current_status.next_state().value }}">
-                    <i class="bi bi-arrow-right-circle-fill"></i>
-                </a>
-                {% endif %}
-                {% endif %}
-                {% if submission.current_status.prev_state() is not none %}
-                {% if current_user.is_admin() %}
-                <a name="button_submission_editor_revert"
-                   data-url="{{ url_for('revert_submission',sub_id=submission.id) }}"
-                   class="btn btn-info" data-bs-toggle="tooltip" data-bs-placement="left" title="Revert to {{ submission.current_status.prev_state().value }}">
-                    <i class="bi bi-arrow-left-circle-fill"></i>
-                </a>
-                {% endif %}
-                {% endif %}
-                {% if current_user.is_admin() or submission.current_status.step_num() == 1 or submission.current_status.step_num()
-                ==2 %}
+                {% if current_user.is_admin() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
                 <a name="button_submission_edit"
                    href="{{ url_for('edit_submission',sub_id=submission.id) }}"
-                   class="btn btn-info" data-bs-toggle="tooltip" data-bs-placement="left" title="Edit submission">
-                    <i class="bi bi-pencil-fill"></i>
+                   class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+                    <i class="bi bi-pencil"></i>
+                    <span class="d-none d-lg-inline">Edit</span>
                 </a>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Card Body with Submission Details -->
+    <div class="card-body p-4">
+        {% with %}
+        {% set details = True %}
+        {% include 'submission/_submission_header.html' %}
+        {% endwith %}
+    </div>
+</div>
+
+{% include 'submission/_submission_progress_bar.html' %}
+
+
+{% set stp = submission.current_status.step_num() %}
+{% set studies_count = submission.studies|length %}
+{% set data_count = submission.datadecs|length %}
+{% set attachments_count = submission.attachments|length %}
+{% set messages_count = submission.messages|length %}
+{% set can_edit = current_user.is_admin() or stp == 1 or stp == 2 %}
+
+<div class="card border shadow-sm mb-4">
+    <!-- Card Header with Stage-Aware Title -->
+    <div class="card-header bg-white border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <h5 class="fw-semibold mb-0 text-primary">
+                    Submission Details
+                    {% if stp == 1 %}
+                        <span class="text-muted fw-normal fs-6">- Study Registration</span>
+                    {% elif stp == 2 %}
+                        <span class="text-muted fw-normal fs-6">- Data Upload</span>
+                    {% elif stp == 3 %}
+                        <span class="text-muted fw-normal fs-6">- Completion</span>
+                    {% endif %}
+                </h5>
+                {% if submission.is_detail_info_complete() %}
+                <span class="badge bg-success">✓</span>
+                {% else %}
+                <span class="badge bg-warning text-dark" data-bs-toggle="tooltip" title="Missing information! Please declare one or more Studies and Data.">!</span>
+                {% endif %}
+            </div>
+
+            <!-- Context-Aware Add Buttons (shown/hidden based on active tab) -->
+            {% if can_edit %}
+            <div class="d-flex gap-2">
+                <a id="add-study-btn"
+                   class="btn btn-primary btn-sm d-flex align-items-center gap-2"
+                   href="{{ url_for('add_submission_study', sub_id=submission.id) }}"
+                   data-bs-toggle="tooltip"
+                   title="Add New Study">
+                    <i class="bi bi-plus-lg"></i>
+                    <span class="d-none d-lg-inline">Add Study</span>
+                </a>
+                <a id="add-data-btn"
+                   class="btn btn-primary btn-sm d-none align-items-center gap-2"
+                   href="{{ url_for('add_submission_datadec', sub_id=submission.id) }}"
+                   data-bs-toggle="tooltip"
+                   title="Add New Data Declaration">
+                    <i class="bi bi-plus-lg"></i>
+                    <span class="d-none d-lg-inline">Add Data</span>
+                </a>
+                <a id="add-attachment-btn"
+                   class="btn btn-primary btn-sm d-none align-items-center gap-2"
+                   href="{{ url_for('add_submission_attachment', sub_id=submission.id) }}"
+                   data-bs-toggle="tooltip"
+                   title="Add New Attachment">
+                    <i class="bi bi-plus-lg"></i>
+                    <span class="d-none d-lg-inline">Add Attachment</span>
+                </a>
+                <a id="add-message-btn"
+                   class="btn btn-primary btn-sm d-none align-items-center gap-2"
+                   href="{{ url_for('add_submission_message', sub_id=submission.id) }}"
+                   data-bs-toggle="tooltip"
+                   title="Add New Message">
+                    <i class="bi bi-plus-lg"></i>
+                    <span class="d-none d-lg-inline">Add Message</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stage-Aware Contextual Banner (Persistent) -->
+    {% if stp == 1 %}
+    <div class="bg-primary-subtle border-bottom border-primary p-3 d-flex align-items-center gap-2">
+        <i class="bi bi-info-circle fs-5 text-primary"></i>
+        <div class="text-dark">
+            <strong>Study Registration Stage:</strong> Add at least one Study and one Data Declaration to proceed to Data Upload.
+            {% if studies_count == 0 or data_count == 0 %}
+                <span class="badge bg-warning text-dark ms-2">Incomplete</span>
+            {% endif %}
+        </div>
+    </div>
+    {% elif stp == 2 %}
+    <div class="bg-info-subtle border-bottom border-info p-3 d-flex align-items-center gap-2">
+        <i class="bi bi-cloud-upload fs-5 text-info"></i>
+        <div class="text-dark">
+            <strong>Data Upload Stage:</strong> Upload required attachments and consent forms to complete the submission.
+            {% if attachments_count == 0 %}
+                <span class="badge bg-warning text-dark ms-2">No attachments</span>
+            {% endif %}
+        </div>
+    </div>
+    {% elif stp == 3 %}
+    <div class="bg-success-subtle border-bottom border-success p-3 d-flex align-items-center gap-2">
+        <i class="bi bi-check-circle fs-5 text-success"></i>
+        <div class="text-dark">
+            <strong>Completion:</strong> Submission complete. All data can be reviewed but not edited. Ready for export.
+        </div>
+    </div>
+    {% elif stp == 0 %}
+    <div class="bg-secondary-subtle border-bottom border-secondary p-3 d-flex align-items-center gap-2">
+        <i class="bi bi-pencil fs-5 text-secondary"></i>
+        <div class="text-dark">
+            <strong>Draft Stage:</strong> Complete the Submission Overview above, then proceed to Study Registration when ready.
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Card Body with Tabs and Content -->
+    <div class="card-body p-4">
+        <ul class="nav nav-pills mb-4 gap-2" role="tablist">
+            <!-- Studies Tab - Stage 1 Focus -->
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {% if stp == 1 %}active{% endif %} {% if stp == 1 %}border border-primary{% endif %} {% if stp != 1 %}opacity-50{% endif %} d-flex align-items-center gap-2"
+                   data-bs-toggle="pill"
+                   href="#studies"
+                   role="tab"
+                   aria-controls="studies"
+                   aria-selected="{% if stp == 1 %}true{% else %}false{% endif %}"
+                   data-add-btn="add-study-btn">
+                    <i class="bi bi-journal-text"></i>
+                    <span>Studies</span>
+                    <span class="badge {% if studies_count > 0 %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+                        {{ studies_count }}
+                        {% if studies_count > 0 %}<i class="bi bi-check ms-1"></i>{% endif %}
+                    </span>
+                    {% if stp == 1 and studies_count == 0 %}
+                        <span class="badge bg-danger badge-sm">Required</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <!-- Data Tab - Stage 1 Focus -->
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {% if stp == 1 %}border border-primary{% endif %} {% if stp != 1 %}opacity-50{% endif %} d-flex align-items-center gap-2"
+                   data-bs-toggle="pill"
+                   href="#datasets"
+                   role="tab"
+                   aria-controls="datasets"
+                   aria-selected="false"
+                   data-add-btn="add-data-btn">
+                    <i class="bi bi-database"></i>
+                    <span>Data</span>
+                    <span class="badge {% if data_count > 0 %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+                        {{ data_count }}
+                        {% if data_count > 0 %}<i class="bi bi-check ms-1"></i>{% endif %}
+                    </span>
+                    {% if stp == 1 and data_count == 0 %}
+                        <span class="badge bg-danger badge-sm">Required</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <!-- Attachments Tab - Stage 2 Focus -->
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {% if stp == 2 %}border border-info{% endif %} {% if stp != 2 %}opacity-50{% endif %} d-flex align-items-center gap-2"
+                   data-bs-toggle="pill"
+                   href="#attachments"
+                   role="tab"
+                   aria-controls="attachments"
+                   aria-selected="false"
+                   data-add-btn="add-attachment-btn">
+                    <i class="bi bi-paperclip"></i>
+                    <span>Attachments</span>
+                    <span class="badge {% if attachments_count > 0 %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
+                        {{ attachments_count }}
+                        {% if attachments_count > 0 %}<i class="bi bi-check ms-1"></i>{% endif %}
+                    </span>
+                    {% if stp == 2 and attachments_count == 0 %}
+                        <span class="badge bg-warning text-dark badge-sm">Recommended</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <!-- Messages Tab - All Stages -->
+            <li class="nav-item" role="presentation">
+                <a class="nav-link {% if stp == 3 %}opacity-50{% endif %} d-flex align-items-center gap-2"
+                   data-bs-toggle="pill"
+                   href="#messages"
+                   role="tab"
+                   aria-controls="messages"
+                   aria-selected="false"
+                   data-add-btn="add-message-btn">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>Messages</span>
+                    <span class="badge bg-secondary rounded-pill">{{ messages_count }}</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Studies Tab Content -->
+            <div class="tab-pane fade {% if stp == 1 %}show active{% endif %}" id="studies" role="tabpanel">
+                {% if studies_count == 0 and can_edit %}
+                <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
+                    <i class="bi bi-info-circle fs-4 text-primary"></i>
+                    <div>
+                        <strong>No studies added yet.</strong> Click "Add Study" above to describe your research study, including ethics approval and study details.
+                    </div>
+                </div>
+                {% endif %}
+                {% include 'submission/_study_columns.html' %}
+            </div>
+
+            <!-- Data Tab Content -->
+            <div class="tab-pane fade" id="datasets" role="tabpanel">
+                {% if data_count == 0 and can_edit %}
+                <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
+                    <i class="bi bi-info-circle fs-4 text-primary"></i>
+                    <div>
+                        <strong>No data declarations added yet.</strong> Click "Add Data" above to declare what data you're submitting, including GDPR categories and de-identification info.
+                    </div>
+                </div>
+                {% endif %}
+                {% include 'submission/_datadec_columns.html' %}
+            </div>
+
+            <!-- Attachments Tab Content -->
+            <div class="tab-pane fade" id="attachments" role="tabpanel">
+                {% if stp < 2 %}
+                <div class="bg-secondary-subtle border border-secondary rounded p-3 d-flex align-items-center gap-3 mb-3">
+                    <i class="bi bi-lock fs-4 text-secondary"></i>
+                    <div>
+                        <strong>Attachments will be available in the Data Upload stage.</strong> Complete Study Registration first, then proceed to upload files.
+                    </div>
+                </div>
+                {% elif attachments_count == 0 and can_edit %}
+                <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
+                    <i class="bi bi-info-circle fs-4 text-info"></i>
+                    <div>
+                        <strong>No attachments uploaded yet.</strong> Click "Add Attachment" above to upload consent forms, checksums, and other supporting documents.
+                    </div>
+                </div>
+                {% endif %}
+                {% include 'submission/_attachment_columns.html' %}
+            </div>
+
+            <!-- Messages Tab Content -->
+            <div class="tab-pane fade" id="messages" role="tabpanel">
+                {% if messages_count == 0 %}
+                <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
+                    <i class="bi bi-info-circle fs-4 text-muted"></i>
+                    <div>
+                        <strong>No messages yet.</strong> Use messages to communicate with data stewards or providers about this submission.
+                    </div>
+                </div>
+                {% endif %}
+                {% include 'submission/_message_columns.html' %}
             </div>
         </div>
     </div>
 </div>
 
-<div class="card shadow-sm rounded-4 p-4 mb-4">
-    <h3 class="fw-bold text-primary mb-3">Submission Details
-        {% if submission.is_detail_info_complete() %}
-        <span class="badge bg-success ms-2">&#10004;</span>
-        {% else %}
-        <span class="badge bg-warning text-dark ms-2" data-bs-toggle="tooltip" title="Missing information! Please declare one or more Studies and Data.">&#10069;</span>
-        {% endif %}
-    </h3>
-    <ul class="nav nav-pills mb-3">
-        <li class="nav-item"><a class="nav-link active" data-bs-toggle="pill" href="#messages">Messages</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#studies">Studies</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#datasets">Data</a></li>
-        <li class="nav-item"><a class="nav-link" data-bs-toggle="pill" href="#attachments">Attachments</a></li>
-    </ul>
-    <div class="tab-content pt-3">
-        <div class="tab-pane fade show active" id="messages">
-            <div class="d-flex justify-content-end mb-3">
-                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <a class="btn btn-primary" href="{{ url_for('add_submission_message',sub_id=submission.id) }}" data-bs-toggle="tooltip" title="Add New Message">
-                    <i class="bi bi-plus-lg me-2"></i>Add Message
-                </a>
-                {% endif %}
-            </div>
-            {% include 'submission/_message_columns.html' %}
-        </div>
-        <div class="tab-pane fade" id="studies">
-            <div class="d-flex justify-content-end mb-3">
-                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <a class="btn btn-primary" href="{{ url_for('add_submission_study',sub_id=submission.id) }}" data-bs-toggle="tooltip" title="Add New Study">
-                    <i class="bi bi-plus-lg me-2"></i>Add Study
-                </a>
-                {% endif %}
-            </div>
-            {% include 'submission/_study_columns.html' %}
-        </div>
-        <div class="tab-pane fade" id="datasets">
-            <div class="d-flex justify-content-end mb-3">
-                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <a class="btn btn-primary" href="{{ url_for('add_submission_datadec',sub_id=submission.id) }}" data-bs-toggle="tooltip" title="Add New Data Declaration">
-                    <i class="bi bi-plus-lg me-2"></i>Add Data Declaration
-                </a>
-                {% endif %}
-            </div>
-            {% include 'submission/_datadec_columns.html' %}
-        </div>
-        <div class="tab-pane fade" id="attachments">
-            <div class="d-flex justify-content-end mb-3">
-                {% if current_user.is_admin() or submission.current_status.step_num() == 1 or
-                submission.current_status.step_num() ==2 %}
-                <a class="btn btn-primary" href="{{ url_for('add_submission_attachment',sub_id=submission.id) }}" data-bs-toggle="tooltip" title="Add new Attachment">
-                    <i class="bi bi-plus-lg me-2"></i>Add Attachment
-                </a>
-                {% endif %}
-            </div>
-            {% include 'submission/_attachment_columns.html' %}
-        </div>
-    </div>
-</div>
+<!-- JavaScript to toggle Add buttons based on active tab -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all tab links and add buttons
+    const tabLinks = document.querySelectorAll('[data-add-btn]');
+    const addButtons = {
+        'add-message-btn': document.getElementById('add-message-btn'),
+        'add-study-btn': document.getElementById('add-study-btn'),
+        'add-data-btn': document.getElementById('add-data-btn'),
+        'add-attachment-btn': document.getElementById('add-attachment-btn')
+    };
+
+    // Function to show appropriate button
+    function switchAddButton(targetBtnId) {
+        // Hide all buttons
+        Object.values(addButtons).forEach(btn => {
+            if (btn) {
+                btn.classList.add('d-none');
+                btn.classList.remove('d-flex');
+            }
+        });
+
+        // Show target button
+        if (addButtons[targetBtnId]) {
+            addButtons[targetBtnId].classList.remove('d-none');
+            addButtons[targetBtnId].classList.add('d-flex');
+        }
+    }
+
+    // Add click listeners to tabs
+    tabLinks.forEach(link => {
+        link.addEventListener('shown.bs.tab', function(e) {
+            const btnId = e.target.getAttribute('data-add-btn');
+            switchAddButton(btnId);
+        });
+    });
+});
+</script>
 
 <div class="modal fade" id="bean_edit_modal" tabindex="-1" aria-labelledby="beanEditModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -130,6 +356,5 @@
     </div>
 </div>
 
-{% include 'submission/_submission_progress_bar.html' %}
 
 {% endblock %}

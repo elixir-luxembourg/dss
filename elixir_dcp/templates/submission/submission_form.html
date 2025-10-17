@@ -17,8 +17,10 @@
 {% endassets %}
 {% endblock %}
 {% block content %}
-<div class="card shadow-sm rounded-4 mb-4">
-    <div class="card-header bg-primary text-white fw-bold">Update Submission</div>
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 fw-semibold">Update Submission</h5>
+    </div>
     <div class="card-body p-4">
         <form method="POST"
               data-url="{{ url_for('edit_submission',sub_id=submsn_form.id.data)}}">
@@ -29,50 +31,54 @@
                 {{ fmacros.render_field_with_errors(submsn_form.submission_scope_code, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.local_custodians, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.local_project_name) }}
-                <div class="mb-3 row">
-                    <label for="contacts-fieldset">
+                <div class="mb-3">
+                    <label for="contacts-fieldset" class="form-label fw-medium">
                         {{submsn_form.submission_contacts.label.text}}<span class="text-danger">*</span>
                     </label>
-                    <br/> <span><small class="form-text text-muted">{{submsn_form.submission_contacts.description}}</small></span> <br/>
+                    <small class="form-text text-muted d-block">{{submsn_form.submission_contacts.description}}</small>
                 </div>
                 <fieldset id="contacts-fieldset">
-                    <div class="mb-3 row {% if submsn_form.submission_contacts.errors %}is-invalid{% endif %}">
-                        <div class="table-responsive">
-                            <div data-bs-toggle="fieldset" id="submsn-contacts-fieldset">
-                                <button type="button" class="btn btn-success btn-sm mb-3" data-bs-toggle="fieldset-add-row" data-target="#submsn-contacts-fieldset">
-                                    <i class="bi bi-plus-circle"></i> Add Contact
-                                </button>
-                                <table>
+                    <div class="mb-3 {% if submsn_form.submission_contacts.errors %}is-invalid{% endif %}">
+                        <div data-toggle="fieldset" id="submsn-contacts-fieldset">
+                            <button type="button" class="btn btn-primary btn-sm mb-3" data-toggle="fieldset-add-row" data-target="#submsn-contacts-fieldset">
+                                <i class="bi bi-plus-circle"></i> Add Contact
+                            </button>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-body-tertiary">
                                     <tr>
-                                        <th width="10%">Name</th>
-                                        <th width="10%">Surname</th>
-                                        <th width="15%">Email</th>
-                                        <th width="15%">Role</th>
-                                        <th width="45%">Affiliation(if different from submitting institute)</th>
-                                        <th width="5%"></th>
+                                        <th class="fw-semibold" width="10%">Name</th>
+                                        <th class="fw-semibold" width="10%">Surname</th>
+                                        <th class="fw-semibold" width="15%">Email</th>
+                                        <th class="fw-semibold" width="15%">Role</th>
+                                        <th class="fw-semibold" width="45%">Affiliation (if different from submitting institute)</th>
+                                        <th class="fw-semibold" width="5%"></th>
                                     </tr>
+                                    </thead>
+                                    <tbody>
                                     {% for contact_form in submsn_form.submission_contacts %}
-                                    <tr data-bs-toggle="fieldset-entry">
-                                        <td>{{ fmacros.render_field(contact_form.firstname) }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.lastname) }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.email) }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.category_id) }}</td>
-                                        <td>{{ contact_form.address(rows='3',cols='30')}}</td>
+                                    <tr data-toggle="fieldset-entry">
+                                        <td>{{ fmacros.render_field(contact_form.firstname, clazz='form-control-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.lastname, clazz='form-control-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.email, clazz='form-control-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.category_id, clazz='form-select-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.address, rows='2', clazz='form-control-sm') }}</td>
                                         <td>
-                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="fieldset-remove-row"
+                                            <button type="button" class="btn btn-danger btn-sm" data-toggle="fieldset-remove-row"
                                                     id="submsn-contacts-{{ loop.index0 }}-remove">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
                                     {% endfor %}
+                                    </tbody>
                                 </table>
                             </div>
-                            {% if submsn_form.submission_contacts.errors %}
-                            {% for error in submsn_form.submission_contacts.errors %}<div class="invalid-feedback d-block">{{ error }}</div>
-                            {% endfor %}
-                            {% endif %}
                         </div>
+                        {% if submsn_form.submission_contacts.errors %}
+                        {% for error in submsn_form.submission_contacts.errors %}<div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                        {% endif %}
                     </div>
                 </fieldset>
                 {{ fmacros.render_field_with_errors(submsn_form.notes) }}
@@ -82,7 +88,7 @@
                 </fieldset>
             <div class="d-flex gap-2 mt-4">
                 <input type="submit" class="save btn btn-primary" value="Save"/>
-                <a href="{{ url_for('view_submission',sub_id=submsn_form.id.data) }}" class="cancel btn btn-secondary" role="button">Cancel</a>
+                <a href="{{ url_for('view_submission',sub_id=submsn_form.id.data) }}" class="cancel btn btn-outline-secondary" role="button">Cancel</a>
             </div>
         </form>
     </div>
