@@ -117,7 +117,10 @@ def oidc_login():
                 flash("Your profile is updated.", "success")
                 return redirect(landing_page_for_user(current_user))
             else:
-                flash("Please check the validity of your input in highlighted places.", "error")
+                flash(
+                    "Please check the validity of your input in highlighted places.",
+                    "error",
+                )
                 return render_template("security/signup.html", signup_form=posted_form)
         else:  # GET
             profile_form = forms.MyProfileForm(obj=current_user)
@@ -213,7 +216,10 @@ def login():
                 flash("Your profile is updated.", "success")
                 return redirect(landing_page_for_user(current_user))
             else:
-                flash("Please check the validity of your input in highlighted places.", "error")
+                flash(
+                    "Please check the validity of your input in highlighted places.",
+                    "error",
+                )
                 return render_template("security/signup.html", signup_form=posted_form)
         else:  # GET
             profile_form = forms.MyProfileForm(obj=current_user)
