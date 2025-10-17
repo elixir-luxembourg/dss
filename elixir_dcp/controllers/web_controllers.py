@@ -44,7 +44,6 @@ from elixir_dcp.models.submission import (
     SubmissionDataDeclaration,
     SubmissionMessage,
     SubmissionStudy,
-    SubmissionUploadInfo,
 )
 
 from . import app_authorization
@@ -109,6 +108,25 @@ def disable_caching(response):
 @app.route("/oidc_login", methods=["GET", "POST"])
 @oidc.require_login
 def oidc_login():
+    # If user is already authenticated, handle profile view/update
+    if current_user.is_authenticated:
+        if request.method == "POST":
+            posted_form = forms.MyProfileForm(request.form)
+            if posted_form.validate_on_submit():
+                update_user_info(current_user, **posted_form.data)
+                flash("Your profile is updated.", "success")
+                return redirect(landing_page_for_user(current_user))
+            else:
+                flash(
+                    "Please check the validity of your input in highlighted places.",
+                    "error",
+                )
+                return render_template("security/signup.html", signup_form=posted_form)
+        else:  # GET
+            profile_form = forms.MyProfileForm(obj=current_user)
+            return render_template("security/signup.html", signup_form=profile_form)
+
+    # OIDC authentication flow
     app.logger.info(g.oidc_id_token)
     app.logger.info(
         "oidc_login  token info:"
@@ -151,21 +169,15 @@ def oidc_login():
                     500,
                 )
             else:
-                if not current_user.is_authenticated:
-                    login_user(existing_user_record, remember=True)
-                    nextt = request.args.get("next")
+                login_user(existing_user_record, remember=True)
+                nextt = request.args.get("next")
 
-                    app.logger.info(get_flashed_messages())
-                    if not forms.is_safe_url(nextt):
-                        return abort(404)
-                    else:
-                        return redirect(
-                            nextt or landing_page_for_user(existing_user_record)
-                        )
+                app.logger.info(get_flashed_messages())
+                if not forms.is_safe_url(nextt):
+                    return abort(404)
                 else:
-                    existing_user_info_form = forms.MyProfileForm(obj=current_user)
-                    return render_template(
-                        "security/signup.html", signup_form=existing_user_info_form
+                    return redirect(
+                        nextt or landing_page_for_user(existing_user_record)
                     )
     elif request.method == "POST":
         if existing_user_record is None:
@@ -184,18 +196,6 @@ def oidc_login():
                     "error",
                 )
                 return render_template("security/signup.html", signup_form=posted_form)
-        elif current_user.is_authenticated:
-            posted_form = forms.MyProfileForm(request.form)
-            if posted_form.validate_on_submit():
-                update_user_info(current_user, **posted_form.data)
-                flash("Your profile is updated.", "success")
-                return redirect(landing_page_for_user(current_user))
-            else:
-                flash(
-                    "Please check the validity of your input in highlighted places.",
-                    "error",
-                )
-                return render_template("security/signup.html", signup_form=posted_form)
 
 
 def landing_page_for_user(usr):
@@ -207,6 +207,25 @@ def landing_page_for_user(usr):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # If user is already authenticated, handle profile view/update
+    if current_user.is_authenticated:
+        if request.method == "POST":
+            posted_form = forms.MyProfileForm(request.form)
+            if posted_form.validate_on_submit():
+                update_user_info(current_user, **posted_form.data)
+                flash("Your profile is updated.", "success")
+                return redirect(landing_page_for_user(current_user))
+            else:
+                flash(
+                    "Please check the validity of your input in highlighted places.",
+                    "error",
+                )
+                return render_template("security/signup.html", signup_form=posted_form)
+        else:  # GET
+            profile_form = forms.MyProfileForm(obj=current_user)
+            return render_template("security/signup.html", signup_form=profile_form)
+
+    # Original login logic
     form = forms.LoginForm()
     if form.validate_on_submit():
         email = form.username.data
@@ -388,7 +407,7 @@ def edit_submission(sub_id):
 
             AdminSubmissionForm.submission_contacts = FieldList(
                 FormField(forms.ContactForm, default=lambda: Contact()),
-                min_entries=0,
+                min_entries=1,
                 description="You must provide at least three contacts. (1) Main contact who is the signatory on the submission info sheet, another (2) Data protection officer of the submitting institution\
                                                                                                                       (3) Legal representative for the submitting institution",
                 label="Submission contacts",
@@ -410,7 +429,7 @@ def edit_submission(sub_id):
 
             AdminSubmissionForm.submission_contacts = FieldList(
                 FormField(forms.ContactForm, default=lambda: Contact()),
-                min_entries=0,
+                min_entries=1,
                 description="You must provide at least three contacts. (1) Main contact who is the signatory on the submission info sheet, another (2) Data protection officer of the submitting institution\
                                                                                                                       (3) Legal representative for the submitting institution",
                 label="Submission contacts",
@@ -770,109 +789,6 @@ def delete_submission_study(study_id):
     db.session.commit()
     flash("Study deleted", "success")
     return redirect(url_for("view_submission", sub_id=study.submission_id))
-
-
-"""----------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's Upload Info Records."""
-"""----------------------------------------------------"""
-
-#
-#
-# @app.route('/submission_uploadinfos/<int:sub_id>', methods=['GET'])
-# @app_authorization(allowed_roles=['admin', 'data_provider'],
-#                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
-#                                          'entity_ac_attribute': 'id'})
-# def list_submission_uploadinfos(sub_id):
-#     submission_rec = Submission.query.get_or_404(sub_id)
-#     return render_template('submission/_uploadinfo_columns.html', submission=submission_rec)
-
-
-@app.route("/submission_uploadinfo_add/<int:sub_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["admin", "data_provider"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
-def add_submission_uploadinfo(sub_id):
-    if request.method == "GET":
-        return render_template(
-            "submission/uploadinfo_form.html",
-            uploadinfo_form=forms.UploadInfoForm(
-                formdata=None, obj=None, sub_id=sub_id
-            ),
-        ), 200
-    elif request.method == "POST":
-        posted_form = forms.UploadInfoForm(request.form)
-        if posted_form.validate_on_submit():
-            uploadinfo_rec = SubmissionUploadInfo()
-            posted_form.populate_obj(uploadinfo_rec)
-            uploadinfo_rec.id = None
-            db.session.add(uploadinfo_rec)
-            db.session.commit()
-            flash("Checksum added", "success")
-            return redirect(
-                url_for("view_submission", sub_id=uploadinfo_rec.submission_id)
-            )
-        else:
-            return render_template(
-                "submission/uploadinfo_form.html", uploadinfo_form=posted_form
-            ), 400
-
-
-@app.route("/submission_uploadinfo/<int:uploadinfo_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["admin", "data_provider"],
-    record_authorization={
-        "entity": "SubmissionUploadInfo",
-        "entity_id_key": "uploadinfo_id",
-        "entity_ac_attribute": "submission_id",
-    },
-)
-def edit_submission_uploadinfo(uploadinfo_id):
-    if request.method == "GET":
-        uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
-        result_form = forms.UploadInfoForm(obj=uploadinfo_rec)
-        return render_template(
-            "submission/uploadinfo_form.html", uploadinfo_form=result_form
-        ), 200
-    elif request.method == "POST":
-        posted_form = forms.UploadInfoForm(request.form)
-        if posted_form.validate_on_submit():
-            uploadinfo_rec = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
-            posted_form.populate_obj(uploadinfo_rec)
-
-            db.session.add(uploadinfo_rec)
-            db.session.commit()
-            flash("Checksum updated", "success")
-            return redirect(
-                url_for("view_submission", sub_id=uploadinfo_rec.submission_id)
-            )
-        else:
-            return render_template(
-                "submission/uploadinfo_form.html", uploadinfo_form=posted_form
-            ), 400
-
-
-@app.route("/submission_uploadinfo_delete/<int:uploadinfo_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["admin", "data_provider"],
-    record_authorization={
-        "entity": "SubmissionUploadInfo",
-        "entity_id_key": "uploadinfo_id",
-        "entity_ac_attribute": "submission_id",
-    },
-)
-def delete_submission_uploadinfo(uploadinfo_id):
-    submission_uploadinfo = SubmissionUploadInfo.query.get_or_404(uploadinfo_id)
-    db.session.delete(submission_uploadinfo)
-    db.session.commit()
-    flash("Checksum deleted", "success")
-    return redirect(
-        url_for("view_submission", sub_id=submission_uploadinfo.submission_id)
-    )
 
 
 """----------------------------------------------------"""

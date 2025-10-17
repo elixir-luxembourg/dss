@@ -93,7 +93,6 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(0, len(sub.submission_accesses))
         self.assertEqual(0, len(sub.studies))
         self.assertEqual(0, len(sub.datadecs))
-        self.assertEqual(0, len(sub.uploadinfos))
         self.assertEqual(0, len(sub.provider_user_names()))
         self.assertFalse(sub.has_providers())
 

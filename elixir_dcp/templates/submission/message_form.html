@@ -29,9 +29,11 @@
 {% endassets %}
 {% endblock %}
 {% block content %}
-<div class="panel panel-default">
-    <div class="panel-heading">Add New Message</div>
-    <div class="panel-body">
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 fw-semibold">Add New Message</h5>
+    </div>
+    <div class="card-body p-4">
         <form method="POST"
               data-url="{{ url_for('add_submission_message', sub_id=message_form.submission_id.data)}}">
             {{ message_form.hidden_tag() }}
@@ -39,8 +41,10 @@
 
            {{fmacros.render_field_with_errors(message_form.message_text) }}
 
-            <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
-            <a href="{{ url_for('view_submission',sub_id=message_form.submission_id.data) }}" class="cancel btn btn-raised btn-primary" role="button">Cancel</a>
+            <div class="d-flex gap-2 mt-4">
+                <input type="submit" class="save btn btn-primary" value="Save"/>
+                <a href="{{ url_for('view_submission',sub_id=message_form.submission_id.data) }}" class="cancel btn btn-outline-secondary" role="button">Cancel</a>
+            </div>
         </form>
     </div>
 

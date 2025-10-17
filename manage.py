@@ -182,7 +182,7 @@ def shell():
     code.interact(
         local=context,
         banner="""
-Python Shell for Elixir-DCP
+Python Shell for Elixir-DSS
 Available objects: app, db, User, Role
 Use tab for autocompletion
 """,

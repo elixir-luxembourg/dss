@@ -22,15 +22,6 @@ header #login-buttons {
   margin-top: 350px;
 }
 
-footer {
-  position: relative;
-  margin-top: -250px;
-  height: 250px;
-  clear: both;
-  padding-top: 20px;
-  text-align: center;
-}
-
 #home-users p {
   padding: 0;
 }
@@ -68,22 +59,12 @@ footer {
   font-size: 1.8em;
 }
 
-#home-description {
-  border-radius: 10px 2px 2px 2px;
-}
-
-#sidebar .block:first-child {
-  border-radius: 2px 10px 2px 2px;
-
-}
-
 #sidebar {
   padding-right: 0px;
 }
 
 #wrap {
   min-height: 100%;
-  margin-bottom: 250px;
 }
 
 .label.label-default .label.label-primary {
@@ -104,13 +85,10 @@ footer {
   margin: 0 0 40px;
   border: 1px solid $gray-300;
   padding: 0;
-  border-radius: 10px;
 }
 
 .facet h3 {
   background-color: $brand-primary;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
   color: white;
   padding: 5px 0 5px 0;
   margin: 0;
@@ -160,13 +138,8 @@ footer {
 }
 
 .panel-flat {
-  border-radius: 2px;
   box-shadow: none;
   border: 1px solid lighten($orange, 40%);
-}
-
-.panel-dataset {
-  border-top-left-radius: 10px;
 }
 
 dt {
@@ -184,10 +157,6 @@ dd {
   margin-left: 3px;
 }
 
-.navbar-info {
-  border-radius: 10px;
-}
-
 .ui-dialog {
   z-index: 9999;
 }
@@ -198,29 +167,6 @@ dd {
 }
 
 .spacer10 { height: 10px; width: 100%; font-size: 0; margin: 0; padding: 0; border: 0; display: block; }
-
-.bs-wizard {margin-top: 40px;}
-
-/*Form Wizard*/
-.bs-wizard {padding: 0 0 10px 3px; margin-left: 0px;}
-.bs-wizard > .bs-wizard-step {margin: 0 -1px 0 0; padding: 0; position: relative;}
-.bs-wizard > .bs-wizard-step .bs-wizard-stepnum {color: #595959; font-weight: bold; font-size: 16px; margin-bottom: 5px;}
-.bs-wizard > .bs-wizard-step .bs-wizard-info {color: #999; font-size: 14px;}
-.bs-wizard > .bs-wizard-step > .bs-wizard-dot {position: absolute; width: 30px; height: 30px; display: block; background: #fbe8aa; top: 45px; left: 50%; margin-top: -15px; margin-left: -15px; border-radius: 50%;}
-.bs-wizard > .bs-wizard-step > .bs-wizard-dot:after {content: ' '; width: 14px; height: 14px; background: #fbbd19; border-radius: 50px; position: absolute; top: 8px; left: 8px; }
-.bs-wizard > .bs-wizard-step > .progress {position: relative; border-radius: 0px; height: 8px; box-shadow: none; margin: 20px 0;}
-.bs-wizard > .bs-wizard-step > .progress > .bar {width:0px; box-shadow: none; background: #fbe8aa; transition: width .1s linear;}
-.bs-wizard > .bs-wizard-step.complete > .progress > .bar {width:100%;}
-.bs-wizard > .bs-wizard-step.active > .progress > .bar {width:50%;}
-.bs-wizard > .bs-wizard-step:first-child.active > .progress > .bar {width:0%;}
-.bs-wizard > .bs-wizard-step:last-child.active > .progress > .bar {width: 100%;}
-.bs-wizard > .bs-wizard-step.disabled > .bs-wizard-dot {background-color: #f5f5f5;}
-.bs-wizard > .bs-wizard-step.disabled > .bs-wizard-dot:after {opacity: 0;}
-.bs-wizard > .bs-wizard-step:first-child  > .progress {left: 50%; width: 50%;}
-.bs-wizard > .bs-wizard-step:last-child  > .progress {width: 50%;}
-.bs-wizard > .bs-wizard-step.disabled a.bs-wizard-dot{ pointer-events: none; }
-
-/*END Form Wizard*/
 
 
 hr {
@@ -241,7 +187,6 @@ fieldset
   min-width: 0;
   padding: 10px;
   position: relative;
-  border-radius:4px;
   background-color: #ffffff;
   padding-left:10px!important;
 }
@@ -253,7 +198,6 @@ legend
   margin-bottom: 0px;
   width: 35%;
   border: 1px solid #ddd;
-  border-radius: 4px;
   padding: 5px 5px 5px 10px;
   background-color:#f5f5f5;
 }
@@ -264,10 +208,6 @@ legend
 .logos-section img {
   margin: auto;
   display: block;
-}
-.select2-container {
-  width: 100% !important;
-  padding: 0;
 }
 .label-large {
   vertical-align: super;

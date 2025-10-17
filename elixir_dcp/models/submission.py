@@ -162,7 +162,6 @@ class Submission(db.Model):
     datadecs = db.relationship(
         "SubmissionDataDeclaration", cascade="all, delete-orphan"
     )
-    uploadinfos = db.relationship("SubmissionUploadInfo", cascade="all, delete-orphan")
     messages = db.relationship("SubmissionMessage", cascade="all, delete-orphan")
 
     def is_deletable(self):
@@ -272,17 +271,6 @@ class Contact(db.Model):
             "address": self.address,
         }
         return base_dict
-
-
-class SubmissionUploadInfo(db.Model):
-    __tablename__ = "submission_upload_info"
-
-    id = db.Column(db.Integer, primary_key=True)
-    submission_id = db.Column(
-        db.Integer, db.ForeignKey("submissions.id"), nullable=False
-    )
-    file_name = db.Column(db.String(45), nullable=False)
-    md5_checksum_at_provider = db.Column(db.String(32), nullable=False)
 
 
 class SubmissionMessage(db.Model):

@@ -3,11 +3,18 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>{{ config.get('TITLE', 'Submission System') }} - {% block title %}Home{% endblock %}</title>
+    <title>{{ config.get('TITLE', 'DSS') }} - {% block title %}Home{% endblock %}</title>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     {% block meta %}
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Data Submission System (DSS)">
+        <meta property="og:title" content="Data Submission System (DSS)">
+        <meta property="og:description" content="Data Submission System (DSS)">
+        <meta property="og:image" content="{{ url_for('static', filename='public/images/ELIXIR_LU_WB.png', _external=True) }}">
+        <meta property="og:url" content="{{ request.url }}">
+        <meta property="og:type" content="website">
     {% endblock %}
 
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -16,10 +23,6 @@
         {% assets "common_css" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}">
         {% endassets %}
-        <!-- Optional Google Fonts -->
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-        <!-- Bootstrap Icons (already added in your npm setup) -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     {% endblock %}
 
     <script>
@@ -28,49 +31,45 @@
             else setTimeout(function() { defer(method); }, 50);
         }
     </script>
-
-    <!-- Matomo / LCSB Analytics Settings -->
-    <script>
-        const settings = {
-            expires: "180",
-            matomoURL: "https://analytics.lcsb.uni.lu/hub/",
-            siteID: "9",
-            accept_all_text: "Aggregate statistics cookies accepted",
-            only_necessary_text: "Only necessary cookies accepted",
-            doNotTrack_text: "Do Not Track is enabled",
-            cookieName: "lap",
-            bots: /bot|crawler|spider|crawling/i,
-            timeout_hidebanner: "500",
-            cookieDomain: ""
-        };
-    </script>
-
-    <script src="https://analytics.lcsb.uni.lu/lap/static/js/jquery.min.js"></script>
-    <script src="https://analytics.lcsb.uni.lu/lap/static/js/lap.js"></script>
-    <link rel="stylesheet" href="https://analytics.lcsb.uni.lu/lap/static/css/lap.css" />
 </head>
 
 <body class="bg-light">
 <div id="wrap">
+    {% block navbar %}
+        {% with active_page=active_page %}
+            {% include 'navbar.html' %}
+        {% endwith %}
+    {% endblock %}
+
     {% block container %}
-        <div class="container py-4" id="main-container">
-            {% block header %}
-                {% with active_page=active_page %}
-                    {% include 'header.html' %}
-                {% endwith %}
-            {% endblock %}
-
-            {% block navbar %}
-                {% with active_page=active_page %}
-                    {% include 'navbar.html' %}
-                {% endwith %}
-            {% endblock %}
-
+        <div class="container" id="main-container">
             {{ macros.show_flashes() }}
             {% block content %}{% endblock %}
 
-            <div id="common-command-dialog" title="Confirm" class="dialog-body d-none">
-                <p>You are about to <span id="command-dialog-text"></span>!</p>
+            <!-- Bootstrap Confirmation Modal -->
+            <div class="modal fade" id="common-command-dialog" tabindex="-1" aria-labelledby="confirmDialogLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header border-bottom">
+                            <h5 class="modal-title fw-semibold" id="confirmDialogLabel">
+                                <i class="bi bi-exclamation-circle text-warning me-2"></i>
+                                Confirm Action
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <p class="mb-0" id="command-dialog-text">You are about to perform this action.</p>
+                        </div>
+                        <div class="modal-footer border-top">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </button>
+                            <button type="button" class="btn btn-primary" id="confirm-dialog-continue">
+                                <i class="bi bi-check-circle me-2"></i>Continue
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     {% endblock %}
@@ -87,32 +86,5 @@
         <script src="{{ ASSET_URL }}"></script>
     {% endassets %}
 {% endblock %}
-
-<!-- Cookie Banner -->
-<div id="lap-cookies-banner" class="border-top bg-white shadow-sm p-3 mt-4">
-    <div class="banner-intro mb-2">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="banner-img">
-                <img src="https://analytics.lcsb.uni.lu/lap/static/logos/r3-logo.svg" alt="LCSB logo" height="40">
-            </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary lap-refuse">
-                <i class="bi bi-x"></i>
-            </button>
-        </div>
-        <div class="banner-title fw-bold mt-2">
-            This website needs some cookies and similar means to function.
-        </div>
-        <div class="banner-text small text-muted">
-            If you permit us, we will use those means to collect data on your visits for aggregated
-            statistics to improve our service.
-        </div>
-    </div>
-
-    <div class="banner-buttons d-flex flex-wrap gap-2 mt-3">
-        <a class="btn btn-primary lap-accept">Accept cookies for aggregated statistics</a>
-        <a class="btn btn-outline-secondary lap-refuse">No thanks, only technically necessary cookies</a>
-        <a class="btn btn-link lap-cookies-more" href="privacy-policy">More information</a>
-    </div>
-</div>
 </body>
 </html>

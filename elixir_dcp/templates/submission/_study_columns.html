@@ -1,8 +1,8 @@
 {% if submission.studies %}
 <div class="container">
-    <div class="col-md-10">
-        <table class="table table-striped table-bordered">
-            <thead>
+    <div class="col-md-12">
+        <table class="table table-hover table-borderless align-middle">
+            <thead class="table-light border-bottom border-secondary border-opacity-25">
             <tr>
                 <th width="25%">Study Name</th>
                 <th width="25%">Study Features</th>
@@ -14,21 +14,33 @@
             </tr>
             </thead>
             {% for study in submission.studies %}
-            <tr>
-                <td>{{ study.name }}</td>
+            <tr class="border-bottom border-secondary border-opacity-10">
+                <td>
+                    {% if current_user.is_admin() or submission.current_status.step_num() ==1 or submission.current_status.step_num() ==2 %}
+                        <a href="{{ url_for('edit_submission_study', study_id=study.id) }}" class="text-dark text-decoration-none">
+                            {{ study.name }}
+                        </a>
+                    {% else %}
+                        {{ study.name }}
+                    {% endif %}
+                </td>
                 <td>{{ study.study_feature_names()| join(', ') }}</td>
                 <td>{{ study.study_contacts_names()| join(', ') }}</td>
                 {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}
                 <td>
-                    <a
-                            href="{{ url_for('delete_submission_study',study_id=study.id) }}" role="button">
-                        <i class="material-icons">delete</i>
-                    </a>
-                    <a
-                            href="{{ url_for('edit_submission_study',study_id=study.id) }}" role="button">
-                        <i class="material-icons">edit</i>
-                    </a>
+                    <div class="d-flex align-items-center justify-content-end gap-2">
+                        <a href="{{ url_for('edit_submission_study',study_id=study.id) }}"
+                           class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+                            <i class="bi bi-pencil"></i>
+                            <span>Edit</span>
+                        </a>
+                        <a href="{{ url_for('delete_submission_study',study_id=study.id) }}"
+                           class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
+                            <i class="bi bi-trash"></i>
+                            <span>Delete</span>
+                        </a>
+                    </div>
                 </td>
                 {% endif %}
             </tr>
@@ -37,7 +49,7 @@
     </div>
 </div>
 {% else %}
-<div class="text-center">
-    <h3> ___  No studies declared  ___</h3>
+<div class="text-center py-5">
+    <h5 class="text-secondary">No studies declared</h5>
 </div>
 {% endif %}

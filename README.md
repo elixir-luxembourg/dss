@@ -1,4 +1,4 @@
-# Elixir Data and Computing Platform 
+# Elixir Data Submission System (DSS) 
 
 ## Quick Start
 

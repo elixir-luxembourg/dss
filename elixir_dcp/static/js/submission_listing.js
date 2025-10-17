@@ -7,7 +7,8 @@ $(document).ready(function () {
             type: "get",
             success: function (result) {
                 $("#submission_view_modal_body").html(result);
-                $("#submission_view_modal").modal('show');
+                let modal = new bootstrap.Modal(document.getElementById('submission_view_modal'));
+                modal.show();
             },
             error: function () {
                 alert('An error occurred while loading the Submission Preview section of this page');
@@ -16,7 +17,7 @@ $(document).ready(function () {
     });
 
     $("#submission_list_table").on('click','a[name="button_submission_listing_delete"]', function () {
-        var endpoint = $(this).attr('data-url');
+        let endpoint = $(this).attr('data-url');
         confirmDialog("delete submission").done(function() {
             $.ajax({
                 url: endpoint,
@@ -33,7 +34,7 @@ $(document).ready(function () {
     });
 
     $("#submission_list_table").on('click', 'a[name="button_submission_listing_share"]', function () {
-        var endpoint = $(this).attr('data-url');
+        let endpoint = $(this).attr('data-url');
 
         $.ajax({
             url: endpoint,
@@ -41,6 +42,7 @@ $(document).ready(function () {
             success: function (result) {
                 $("#submission_share_modal_body").html(result);
                 $('.elx-multi-select').select2({
+                    theme: 'bootstrap-5',
                     columns: 2,
                     search: true,
                     selectAll: true,
@@ -48,7 +50,8 @@ $(document).ready(function () {
                         placeholder: 'Select one or more Users',
                     }
                 });
-                $("#submission_share_modal").modal('show');
+                let modal = new bootstrap.Modal(document.getElementById('submission_share_modal'));
+                modal.show();
             },
             error: function () {
                 alert('An error occurred while loading the Submission Share section of this page');

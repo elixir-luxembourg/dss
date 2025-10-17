@@ -19,6 +19,7 @@ from elixir_dcp.forms.submissions_forms import (
     ContactForm,
     DatadecForm,
     MessageForm,
+    StudyForm,
     SubmissionForm,
 )
 from elixir_dcp.models.security import Role
@@ -68,7 +69,7 @@ class LoginForm(RedirectForm):
 
 
 class SignupForm(FlaskForm):
-    """This form is used to sign up users to ELIXIR DCP."""
+    """This form is used to sign up users to ELIXIR DSS."""
 
     elixir_sub_id = HiddenField("Elixir Sub ID")
     first_name = StringField(
@@ -175,7 +176,7 @@ class MyProfileForm(SignupForm):
 
 
 class UserForm(SignupForm):
-    """This form is used to view and edit a particular User record in the ELIXIR DCP database.
+    """This form is used to view and edit a particular User record in the ELIXIR DSS database.
     It is intended that the admin updates user roles using this form.
     """
 
@@ -194,6 +195,7 @@ __all__ = [
     ContactForm,
     AttachmentForm,
     DatadecForm,
+    StudyForm,
     UserForm,
     MyProfileForm,
     MessageForm,

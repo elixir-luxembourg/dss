@@ -21,7 +21,7 @@
                 {{ field.label.text }} {% if field.flags.required %}<span class="text-danger">*</span>{% endif %}
             </label>
             {% if field.description %}
-                <div class="form-text mb-1">{{ field.description }}</div>
+                <div class="form-text mb-2">{{ field.description }}</div>
             {% endif %}
             {{ field(class=fc_class + (' is-invalid' if field.errors else '')) }}
             {% if field.errors %}
@@ -34,5 +34,13 @@
 {% endmacro %}
 
 {% macro render_field(field) %}
-    <p>{{ field(**kwargs)|safe }}</p>
+    {% set clazz = kwargs.pop('clazz', "") %}
+    {% if field.type == 'SelectField' or field.type == 'SelectMultipleField' %}
+        {% set fc_class = "form-select " + clazz %}
+    {% elif field.type == 'BooleanField' %}
+        {% set fc_class = "form-check-input " + clazz %}
+    {% else %}
+        {% set fc_class = "form-control " + clazz %}
+    {% endif %}
+    {{ field(class=fc_class + (' is-invalid' if field.errors else ''), **kwargs)|safe }}
 {% endmacro %}

@@ -1,4 +1,4 @@
-# Elixir Data and Computing Platform (elixir-dcp) Deployment
+# Elixir Data Submission System (DSS) Deployment
 
 
 ## Install platform dependencies

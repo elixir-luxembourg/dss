@@ -17,10 +17,12 @@
 {% endassets %}
 {% endblock %}
 {% block content %}
-<div class="panel panel-default">
-    <div class="panel-heading">Add New Attachment</div>
-    <div class="panel-body">
-        <p>In this section you can upload documents to support the information
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 fw-semibold">Add New Attachment</h5>
+    </div>
+    <div class="card-body p-4">
+        <p class="mb-3">In this section you can upload documents to support the information
             provided in the submission forms. E.g. a copy of the Ethics Approval for the source study, a template of the Consent Form used
             during data collection etc.
             <span  class="text-danger">Please do NOT upload any DATA or METADATA through this section.</span>
@@ -28,26 +30,27 @@
         <form method="POST" enctype="multipart/form-data"
               data-url="{{ url_for('add_submission_attachment', sub_id=attachment_form.submission_id.data)}}">
             {{ attachment_form.hidden_tag() }}
-            <div>
-                <label for="file_attachments">
-                    File(s)<span class="text-danger">*</span>
+            <div class="mb-3">
+                <label for="file_attachments" class="form-label fw-medium">
+                    File(s) <span class="text-danger">*</span>
                 </label>
-                <input type=file id="file_attachments" name="file_attachments" multiple>
+                <input type=file id="file_attachments" name="file_attachments" class="form-control" multiple>
                 {% if attachment_form.file_attachments.errors %}
-                <div class="has-error">
+                <div class="is-invalid">
                     {% for error in attachment_form.file_attachments.errors %}
-                        <p class="help-block">{{ error }}</p>
+                        <p class="invalid-feedback d-block">{{ error }}</p>
                     {% endfor %}
                  </div>
                 {% else %}
-                    <p class="help-block">Only TXT, PDF and PNG files can be uploaded.</p>
+                    <small class="text-muted">Only TXT, PDF and PNG files can be uploaded.</small>
                 {% endif %}
             </div>
             {{ fmacros.render_field_with_errors(attachment_form.note) }}
-            <br/>
-            <input type="submit" class="save btn btn-raised btn-primary" value="Save"/>
-            <a href="{{ url_for('view_submission',sub_id=attachment_form.submission_id.data) }}"
-               class="cancel btn btn-raised btn-primary" role="button">Cancel</a>
+            <div class="d-flex gap-2 mt-4">
+                <input type="submit" class="save btn btn-primary" value="Save"/>
+                <a href="{{ url_for('view_submission',sub_id=attachment_form.submission_id.data) }}"
+                   class="cancel btn btn-outline-secondary" role="button">Cancel</a>
+            </div>
         </form>
 
     </div>

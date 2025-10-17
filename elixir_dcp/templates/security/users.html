@@ -17,42 +17,75 @@
     {% endassets %}
 {% endblock %}
 {% block content %}
-    <div class="row">
+    <div class="card border shadow-sm mb-4">
+        <!-- Card Header with Title -->
+        <div class="card-header bg-white border-bottom">
+            <h2 class="fw-semibold text-primary mb-0">Users List</h2>
+        </div>
+
+        <!-- Card Body with Table -->
+        <div class="card-body p-4">
         {% if users %}
-            <table class="datatable table table-striped table-bordered" id="user_list_table">
-                <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Active</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for user in users %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="user_list_table">
+                    <thead class="bg-body-tertiary">
                     <tr>
-                        <td> {{ user.first_name }} </td>
-                        <td> {{ user.last_name }} </td>
-                        <td> {{ user.email }} </td>
-                        <td> {{ user.active_user}} </td>
-                        <td>
-                            <a name="button_user_listing_edit"
-                               href="{{ url_for('edit_user',user_id=user.id) }}" role="button">
-                                <i class="text-info material-icons">edit</i>
-                            </a>
-                        </td>
+                        <th class="fw-semibold">First Name</th>
+                        <th class="fw-semibold">Last Name</th>
+                        <th class="fw-semibold">Email</th>
+                        <th class="fw-semibold">Active</th>
+                        <th class="fw-semibold text-end">Actions</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('edit_user', user_id=user.id) }}" class="text-dark text-decoration-none">
+                                    {{ user.first_name }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('edit_user', user_id=user.id) }}" class="text-dark text-decoration-none">
+                                    {{ user.last_name }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('edit_user', user_id=user.id) }}" class="text-primary text-decoration-none fw-medium">
+                                    {{ user.email }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if user.active_user %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                    <a name="button_user_listing_edit"
+                                       href="{{ url_for('edit_user', user_id=user.id) }}"
+                                       class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+                                        <i class="bi bi-pencil"></i>
+                                        <span>Edit</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% else %}
-            <div class="text-center">
-                <h3> No user definitions exist. </h3>
-                <hr class="intro-divider">
+            <div class="bg-light border rounded p-4 d-flex align-items-center gap-3">
+                <i class="bi bi-people fs-1 text-secondary"></i>
+                <div>
+                    <strong>No users found.</strong>
+                    <p class="mb-0 text-muted">User accounts will appear here once created.</p>
+                </div>
             </div>
         {% endif %}
-
-
+        </div>
     </div>
 {% endblock %}

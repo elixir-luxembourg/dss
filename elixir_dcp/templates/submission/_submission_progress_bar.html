@@ -1,38 +1,194 @@
+{% with %}
+{% set stp = submission.current_status.step_num() %}
 
-<div class="row bs-wizard" style="border-bottom:0;margin-top: 5%;">
-    {% with %}
-        {% set stp = submission.current_status.step_num() %}
-        <div class="col-xs-3 bs-wizard-step {% if stp < 0 %} disabled {% elif stp == 0 %} active  {% elif stp > 0 %} complete {% endif %}">
-            <div class="text-center bs-wizard-stepnum">1 - Initiation</div>
-            <div class="progress"><div class="progress-bar"></div></div>
-            <a href="#" class="bs-wizard-dot"></a>
-            <div class="bs-wizard-info text-center">Data Steward initiates submission.</div>
+<nav aria-label="Submission progress" class="mb-5">
+    <div class="card border shadow-sm">
+        <!-- Card Header with Title and Workflow Buttons -->
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="fw-semibold mb-0">Submission Progress</h5>
+
+                <!-- Workflow Control Buttons -->
+                <div class="d-flex gap-2">
+                    {% if submission.current_status.prev_state() is not none %}
+                        {% if current_user.is_admin() %}
+                        <a name="button_submission_editor_revert"
+                           data-url="{{ url_for('revert_submission', sub_id=submission.id) }}"
+                           class="btn btn-outline-warning btn-sm d-flex align-items-center gap-2"
+                           title="Revert to {{ submission.current_status.prev_state().value }}">
+                            <i class="bi bi-arrow-left-circle"></i>
+                            <span class="d-none d-lg-inline">Revert</span>
+                        </a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if submission.current_status.next_state() is not none %}
+                        {% if current_user.is_admin() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
+                        <a name="button_submission_editor_steer"
+                           data-url="{{ url_for('steer_submission', sub_id=submission.id) }}"
+                           class="btn btn-primary btn-sm d-flex align-items-center gap-2"
+                           title="Proceed to {{ submission.current_status.next_state().value }}">
+                            <span class="d-none d-lg-inline">Proceed</span>
+                            <i class="bi bi-arrow-right-circle"></i>
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
-        <div class="col-xs-3 bs-wizard-step {% if stp < 1 %} disabled {% elif stp == 1 %} active  {% elif stp > 1 %} complete {% endif %}">
-            <div class="text-center bs-wizard-stepnum">2 - Form filling</div>
-            <div class="progress"><div class="progress-bar"></div></div>
-            <a href="#" class="bs-wizard-dot"></a>
-            <div class="bs-wizard-info text-center">Data Provider fills-in submission forms. </div>
+        <div class="card-body p-4">
+
+            <!-- Progress Steps -->
+            <div class="d-flex justify-content-between align-items-start position-relative mb-2">
+                <!-- Connecting line (background) -->
+                <div class="position-absolute top-0 start-0 w-100 d-flex align-items-center" style="height: 40px; z-index: 0;">
+                    <div class="w-100 mx-5" style="height: 2px; background-color: #dee2e6;"></div>
+                </div>
+
+                <!-- Step 1: Initiation -->
+                <div class="flex-fill text-center position-relative" style="z-index: 1;">
+                    <div class="d-flex flex-column align-items-center gap-2">
+                        <!-- Step indicator -->
+                        <div class="rounded-circle d-flex align-items-center justify-content-center {% if stp < 0 %}bg-body-secondary border border-secondary{% elif stp == 0 %}bg-primary{% elif stp > 0 %}bg-success{% endif %}"
+                             style="width: 40px; height: 40px;">
+                            {% if stp > 0 %}
+                                <i class="bi bi-check-circle-fill text-white fs-4"></i>
+                            {% elif stp == 0 %}
+                                <span class="text-white fw-bold">1</span>
+                            {% else %}
+                                <span class="text-muted fw-medium">1</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Step label -->
+                        <div class="mt-2">
+                            <div class="fw-semibold {% if stp == 0 %}text-primary{% elif stp > 0 %}text-success{% else %}text-muted{% endif %}">
+                                Initiation
+                            </div>
+                            <small class="text-muted d-block">Data Steward initiates submission</small>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="progress w-100 mt-2" role="progressbar"
+                             aria-label="Step 1 progress"
+                             aria-valuenow="{% if stp >= 0 %}100{% else %}0{% endif %}"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="height: 4px;">
+                            <div class="progress-bar {% if stp == 0 %}bg-primary{% elif stp > 0 %}bg-success{% endif %}"
+                                 style="width: {% if stp >= 0 %}100{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Form Filling -->
+                <div class="flex-fill text-center position-relative" style="z-index: 1;">
+                    <div class="d-flex flex-column align-items-center gap-2">
+                        <!-- Step indicator -->
+                        <div class="rounded-circle d-flex align-items-center justify-content-center {% if stp < 1 %}bg-body-secondary border border-secondary{% elif stp == 1 %}bg-primary{% elif stp > 1 %}bg-success{% endif %}"
+                             style="width: 40px; height: 40px;">
+                            {% if stp > 1 %}
+                                <i class="bi bi-check-circle-fill text-white fs-4"></i>
+                            {% elif stp == 1 %}
+                                <span class="text-white fw-bold">2</span>
+                            {% else %}
+                                <span class="text-muted fw-medium">2</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Step label -->
+                        <div class="mt-2">
+                            <div class="fw-semibold {% if stp == 1 %}text-primary{% elif stp > 1 %}text-success{% else %}text-muted{% endif %}">
+                                Form Filling
+                            </div>
+                            <small class="text-muted d-block">Data Provider fills in forms</small>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="progress w-100 mt-2" role="progressbar"
+                             aria-label="Step 2 progress"
+                             aria-valuenow="{% if stp >= 1 %}100{% else %}0{% endif %}"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="height: 4px;">
+                            <div class="progress-bar {% if stp == 1 %}bg-primary{% elif stp > 1 %}bg-success{% endif %}"
+                                 style="width: {% if stp >= 1 %}100{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Data Upload -->
+                <div class="flex-fill text-center position-relative" style="z-index: 1;">
+                    <div class="d-flex flex-column align-items-center gap-2">
+                        <!-- Step indicator -->
+                        <div class="rounded-circle d-flex align-items-center justify-content-center {% if stp < 2 %}bg-body-secondary border border-secondary{% elif stp == 2 %}bg-primary{% elif stp > 2 %}bg-success{% endif %}"
+                             style="width: 40px; height: 40px;">
+                            {% if stp > 2 %}
+                                <i class="bi bi-check-circle-fill text-white fs-4"></i>
+                            {% elif stp == 2 %}
+                                <span class="text-white fw-bold">3</span>
+                            {% else %}
+                                <span class="text-muted fw-medium">3</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Step label -->
+                        <div class="mt-2">
+                            <div class="fw-semibold {% if stp == 2 %}text-primary{% elif stp > 2 %}text-success{% else %}text-muted{% endif %}">
+                                Data Upload
+                            </div>
+                            <small class="text-muted d-block">Data Provider uploads data</small>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="progress w-100 mt-2" role="progressbar"
+                             aria-label="Step 3 progress"
+                             aria-valuenow="{% if stp >= 2 %}100{% else %}0{% endif %}"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="height: 4px;">
+                            <div class="progress-bar {% if stp == 2 %}bg-primary{% elif stp > 2 %}bg-success{% endif %}"
+                                 style="width: {% if stp >= 2 %}100{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Completion -->
+                <div class="flex-fill text-center position-relative" style="z-index: 1;">
+                    <div class="d-flex flex-column align-items-center gap-2">
+                        <!-- Step indicator -->
+                        <div class="rounded-circle d-flex align-items-center justify-content-center {% if stp < 3 %}bg-body-secondary border border-secondary{% elif stp >= 3 %}bg-success{% endif %}"
+                             style="width: 40px; height: 40px;">
+                            {% if stp >= 3 %}
+                                <i class="bi bi-check-circle-fill text-white fs-4"></i>
+                            {% else %}
+                                <span class="text-muted fw-medium">4</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Step label -->
+                        <div class="mt-2">
+                            <div class="fw-semibold {% if stp >= 3 %}text-success{% else %}text-muted{% endif %}">
+                                Completion
+                            </div>
+                            <small class="text-muted d-block">Data Steward confirms receipt</small>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="progress w-100 mt-2" role="progressbar"
+                             aria-label="Step 4 progress"
+                             aria-valuenow="{% if stp >= 3 %}100{% else %}0{% endif %}"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="height: 4px;">
+                            <div class="progress-bar bg-success"
+                                 style="width: {% if stp >= 3 %}100{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="col-xs-3 bs-wizard-step {% if stp < 2 %} disabled {% elif stp == 2 %} active  {% elif stp > 2 %} complete {% endif %}">
-            <div class="text-center bs-wizard-stepnum">3 - Data upload</div>
-            <div class="progress"><div class="progress-bar"></div></div>
-            <a href="#" class="bs-wizard-dot"></a>
-            <div class="bs-wizard-info text-center">Data Provider uploads data.</div>
-        </div>
-
-        <div class="col-xs-3 bs-wizard-step {% if stp < 3 %} disabled {% elif stp == 3 %} active  {% elif stp > 3 %} complete {% endif %}">
-            <div class="text-center bs-wizard-stepnum">4 - Completion</div>
-            <div class="progress"><div class="progress-bar"></div></div>
-            <a href="#" class="bs-wizard-dot"></a>
-            <div class="bs-wizard-info text-center">Data Steward confirms receipt of data.</div>
-        </div>
-    {% endwith %}
-</div>
-
-
-<div class="span">
-    <div class="spacer10"></div>
-</div>
+    </div>
+</nav>
+{% endwith %}
