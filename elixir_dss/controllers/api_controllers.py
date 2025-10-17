@@ -3,7 +3,7 @@ import urllib
 from json import dumps
 from urllib.error import HTTPError, URLError
 
-from elixir_dcp import app
+from elixir_dss import app
 
 
 @app.cache.cached(timeout=1800, key_prefix="elu_partners")

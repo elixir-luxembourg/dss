@@ -1,24 +1,36 @@
-# Elixir Data Submission System (DSS) 
+# Elixir Data Submission System (DSS)
 
-## Quick Start
+## Quick Start (Recommended)
+
+For most users, this is all you need:
 
 ```bash
-# First time setup
+# First time setup (creates venv, installs deps, builds CSS, initializes DB)
 ./setup_dev.sh
 
-# Run development server
+# Start the development server
 ./run_dev.sh
 ```
 
-### Daily Development (2 terminals)
+Application runs at **http://127.0.0.1:5000**
+
+**Demo Login Credentials:**
+- Admin: `steward1@uni.lu` / `steward1`
+- Data Provider: `submitter1@some.edu` / `submitter1`
+
+### Daily Development
+
+**Starting the server:**
 ```bash
-# Terminal 2: Auto-compile SCSS on file changes (layout.scss, _custom-colors.scss, etc.)
-cd elixir_dcp/static/vendor && npm run watch:css
+./run_dev.sh
 ```
 
-Edit `.scss` files → auto-recompiles → refresh browser to see changes! For production: `npm run build:css`
+**Auto-compile SCSS on file changes (optional, in a separate terminal):**
+```bash
+cd elixir_dss/static/vendor && npm run watch:css
+```
 
-Application runs at http://127.0.0.1:5000
+Edit `.scss` files → auto-recompiles → refresh browser to see changes!
 
 ## Research Data Submission Process
 
@@ -82,155 +94,107 @@ flowchart LR
     style Stage4 fill:#e8f5e9,stroke:#43a047,stroke-width:2px
 ```
 
-## Development
+## Manual Setup (Advanced)
 
-### Setup (Python 3.12+)
+Only needed if you want to customize the setup process. Otherwise, use `./setup_dev.sh` above.
+
+### Requirements
+- Python 3.12 or newer
+- Node.js and npm
+- OpenJDK 21+ (for some dependencies)
+
+### Python Environment Setup
 
 ```bash
-# pip
-python3 -m venv venv
-source ./project_venv/bin/activate
-pip install -e '.[dev]'
-
-# with UV
+# Using UV (recommended)
 pip install uv
-uv venv venv
-source ./venv/bin/activate
+uv venv project_venv
+source ./project_venv/bin/activate
 uv pip install -e '.[dev]'
+```
 
-# Frontend dependencies
-cd elixir_dcp/static/vendor
-npm ci
+### Frontend Dependencies
+
+```bash
+cd elixir_dss/static/vendor
+npm ci                    # Install exact versions from package-lock.json
+npm run build:css         # Build SASS to CSS
 cd ../../../
 ```
 
-## Requirements
- - Python 3.12 or newer
- - JDK (OpenJDK 21 suffices) 
- - nodejs and less (`npm install -g less`)
- 
-## Configuration
+### Configuration
 
-### 1. Create your settings file
+The setup script automatically creates `elixir_dss/settings.py` and `.env` files. For manual configuration:
+
+**1. Create settings file:**
 ```bash
-cp elixir_dcp/settings.py.template elixir_dcp/settings.py
+cp elixir_dss/settings.py.template elixir_dss/settings.py
+cp .env.template .env  # Optional
 ```
 
-### 2. Configure authentication method
-The platform supports two authentication methods:
+**2. Database:** SQLite is configured by default (no setup needed)
 
-* **CONFIG** (local authentication) - Uses username/password pairs defined in `AUTHENTICATION_DICT`
-  - Perfect for development and testing
-  - Users are authenticated against local database
-  
-* **AAI** (ELIXIR AAI) - Uses OIDC authentication with ELIXIR AAI
-  - Requires valid `client_secrets.json` configuration
-  - For production deployments
+**3. Authentication:**
+- **CONFIG** (default): Local username/password auth - perfect for development
+- **AAI**: ELIXIR OIDC authentication - requires `client_secrets.json` for production
 
-
-
-### 3. Configure database
-Update the `SQLALCHEMY_DATABASE_URI` variable in `settings.py`:
- 
-```python
-SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')
-```
-
-### 4. Set secret key
-For development, any string can be used. For production, generate a secure key:
+**4. Secret Key:** For production, generate a secure key:
 ```python
 import os
 os.urandom(24)
 ```
         
-## Database Initialization
+### Database Initialization
 
-### Initialize database with default data
+The `./setup_dev.sh` script handles this automatically. For manual setup:
+
 ```bash
-export FLASK_APP=elixir_dcp
-./manage.py init-db
+export FLASK_APP=elixir_dss
+./manage.py init-db              # Initialize DB with default data
+./manage.py load-demo-users      # Create demo users
 ```
 
-### Create demo users (for development)
+**Create additional admin users:**
 ```bash
-./manage.py load-demo-users
-```
-
-This creates three demo users for CONFIG authentication:
-- `steward1@uni.lu` / `steward1` (admin)
-- `submitter1@some.edu` / `submitter1` (data_provider)
-- `submitter2@some.edu` / `submitter2` (data_provider)
-
-### Create an admin user
-```bash
-./manage.py create-admin "John" "Doe" "john.doe@acme.edu" "xxxxx@elixir-europe.org" "ELU_I_77"
+./manage.py create-admin "First" "Last" "email@uni.lu" "elixir_id" "ELU_I_77"
 ```
 
 
 
 ## Running the Application
 
-### Development server
-```bash
-export FLASK_APP=elixir_dcp
-flask run --debug --port 5000
+Use `./run_dev.sh` or manually:
 
-# Or using the manage.py script
-./manage.py run
+```bash
+source ./project_venv/bin/activate
+export FLASK_APP=elixir_dss
+flask run --debug --port 5000
 ```
 
-The application will be available at http://127.0.0.1:5000
+Application available at http://127.0.0.1:5000
 
-### Export submissions
+**Export submissions:**
 ```bash
-# Export completed submissions
-./manage.py export-submissions
-
-# Export all submissions
-./manage.py export-submissions --all
-
-# Export specific submissions
-./manage.py export-submissions --submission-id 1 --submission-id 2
+./manage.py export-submissions                    # Export completed
+./manage.py export-submissions --all              # Export all
+./manage.py export-submissions --submission-id 1  # Export specific
 ```
 
 ## Testing
 
-**Install dependencies:**
+Dependencies are installed by `./setup_dev.sh`. For manual testing:
 
 ```bash
-# Install project dependencies (includes pytest, ruff, etc.)
-pip install -e '.[dev]'
-
-# or with UV
-pip install uv
-uv pip install -e '.[dev]'
-```
-
-**Run tests:**
-
-```bash
-pytest
-pytest --cov=elixir_dcp  # with coverage
-
-# or with UV:
+# Run tests
 uv run pytest
-uv run pytest --cov=elixir_dcp
-```
+uv run pytest --cov=elixir_dss --cov-report=term-missing  # With coverage
 
-**Lint and format:**
-
-```bash
-ruff check .
-ruff format .
-
-# or with UV:
+# Lint and format
 uvx ruff check .
 uvx ruff format .
-```
 
-**Multiple Python versions:**
-```bash
-tox
+# Test across Python versions
+uv run tox
 ```
 
 

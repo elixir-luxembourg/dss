@@ -131,19 +131,19 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-/elixir_dcp/settings.py
+/elixir_dss/settings.py
 *.db
 project_venv
 
-elixir_dcp/static/vendor/node_modules/
+elixir_dss/static/vendor/node_modules/
 
-elixir_dcp/static/public/css/*.min.css
-elixir_dcp/static/public/css/bootstrap-custom.css
-elixir_dcp/static/public/css/bootstrap-custom.css.map
-elixir_dcp/static/public/css/select2-custom.css
-elixir_dcp/static/public/css/select2-custom.css.map
-elixir_dcp/static/public/css/fonts/
-elixir_dcp/static/public/js/*.min.js
+elixir_dss/static/public/css/*.min.css
+elixir_dss/static/public/css/bootstrap-custom.css
+elixir_dss/static/public/css/bootstrap-custom.css.map
+elixir_dss/static/public/css/select2-custom.css
+elixir_dss/static/public/css/select2-custom.css.map
+elixir_dss/static/public/css/fonts/
+elixir_dss/static/public/js/*.min.js
 
 .DS_Store
 

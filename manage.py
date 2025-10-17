@@ -3,11 +3,11 @@ import click
 from flask.cli import FlaskGroup
 from flask_migrate import Migrate
 
-from elixir_dcp import app, db
-from elixir_dcp.importer.importer_utils import schedule_submission_export
-from elixir_dcp.models.security import Role, User
-from elixir_dcp.models.services import assign_role_to_user, register_new_user
-from elixir_dcp.models.submission import (
+from elixir_dss import app, db
+from elixir_dss.importer.importer_utils import schedule_submission_export
+from elixir_dss.models.security import Role, User
+from elixir_dss.models.services import assign_role_to_user, register_new_user
+from elixir_dss.models.submission import (
     ConsentStatus,
     ContactType,
     DeIdentificationType,

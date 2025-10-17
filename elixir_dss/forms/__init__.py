@@ -13,8 +13,8 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, Length, Regexp
 
-from elixir_dcp.controllers.api_controllers import get_elu_partners
-from elixir_dcp.forms.submissions_forms import (
+from elixir_dss.controllers.api_controllers import get_elu_partners
+from elixir_dss.forms.submissions_forms import (
     AttachmentForm,
     ContactForm,
     DatadecForm,
@@ -22,7 +22,7 @@ from elixir_dcp.forms.submissions_forms import (
     StudyForm,
     SubmissionForm,
 )
-from elixir_dcp.models.security import Role
+from elixir_dss.models.security import Role
 
 from .validators import OptionalFieldValidator
 

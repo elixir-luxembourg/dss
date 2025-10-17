@@ -2,10 +2,10 @@ import os
 
 from flask_testing import TestCase
 
-from elixir_dcp import app, db
-from elixir_dcp.models.security import Role, User
-from elixir_dcp.models.services import assign_role_to_user, register_new_user
-from elixir_dcp.models.submission import (
+from elixir_dss import app, db
+from elixir_dss.models.security import Role, User
+from elixir_dss.models.services import assign_role_to_user, register_new_user
+from elixir_dss.models.submission import (
     ConsentStatus,
     ContactType,
     DeIdentificationType,
@@ -19,8 +19,8 @@ __author__ = "Pinar Alper"
 
 class BaseTest(TestCase):
     def create_app(self):
-        os.environ["ELIXIR_DCP_ENV"] = "test"
-        app.config.from_object("elixir_dcp.settings.TestConfig")
+        os.environ["elixir_dss_ENV"] = "test"
+        app.config.from_object("elixir_dss.settings.TestConfig")
         return app
 
     def setUp(self):

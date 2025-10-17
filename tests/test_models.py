@@ -1,9 +1,9 @@
 import json
 
-from elixir_dcp import db
-from elixir_dcp.importer.submission_exporter import SubmissionExporter
-from elixir_dcp.models.security import User
-from elixir_dcp.models.services import (
+from elixir_dss import db
+from elixir_dss.importer.submission_exporter import SubmissionExporter
+from elixir_dss.models.security import User
+from elixir_dss.models.services import (
     assign_role_to_user,
     create_sub,
     deactivate_user,
@@ -11,7 +11,7 @@ from elixir_dcp.models.services import (
     register_new_user,
     update_submission_basic_info,
 )
-from elixir_dcp.models.submission import (
+from elixir_dss.models.submission import (
     Contact,
     ContactType,
     Submission,

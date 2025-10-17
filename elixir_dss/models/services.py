@@ -6,10 +6,10 @@ from flask import flash, render_template
 from flask_mail import Message
 from sqlalchemy import and_, select
 
-from elixir_dcp import app, db, mail
-from elixir_dcp.exceptions import RecordLifecycleException, RecordNotExistsException
-from elixir_dcp.models.security import Role, User, UsersRoles
-from elixir_dcp.models.submission import (
+from elixir_dss import app, db, mail
+from elixir_dss.exceptions import RecordLifecycleException, RecordNotExistsException
+from elixir_dss.models.security import Role, User, UsersRoles
+from elixir_dss.models.submission import (
     EmailNotification,
     Submission,
     SubmissionAccess,

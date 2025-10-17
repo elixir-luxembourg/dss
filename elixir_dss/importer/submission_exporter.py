@@ -3,9 +3,9 @@ import os
 import re
 from io import StringIO
 
-from elixir_dcp import app, db
-from elixir_dcp.forms.submissions_forms import Contact, DatadecForm
-from elixir_dcp.models.submission import Submission, SubmissionDataDeclaration
+from elixir_dss import app, db
+from elixir_dss.forms.submissions_forms import Contact, DatadecForm
+from elixir_dss.models.submission import Submission, SubmissionDataDeclaration
 
 
 class SubmissionExporter:

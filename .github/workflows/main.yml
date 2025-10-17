@@ -56,12 +56,12 @@ jobs:
         run: |
           uv pip install --system -e .[dev]
           npm install -g less
-          cd elixir_dcp/static/vendor
+          cd elixir_dss/static/vendor
           npm ci
           npm run build:css
 
       - name: Run tests
         run: |
-          cp elixir_dcp/settings.py.template elixir_dcp/settings.py
-          export ELIXIR_DCP_ENV='test'
-          uv run pytest --cov=elixir_dcp --cov-report=term-missing
+          cp elixir_dss/settings.py.template elixir_dss/settings.py
+          export elixir_dss_ENV='test'
+          uv run pytest --cov=elixir_dss --cov-report=term-missing

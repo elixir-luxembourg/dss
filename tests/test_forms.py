@@ -1,4 +1,4 @@
-from elixir_dcp.forms import SignupForm
+from elixir_dss.forms import SignupForm
 from tests import BaseTest
 
 __author__ = "Pinar Alper"

@@ -1,4 +1,4 @@
-from elixir_dcp import db
+from elixir_dss import db
 
 
 class User(db.Model):

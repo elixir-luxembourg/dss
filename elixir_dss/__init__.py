@@ -16,9 +16,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 
-import elixir_dcp.assets as assets
-import elixir_dcp.exceptions as exceptions
-from elixir_dcp.settings import ELIXIR_DCP_ENV
+import elixir_dss.assets as assets
+import elixir_dss.exceptions as exceptions
+from elixir_dss.settings import elixir_dss_ENV
 
 
 __VERSION__ = "0.4.0-dev"
@@ -29,15 +29,15 @@ load_dotenv()
 def create_application():
     new_app = Flask(__name__)
     new_app.config.from_object(
-        "elixir_dcp.settings.%sConfig" % ELIXIR_DCP_ENV.capitalize()
+        "elixir_dss.settings.%sConfig" % elixir_dss_ENV.capitalize()
     )
-    new_app.config["ENV"] = ELIXIR_DCP_ENV
+    new_app.config["ENV"] = elixir_dss_ENV
     new_app.jinja_env.add_extension("jinja2.ext.i18n")
 
     new_app.cache = Cache(new_app, config=new_app.config["CACHE_CONFIG"])
     new_app.cache.clear()
 
-    handler = RotatingFileHandler("elixir_dcp_app.log", maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler("elixir_dss_app.log", maxBytes=10000, backupCount=1)
     handler.setLevel(logging.ERROR)
     new_app.logger.addHandler(handler)
     return new_app

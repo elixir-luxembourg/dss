@@ -45,7 +45,7 @@ Put in the client id and client secret:
 
 ```bash
 cd elixir-dcp
-vi elixir_dcp/client_secrets.json
+vi elixir_dss/client_secrets.json
 ```
 
 ## Install
@@ -75,10 +75,10 @@ pip install gunicorn
 ## Configure Project
 
 ```bash
-cp elixir_dcp/settings.py.template elixir_dcp/settings.py
+cp elixir_dss/settings.py.template elixir_dss/settings.py
 ```
 
-Edit settings.py as necessary. Set `ELIXIR_DCP_ENV` to 'prod'.
+Edit settings.py as necessary. Set `elixir_dss_ENV` to 'prod'.
 
 Initialize the database to add the admin user and basic lookup values.
 
@@ -157,7 +157,7 @@ sudo supervisorctl stop gunicorn
 
 git pull
 pip install -e . --upgrade
-cd elixir_dcp/static/vendor
+cd elixir_dss/static/vendor
 npm ci
 
 

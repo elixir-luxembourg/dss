@@ -1,6 +1,6 @@
 from flask import url_for
 
-from elixir_dcp.models.security import User
+from elixir_dss.models.security import User
 from tests import BaseIntegrationTest
 
 __author__ = "Pinar Alper"

@@ -11,10 +11,10 @@ from wtforms import (
 from wtforms.validators import DataRequired, Email, Length, Regexp
 from wtforms_components import SelectField, SelectMultipleField
 
-from elixir_dcp import app
-from elixir_dcp.controllers.api_controllers import get_elu_partners
-from elixir_dcp.models.services import get_active_users
-from elixir_dcp.models.submission import (
+from elixir_dss import app
+from elixir_dss.controllers.api_controllers import get_elu_partners
+from elixir_dss.models.services import get_active_users
+from elixir_dss.models.submission import (
     ConsentStatus,
     Contact,
     ContactType,

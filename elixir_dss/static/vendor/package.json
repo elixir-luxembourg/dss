@@ -1,5 +1,5 @@
 {
-  "name": "elixir_dcp",
+  "name": "elixir_dss",
   "version": "0.4.0-dev",
   "description": "Elixir Luxembourg - Data Submission System (DSS)",
   "main": "index.js",

@@ -1,8 +1,8 @@
 import os
 
-from elixir_dcp import app, db
-from elixir_dcp.importer.submission_exporter import SubmissionExporter
-from elixir_dcp.models.submission import Submission, SubmissionStatusEnum
+from elixir_dss import app, db
+from elixir_dss.importer.submission_exporter import SubmissionExporter
+from elixir_dss.models.submission import Submission, SubmissionStatusEnum
 
 
 def schedule_submission_export(

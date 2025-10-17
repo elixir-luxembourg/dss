@@ -19,11 +19,11 @@ from sqlalchemy.exc import OperationalError
 from werkzeug.utils import secure_filename
 from wtforms import FieldList, FormField
 
-import elixir_dcp.exceptions as exceptions
-import elixir_dcp.forms as forms
-from elixir_dcp import app, db, login_manager, oidc
-from elixir_dcp.models.security import User
-from elixir_dcp.models.services import (
+import elixir_dss.exceptions as exceptions
+import elixir_dss.forms as forms
+from elixir_dss import app, db, login_manager, oidc
+from elixir_dss.models.security import User
+from elixir_dss.models.services import (
     assign_role_to_user,
     create_sub,
     delete_sub,
@@ -36,7 +36,7 @@ from elixir_dcp.models.services import (
     update_submission_basic_info,
     update_user_info,
 )
-from elixir_dcp.models.submission import (
+from elixir_dss.models.submission import (
     Contact,
     EmailNotification,
     Submission,

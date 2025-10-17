@@ -69,9 +69,9 @@ test = [
 Homepage = "https://git-r3lab.uni.lu/elixir/elixir-dcp"
 
 [tool.setuptools]
-packages = ["elixir_dcp"]
+packages = ["elixir_dss"]
 include-package-data = true
 zip-safe = false
 
 [tool.setuptools.package-data]
-elixir_dcp = ["resources/*"]
+elixir_dss = ["resources/*"]

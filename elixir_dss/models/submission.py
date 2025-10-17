@@ -4,9 +4,9 @@ import os
 
 from sqlalchemy import Sequence
 
-from elixir_dcp import app, db
-from elixir_dcp.controllers.api_controllers import get_elu_partners
-from elixir_dcp.controllers.utils import dict_list_lookup
+from elixir_dss import app, db
+from elixir_dss.controllers.api_controllers import get_elu_partners
+from elixir_dss.controllers.utils import dict_list_lookup
 
 
 class ContactType(db.Model):

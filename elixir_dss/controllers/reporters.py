@@ -11,10 +11,10 @@ from flask import (
 from weasyprint import CSS, HTML
 from weasyprint.text.fonts import FontConfiguration
 
-from elixir_dcp import app
-from elixir_dcp.controllers import app_authorization
-from elixir_dcp.importer.submission_exporter import SubmissionExporter
-from elixir_dcp.models.submission import Submission
+from elixir_dss import app
+from elixir_dss.controllers import app_authorization
+from elixir_dss.importer.submission_exporter import SubmissionExporter
+from elixir_dss.models.submission import Submission
 
 
 @app.route("/submission/generate_submission_pdf/<int:sub_id>", methods=["GET"])

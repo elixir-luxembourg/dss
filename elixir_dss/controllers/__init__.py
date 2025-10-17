@@ -5,10 +5,10 @@ from flask import current_app, render_template, request
 from flask_login import current_user
 from flask_login.config import EXEMPT_METHODS
 
-from elixir_dcp import db
+from elixir_dss import db
 from ..models.services import has_access
 
-submission_models_module = importlib.import_module("elixir_dcp.models.submission")
+submission_models_module = importlib.import_module("elixir_dss.models.submission")
 
 
 def app_authorization(**options):

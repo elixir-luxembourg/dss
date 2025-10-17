@@ -3,7 +3,7 @@ __author__ = "Valentin Grouès"
 from flask import render_template
 from flask_wtf.csrf import CSRFError
 
-from elixir_dcp import app
+from elixir_dss import app
 
 
 @app.errorhandler(CSRFError)
