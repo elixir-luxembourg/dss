@@ -4,6 +4,7 @@ import time
 from logging.handlers import RotatingFileHandler
 
 import schedule
+from dotenv import load_dotenv
 from flask import Flask
 from flask_assets import Environment
 from flask_caching import Cache
@@ -21,6 +22,8 @@ from elixir_dcp.settings import ELIXIR_DCP_ENV
 
 
 __VERSION__ = "0.4.0-dev"
+
+load_dotenv()
 
 
 def create_application():
