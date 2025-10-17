@@ -15,7 +15,9 @@ class ControllersTest(BaseIntegrationTest):
 
         response = self.client.get(url_for("list_submissions"))
 
-        self.assertIn("No submissions have been added yet.", response.data.decode("utf-8"))
+        self.assertIn(
+            "No submissions have been added yet.", response.data.decode("utf-8")
+        )
 
     def test_access_control2(self):
         self.login("steward1@uni.lu", "steward1")
