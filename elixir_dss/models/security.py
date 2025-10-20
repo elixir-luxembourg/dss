@@ -20,6 +20,11 @@ class User(UserMixin, db.Model):
 
     active_user = db.Column(db.Boolean, nullable=False)
 
+    @property
+    def is_active(self):
+        """Override UserMixin.is_active to use our active_user field."""
+        return self.active_user
+
     def get_id(self):
         try:
             return str(self.id)
