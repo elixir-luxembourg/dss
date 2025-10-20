@@ -61,14 +61,15 @@ csrf.init_app(app)
 
 # Authlib OIDC setup
 oauth = OAuth(app)
-metadata_url = f"{app.config['OIDC_AUTHORITY']}/.well-known/openid-configuration"
-oauth.register(
-    name='keycloak',
-    server_metadata_url=metadata_url,
-    client_id=app.config['CLIENT_ID'],
-    client_secret=app.config['CLIENT_SECRET'],
-    client_kwargs={'scope': app.config['OIDC_SCOPES']},
-)
+if app.config.get('OIDC_AUTHORITY'):
+    metadata_url = f"{app.config['OIDC_AUTHORITY']}/.well-known/openid-configuration"
+    oauth.register(
+        name='keycloak',
+        server_metadata_url=metadata_url,
+        client_id=app.config['CLIENT_ID'],
+        client_secret=app.config['CLIENT_SECRET'],
+        client_kwargs={'scope': app.config['OIDC_SCOPES']},
+    )
 
 
 assets_env = Environment(app)

@@ -161,7 +161,7 @@ def refresh_token():
         return _clear_session()
 
     try:
-        app.logger.debug(f"[REFRESH] Attempting token refresh...")
+        app.logger.debug("[REFRESH] Attempting token refresh...")
         new_token = oauth.keycloak.fetch_access_token(
             grant_type='refresh_token',
             refresh_token=refresh_value,
