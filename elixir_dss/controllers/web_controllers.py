@@ -5,10 +5,7 @@ import uuid
 from datetime import datetime, UTC
 
 from flask import (
-    abort,
     flash,
-    g,
-    get_flashed_messages,
     make_response,
     redirect,
     render_template,
@@ -49,7 +46,6 @@ from elixir_dss.models.submission import (
 )
 
 from . import app_authorization
-from .utils import get_names_from_oidc
 
 
 @app.route("/", methods=["GET"])
