@@ -86,23 +86,23 @@ def edit_user(user_id):
 @app.route("/logout")
 @login_required
 def logout():
-    method = app.config.get('AUTHENTICATION_METHOD', 'CONFIG')
+    method = app.config.get("AUTHENTICATION_METHOD", "CONFIG")
 
-    if method == 'CONFIG':
+    if method == "CONFIG":
         logout_user()
-        flash('You have logged out of Submission System.', 'success')
-        return render_template('home.html')
+        flash("You have logged out of Submission System.", "success")
+        return render_template("home.html")
 
     # AAI/Keycloak logout
-    id_token = session.get('oidc_id_token')
+    id_token = session.get("oidc_id_token")
     logout_user()
     session.clear()
 
     response = make_response(redirect(_keycloak_logout_url(id_token)))
-    response.set_cookie('session', '', expires=0, path='/')
-    response.set_cookie('remember_token', '', expires=0, path='/')
+    response.set_cookie("session", "", expires=0, path="/")
+    response.set_cookie("remember_token", "", expires=0, path="/")
 
-    flash('You have logged out of Submission System.', 'success')
+    flash("You have logged out of Submission System.", "success")
     return response
 
 
@@ -112,26 +112,26 @@ def disable_caching(response):
     return response
 
 
-@app.route('/oidc_login')
+@app.route("/oidc_login")
 def oidc_login():
-    redirect_uri = url_for('auth_callback', _external=True)
+    redirect_uri = url_for("auth_callback", _external=True)
     return oauth.keycloak.authorize_redirect(redirect_uri)
 
 
-@app.route('/auth/callback')
+@app.route("/auth/callback")
 def auth_callback():
     token = oauth.keycloak.authorize_access_token()
     _set_token_session(token)
 
     userinfo = oauth.keycloak.userinfo(token=token)
     if not userinfo:
-        flash('Failed to retrieve user info from Keycloak.', 'error')
-        return redirect(url_for('home'))
+        flash("Failed to retrieve user info from Keycloak.", "error")
+        return redirect(url_for("home"))
 
-    sub = userinfo.get('sub')
-    email = userinfo.get('email')
-    name = userinfo.get('name', '')
-    first_name, last_name = (name.split(' ', 1) + [''])[:2]
+    sub = userinfo.get("sub")
+    email = userinfo.get("email")
+    name = userinfo.get("name", "")
+    first_name, last_name = (name.split(" ", 1) + [""])[:2]
 
     user = User.query.filter_by(elixir_sub_id=sub).first()
     if not user:
@@ -145,42 +145,42 @@ def auth_callback():
         )
         user = register_new_user(user)
         try:
-            assign_role_to_user(user, 'user')
+            assign_role_to_user(user, "user")
         except Exception as e:
             app.logger.warning(f"Could not assign default role: {e}")
 
     login_user(user)
-    flash('Logged in successfully!', 'success')
-    return redirect(url_for('home'))
+    flash("Logged in successfully!", "success")
+    return redirect(url_for("home"))
 
 
 def refresh_token():
-    refresh_value = session.get('oidc_refresh_token')
+    refresh_value = session.get("oidc_refresh_token")
     if not refresh_value:
-        flash('Session expired. Please log in again.', 'warning')
+        flash("Session expired. Please log in again.", "warning")
         return _clear_session()
 
     try:
         app.logger.debug("[REFRESH] Attempting token refresh...")
         new_token = oauth.keycloak.fetch_access_token(
-            grant_type='refresh_token',
+            grant_type="refresh_token",
             refresh_token=refresh_value,
         )
         _set_token_session(new_token)
         app.logger.debug("OIDC token successfully refreshed.")
     except Exception as e:
         app.logger.error(f"Failed to refresh token: {e}")
-        flash('Session expired. Please log in again.', 'warning')
+        flash("Session expired. Please log in again.", "warning")
         return _clear_session()
 
 
 @app.before_request
 def check_token_expiration():
-    if request.endpoint in ('static', 'home', 'oidc_login', 'auth_callback', 'logout'):
+    if request.endpoint in ("static", "home", "oidc_login", "auth_callback", "logout"):
         return
-    if 'oidc_access_token' in session:
+    if "oidc_access_token" in session:
         now = datetime.now(UTC)
-        expires_at = session.get('oidc_expires_at', 0)
+        expires_at = session.get("oidc_expires_at", 0)
         if now.timestamp() > expires_at:
             return refresh_token()
 
@@ -188,26 +188,26 @@ def check_token_expiration():
 def _set_token_session(token: dict):
     """Store Keycloak tokens and expiry info in session."""
     now = datetime.now(UTC)
-    session['oidc_id_token'] = token.get('id_token')
-    session['oidc_access_token'] = token.get('access_token')
-    session['oidc_refresh_token'] = token.get('refresh_token')
-    session['oidc_expires_at'] = now.timestamp() + token.get('expires_in', 0)
+    session["oidc_id_token"] = token.get("id_token")
+    session["oidc_access_token"] = token.get("access_token")
+    session["oidc_refresh_token"] = token.get("refresh_token")
+    session["oidc_expires_at"] = now.timestamp() + token.get("expires_in", 0)
 
 
 def _clear_session():
     """Clear user session and cookies."""
     logout_user()
     session.clear()
-    response = make_response(redirect(url_for('home')))
-    response.set_cookie('session', '', expires=0, path='/')
-    response.set_cookie('remember_token', '', expires=0, path='/')
+    response = make_response(redirect(url_for("home")))
+    response.set_cookie("session", "", expires=0, path="/")
+    response.set_cookie("remember_token", "", expires=0, path="/")
     return response
 
 
 def _keycloak_logout_url(id_token: str | None):
     """Construct Keycloak logout URL."""
     base = f"{app.config['OIDC_AUTHORITY']}/protocol/openid-connect/logout"
-    redirect_uri = url_for('home', _external=True)
+    redirect_uri = url_for("home", _external=True)
     params = f"?post_logout_redirect_uri={redirect_uri}"
     if id_token:
         params += f"&id_token_hint={id_token}"

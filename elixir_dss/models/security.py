@@ -20,7 +20,6 @@ class User(UserMixin, db.Model):
 
     active_user = db.Column(db.Boolean, nullable=False)
 
-
     def get_id(self):
         try:
             return str(self.id)
