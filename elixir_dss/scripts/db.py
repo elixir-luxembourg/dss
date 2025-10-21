@@ -7,7 +7,7 @@ START_UP_DATA = {
         "Legal_Representative",
         "Other",
     ],
-    "names_roles": ["data_provider", "admin"],
+    "names_roles": ["data_provider", "admin", "user"],
     "deidentification_type": [["p", "Pseudonymized"], ["a", "Anonymized"]],
     "subject_category": [
         ["ca", "Cases"],

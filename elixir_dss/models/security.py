@@ -1,7 +1,9 @@
+from flask_login import UserMixin
+
 from elixir_dss import db
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String, nullable=False)
@@ -11,21 +13,17 @@ class User(db.Model):
     phone_no = db.Column(db.String)
     addr_line1 = db.Column(db.String)
     addr_line2 = db.Column(db.String)
-    institution_accession = db.Column(db.String, nullable=False)
+    institution_accession = db.Column(db.String, nullable=True)
     institution_division = db.Column(db.String, nullable=True)
 
     assigned_roles = db.relationship("Role", secondary="users_roles")
 
     active_user = db.Column(db.Boolean, nullable=False)
 
+    @property
     def is_active(self):
+        """Override UserMixin.is_active to use our active_user field."""
         return self.active_user
-
-    def is_authenticated(self):
-        return True
-
-    def is_anonymous(self):
-        return False
 
     def get_id(self):
         try:

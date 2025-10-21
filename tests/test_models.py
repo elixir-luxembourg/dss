@@ -51,7 +51,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual("ELU_I_77", pinar.institution_accession)
 
         self.assertEqual(1, len(pinar.assigned_roles))
-        self.assertTrue(pinar.is_active())
+        self.assertTrue(pinar.is_active)
         self.assertTrue(pinar.is_admin())
 
         assign_role_to_user(pinar, "data_provider")
@@ -65,7 +65,7 @@ class ModelPersistenceTest(BaseTest):
         users = User.query.all()
         self.assertEqual(1, len(users))
         pinar = users[0]
-        self.assertFalse(pinar.is_active())
+        self.assertFalse(pinar.is_active)
 
     def test_create_submission(self):
         self.assertEqual(18, len(SubmissionScope.query.all()))

@@ -19,7 +19,7 @@ from webassets.loaders import PythonLoader as PythonAssetsLoader
 import elixir_dss.assets as assets
 import elixir_dss.exceptions as exceptions
 from elixir_dss.settings import elixir_dss_ENV
-
+from authlib.integrations.flask_client import OAuth
 
 __VERSION__ = "0.4.0-dev"
 
@@ -58,6 +58,19 @@ else:
 
 csrf = CSRFProtect()
 csrf.init_app(app)
+
+# Authlib OIDC setup
+oauth = OAuth(app)
+if app.config.get("OIDC_AUTHORITY"):
+    metadata_url = f"{app.config['OIDC_AUTHORITY']}/.well-known/openid-configuration"
+    oauth.register(
+        name="keycloak",
+        server_metadata_url=metadata_url,
+        client_id=app.config["CLIENT_ID"],
+        client_secret=app.config["CLIENT_SECRET"],
+        client_kwargs={"scope": app.config["OIDC_SCOPES"]},
+    )
+
 
 assets_env = Environment(app)
 assets_loader = PythonAssetsLoader(assets)
@@ -173,7 +186,7 @@ def run_schedule():
 # Import controllers and models after all other objects are created to avoid circular imports
 from . import controllers, models  # noqa: E402
 
-__all__ = [controllers, assets, app, db, exceptions, oidc, mail]
+__all__ = [controllers, assets, app, db, exceptions, oidc, oauth, mail]
 
 if __name__ == "__main__":
     app.run(use_reloader=False)

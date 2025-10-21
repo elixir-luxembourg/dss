@@ -2,16 +2,15 @@ import json
 import os
 import shutil
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import (
-    abort,
     flash,
-    g,
-    get_flashed_messages,
+    make_response,
     redirect,
     render_template,
     request,
+    session,
     url_for,
 )
 from flask_login import current_user, login_required, login_user, logout_user
@@ -21,7 +20,7 @@ from wtforms import FieldList, FormField
 
 import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
-from elixir_dss import app, db, login_manager, oidc
+from elixir_dss import app, db, login_manager, oauth
 from elixir_dss.models.security import User
 from elixir_dss.models.services import (
     assign_role_to_user,
@@ -47,7 +46,6 @@ from elixir_dss.models.submission import (
 )
 
 from . import app_authorization
-from .utils import get_names_from_oidc
 
 
 @app.route("/", methods=["GET"])
@@ -88,15 +86,24 @@ def edit_user(user_id):
 @app.route("/logout")
 @login_required
 def logout():
-    # Flask Login's Logout
-    logout_user()
+    method = app.config.get("AUTHENTICATION_METHOD", "CONFIG")
 
-    # OIDC's logout, does not work!
-    # TODO: Find a way to sign out of AAI
-    oidc.logout()
+    if method == "CONFIG":
+        logout_user()
+        flash("You have logged out of Submission System.", "success")
+        return render_template("home.html")
+
+    # AAI/Keycloak logout
+    id_token = session.get("oidc_id_token")
+    logout_user()
+    session.clear()
+
+    response = make_response(redirect(_keycloak_logout_url(id_token)))
+    response.set_cookie("session", "", expires=0, path="/")
+    response.set_cookie("remember_token", "", expires=0, path="/")
 
     flash("You have logged out of Submission System.", "success")
-    return render_template("home.html")
+    return response
 
 
 @app.after_request
@@ -105,97 +112,106 @@ def disable_caching(response):
     return response
 
 
-@app.route("/oidc_login", methods=["GET", "POST"])
-@oidc.require_login
+@app.route("/oidc_login")
 def oidc_login():
-    # If user is already authenticated, handle profile view/update
-    if current_user.is_authenticated:
-        if request.method == "POST":
-            posted_form = forms.MyProfileForm(request.form)
-            if posted_form.validate_on_submit():
-                update_user_info(current_user, **posted_form.data)
-                flash("Your profile is updated.", "success")
-                return redirect(landing_page_for_user(current_user))
-            else:
-                flash(
-                    "Please check the validity of your input in highlighted places.",
-                    "error",
-                )
-                return render_template("security/signup.html", signup_form=posted_form)
-        else:  # GET
-            profile_form = forms.MyProfileForm(obj=current_user)
-            return render_template("security/signup.html", signup_form=profile_form)
+    redirect_uri = url_for("auth_callback", _external=True)
+    return oauth.keycloak.authorize_redirect(redirect_uri)
 
-    # OIDC authentication flow
-    app.logger.info(g.oidc_id_token)
-    app.logger.info(
-        "oidc_login  token info:"
-        + oidc.user_getinfo(["openid", "email", "profile"]).__str__()
-    )
 
-    existing_user_record = User.query.filter_by(
-        elixir_sub_id=oidc.user_getfield("sub")
-    ).one_or_none()
+@app.route("/auth/callback")
+def auth_callback():
+    token = oauth.keycloak.authorize_access_token()
+    _set_token_session(token)
 
-    if request.method == "GET":
-        if existing_user_record is None:
-            name = oidc.user_getfield("name")
-            if name is not None:
-                partially_filled_form = forms.SignupForm(
-                    elixir_sub_id=oidc.user_getfield("sub"),
-                    first_name=get_names_from_oidc(name)[0],
-                    last_name=get_names_from_oidc(name)[1],
-                    email=oidc.user_getfield("email"),
-                )
-                return render_template(
-                    "security/signup.html", signup_form=partially_filled_form
-                )
-            else:
-                return render_template(
-                    "error.html",
-                    message="Error 500 - {}".format(
-                        "Insufficient information on the AAI User, cannot continue with signup."
-                    ),
-                ), 500
-        else:
-            if not existing_user_record.is_active:
-                (
-                    render_template(
-                        "error.html",
-                        message="Error 500 - {}".format(
-                            "You are no longer an active user of this application."
-                        ),
-                    ),
-                    500,
-                )
-            else:
-                login_user(existing_user_record, remember=True)
-                nextt = request.args.get("next")
+    userinfo = oauth.keycloak.userinfo(token=token)
+    if not userinfo:
+        flash("Failed to retrieve user info from Keycloak.", "error")
+        return redirect(url_for("home"))
 
-                app.logger.info(get_flashed_messages())
-                if not forms.is_safe_url(nextt):
-                    return abort(404)
-                else:
-                    return redirect(
-                        nextt or landing_page_for_user(existing_user_record)
-                    )
-    elif request.method == "POST":
-        if existing_user_record is None:
-            posted_form = forms.SignupForm(request.form)
-            if posted_form.validate_on_submit():
-                new_user_record = User()
-                posted_form.populate_obj(new_user_record)
-                registered_user = register_new_user(new_user_record)
-                assign_role_to_user(registered_user, "data_provider")
-                login_user(registered_user, remember=True)
-                flash("You are now signed up to the Submission System.", "success")
-                return redirect(landing_page_for_user(current_user))
-            else:
-                flash(
-                    "Please check the validity of your input in highlighted places.",
-                    "error",
-                )
-                return render_template("security/signup.html", signup_form=posted_form)
+    sub = userinfo.get("sub")
+    email = userinfo.get("email")
+    name = userinfo.get("name", "")
+    first_name, last_name = (name.split(" ", 1) + [""])[:2]
+
+    user = User.query.filter_by(elixir_sub_id=sub).first()
+    if not user:
+        user = User(
+            elixir_sub_id=sub,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            active_user=True,
+            institution_accession="UNKNOWN",
+        )
+        user = register_new_user(user)
+        try:
+            assign_role_to_user(user, "user")
+        except Exception as e:
+            app.logger.warning(f"Could not assign default role: {e}")
+
+    login_user(user)
+    flash("Logged in successfully!", "success")
+    return redirect(url_for("home"))
+
+
+def refresh_token():
+    refresh_value = session.get("oidc_refresh_token")
+    if not refresh_value:
+        flash("Session expired. Please log in again.", "warning")
+        return _clear_session()
+
+    try:
+        app.logger.debug("[REFRESH] Attempting token refresh...")
+        new_token = oauth.keycloak.fetch_access_token(
+            grant_type="refresh_token",
+            refresh_token=refresh_value,
+        )
+        _set_token_session(new_token)
+        app.logger.debug("OIDC token successfully refreshed.")
+    except Exception as e:
+        app.logger.error(f"Failed to refresh token: {e}")
+        flash("Session expired. Please log in again.", "warning")
+        return _clear_session()
+
+
+@app.before_request
+def check_token_expiration():
+    if request.endpoint in ("static", "home", "oidc_login", "auth_callback", "logout"):
+        return
+    if "oidc_access_token" in session:
+        now = datetime.now(UTC)
+        expires_at = session.get("oidc_expires_at", 0)
+        if now.timestamp() > expires_at:
+            return refresh_token()
+
+
+def _set_token_session(token: dict):
+    """Store Keycloak tokens and expiry info in session."""
+    now = datetime.now(UTC)
+    session["oidc_id_token"] = token.get("id_token")
+    session["oidc_access_token"] = token.get("access_token")
+    session["oidc_refresh_token"] = token.get("refresh_token")
+    session["oidc_expires_at"] = now.timestamp() + token.get("expires_in", 0)
+
+
+def _clear_session():
+    """Clear user session and cookies."""
+    logout_user()
+    session.clear()
+    response = make_response(redirect(url_for("home")))
+    response.set_cookie("session", "", expires=0, path="/")
+    response.set_cookie("remember_token", "", expires=0, path="/")
+    return response
+
+
+def _keycloak_logout_url(id_token: str | None):
+    """Construct Keycloak logout URL."""
+    base = f"{app.config['OIDC_AUTHORITY']}/protocol/openid-connect/logout"
+    redirect_uri = url_for("home", _external=True)
+    params = f"?post_logout_redirect_uri={redirect_uri}"
+    if id_token:
+        params += f"&id_token_hint={id_token}"
+    return f"{base}{params}"
 
 
 def landing_page_for_user(usr):
