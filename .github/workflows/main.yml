@@ -60,8 +60,10 @@ jobs:
           npm ci
           npm run build:css
 
+      - name: Setup environment
+        run: cp .env.template .env
+
       - name: Run tests
-        run: |
-          cp elixir_dss/settings.py.template elixir_dss/settings.py
-          export elixir_dss_ENV='test'
-          uv run pytest --cov=elixir_dss --cov-report=term-missing
+        run: uv run pytest --cov=elixir_dss --cov-report=term-missing
+        env:
+          ELIXIR_DSS_ENV: test

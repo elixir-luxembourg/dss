@@ -1,5 +1,9 @@
-from elixir_dss.scripts.db import START_UP_DATA
 import os
+from dotenv import load_dotenv
+from elixir_dss.scripts.db import START_UP_DATA
+
+# Load environment variables at module import
+load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 

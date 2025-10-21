@@ -1,10 +1,9 @@
-import json
 import logging
 import time
 from logging.handlers import RotatingFileHandler
 
 import schedule
-from dotenv import load_dotenv
+from authlib.integrations.flask_client import OAuth
 from flask import Flask
 from flask_assets import Environment
 from flask_caching import Cache
@@ -15,13 +14,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 
-# Load environment variables BEFORE importing settings
-load_dotenv()
-
 import elixir_dss.assets as assets
 import elixir_dss.exceptions as exceptions
 from elixir_dss.settings import elixir_dss_ENV
-from authlib.integrations.flask_client import OAuth
 
 __VERSION__ = "0.4.0-dev"
 
