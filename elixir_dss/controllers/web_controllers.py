@@ -102,7 +102,7 @@ def logout():
 
     response = make_response(redirect(_keycloak_logout_url(id_token)))
 
-    session_cookie_name = app.config.get('SESSION_COOKIE_NAME', 'session')
+    session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
     response.set_cookie(session_cookie_name, "", expires=0, path="/", httponly=True)
     response.set_cookie("remember_token", "", expires=0, path="/", httponly=True)
 
@@ -209,7 +209,7 @@ def _clear_session():
 
     response = make_response(redirect(url_for("home")))
 
-    session_cookie_name = app.config.get('SESSION_COOKIE_NAME', 'session')
+    session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
     response.set_cookie(session_cookie_name, "", expires=0, path="/", httponly=True)
     response.set_cookie("remember_token", "", expires=0, path="/", httponly=True)
 
