@@ -576,6 +576,7 @@ name = "elixir-dcp"
 version = "0.4.0.dev0"
 source = { editable = "." }
 dependencies = [
+    { name = "authlib" },
     { name = "celery" },
     { name = "closure" },
     { name = "cssmin" },
@@ -588,7 +589,6 @@ dependencies = [
     { name = "flask-login" },
     { name = "flask-mail" },
     { name = "flask-migrate" },
-    { name = "flask-oidc" },
     { name = "flask-script" },
     { name = "flask-sqlalchemy" },
     { name = "flask-testing" },
@@ -626,6 +626,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "authlib", specifier = "==1.6.5" },
     { name = "bumpversion", marker = "extra == 'dev'" },
     { name = "celery", specifier = "==5.5.3" },
     { name = "closure", specifier = "==20191111" },
@@ -641,7 +642,6 @@ requires-dist = [
     { name = "flask-login", specifier = "==0.6.3" },
     { name = "flask-mail", specifier = "==0.10.0" },
     { name = "flask-migrate", specifier = "==4.1.0" },
-    { name = "flask-oidc", specifier = "==2.4.0" },
     { name = "flask-script", specifier = "==2.0.6" },
     { name = "flask-sqlalchemy", specifier = "==3.1.1" },
     { name = "flask-testing", specifier = "==0.8.1" },
@@ -787,21 +787,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/5a/8e/47c7b3c93855ceffc2eabfa271782332942443321a07de193e4198f920cf/flask_migrate-4.1.0.tar.gz", hash = "sha256:1a336b06eb2c3ace005f5f2ded8641d534c18798d64061f6ff11f79e1434126d", size = 21965, upload-time = "2025-01-10T18:51:11.848Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d2/c4/3f329b23d769fe7628a5fc57ad36956f1fb7132cf8837be6da762b197327/Flask_Migrate-4.1.0-py3-none-any.whl", hash = "sha256:24d8051af161782e0743af1b04a152d007bad9772b2bca67b7ec1e8ceeb3910d", size = 21237, upload-time = "2025-01-10T18:51:09.527Z" },
-]
-
-[[package]]
-name = "flask-oidc"
-version = "2.4.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "authlib" },
-    { name = "blinker" },
-    { name = "flask" },
-    { name = "requests" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/d1/22/11fbf28a6896c589050eabdba59355835a82c2abfe6742e80365058a1c20/flask_oidc-2.4.0.tar.gz", hash = "sha256:e72378fcea8f90ccab874836a61f1783092a900c965e52587c1307e38b2e2153", size = 26799, upload-time = "2025-06-16T09:30:19.544Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/86/be/dfa4f15322ac3d2dbe2e601ceb1d760e2ce4370f3ecc9ee7b37d0ca49643/flask_oidc-2.4.0-py3-none-any.whl", hash = "sha256:5aa398dd3e593c5ed9d94f23a948c635606d619b974b5df25de8aeb725b6ea8d", size = 10010, upload-time = "2025-06-16T09:30:18.192Z" },
 ]
 
 [[package]]

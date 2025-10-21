@@ -93,14 +93,18 @@ def logout():
         flash("You have logged out of Submission System.", "success")
         return render_template("home.html")
 
-    # AAI/Keycloak logout
     id_token = session.get("oidc_id_token")
-    logout_user()
+
     session.clear()
+    session.permanent = False
+
+    logout_user()
 
     response = make_response(redirect(_keycloak_logout_url(id_token)))
-    response.set_cookie("session", "", expires=0, path="/")
-    response.set_cookie("remember_token", "", expires=0, path="/")
+
+    session_cookie_name = app.config.get('SESSION_COOKIE_NAME', 'session')
+    response.set_cookie(session_cookie_name, "", expires=0, path="/", httponly=True)
+    response.set_cookie("remember_token", "", expires=0, path="/", httponly=True)
 
     flash("You have logged out of Submission System.", "success")
     return response
@@ -108,7 +112,9 @@ def logout():
 
 @app.after_request
 def disable_caching(response):
-    response.headers["Cache-Control"] = "no-cache"
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
     return response
 
 
@@ -196,11 +202,17 @@ def _set_token_session(token: dict):
 
 def _clear_session():
     """Clear user session and cookies."""
-    logout_user()
     session.clear()
+    session.permanent = False
+
+    logout_user()
+
     response = make_response(redirect(url_for("home")))
-    response.set_cookie("session", "", expires=0, path="/")
-    response.set_cookie("remember_token", "", expires=0, path="/")
+
+    session_cookie_name = app.config.get('SESSION_COOKIE_NAME', 'session')
+    response.set_cookie(session_cookie_name, "", expires=0, path="/", httponly=True)
+    response.set_cookie("remember_token", "", expires=0, path="/", httponly=True)
+
     return response
 
 

@@ -131,7 +131,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-/elixir_dss/settings.py
 *.db
 project_venv
 

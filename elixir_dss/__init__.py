@@ -11,10 +11,12 @@ from flask_caching import Cache
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
-from flask_oidc import OpenIDConnect
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
+
+# Load environment variables BEFORE importing settings
+load_dotenv()
 
 import elixir_dss.assets as assets
 import elixir_dss.exceptions as exceptions
@@ -22,8 +24,6 @@ from elixir_dss.settings import elixir_dss_ENV
 from authlib.integrations.flask_client import OAuth
 
 __VERSION__ = "0.4.0-dev"
-
-load_dotenv()
 
 
 def create_application():
@@ -80,69 +80,6 @@ for name, bundle in assets_loader.load_bundles().items():
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
-class OidcCredentials(db.Model):
-    __tablename__ = "oidc_credentials"
-
-    cred_key = db.Column(db.String, primary_key=True)
-    cred_val = db.Column(db.String)
-
-
-class CredentialsPersistentStore:
-    def __init__(self, persist_db=None):
-        self.cred_db = persist_db
-
-    def __setitem__(self, key, val):
-        item = OidcCredentials.query.filter_by(cred_key=key).one_or_none()
-        if item:
-            item.cred_val = json.dumps(val)
-            self.cred_db.session.add(item)
-            self.cred_db.session.commit()
-        else:
-            item = OidcCredentials()
-            item.cred_key = key
-            item.cred_val = json.dumps(val)
-            self.cred_db.session.add(item)
-            self.cred_db.session.commit()
-
-    def __getitem__(self, key):
-        credential = OidcCredentials.query.filter_by(cred_key=key).one_or_none()
-        if credential:
-            return json.loads(credential.cred_val)
-        else:
-            return None
-
-    def __delitem__(self, key):
-        credential = OidcCredentials.query.filter_by(cred_key=key).one_or_none()
-        if credential:
-            db.session.delete(credential)
-            db.session.commit()
-        return
-
-
-credentials_store = CredentialsPersistentStore(persist_db=db)
-
-if authentication_method == "AAI":
-    oidc = OpenIDConnect(app=app, credentials_store=credentials_store)
-else:
-
-    class DummyOIDC:
-        """Minimal mock to prevent AttributeErrors when OIDC is not used"""
-
-        def require_login(self, func):
-            return func
-
-        def logout(self):
-            pass
-
-        def user_getinfo(self, *args, **kwargs):
-            return {}
-
-        def user_getfield(self, *args, **kwargs):
-            return None
-
-    oidc = DummyOIDC()
-
 # Setup Flask-Mail
 mail = Mail(app)
 
@@ -186,7 +123,7 @@ def run_schedule():
 # Import controllers and models after all other objects are created to avoid circular imports
 from . import controllers, models  # noqa: E402
 
-__all__ = [controllers, assets, app, db, exceptions, oidc, oauth, mail]
+__all__ = [controllers, assets, app, db, exceptions, oauth, mail]
 
 if __name__ == "__main__":
     app.run(use_reloader=False)

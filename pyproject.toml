@@ -29,7 +29,7 @@ dependencies = [
     "Flask-Login==0.6.3",
     "Flask-WTF==1.2.2",
     "Flask-Migrate==4.1.0",
-    "flask-oidc==2.4.0",
+    "Authlib==1.6.5",
     "Flask-Testing==0.8.1",
     "sqlalchemy-utils==0.41.2",
     "Flask-Mail==0.10.0",
