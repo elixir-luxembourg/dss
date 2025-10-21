@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% import "forms_macros.html" as fmacros %}
 {% set active_page = "login" %}
-{% block title %}Login Form{% endblock %}
+{% block title %}Login{% endblock %}
 {% block js %}
 {{ super() }}
 {% assets "user_editor_js" %}
@@ -9,19 +9,33 @@
 {% endassets %}
 {% endblock %}
 {% block content %}
-    <div class="card shadow-sm p-4 mx-auto" style="max-width: 400px;">
-        <div class="card-body">
-            <h1 class="text-center fw-bold text-primary mb-4">Login</h1>
-            <form action="{{ url_for(login_page) }}" method="POST" name="login_user_form">
-                {{ login_user_form.hidden_tag() }}
-                {{ fmacros.render_field_with_errors(login_user_form.username) }}
-                {{ fmacros.render_field_with_errors(login_user_form.password) }}
-                {{ fmacros.render_field_with_errors(login_user_form.remember) }}
-                {{ fmacros.render_field(login_user_form.next) }}
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Sign In
+                    </h4>
                 </div>
-            </form>
+                <div class="card-body p-4">
+                    <form action="{{ url_for(login_page) }}" method="POST" name="login_user_form">
+                        {{ login_user_form.hidden_tag() }}
+                        {{ fmacros.render_field_with_errors(login_user_form.username) }}
+                        {{ fmacros.render_field_with_errors(login_user_form.password) }}
+                        {{ fmacros.render_field_with_errors(login_user_form.remember) }}
+                        {{ fmacros.render_field(login_user_form.next) }}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>
+                                Sign In
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 {% endblock %}

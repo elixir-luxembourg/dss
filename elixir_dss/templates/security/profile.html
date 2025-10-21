@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+{% import "forms_macros.html" as fmacros %}
+{% block title %}My Profile{% endblock %}
+{% block js %}
+{{ super() }}
+{% assets "select2_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "user_editor_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% assets "select2_css" %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+{% endassets %}
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-circle me-2"></i>
+                        My Profile
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('profile') }}" method="POST">
+                        {{ profile_form.hidden_tag() }}
+                        {{ fmacros.render_field_with_errors(profile_form.first_name) }}
+                        {{ fmacros.render_field_with_errors(profile_form.last_name) }}
+                        {{ fmacros.render_field_with_errors(profile_form.email) }}
+                        {{ fmacros.render_field_with_errors(profile_form.institution_accession, clazz="elx-select") }}
+                        <div class="mb-3 row">
+                            <div class="col-md-12">
+                                <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <div>
+                                        Can not find your institution in the list, then please contact:
+                                        <img src="/static/public/images/datasteward_contact.png" alt="Data Steward Contact" class="ms-1"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{ fmacros.render_field_with_errors(profile_form.institution_division) }}
+                        {{ fmacros.render_field_with_errors(profile_form.addr_line1) }}
+                        {{ fmacros.render_field_with_errors(profile_form.addr_line2) }}
+                        {{ fmacros.render_field_with_errors(profile_form.phone_no) }}
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-pencil-square me-2"></i>
+                                Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

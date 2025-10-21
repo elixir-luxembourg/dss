@@ -233,27 +233,34 @@ def landing_page_for_user(usr):
         return url_for("list_my_submissions")
 
 
+@app.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    """View and update user profile."""
+    if request.method == "POST":
+        posted_form = forms.MyProfileForm(request.form)
+        if posted_form.validate_on_submit():
+            update_user_info(current_user, **posted_form.data)
+            flash("Your profile is updated.", "success")
+            return redirect(landing_page_for_user(current_user))
+        else:
+            flash(
+                "Please check the validity of your input in highlighted places.",
+                "error",
+            )
+            return render_template("security/profile.html", profile_form=posted_form)
+    else:  # GET
+        profile_form = forms.MyProfileForm(obj=current_user)
+        return render_template("security/profile.html", profile_form=profile_form)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # If user is already authenticated, handle profile view/update
+    """User login."""
+    # Redirect to profile if already logged in
     if current_user.is_authenticated:
-        if request.method == "POST":
-            posted_form = forms.MyProfileForm(request.form)
-            if posted_form.validate_on_submit():
-                update_user_info(current_user, **posted_form.data)
-                flash("Your profile is updated.", "success")
-                return redirect(landing_page_for_user(current_user))
-            else:
-                flash(
-                    "Please check the validity of your input in highlighted places.",
-                    "error",
-                )
-                return render_template("security/signup.html", signup_form=posted_form)
-        else:  # GET
-            profile_form = forms.MyProfileForm(obj=current_user)
-            return render_template("security/signup.html", signup_form=profile_form)
+        return redirect(url_for("profile"))
 
-    # Original login logic
     form = forms.LoginForm()
     if form.validate_on_submit():
         email = form.username.data
