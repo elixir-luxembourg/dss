@@ -8,8 +8,9 @@
 ## Submission context roles
 User roles assinged within the scope of the submission.
 - **Submitter**:  Submitter is defined in the draft stage by user creating the submission.
+- **Recipient**: Person recieving data on our side. It can be same user as submitter. The recipient must be defined as project member.
 
-If regular user creates a submission, it has to be Submitter. Otherwise, the submission cannot be steered further.
+If regular user creates a submission, they have to get submitter role. Otherwise, the submission cannot be steered further.
 
 
 ## User Roles and Permissions
@@ -51,51 +52,57 @@ graph TB
 
 ## Submitter Workflow
 
+Submitter is define in scope of a submission so the workflow starts after Draft phase.
+
+
 ```mermaid
 flowchart TD
-    Start([Steward Login]) --> MySubmissions[View All Submissions]
+    Start([Login]) --> MySubmissions[View My Submissions]
     MySubmissions --> ViewSub[Select Submission]
-    ViewSub --> CheckPhase{Submission Phase?}
+    MySubmissions --> IsInternalUser
+    CreateSubOrDuplicate --> CheckPhase
+    ViewSub --> CheckPhase
+
+    IsInternalUser --> |Yes| CreateSubOrDuplicate[Create or duplicate submission]
+    ViewSub --> IsInternalUser
+
+    CheckPhase --> |Draft| Draft[Initiate submission]
+    Draft --> SelectProject
+    Draft --> SelectRecipient
+    Draft --> AssingSubmitter
 
     CheckPhase --> |MetadataSubmission| MetadataPhase[Complete Metadata]
 
+
     MetadataPhase --> EditBasic[Edit Basic Info]
     MetadataPhase --> AddStudy[Add/Edit Studies]
-    MetadataPhase --> AddDataDec[Add/Edit Data Declarations]
+    MetadataPhase --> AddData[Add/Edit Data]
     MetadataPhase --> AddAttach[Add Attachments\nPDF/TXT/PNG]
 
-    AddStudy --> StudyDetails[Study Details:\n- Name, Description\n- Ethics Approval\n- Study Types\n- Study Contacts]
+    AddData --> ReadyMeta
 
-    AddDataDec --> DataDecDetails[Data Declaration:\n- GDPR Data Types\n- Scientific Data Types\n- De-identification\n- Legal Basis\n- Consent Status\n- Access Restrictions]
-
-    EditBasic --> ReadyMeta{Metadata\nComplete?}
+    EditBasic --> ReadyMeta{Metadata Complete?}
     AddStudy --> ReadyMeta
     AddDataDec --> ReadyMeta
     AddAttach --> ReadyMeta
 
-    ReadyMeta --> |Yes| SteerToUpload[Steer to Data Upload]
+    ReadyMeta --> |Yes| SteerToApproval[Steer to Approval]
     ReadyMeta --> |No| MetadataPhase
 
     CheckPhase --> |Data Upload| UploadPhase[Data Upload Phase]
 
-    UploadPhase --> AddChecksum[Add Upload Info\nFile Checksums]
-    UploadPhase --> ContinueEdit[Continue Editing\nMetadata if Needed]
+    UploadPhase --> GetUploadLink[Get link to upload data]
     UploadPhase --> AddMsg[Add Messages\nCommunicate with Stewards]
-
-    AddChecksum --> ReadyComplete{Data\nUploaded?}
-    ContinueEdit --> ReadyComplete
+    GetUploadLink --> ConfirmDataUploadOver
+    UploadPhase --> ConfirmDataUploadOver[Confirm that data was uploaded to landing zone]
+    ConfirmDataUploadOver --> ReadyComplete[All data uploaded?]
     AddMsg --> ReadyComplete
 
     ReadyComplete --> |Yes| SteerToComplete[Steer to Completion]
     ReadyComplete --> |No| UploadPhase
 
-    SteerToUpload --> EmailSent1[Email Sent to\nData Stewards]
-    SteerToComplete --> EmailSent2[Email Sent to\nData Stewards]
-
     style Start fill:#4ecdc4
     style MySubmissions fill:#ffd93d
-    style EmailSent1 fill:#6bcf7f
-    style EmailSent2 fill:#6bcf7f
 ```
 
 ### DataSteward Capabilities Summary
@@ -104,46 +111,14 @@ flowchart TD
 
 ## Data Steward Workflow
 
-```mermaid
-flowchart TD
-    Start([User Login]) --> Dashboard[View My Submissions]
+Data steward either initiates submission or/and approves all submissions before dataUpload phase
 
-    Dashboard --> CreateSub[Create New Submission]
-    CreateSub --> Duplicate[Copy Submission]
-    CreateSub -- become Submitter --> SetTitle[Set Title & Institution]
-    SetTitle --> AssignSubmitter[Assign Data Submitter Users]
-    AssignSumitterDetails --> AddContacts[Add Submission Contacts]
-
-    Dashboard --> ManageSub{Manage Existing\nSubmission}
-
-    ManageSub --> ViewAll[View/Edit Any Submission]
-    ManageSub --> SteerForward[Steer to Next State]
-    ManageSub --> SteerBack[Revert to Previous State]
-    ManageSub --> DeleteDraft[Delete Draft Submission]
-
-    SteerForward --> CheckState{Current State?}
-    CheckState --> |Draft| NotifySubmitter[Notify Data Submitter\nEmail Sent]
-    CheckState --> |Study Reg| NotifySteward1[Notify Data Stewards\nfor Upload Link]
-    CheckState --> |Data Upload| NotifySteward2[Notify Data Stewards\nfor Verification]
-
-    Dashboard --> NotifMgmt[Email Notifications]
-    NotifMgmt --> ViewNotif[View All Notifications]
-    ViewNotif --> ResendNotif[Resend Notification]
-
-    Dashboard --> AddMessage[Add Message to Submission]
-
-    style Start fill:#ff6b6b
-    style Dashboard fill:#ffd93d
-    style NotifySubmitter fill:#6bcf7f
-    style NotifySteward1 fill:#6bcf7f
-    style NotifySteward2 fill:#6bcf7f
-```
 Data steward can do what normal users can do and even become submitter.
 On top of that, its reponsible for steering submission from Approval -> Data upload
 
 ## Permissions
 
- ✅ Any user can create a submission - become submitter.
+ ✅ Any internal user can create a submission and also become submitter.
 
 
 | Permission / Action                        | Admin | Data Steward | Submitter | Recipient |

@@ -1,6 +1,6 @@
 # Use cases
 
-![Use cases diagram](use-cases.svg)
+![Use cases diagram](use-cases.png)
 
 
 ## Share submission
