@@ -1,8 +1,6 @@
 import logging
-import time
 from logging.handlers import RotatingFileHandler
 
-import schedule
 from authlib.integrations.flask_client import OAuth
 from flask import Flask
 from flask_assets import Environment
@@ -14,9 +12,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 
+from elixir_dss.settings import ELIXIR_DSS_ENV
 import elixir_dss.assets as assets
 import elixir_dss.exceptions as exceptions
-from elixir_dss.settings import elixir_dss_ENV
 
 __VERSION__ = "0.4.0-dev"
 
@@ -24,9 +22,9 @@ __VERSION__ = "0.4.0-dev"
 def create_application():
     new_app = Flask(__name__)
     new_app.config.from_object(
-        "elixir_dss.settings.%sConfig" % elixir_dss_ENV.capitalize()
+        "elixir_dss.settings.%sConfig" % ELIXIR_DSS_ENV.capitalize()
     )
-    new_app.config["ENV"] = elixir_dss_ENV
+    new_app.config["ENV"] = ELIXIR_DSS_ENV
     new_app.jinja_env.add_extension("jinja2.ext.i18n")
 
     new_app.cache = Cache(new_app, config=new_app.config["CACHE_CONFIG"])
@@ -43,29 +41,30 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_message_category = "error"
 
+oauth = None
 authentication_method = app.config.get("AUTHENTICATION_METHOD", "CONFIG")
 if authentication_method == "CONFIG":
     login_manager.login_view = "login"
 elif authentication_method == "AAI":
     login_manager.login_view = "oidc_login"
+
+    oauth = OAuth(app)
+    if app.config.get("OIDC_AUTHORITY"):
+        metadata_url = (
+            f"{app.config['OIDC_AUTHORITY']}/.well-known/openid-configuration"
+        )
+        oauth.register(
+            name="keycloak",
+            server_metadata_url=metadata_url,
+            client_id=app.config["CLIENT_ID"],
+            client_secret=app.config["CLIENT_SECRET"],
+            client_kwargs={"scope": app.config["OIDC_SCOPES"]},
+        )
 else:
     raise ValueError("Unsupported authentication method")
 
 csrf = CSRFProtect()
 csrf.init_app(app)
-
-# Authlib OIDC setup
-oauth = OAuth(app)
-if app.config.get("OIDC_AUTHORITY"):
-    metadata_url = f"{app.config['OIDC_AUTHORITY']}/.well-known/openid-configuration"
-    oauth.register(
-        name="keycloak",
-        server_metadata_url=metadata_url,
-        client_id=app.config["CLIENT_ID"],
-        client_secret=app.config["CLIENT_SECRET"],
-        client_kwargs={"scope": app.config["OIDC_SCOPES"]},
-    )
-
 
 assets_env = Environment(app)
 assets_loader = PythonAssetsLoader(assets)
@@ -104,16 +103,6 @@ def inject_now():
 def run_export_submission():
     models.services.schedule_submission_export()
 
-
-def run_schedule():
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
-
-# schedule.every().day.at("22:30").do(run_export_submission)
-# t = Thread(target=run_schedule)
-# t.start()
 
 # Import controllers and models after all other objects are created to avoid circular imports
 from . import controllers, models  # noqa: E402

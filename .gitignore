@@ -148,3 +148,5 @@ elixir_dss/static/public/js/*.min.js
 
 .vscode/
 cache/
+
+*.log

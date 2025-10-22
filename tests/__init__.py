@@ -19,7 +19,7 @@ __author__ = "Pinar Alper"
 
 class BaseTest(TestCase):
     def create_app(self):
-        os.environ["elixir_dss_ENV"] = "test"
+        os.environ["ELIXIR_DSS_ENV"] = "test"
         app.config.from_object("elixir_dss.settings.TestConfig")
         return app
 

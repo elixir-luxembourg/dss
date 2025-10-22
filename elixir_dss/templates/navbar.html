@@ -21,14 +21,6 @@
 
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
-                <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded {% if request.endpoint == 'home' %}active bg-body-secondary text-dark fw-medium{% else %}text-secondary{% endif %}"
-                       href="{{ url_for('home') }}"
-                       {% if request.endpoint == 'home' %}aria-current="page"{% endif %}>
-                        <i class="bi bi-house-door"></i>
-                        Home
-                    </a>
-                </li>
 
                 {% if current_user.is_authenticated %}
                     {% for name, link, sub_items, role in menu_bar_items %}

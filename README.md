@@ -124,12 +124,11 @@ cd ../../../
 
 ### Configuration
 
-The setup script automatically creates `elixir_dss/settings.py` and `.env` files. For manual configuration:
+The setup script automatically creates `.env` file. For manual configuration:
 
 **1. Create settings file:**
 ```bash
-cp elixir_dss/settings.py.template elixir_dss/settings.py
-cp .env.template .env  # Optional
+cp .env.template .env
 ```
 
 **2. Database:** SQLite is configured by default (no setup needed)
@@ -149,7 +148,6 @@ os.urandom(24)
 The `./setup_dev.sh` script handles this automatically. For manual setup:
 
 ```bash
-export FLASK_APP=elixir_dss
 ./manage.py init-db              # Initialize DB with default data
 ./manage.py load-demo-users      # Create demo users
 ```

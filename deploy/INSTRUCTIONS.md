@@ -75,10 +75,10 @@ pip install gunicorn
 ## Configure Project
 
 ```bash
-cp elixir_dss/settings.py.template elixir_dss/settings.py
+cp elixir_dss/.env.template elixir_dss/.env
 ```
 
-Edit settings.py as necessary. Set `elixir_dss_ENV` to 'prod'.
+Edit .env as necessary. Set `ELIXIR_DSS_ENV` to 'prod'.
 
 Initialize the database to add the admin user and basic lookup values.
 
