@@ -10,7 +10,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 APP_DATA_BASE_DIR = os.path.abspath(os.path.join(basedir, "../../app-data"))
 
 # Load environment variable
-elixir_dss_ENV = os.environ.get("ELIXIR_DSS_ENV")
+ELIXIR_DSS_ENV = os.environ.get("ELIXIR_DSS_ENV")
 
 # Above command does not work on the deployment server CentOS, so when deploying use below
 # APP_DATA_BASE_DIR = '/home/elixirdcp/app-data'
