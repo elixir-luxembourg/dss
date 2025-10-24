@@ -62,7 +62,8 @@ dev = [
 test = [
     "coverage",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "factory-boy>=3.3.3",
 ]
 
 [project.urls]
