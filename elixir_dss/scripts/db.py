@@ -188,6 +188,13 @@ START_UP_DATA = {
             "acronym": "Lih",
         },
     ],
+    "projects": [
+        {
+            "external_id": "ELU_P_1",
+            "name": "HELP-PD",
+            "acronym": "HELP-PD",
+        }
+    ],
     "lcsb_pis": [
         "Reinhard Schneider",
         "Enrico Glaab",

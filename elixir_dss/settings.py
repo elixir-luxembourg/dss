@@ -52,6 +52,7 @@ class Config(object):
     )
     DAISY_USE = os.environ.get("DAISY_USE", "").lower() == "true"
     DAISY_URL = os.environ.get("DAISY_URL")
+    DAISY_API_KEY = os.environ.get("DAISY_API_KEY")
 
     AUTHENTICATION_METHOD = os.environ.get("AUTHENTICATION_METHOD")
     # a dict containing user and password items for CONFIG based authentication
@@ -138,3 +139,7 @@ class TestConfig(Config):
     TESTING = True
     CACHE_CONFIG = {"CACHE_TYPE": "null"}
     WTF_CSRF_ENABLED = False
+
+    DAISY_USE = True
+    DAISY_URL = "https://test-daisy.example.com"
+    DAISY_API_KEY = "test_api_key"
