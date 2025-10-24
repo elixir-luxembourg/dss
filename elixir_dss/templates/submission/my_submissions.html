@@ -6,6 +6,55 @@
     {% assets "submission_listing_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
+
+    <script>
+        let submissionId = null;
+
+        document.getElementById('cloneModal').addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            submissionId = button.getAttribute('data-submission-id');
+
+            // initialise
+            const studiesCheckbox = document.getElementById('clone_studies');
+            const datasetsCheckbox = document.getElementById('clone_datasets');
+            const datasetsLabel = document.querySelector('label[for="clone_datasets"]');
+
+            studiesCheckbox.checked = true;
+            datasetsCheckbox.checked = true;
+            datasetsCheckbox.disabled = false;
+            datasetsLabel.classList.remove('text-muted');
+        });
+
+        // Handle "Studies" checkbox toggle
+        document.getElementById('clone_studies').addEventListener('change', event => {
+            const datasetsCheckbox = document.getElementById('clone_datasets');
+            const datasetsLabel = document.querySelector('label[for="clone_datasets"]');
+
+            if (!event.target.checked) {
+                datasetsCheckbox.checked = false;
+                datasetsCheckbox.disabled = true;
+                datasetsLabel.classList.add('text-muted');
+            } else {
+                datasetsCheckbox.disabled = false;
+                datasetsCheckbox.checked = true;
+                datasetsLabel.classList.remove('text-muted');
+            }
+        });
+
+        // click event
+        document.getElementById('confirmCloneBtn').addEventListener('click', () => {
+            const cloneStudies = document.getElementById('clone_studies').checked;
+            const cloneDatasets = document.getElementById('clone_datasets').checked;
+
+            const query = new URLSearchParams({
+                clone_studies: cloneStudies,
+                clone_datasets: cloneDatasets
+            }).toString();
+
+            window.location.href = `/submission/clone/${submissionId}?${query}`;
+        });
+    </script>
+
 {% endblock %}
 {% block content %}
     <div class="card shadow-sm p-4 mb-4">
@@ -69,6 +118,13 @@
                                             </li>
                                         </ul>
                                     </div>
+                                    <a href="#" class="btn btn-outline-primary btn-sm"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#cloneModal"
+                                       data-submission-id="{{ submission.id }}">
+                                        <i class="bi bi-files"></i> Clone
+                                    </a>
+
                                 </div>
                             </td>
                         </tr>
@@ -83,5 +139,36 @@
             </div>
         {% endif %}
     </div>
+
+
+    <!-- Clone Confirmation Modal -->
+    <div class="modal fade" id="cloneModal" tabindex="-1" aria-labelledby="cloneModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cloneModalLabel">Clone Submission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p>Do you want to also clone:</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="clone_studies" checked>
+                        <label class="form-check-label" for="clone_studies">Studies</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="clone_datasets" checked>
+                        <label class="form-check-label" for="clone_datasets">Data declarations</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn bg-transparent text-primary border-primary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmCloneBtn">Confirm Clone</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 {% endblock %}

@@ -2,7 +2,7 @@ import enum
 import json
 import os
 
-from sqlalchemy import Sequence
+from sqlalchemy import Sequence, inspect
 
 from elixir_dss import app, db
 from elixir_dss.controllers.api_controllers import get_elu_partners
@@ -270,6 +270,13 @@ class Contact(db.Model):
         }
         return base_dict
 
+    def clone(self, **overrides):
+        mapper = inspect(self.__class__)
+        exclude = {"id", "submission_id", "study_id"}
+        attrs = {c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude}
+        attrs.update(overrides)
+        return self.__class__(**attrs)
+
 
 class SubmissionMessage(db.Model):
     __tablename__ = "submission_message"
@@ -326,6 +333,13 @@ class SubmissionStudy(db.Model):
             "ethics_approval_no": self.ethics_approval_no,
         }
         return base_dict
+
+    def clone(self, **overrides):
+        mapper = inspect(self.__class__)
+        exclude = {"id", "submission_id"}
+        attrs = {c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude}
+        attrs.update(overrides)
+        return self.__class__(**attrs)
 
 
 class SubmissionDataset(db.Model):
@@ -481,6 +495,13 @@ class SubmissionDataset(db.Model):
             "consent_notes": self.consent_notes,
         }
         return base_dict
+
+    def clone(self, **overrides):
+        mapper = inspect(self.__class__)
+        exclude = {"id"}
+        attrs = {c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude}
+        attrs.update(overrides)
+        return self.__class__(**attrs)
 
 
 class SubmissionAccess(db.Model):

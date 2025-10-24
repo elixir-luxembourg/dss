@@ -9,7 +9,7 @@ from elixir_dss.models.services import (
     deactivate_user,
     delete_sub,
     register_new_user,
-    update_submission_basic_info,
+    update_submission_basic_info, clone_sub,
 )
 from elixir_dss.models.submission import (
     Contact,
@@ -268,3 +268,61 @@ class ModelPersistenceTest(BaseTest):
         exporter = SubmissionExporter()
         exp = exporter.export_submission(submission_rec)
         print(json.dumps(exp, indent=4))
+
+    def test_clone_submission_basic(self):
+        original = create_sub("Brain Study", "ELU_I_11")
+        db.session.add(original)
+        db.session.commit()
+
+        clone = clone_sub(original.id)
+
+        # Assert new object is distinct
+        self.assertNotEqual(original.id, clone.id)
+        self.assertTrue(clone.title.startswith("Brain Study"))
+        self.assertIn("(Clone", clone.title)
+
+        self.assertEqual(clone.current_status, SubmissionStatusEnum.in_progress_metadata)
+
+        self.assertEqual(len(clone.submission_contacts), 0)
+        self.assertEqual(len(clone.datadecs), 0)
+        self.assertEqual(len(clone.studies), 0)
+        self.assertFalse(clone.exported)
+
+        # Db contains two submissions
+        subs = Submission.query.all()
+        self.assertEqual(2, len(subs))
+
+    def test_clone_with_studies_and_datasets(self):
+        sub = create_sub("Genomics Study", "ELU_I_77")
+        db.session.add(sub)
+        db.session.commit()
+
+        # Add study + data declaration
+        study = SubmissionStudy(
+            submission_id=sub.id,
+            name="Study 1",
+            description="Genomics cohort",
+            ethics_approval_exists=True,
+            study_types_json=json.dumps(["Observational"]),
+        )
+        db.session.add(study)
+        db.session.commit()
+
+        datadec = SubmissionDataDeclaration(
+            submission_id=sub.id,
+            study_id=study.id,
+            title="Data declaration 1",
+            gdpr_datatypes_json=json.dumps(["personal"]),
+            sci_datatypes_json=json.dumps(["RNASeq"]),
+        )
+        db.session.add(datadec)
+        db.session.commit()
+
+        clone = clone_sub(sub.id, clone_studies=True, clone_datasets=True)
+        db.session.commit()
+
+        self.assertEqual(len(clone.studies), 1)
+        self.assertEqual(len(clone.datadecs), 1)
+        self.assertEqual(clone.datadecs[0].title, "Data declaration 1")
+        self.assertNotEqual(clone.datadecs[0].id, datadec.id)
+        self.assertNotEqual(clone.studies[0].id, study.id)
