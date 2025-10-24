@@ -87,22 +87,19 @@ def edit_user(user_id):
 @login_required
 def logout():
     method = app.config.get("AUTHENTICATION_METHOD", "CONFIG")
-
-    if method == "CONFIG":
-        logout_user()
-        flash("You have logged out of Submission System.", "success")
-        return render_template("home.html")
-
     id_token = session.get("oidc_id_token")
+    session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
 
+    logout_user()
     session.clear()
     session.permanent = False
 
-    logout_user()
+    if method == "CONFIG" or not id_token:
+        redirect_url = url_for("home")
+    else:
+        redirect_url = _keycloak_logout_url(id_token)
 
-    response = make_response(redirect(_keycloak_logout_url(id_token)))
-
-    session_cookie_name = app.config.get("SESSION_COOKIE_NAME", "session")
+    response = make_response(redirect(redirect_url))
     response.set_cookie(session_cookie_name, "", expires=0, path="/", httponly=True)
     response.set_cookie("remember_token", "", expires=0, path="/", httponly=True)
 
@@ -140,6 +137,9 @@ def auth_callback():
     first_name, last_name = (name.split(" ", 1) + [""])[:2]
 
     user = User.query.filter_by(elixir_sub_id=sub).first()
+    if not user and email:
+        user = User.query.filter_by(email=email).first()
+
     if not user:
         user = User(
             elixir_sub_id=sub,
@@ -216,14 +216,11 @@ def _clear_session():
     return response
 
 
-def _keycloak_logout_url(id_token: str | None):
+def _keycloak_logout_url(id_token: str):
     """Construct Keycloak logout URL."""
     base = f"{app.config['OIDC_AUTHORITY']}/protocol/openid-connect/logout"
     redirect_uri = url_for("home", _external=True)
-    params = f"?post_logout_redirect_uri={redirect_uri}"
-    if id_token:
-        params += f"&id_token_hint={id_token}"
-    return f"{base}{params}"
+    return f"{base}?post_logout_redirect_uri={redirect_uri}&id_token_hint={id_token}"
 
 
 def landing_page_for_user(usr):
