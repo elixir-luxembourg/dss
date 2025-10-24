@@ -54,7 +54,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --system -e .[dev]
+          uv pip install --system -e .[test]
           npm install -g less
           cd elixir_dss/static/vendor
           npm ci
