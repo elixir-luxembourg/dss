@@ -491,6 +491,7 @@ def edit_submission(sub_id):
                 "submission/submission_form.html", submsn_form=form
             ), 400
 
+
 @app.route("/submission/clone/<int:submission_id>")
 @login_required
 def clone_submission(submission_id):
@@ -505,7 +506,6 @@ def clone_submission(submission_id):
 
     flash(f"Submission {new_sub.ref_name} cloned successfully.", "success")
     return redirect(url_for("view_submission", sub_id=new_sub.id))
-
 
 
 """-------------------------------------------------------"""

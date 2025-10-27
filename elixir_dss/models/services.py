@@ -312,6 +312,7 @@ def update_user_info(usr: User, **kwargs):
     db.session.add(usr)
     db.session.commit()
 
+
 def clone_sub(original_submission_id: int, clone_title_suffix=" (Clone)", clone_studies=True, clone_datasets=True) -> Submission:
     """
     Deep-clone a submission's metadata into a new submission.
@@ -326,19 +327,14 @@ def clone_sub(original_submission_id: int, clone_title_suffix=" (Clone)", clone_
     base_title = f"{old_sub.title}{clone_title_suffix}"
 
     # existing clones with the same base title
-    existing_clones = Submission.query.filter(
-    Submission.title.like(f"{base_title}%")
-    ).count()
+    existing_clones = Submission.query.filter(Submission.title.like(f"{base_title}%")).count()
     if existing_clones > 0:
         title = f"{base_title} {existing_clones + 1}"
     else:
         title = base_title
 
     # create new submission
-    new_sub = create_sub(
-    title=title,
-    institute_accession=old_sub.institution_accession,
-    )
+    new_sub = create_sub(title=title, institute_accession=old_sub.institution_accession)
 
     # copy basic fields
     new_sub.submission_scope_code = old_sub.submission_scope_code
@@ -378,15 +374,11 @@ def clone_sub(original_submission_id: int, clone_title_suffix=" (Clone)", clone_
                 new_sc = sc.clone(submission_id=new_sub.id, study_id=new_s.id)
                 db.session.add(new_sc)
 
-
     # clone data declarations if selected
     if clone_datasets and clone_studies:
         old_datadecs = SubmissionDataDeclaration.query.filter_by(submission_id=old_sub.id).all()
         for d in old_datadecs:
-            new_d = d.clone(
-                submission_id=new_sub.id,
-                study_id=study_id_map.get(d.study_id) if d.study_id else None
-            )
+            new_d = d.clone(submission_id=new_sub.id, study_id=study_id_map.get(d.study_id) if d.study_id else None)
             db.session.add(new_d)
 
     # clone access (users)
