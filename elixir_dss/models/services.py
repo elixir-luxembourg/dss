@@ -14,7 +14,10 @@ from elixir_dss.models.submission import (
     Submission,
     SubmissionAccess,
     SubmissionMessage,
-    SubmissionStatusEnum, Contact, SubmissionStudy, SubmissionDataDeclaration,
+    SubmissionStatusEnum,
+    Contact,
+    SubmissionStudy,
+    SubmissionDataDeclaration,
 )
 
 
@@ -313,7 +316,12 @@ def update_user_info(usr: User, **kwargs):
     db.session.commit()
 
 
-def clone_sub(original_submission_id: int, clone_title_suffix=" (Clone)", clone_studies=True, clone_datasets=True) -> Submission:
+def clone_sub(
+    original_submission_id: int,
+    clone_title_suffix=" (Clone)",
+    clone_studies=True,
+    clone_datasets=True,
+) -> Submission:
     """
     Deep-clone a submission's metadata into a new submission.
     - new submission is set to in_progress_metadata (form-filling phase).
@@ -327,7 +335,9 @@ def clone_sub(original_submission_id: int, clone_title_suffix=" (Clone)", clone_
     base_title = f"{old_sub.title}{clone_title_suffix}"
 
     # existing clones with the same base title
-    existing_clones = Submission.query.filter(Submission.title.like(f"{base_title}%")).count()
+    existing_clones = Submission.query.filter(
+        Submission.title.like(f"{base_title}%")
+    ).count()
     if existing_clones > 0:
         title = f"{base_title} {existing_clones + 1}"
     else:
@@ -376,9 +386,14 @@ def clone_sub(original_submission_id: int, clone_title_suffix=" (Clone)", clone_
 
     # clone data declarations if selected
     if clone_datasets and clone_studies:
-        old_datadecs = SubmissionDataDeclaration.query.filter_by(submission_id=old_sub.id).all()
+        old_datadecs = SubmissionDataDeclaration.query.filter_by(
+            submission_id=old_sub.id
+        ).all()
         for d in old_datadecs:
-            new_d = d.clone(submission_id=new_sub.id, study_id=study_id_map.get(d.study_id) if d.study_id else None)
+            new_d = d.clone(
+                submission_id=new_sub.id,
+                study_id=study_id_map.get(d.study_id) if d.study_id else None,
+            )
             db.session.add(new_d)
 
     # clone access (users)

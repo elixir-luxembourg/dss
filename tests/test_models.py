@@ -9,7 +9,8 @@ from elixir_dss.models.services import (
     deactivate_user,
     delete_sub,
     register_new_user,
-    update_submission_basic_info, clone_sub,
+    update_submission_basic_info,
+    clone_sub,
 )
 from elixir_dss.models.submission import (
     Contact,
@@ -281,7 +282,9 @@ class ModelPersistenceTest(BaseTest):
         self.assertTrue(clone.title.startswith("Brain Study"))
         self.assertIn("(Clone", clone.title)
 
-        self.assertEqual(clone.current_status, SubmissionStatusEnum.in_progress_metadata)
+        self.assertEqual(
+            clone.current_status, SubmissionStatusEnum.in_progress_metadata
+        )
 
         self.assertEqual(len(clone.submission_contacts), 0)
         self.assertEqual(len(clone.datadecs), 0)

@@ -33,7 +33,8 @@ from elixir_dss.models.services import (
     send_new_message_notification,
     steer_sub,
     update_submission_basic_info,
-    update_user_info, clone_sub,
+    update_user_info,
+    clone_sub,
 )
 from elixir_dss.models.submission import (
     Contact,
