@@ -5,17 +5,39 @@
     <div class="position-relative mb-5 overflow-hidden rounded-3 bg-primary">
         <div class="position-relative p-5 text-white text-center" style="z-index: 1;">
             <div class="mb-2">
-                <span class="badge bg-white bg-opacity-25 text-white px-3 py-2">ELIXIR Luxembourg × LCSB</span>
+                <span class="badge bg-white bg-opacity-25 text-white">
+                    <i class="bi bi-database-fill fs-1"></i>
+                </span>
             </div>
             <h1 class="display-4 fw-bold mb-3">Data Submission System</h1>
             <p class="lead mb-4 opacity-90" style="max-width: 650px; margin: 0 auto;">
                 Securely submit research data through our guided, collaborative workflow
             </p>
-            <a href="https://perun.elixir-czech.cz/fed/registrar/?vo=elixir"
-               target="_blank"
-               class="btn btn-light btn-lg px-5 fw-semibold">
-                Start Your Submission
-            </a>
+            {% if current_user.is_authenticated %}
+                {% set user_roles = current_user.assigned_roles | map(attribute='name') | list %}
+                {% if 'data_provider' in user_roles %}
+                    <a href="{{ url_for('list_my_submissions') }}"
+                       class="btn btn-light btn-lg px-5 fw-semibold">
+                        View My Submissions
+                    </a>
+                {% elif 'data_steward' in user_roles %}
+                    <a href="{{ url_for('submissions') }}"
+                       class="btn btn-light btn-lg px-5 fw-semibold">
+                        View Submissions
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('home') }}"
+                       class="btn btn-light btn-lg px-5 fw-semibold">
+                        Home
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('login') }}"
+                   class="btn btn-light btn-lg px-5 fw-semibold">
+                    Sign In
+                </a>
+            {% endif %}
+
         </div>
     </div>
 
@@ -41,14 +63,14 @@
                             </div>
                             <h3 class="h5 fw-bold mb-2">Initiation</h3>
                             <p class="text-secondary mb-0">
-                                Our Data Steward creates a personalized submission form and sends you an email invitation to begin.
+                                Our Data Steward creates a personalized submission form and sends you an email invitation to start the process.
                             </p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
                     <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
-                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1;">
+                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1; top: -15px; left: -6px;">
                         1
                     </div>
                 </div>
@@ -62,15 +84,10 @@
                             <div class="mb-2">
                                 <span class="badge bg-success">Submitter</span>
                             </div>
-                            <h3 class="h5 fw-bold mb-2">Metadata Entry</h3>
-                            <p class="text-secondary mb-2">
-                                Describe your research by completing metadata forms:
+                            <h3 class="h5 fw-bold mb-2">Metadata Submission</h3>
+                            <p class="text-secondary mb-0">
+                                Describe your research by providing study information, dataset description, and related metadata using guided forms.
                             </p>
-                            <ul class="small text-secondary mb-0 ps-3">
-                                <li>Provide contact points and general submission details</li>
-                                <li>Add study information (single or multiple studies)</li>
-                                <li>Provide detailed dataset descriptions</li>
-                            </ul>
                         </div>
                     </div>
                 </div>
@@ -90,16 +107,16 @@
                             <div class="mb-2">
                                 <span class="badge" style="background-color: #667eea;">Data Steward</span>
                             </div>
-                            <h3 class="h5 fw-bold mb-2">Metadata Review</h3>
+                            <h3 class="h5 fw-bold mb-2">Metadata Approval</h3>
                             <p class="text-secondary mb-0">
-                                The Data Steward carefully reviews metadata for quality, completeness, and compliance and verifies contract is in place before approval.
+                                Our Data Steward reviews submitted metadata for completeness and compliance before approval.
                             </p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
-                    <div class="bg-primary rounded-circle text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
-                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1;">
+                    <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
+                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1; left: -6px;">
                         3
                     </div>
                 </div>
@@ -113,9 +130,9 @@
                             <div class="mb-2">
                                 <span class="badge bg-success">Submitter</span>
                             </div>
-                            <h3 class="h5 fw-bold mb-2">Data Upload</h3>
+                            <h3 class="h5 fw-bold mb-2">Dataset Upload</h3>
                             <p class="text-secondary mb-0">
-                                Once your metadata is approved, securely upload your dataset files to provided upload zone.
+                                Once approved, securely upload your dataset files to the provided upload zone.
                             </p>
                         </div>
                     </div>
@@ -129,8 +146,31 @@
             </div>
 
             <!-- Step 5 -->
-            <div class="row position-relative">
+            <div class="row mb-2 position-relative">
                 <div class="col-md-6 text-md-end pe-md-5 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-2">
+                                <span class="badge" style="background-color: #667eea;">Data Steward</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Data Approval</h3>
+                            <p class="text-secondary mb-0">
+                                The Data Steward verifies uploaded files, ensuring integrity and correctness before final approval.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
+                    <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
+                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1; left: -6px;">
+                        5
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="row position-relative">
+                <div class="col-md-6 order-md-2 ps-md-5 mb-3 mb-md-0">
                     <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);">
                         <div class="card-body p-4">
                             <h3 class="h5 fw-bold mb-2">
@@ -143,7 +183,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
+                <div class="col-md-6 order-md-1 d-flex align-items-center justify-content-md-end justify-content-center">
                     <div class="rounded-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
                          style="width: 70px; height: 70px; font-size: 1.8rem; z-index: 1;">
                         ✓
@@ -151,7 +191,9 @@
                 </div>
             </div>
 
+
         </div>
+
     </div>
 
     <!-- Info boxes -->
@@ -166,9 +208,9 @@
                     </div>
                     <h3 class="h5 fw-bold mb-3">Quick Start</h3>
                     <p class="text-secondary mb-3">
-                        New to the system? Register with ELIXIR AAI using your institutional, Google, or ORCID account.
+                        New to the system? Register now or contact our data steward.
                     </p>
-                    <a href="https://perun.elixir-czech.cz/fed/registrar/?vo=elixir"
+                    <a href="#"
                        target="_blank"
                        class="btn btn-primary">
                         Register Now
