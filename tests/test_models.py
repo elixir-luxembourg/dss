@@ -16,7 +16,7 @@ from elixir_dss.models.submission import (
     ContactType,
     Submission,
     SubmissionAccess,
-    SubmissionDataDeclaration,
+    SubmissionDataset,
     SubmissionScope,
     SubmissionStatusEnum,
     SubmissionStudy,
@@ -92,7 +92,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertFalse(sub.is_in_progress())
         self.assertEqual(0, len(sub.submission_accesses))
         self.assertEqual(0, len(sub.studies))
-        self.assertEqual(0, len(sub.datadecs))
+        self.assertEqual(0, len(sub.datasets))
         self.assertEqual(0, len(sub.provider_user_names()))
         self.assertFalse(sub.has_providers())
 
@@ -216,33 +216,33 @@ class ModelPersistenceTest(BaseTest):
         db.session.add(study_rec)
         db.session.commit()
 
-        datadec_rec = SubmissionDataDeclaration()
-        datadec_rec.submission_id = submission_rec.id
-        datadec_rec.study_id = study_rec.id
-        datadec_rec.title = "Test datadec 1"
+        dataset_rec = SubmissionDataset()
+        dataset_rec.submission_id = submission_rec.id
+        dataset_rec.study_id = study_rec.id
+        dataset_rec.title = "Test dataset 1"
 
-        datadec_rec.sci_datatypes_json = json.dumps(
+        dataset_rec.sci_datatypes_json = json.dumps(
             ["Genomics_variant_array", "RNASeq"]
         )
-        datadec_rec.gdpr_datatypes_json = json.dumps(["standard", "ethnic"])
-        datadec_rec.subjects_minors = True
-        datadec_rec.subjects_notes = "mothers and babies"
-        datadec_rec.consent_notes = "Consent is consistent among all subjects"
+        dataset_rec.gdpr_datatypes_json = json.dumps(["standard", "ethnic"])
+        dataset_rec.subjects_minors = True
+        dataset_rec.subjects_notes = "mothers and babies"
+        dataset_rec.consent_notes = "Consent is consistent among all subjects"
 
-        db.session.add(datadec_rec)
+        db.session.add(dataset_rec)
         db.session.commit()
 
-        datadec_rec2 = SubmissionDataDeclaration()
-        datadec_rec2.submission_id = submission_rec.id
-        datadec_rec2.study_id = study_rec.id
-        datadec_rec2.title = "Test datadec 2"
+        dataset_rec2 = SubmissionDataset()
+        dataset_rec2.submission_id = submission_rec.id
+        dataset_rec2.study_id = study_rec.id
+        dataset_rec2.title = "Test dataset 2"
 
-        datadec_rec2.sci_datatypes_json = json.dumps(["Transcriptome_array", "RNASeq"])
-        datadec_rec2.gdpr_datatypes_json = json.dumps(["standard", "ethnic"])
-        datadec_rec2.consent_status_code = "ht"
-        datadec_rec2.consent_notes = "There are three primary consent groups"
+        dataset_rec2.sci_datatypes_json = json.dumps(["Transcriptome_array", "RNASeq"])
+        dataset_rec2.gdpr_datatypes_json = json.dumps(["standard", "ethnic"])
+        dataset_rec2.consent_status_code = "ht"
+        dataset_rec2.consent_notes = "There are three primary consent groups"
 
-        db.session.add(datadec_rec2)
+        db.session.add(dataset_rec2)
         db.session.commit()
 
         # a_rec = SubmissionAttachment()

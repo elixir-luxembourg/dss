@@ -40,7 +40,7 @@ from elixir_dss.models.submission import (
     EmailNotification,
     Submission,
     SubmissionAttachment,
-    SubmissionDataDeclaration,
+    SubmissionDataset,
     SubmissionMessage,
     SubmissionStudy,
 )
@@ -599,20 +599,20 @@ def delete_submission_attachment(attach_id):
 
 
 """----------------------------------------------------"""
-"""AJAX Endpoints for managing a Submission's datadecs."""
+"""AJAX Endpoints for managing a Submission's datasets."""
 """----------------------------------------------------"""
 #
 #
-# @app.route('/submission_datadecs/<int:sub_id>', methods=['GET'])
+# @app.route('/submission_datasets/<int:sub_id>', methods=['GET'])
 # @app_authorization(allowed_roles=['admin', 'data_provider'],
 #                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
 #                                          'entity_ac_attribute': 'id'})
-# def list_submission_datadecs(sub_id):
+# def list_submission_datasets(sub_id):
 #     submission_rec = Submission.query.get_or_404(sub_id)
-#     return render_template('submission/_datadec_columns.html', submission=submission_rec)
+#     return render_template('submission/_dataset_columns.html', submission=submission_rec)
 
 
-@app.route("/submission_datadec_add/<int:sub_id>", methods=["GET", "POST"])
+@app.route("/submission_dataset_add/<int:sub_id>", methods=["GET", "POST"])
 @app_authorization(
     allowed_roles=["admin", "data_provider"],
     record_authorization={
@@ -621,106 +621,106 @@ def delete_submission_attachment(attach_id):
         "entity_ac_attribute": "id",
     },
 )
-def add_submission_datadec(sub_id):
+def add_submission_dataset(sub_id):
     if request.method == "GET":
         return render_template(
-            "submission/datadec_form.html",
-            datadec_form=forms.DatadecForm(formdata=None, obj=None, sub_id=sub_id),
+            "submission/dataset_form.html",
+            dataset_form=forms.datasetForm(formdata=None, obj=None, sub_id=sub_id),
         ), 200
     elif request.method == "POST":
-        posted_form = forms.DatadecForm(request.form)
+        posted_form = forms.datasetForm(request.form)
         if (
             posted_form.validate_on_submit()
             and int(posted_form.submission_id.data) == sub_id
         ):
-            datadec_rec = SubmissionDataDeclaration()
-            posted_form.populate_obj(datadec_rec)
-            datadec_rec.id = None
+            dataset_rec = SubmissionDataset()
+            posted_form.populate_obj(dataset_rec)
+            dataset_rec.id = None
             if posted_form.sci_datatypes.data:
-                datadec_rec.sci_datatypes_json = json.dumps(
+                dataset_rec.sci_datatypes_json = json.dumps(
                     posted_form.sci_datatypes.data
                 )
             if posted_form.gdpr_datatypes.data:
-                datadec_rec.gdpr_datatypes_json = json.dumps(
+                dataset_rec.gdpr_datatypes_json = json.dumps(
                     posted_form.gdpr_datatypes.data
                 )
-            db.session.add(datadec_rec)
+            db.session.add(dataset_rec)
             db.session.commit()
-            flash("Data declaration added", "success")
+            flash("Data set added", "success")
             return redirect(
-                url_for("view_submission", sub_id=datadec_rec.submission_id)
+                url_for("view_submission", sub_id=dataset_rec.submission_id)
             )
         else:
             return render_template(
-                "submission/datadec_form.html", datadec_form=posted_form
+                "submission/dataset_form.html", dataset_form=posted_form
             ), 400
 
 
-@app.route("/submission_datadec/<int:datadec_id>", methods=["GET", "POST"])
+@app.route("/submission_dataset/<int:dataset_id>", methods=["GET", "POST"])
 @app_authorization(
     allowed_roles=["admin", "data_provider"],
     record_authorization={
-        "entity": "SubmissionDataDeclaration",
-        "entity_id_key": "datadec_id",
+        "entity": "SubmissionDataset",
+        "entity_id_key": "dataset_id",
         "entity_ac_attribute": "submission_id",
     },
 )
-def edit_submission_datadec(datadec_id):
+def edit_submission_dataset(dataset_id):
     if request.method == "GET":
-        datadec_rec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
-        result_form = forms.DatadecForm(obj=datadec_rec)
-        if datadec_rec.sci_datatypes_json:
-            result_form.sci_datatypes.data = json.loads(datadec_rec.sci_datatypes_json)
-        if datadec_rec.gdpr_datatypes_json:
+        dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
+        result_form = forms.datasetForm(obj=dataset_rec)
+        if dataset_rec.sci_datatypes_json:
+            result_form.sci_datatypes.data = json.loads(dataset_rec.sci_datatypes_json)
+        if dataset_rec.gdpr_datatypes_json:
             result_form.gdpr_datatypes.data = json.loads(
-                datadec_rec.gdpr_datatypes_json
+                dataset_rec.gdpr_datatypes_json
             )
         return render_template(
-            "submission/datadec_form.html", datadec_form=result_form
+            "submission/dataset_form.html", dataset_form=result_form
         ), 200
     elif request.method == "POST":
-        posted_form = forms.DatadecForm(request.form)
+        posted_form = forms.datasetForm(request.form)
         if posted_form.validate_on_submit():
-            datadec_rec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
-            posted_form.populate_obj(datadec_rec)
+            dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
+            posted_form.populate_obj(dataset_rec)
 
             if posted_form.sci_datatypes.data:
-                datadec_rec.sci_datatypes_json = json.dumps(
+                dataset_rec.sci_datatypes_json = json.dumps(
                     posted_form.sci_datatypes.data
                 )
 
             if posted_form.gdpr_datatypes.data:
-                datadec_rec.gdpr_datatypes_json = json.dumps(
+                dataset_rec.gdpr_datatypes_json = json.dumps(
                     posted_form.gdpr_datatypes.data
                 )
 
-            db.session.add(datadec_rec)
+            db.session.add(dataset_rec)
             db.session.commit()
-            flash("Data declaration updated", "success")
+            flash("Data set updated", "success")
             return redirect(
-                url_for("view_submission", sub_id=datadec_rec.submission_id)
+                url_for("view_submission", sub_id=dataset_rec.submission_id)
             )
         else:
             return render_template(
-                "submission/datadec_form.html", datadec_form=posted_form
+                "submission/dataset_form.html", dataset_form=posted_form
             ), 400
 
 
-@app.route("/submission_datadec_delete/<int:datadec_id>", methods=["GET"])
+@app.route("/submission_dataset_delete/<int:dataset_id>", methods=["GET"])
 @app_authorization(
     allowed_roles=["admin", "data_provider"],
     record_authorization={
-        "entity": "SubmissionDataDeclaration",
-        "entity_id_key": "datadec_id",
+        "entity": "SubmissionDataset",
+        "entity_id_key": "dataset_id",
         "entity_ac_attribute": "submission_id",
     },
 )
-def delete_submission_datadec(datadec_id):
-    datadec = SubmissionDataDeclaration.query.get_or_404(datadec_id)
-    db.session.delete(datadec)
+def delete_submission_dataset(dataset_id):
+    dataset = SubmissionDataset.query.get_or_404(dataset_id)
+    db.session.delete(dataset)
     db.session.commit()
-    flash("Data declaration deleted", "success")
-    return redirect(url_for("view_submission", sub_id=datadec.submission_id))
+    flash("Data set deleted", "success")
+    return redirect(url_for("view_submission", sub_id=dataset.submission_id))
 
 
 """----------------------------------------------------"""

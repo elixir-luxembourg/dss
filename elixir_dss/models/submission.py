@@ -159,8 +159,8 @@ class Submission(db.Model):
 
     studies = db.relationship("SubmissionStudy", cascade="all, delete-orphan")
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
-    datadecs = db.relationship(
-        "SubmissionDataDeclaration", cascade="all, delete-orphan"
+    datasets = db.relationship(
+        "SubmissionDataset", cascade="all, delete-orphan"
     )
     messages = db.relationship("SubmissionMessage", cascade="all, delete-orphan")
 
@@ -225,7 +225,7 @@ class Submission(db.Model):
         return self.title and self.submission_contacts
 
     def is_detail_info_complete(self):
-        return self.studies and self.datadecs
+        return self.studies and self.datasets
 
     def to_dict(self):
         base_dict = {
@@ -330,8 +330,8 @@ class SubmissionStudy(db.Model):
         return base_dict
 
 
-class SubmissionDataDeclaration(db.Model):
-    __tablename__ = "submission_datadecs"
+class SubmissionDataset(db.Model):
+    __tablename__ = "submission_dataset"
 
     # Data
     id = db.Column(db.Integer, primary_key=True)

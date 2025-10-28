@@ -4,8 +4,8 @@ import re
 from io import StringIO
 
 from elixir_dss import app, db
-from elixir_dss.forms.submissions_forms import Contact, DatadecForm
-from elixir_dss.models.submission import Submission, SubmissionDataDeclaration
+from elixir_dss.forms.submissions_forms import Contact, datasetForm
+from elixir_dss.models.submission import Submission, SubmissionDataset
 
 
 class SubmissionExporter:
@@ -130,7 +130,7 @@ class SubmissionExporter:
 
         sub_info["studies"] = self.export_studies(sub)
 
-        sub_info["data_declarations"] = self.export_datadecs(sub)
+        sub_info["data_declarations"] = self.export_datasets(sub)
 
         sub_info["legal_bases"] = self.export_legal_bases(sub)
 
@@ -138,83 +138,83 @@ class SubmissionExporter:
 
         return sub_info
 
-    def export_datadecs(self, sub: Submission):
-        datadec_list = []
+    def export_datasets(self, sub: Submission):
+        dataset_list = []
 
-        for datadec in sub.datadecs:
-            datadec_info = {}
+        for dataset in sub.datasets:
+            dataset_info = {}
 
-            datadec_info["title"] = datadec.title
+            dataset_info["title"] = dataset.title
 
-            datadec_info["use_restrictions"] = self.export_datadec_restrictions(datadec)
+            dataset_info["use_restrictions"] = self.export_dataset_restrictions(dataset)
 
-            if datadec.restriction_ts_lcsb:
-                datadec_info["storage_end_date"] = datadec.restriction_ts_lcsb_notes
+            if dataset.restriction_ts_lcsb:
+                dataset_info["storage_end_date"] = dataset.restriction_ts_lcsb_notes
 
-            datadec_info["source_study"] = datadec.study.name
-            datadec_info["legal_basis_data_collection_std"] = (
-                datadec.legal_basis_collection_std.label
+            dataset_info["source_study"] = dataset.study.name
+            dataset_info["legal_basis_data_collection_std"] = (
+                dataset.legal_basis_collection_std.label
             )
-            datadec_info["legal_basis_data_sharing_std"] = (
-                datadec.legal_basis_sharing_std.label
+            dataset_info["legal_basis_data_sharing_std"] = (
+                dataset.legal_basis_sharing_std.label
             )
-            datadec_info["legal_basis_data_collection_spec"] = (
-                datadec.legal_basis_collection_std.label
+            dataset_info["legal_basis_data_collection_spec"] = (
+                dataset.legal_basis_collection_std.label
             )
-            datadec_info["legal_basis_data_sharing_spec"] = (
-                datadec.legal_basis_sharing_std.label
+            dataset_info["legal_basis_data_sharing_spec"] = (
+                dataset.legal_basis_sharing_std.label
             )
-            datadec_info["legal_basis_notes"] = datadec.legal_basis_notes
+            dataset_info["legal_basis_notes"] = dataset.legal_basis_notes
 
-            if datadec.dac_approval_required:
-                if datadec.access_form_required:
-                    datadec_info["access_category"] = "open-access"
-                    datadec_info["access_procedure"] = (
+            if dataset.dac_approval_required:
+                if dataset.access_form_required:
+                    dataset_info["access_category"] = "open-access"
+                    dataset_info["access_procedure"] = (
                         "No additional form is needed to request access."
                     )
                 else:
-                    datadec_info["access_category"] = "registered-access"
-                    datadec_info["access_procedure"] = (
+                    dataset_info["access_category"] = "registered-access"
+                    dataset_info["access_procedure"] = (
                         "Additional form is needed to request access."
                     )
             else:
-                datadec_info["access_category"] = "controlled-access"
-                datadec_info["access_procedure"] = datadec.dac_approval_notes
+                dataset_info["access_category"] = "controlled-access"
+                dataset_info["access_procedure"] = dataset.dac_approval_notes
 
-            datadec_info["data_types"] = datadec.sci_data_type_names()
-            datadec_info["gdpr_datatypes"] = datadec.gdpr_data_type_names()
-            datadec_info["gdpr_datatypes_notes"] = datadec.gdpr_datatypes_notes
+            dataset_info["data_types"] = dataset.sci_data_type_names()
+            dataset_info["gdpr_datatypes"] = dataset.gdpr_data_type_names()
+            dataset_info["gdpr_datatypes_notes"] = dataset.gdpr_datatypes_notes
 
-            if datadec.sci_datatypes_notes:
-                datadec_info["sci_datatypes_notes"] = datadec.sci_datatypes_notes
+            if dataset.sci_datatypes_notes:
+                dataset_info["sci_datatypes_notes"] = dataset.sci_datatypes_notes
 
-            datadec_info["has_special_subjects"] = datadec.has_special_subjects
-            datadec_info["special_subject_notes"] = datadec.special_subjects_notes
+            dataset_info["has_special_subjects"] = dataset.has_special_subjects
+            dataset_info["special_subject_notes"] = dataset.special_subjects_notes
 
-            if datadec.has_samples:
-                datadec_info["data_types"].append("Samples")
-                if datadec.sci_datatypes_notes:
-                    datadec_info["data_types_notes"] = (
-                        datadec_info.get("data_types_notes", "")
+            if dataset.has_samples:
+                dataset_info["data_types"].append("Samples")
+                if dataset.sci_datatypes_notes:
+                    dataset_info["data_types_notes"] = (
+                        dataset_info.get("data_types_notes", "")
                         + " Notes on samples: "
-                        + datadec.sci_datatypes_notes
+                        + dataset.sci_datatypes_notes
                     )
 
-            datadec_info["consent_status"] = datadec.consent_status.label.lower()
-            if datadec.consent_notes:
-                datadec_info["consent_notes"] = datadec.consent_notes
-            datadec_info["de_identification"] = (
-                datadec.de_identification_type.label.lower()
+            dataset_info["consent_status"] = dataset.consent_status.label.lower()
+            if dataset.consent_notes:
+                dataset_info["consent_notes"] = dataset.consent_notes
+            dataset_info["de_identification"] = (
+                dataset.de_identification_type.label.lower()
             )
-            datadec_info["subject_categories"] = datadec.subject_category.label.lower()
+            dataset_info["subject_categories"] = dataset.subject_category.label.lower()
             # use_restrictions = []
-            # for duc_instance in datadec.duc_codes:
+            # for duc_instance in dataset.duc_codes:
             #     use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
             #                              'note': duc_instance.note})
             # if use_restrictions:
-            #     datadec_info['use_restrictions'] = use_restrictions
-            datadec_list.append(datadec_info)
-        return datadec_list
+            #     dataset_info['use_restrictions'] = use_restrictions
+            dataset_list.append(dataset_info)
+        return dataset_list
 
     @staticmethod
     def export_legal_bases(sub: Submission):
@@ -223,53 +223,53 @@ class SubmissionExporter:
 
         legal_bases = []
 
-        datadec_form = DatadecForm()
+        dataset_form = datasetForm()
 
-        for datadec in sub.datadecs:
+        for dataset in sub.datasets:
             legal_base_info_collection_std = {}
-            legal_base_info_collection_std["data_declarations"] = datadec.title
+            legal_base_info_collection_std["data_declarations"] = dataset.title
             legal_base_info_collection_std["legal_basis_codes"] = parse_label(
-                datadec.legal_basis_collection_std.label
+                dataset.legal_basis_collection_std.label
             )
             legal_base_info_collection_std["personal_data_codes"] = "Standard"
             legal_base_info_collection_std["legal_basis_notes"] = (
-                datadec_form.legal_basis_collection_std_code.label.text
+                dataset_form.legal_basis_collection_std_code.label.text
             )
 
             legal_bases.append(legal_base_info_collection_std)
 
             legal_base_info_collection_spec = {}
-            legal_base_info_collection_spec["data_declarations"] = datadec.title
+            legal_base_info_collection_spec["data_declarations"] = dataset.title
             legal_base_info_collection_spec["legal_basis_codes"] = parse_label(
-                datadec.legal_basis_collection_spec.label
+                dataset.legal_basis_collection_spec.label
             )
             legal_base_info_collection_spec["personal_data_codes"] = "Special"
             legal_base_info_collection_spec["legal_basis_notes"] = (
-                datadec_form.legal_basis_collection_spec_code.label.text
+                dataset_form.legal_basis_collection_spec_code.label.text
             )
 
             legal_bases.append(legal_base_info_collection_spec)
 
             legal_base_info_sharing_std = {}
-            legal_base_info_sharing_std["data_declarations"] = datadec.title
+            legal_base_info_sharing_std["data_declarations"] = dataset.title
             legal_base_info_sharing_std["legal_basis_codes"] = parse_label(
-                datadec.legal_basis_sharing_std.label
+                dataset.legal_basis_sharing_std.label
             )
             legal_base_info_sharing_std["personal_data_codes"] = "Standard"
             legal_base_info_sharing_std["legal_basis_notes"] = (
-                datadec_form.legal_basis_sharing_std_code.label.text
+                dataset_form.legal_basis_sharing_std_code.label.text
             )
 
             legal_bases.append(legal_base_info_sharing_std)
 
             legal_base_info_sharing_spec = {}
-            legal_base_info_sharing_spec["data_declarations"] = datadec.title
+            legal_base_info_sharing_spec["data_declarations"] = dataset.title
             legal_base_info_sharing_spec["legal_basis_codes"] = parse_label(
-                datadec.legal_basis_sharing_spec.label
+                dataset.legal_basis_sharing_spec.label
             )
             legal_base_info_sharing_spec["personal_data_codes"] = "Special"
             legal_base_info_sharing_spec["legal_basis_notes"] = (
-                datadec_form.legal_basis_sharing_spec_code.label.text
+                dataset_form.legal_basis_sharing_spec_code.label.text
             )
 
             legal_bases.append(legal_base_info_sharing_spec)
@@ -277,7 +277,7 @@ class SubmissionExporter:
         return legal_bases
 
     @staticmethod
-    def export_datadec_restrictions(datadec: SubmissionDataDeclaration) -> list[dict]:
+    def export_dataset_restrictions(dataset: SubmissionDataset) -> list[dict]:
         restriction_list = []
 
         restriction_codes = {
@@ -291,33 +291,33 @@ class SubmissionExporter:
             "ts_lcsb": "TS-[XX]",
             "ts": "TS-[XX]",
         }
-        datadec_form = DatadecForm()
+        dataset_form = datasetForm()
         for field_prefix, restriction_code in restriction_codes.items():
             restriction_dict = {}
             restriction_dict["use_class"] = restriction_code
             restriction_dict["use_restriction_rule"] = (
                 "CONSTRAINT"
-                if getattr(datadec, f"restriction_{field_prefix}")
+                if getattr(dataset, f"restriction_{field_prefix}")
                 else "NO CONSTRAINT"
             )
             restriction_dict["use_class_note"] = getattr(
-                datadec_form, f"restriction_{field_prefix}"
+                dataset_form, f"restriction_{field_prefix}"
             ).label.text
             restriction_dict["use_restriction_note"] = getattr(
-                datadec, f"restriction_{field_prefix}_notes"
+                dataset, f"restriction_{field_prefix}_notes"
             )
 
             restriction_list.append(restriction_dict)
 
-        if datadec.restriction_other_notes:
+        if dataset.restriction_other_notes:
             restriction_other_dict = {}
             restriction_other_dict["use_class"] = "Other"
             restriction_other_dict["use_restriction_rule"] = "CONSTRAINT"
             restriction_other_dict["use_class_note"] = (
-                datadec_form.restriction_other_notes.description
+                dataset_form.restriction_other_notes.description
             )
             restriction_other_dict["use_restriction_note"] = (
-                datadec.restriction_other_notes
+                dataset.restriction_other_notes
             )
             restriction_list.append(restriction_other_dict)
 
