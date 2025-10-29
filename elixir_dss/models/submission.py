@@ -159,9 +159,7 @@ class Submission(db.Model):
 
     studies = db.relationship("SubmissionStudy", cascade="all, delete-orphan")
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
-    datasets = db.relationship(
-        "SubmissionDataset", cascade="all, delete-orphan"
-    )
+    datasets = db.relationship("SubmissionDataset", cascade="all, delete-orphan")
     messages = db.relationship("SubmissionMessage", cascade="all, delete-orphan")
 
     def is_deletable(self):
