@@ -296,7 +296,7 @@ def load_user(user_id):
 """------------------------------------"""
 
 
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 @app.route("/submission/<int:sub_id>", methods=["DELETE"])
 def delete_submission(sub_id):
     try:
@@ -312,7 +312,7 @@ def delete_submission(sub_id):
 
 @app.route("/steer/submission/<int:sub_id>", methods=["GET"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -334,7 +334,7 @@ def steer_submission(sub_id):
 
 
 @app.route("/revert/submission/<int:sub_id>", methods=["GET"])
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 def revert_submission(sub_id):
     try:
         sub_with_new_state = revert_sub(sub_id)
@@ -350,7 +350,7 @@ def revert_submission(sub_id):
 
 
 @app.route("/submissions", methods=["GET"])
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 def list_submissions():
     """
     List all submissions
@@ -364,7 +364,7 @@ def list_submissions():
 
 
 @app.route("/my_submissions", methods=["GET"])
-@app_authorization(allowed_roles=["data_provider"])
+@app_authorization(allowed_roles=["user"])
 def list_my_submissions():
     """
     List the submissions that have been shared with the LOGGED IN  user
@@ -379,7 +379,7 @@ def list_my_submissions():
 
 @app.route("/submission/<int:sub_id>", methods=["GET"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -393,7 +393,7 @@ def get_submission(sub_id):
 
 
 @app.route("/submission/create", methods=["POST"])
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
     submission_rec = create_sub(
@@ -405,7 +405,7 @@ def create_submission():
 
 @app.route("/submission/view/<int:sub_id>", methods=["GET"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -419,7 +419,7 @@ def view_submission(sub_id):
 
 @app.route("/submission/edit/<int:sub_id>", methods=["GET", "POST"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -512,7 +512,7 @@ def is_allowed_type(filename):
 
 @app.route("/submission_attachment_add/<int:sub_id>", methods=["GET", "POST"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -577,7 +577,7 @@ def add_submission_attachment(sub_id):
 
 @app.route("/submission_attachment_delete/<int:attach_id>", methods=["GET"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "SubmissionAttachment",
         "entity_id_key": "attach_id",
@@ -614,7 +614,7 @@ def delete_submission_attachment(attach_id):
 
 @app.route("/submission_dataset_add/<int:sub_id>", methods=["GET", "POST"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -658,7 +658,7 @@ def add_submission_dataset(sub_id):
 
 @app.route("/submission_dataset/<int:dataset_id>", methods=["GET", "POST"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "SubmissionDataset",
         "entity_id_key": "dataset_id",
@@ -708,7 +708,7 @@ def edit_submission_dataset(dataset_id):
 
 @app.route("/submission_dataset_delete/<int:dataset_id>", methods=["GET"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "SubmissionDataset",
         "entity_id_key": "dataset_id",
@@ -738,7 +738,7 @@ def delete_submission_dataset(dataset_id):
 
 @app.route("/submission_study_add/<int:sub_id>", methods=["GET", "POST"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -773,7 +773,7 @@ def add_submission_study(sub_id):
 
 @app.route("/submission_study/<int:study_id>", methods=["GET", "POST"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "SubmissionStudy",
         "entity_id_key": "study_id",
@@ -808,7 +808,7 @@ def edit_submission_study(study_id):
 
 @app.route("/submission_study_delete/<int:study_id>", methods=["GET"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "SubmissionStudy",
         "entity_id_key": "study_id",
@@ -830,7 +830,7 @@ def delete_submission_study(study_id):
 
 @app.route("/submission_message_add/<int:sub_id>", methods=["GET", "POST"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -877,7 +877,7 @@ def add_submission_message(sub_id):
 
 
 @app.route("/notification/<int:notification_id>", methods=["GET"])
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 def send_notification(notification_id):
     try:
         notification_rec = EmailNotification.query.get_or_404(int(notification_id))
@@ -892,7 +892,7 @@ def send_notification(notification_id):
 
 
 @app.route("/notifications", methods=["GET"])
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 def list_notifications():
     notifications = EmailNotification.query.all()
     return render_template("email/notifications.html", notifications=notifications)

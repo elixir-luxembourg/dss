@@ -19,7 +19,7 @@ from elixir_dss.models.submission import Submission
 
 @app.route("/submission/generate_submission_pdf/<int:sub_id>", methods=["GET"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -68,7 +68,7 @@ def generate_submission_pdf(sub_id):
 
 @app.route("/submission/generate_submission_docx/<int:sub_id>", methods=["GET"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",

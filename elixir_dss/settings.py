@@ -40,7 +40,7 @@ class Config(object):
             ],
             "admin",
         ),
-        ("My Submissions", "list_my_submissions", [], "data_provider"),
+        ("My Submissions", "list_my_submissions", [], "user"),
     ]
     DATA_INIT = START_UP_DATA
 
