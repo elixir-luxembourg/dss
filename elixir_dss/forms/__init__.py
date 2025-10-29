@@ -118,7 +118,10 @@ class SignupForm(FlaskForm):
         "E Mail",
         description="Your institutional email.",
         validators=[DataRequired(), Email("Requires an email address.")],
-        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you.", "readonly": True},
+        render_kw={
+            "placeholder": "Email with which ELIXIR-LU can contact you.",
+            "readonly": True,
+        },
     )
 
     addr_line1 = StringField(
