@@ -24,9 +24,9 @@
             <form  method="POST"
                    action="{{ url_for('edit_user',user_id=user_form.id.data) }}">
                 {{ user_form.hidden_tag() }}
-                {{ fmacros.render_field_with_errors(user_form.first_name) }}
-                {{ fmacros.render_field_with_errors(user_form.last_name) }}
-                {{ fmacros.render_field_with_errors(user_form.email) }}
+                {{ fmacros.render_field_with_errors(user_form.first_name, clazz="bg-light text-muted") }}
+                {{ fmacros.render_field_with_errors(user_form.last_name, clazz="bg-light text-muted") }}
+                {{ fmacros.render_field_with_errors(user_form.email, clazz="bg-light text-muted") }}
                 {{ fmacros.render_field_with_errors(user_form.phone_no) }}
                 {{ fmacros.render_field_with_errors(user_form.addr_line1) }}
                 {{ fmacros.render_field_with_errors(user_form.addr_line2) }}
