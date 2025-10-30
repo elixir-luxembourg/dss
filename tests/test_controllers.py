@@ -69,7 +69,7 @@ class ControllersTest(BaseIntegrationTest):
     def test_user_cannot_change_keycloak_managed_fields(self):
         self.login("submitter1@some.edu", "submitter1")
         user = User.query.filter_by(email="submitter1@some.edu").first()
-        response = self.client.post(
+        self.client.post(
             url_for("edit_user", user_id=user.id),
             data={
                 "first_name": "Hacker",
@@ -88,7 +88,7 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_user_can_edit_only_their_profile(self):
         self.login("submitter1@some.edu", "submitter1")
-        user = User.query.filter_by(email="submitter1@some.edu").first()
+        User.query.filter_by(email="submitter1@some.edu").first()
         response = self.client.post(
             url_for("profile"),
             data={"phone_no": "+352987654321"},

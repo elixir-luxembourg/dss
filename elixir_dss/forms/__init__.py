@@ -11,7 +11,7 @@ from wtforms import (
     SelectMultipleField,
     StringField,
 )
-from wtforms.validators import DataRequired, Email, Length, Regexp, readonly
+from wtforms.validators import DataRequired, Email, Length, Regexp
 
 from elixir_dss.controllers.api_controllers import get_elu_partners
 from elixir_dss.forms.submissions_forms import (
