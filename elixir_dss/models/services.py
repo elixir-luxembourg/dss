@@ -49,7 +49,7 @@ def steer_sub(submission_id: str):
             "Submission cannot be steered to the next state!"
         )
     elif (
-        target_state == SubmissionStatusEnum.metadata_entry
+        target_state == SubmissionStatusEnum.draft
         and not submission.has_providers()
     ):
         flash(
