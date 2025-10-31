@@ -179,6 +179,76 @@ class ModelPersistenceTest(BaseTest):
         else:
             self.fail("Expected Exception not raised")
 
+    def test_new_6_step_workflow_state_transitions(self):
+        """Test the new 6-step workflow with approval states"""
+        # Test step_num mapping for all 6 states
+        self.assertEqual(SubmissionStatusEnum.draft.step_num(), 0)
+        self.assertEqual(SubmissionStatusEnum.metadata_submission.step_num(), 1)
+        self.assertEqual(SubmissionStatusEnum.metadata_approval.step_num(), 2)
+        self.assertEqual(SubmissionStatusEnum.data_upload.step_num(), 3)
+        self.assertEqual(SubmissionStatusEnum.data_approval.step_num(), 4)
+        self.assertEqual(SubmissionStatusEnum.completed.step_num(), 5)
+
+        # Test next_state transitions
+        self.assertEqual(
+            SubmissionStatusEnum.draft.next_state(),
+            SubmissionStatusEnum.metadata_submission,
+        )
+        self.assertEqual(
+            SubmissionStatusEnum.metadata_submission.next_state(),
+            SubmissionStatusEnum.metadata_approval,
+        )
+        self.assertEqual(
+            SubmissionStatusEnum.metadata_approval.next_state(),
+            SubmissionStatusEnum.data_upload,
+        )
+        self.assertEqual(
+            SubmissionStatusEnum.data_upload.next_state(),
+            SubmissionStatusEnum.data_approval,
+        )
+        self.assertEqual(
+            SubmissionStatusEnum.data_approval.next_state(),
+            SubmissionStatusEnum.completed,
+        )
+        self.assertIsNone(SubmissionStatusEnum.completed.next_state())
+
+        # Test prev_state transitions
+        self.assertIsNone(SubmissionStatusEnum.draft.prev_state())
+        self.assertEqual(
+            SubmissionStatusEnum.metadata_submission.prev_state(),
+            SubmissionStatusEnum.draft,
+        )
+        self.assertEqual(
+            SubmissionStatusEnum.metadata_approval.prev_state(),
+            SubmissionStatusEnum.metadata_submission,
+        )
+        self.assertEqual(
+            SubmissionStatusEnum.data_upload.prev_state(),
+            SubmissionStatusEnum.metadata_approval,
+        )
+        self.assertEqual(
+            SubmissionStatusEnum.data_approval.prev_state(),
+            SubmissionStatusEnum.data_upload,
+        )
+        self.assertEqual(
+            SubmissionStatusEnum.completed.prev_state(), SubmissionStatusEnum.data_approval
+        )
+
+        # Test is_in_progress includes approval states
+        submission = create_sub("Test Workflow Submission", "ELU_I_77")
+        submission.current_status = SubmissionStatusEnum.metadata_submission
+        self.assertTrue(submission.is_in_progress())
+        submission.current_status = SubmissionStatusEnum.metadata_approval
+        self.assertTrue(submission.is_in_progress())
+        submission.current_status = SubmissionStatusEnum.data_upload
+        self.assertTrue(submission.is_in_progress())
+        submission.current_status = SubmissionStatusEnum.data_approval
+        self.assertTrue(submission.is_in_progress())
+        submission.current_status = SubmissionStatusEnum.draft
+        self.assertFalse(submission.is_in_progress())
+        submission.current_status = SubmissionStatusEnum.completed
+        self.assertFalse(submission.is_in_progress())
+
     def test_export_submission(self):
         submission_rec = create_sub("Test Submission to be exported.", "ELU_I_5")
 

@@ -1,0 +1,19 @@
+Dear Data Provider,
+
+Your metadata submission has been reviewed and requires changes before it can be approved. Please review the feedback below and make the necessary corrections.
+
+
+Ref Name: {{ submission.ref_name }}
+Title: {{ submission.title }}
+Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
+
+
+Required Changes:
+{{ feedback }}
+
+Once you have made the necessary corrections, please click "Proceed" to resubmit for review.
+
+
+Regards
+ELIXIR LU
+(This is an auto-generated e-mail, please do not reply)

@@ -64,7 +64,7 @@
                         <!-- Step label -->
                         <div class="mt-2">
                             <div class="fw-semibold {% if stp == 0 %}text-primary{% elif stp > 0 %}text-success{% else %}text-muted{% endif %}">
-                                Initiation
+                                Draft
                             </div>
                             <small class="text-muted d-block">Data Steward initiates submission</small>
                         </div>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Form Filling -->
+                <!-- Step 2: Metadata -->
                 <div class="flex-fill text-center position-relative" style="z-index: 1;">
                     <div class="d-flex flex-column align-items-center gap-2">
                         <!-- Step indicator -->
@@ -100,9 +100,9 @@
                         <!-- Step label -->
                         <div class="mt-2">
                             <div class="fw-semibold {% if stp == 1 %}text-primary{% elif stp > 1 %}text-success{% else %}text-muted{% endif %}">
-                                Form Filling
+                                Metadata Submission
                             </div>
-                            <small class="text-muted d-block">Data Provider fills in forms</small>
+                            <small class="text-muted d-block">Provider submits study and dataset information</small>
                         </div>
 
                         <!-- Progress bar -->
@@ -118,7 +118,7 @@
                     </div>
                 </div>
 
-                <!-- Step 3: Data Upload -->
+                <!-- Step 3: Metadata Review -->
                 <div class="flex-fill text-center position-relative" style="z-index: 1;">
                     <div class="d-flex flex-column align-items-center gap-2">
                         <!-- Step indicator -->
@@ -136,9 +136,9 @@
                         <!-- Step label -->
                         <div class="mt-2">
                             <div class="fw-semibold {% if stp == 2 %}text-primary{% elif stp > 2 %}text-success{% else %}text-muted{% endif %}">
-                                Data Upload
+                                Metadata Approval
                             </div>
-                            <small class="text-muted d-block">Data Provider uploads data</small>
+                            <small class="text-muted d-block">Steward approves or rejects metadata</small>
                         </div>
 
                         <!-- Progress bar -->
@@ -154,14 +154,16 @@
                     </div>
                 </div>
 
-                <!-- Step 4: Completion -->
+                <!-- Step 4: Dataset Upload -->
                 <div class="flex-fill text-center position-relative" style="z-index: 1;">
                     <div class="d-flex flex-column align-items-center gap-2">
                         <!-- Step indicator -->
-                        <div class="rounded-circle d-flex align-items-center justify-content-center {% if stp < 3 %}bg-body-secondary border border-secondary{% elif stp >= 3 %}bg-success{% endif %}"
+                        <div class="rounded-circle d-flex align-items-center justify-content-center {% if stp < 3 %}bg-body-secondary border border-secondary{% elif stp == 3 %}bg-primary{% elif stp > 3 %}bg-success{% endif %}"
                              style="width: 40px; height: 40px;">
-                            {% if stp >= 3 %}
+                            {% if stp > 3 %}
                                 <i class="bi bi-check-circle-fill text-white fs-4"></i>
+                            {% elif stp == 3 %}
+                                <span class="text-white fw-bold">4</span>
                             {% else %}
                                 <span class="text-muted fw-medium">4</span>
                             {% endif %}
@@ -169,10 +171,10 @@
 
                         <!-- Step label -->
                         <div class="mt-2">
-                            <div class="fw-semibold {% if stp >= 3 %}text-success{% else %}text-muted{% endif %}">
-                                Completion
+                            <div class="fw-semibold {% if stp == 3 %}text-primary{% elif stp > 3 %}text-success{% else %}text-muted{% endif %}">
+                                Data Upload
                             </div>
-                            <small class="text-muted d-block">Data Steward confirms receipt</small>
+                            <small class="text-muted d-block">Provider uploads data files in LFT</small>
                         </div>
 
                         <!-- Progress bar -->
@@ -182,8 +184,78 @@
                              aria-valuemin="0"
                              aria-valuemax="100"
                              style="height: 4px;">
-                            <div class="progress-bar bg-success"
+                            <div class="progress-bar {% if stp == 3 %}bg-primary{% elif stp > 3 %}bg-success{% endif %}"
                                  style="width: {% if stp >= 3 %}100{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5: Dataset Review -->
+                <div class="flex-fill text-center position-relative" style="z-index: 1;">
+                    <div class="d-flex flex-column align-items-center gap-2">
+                        <!-- Step indicator -->
+                        <div class="rounded-circle d-flex align-items-center justify-content-center {% if stp < 4 %}bg-body-secondary border border-secondary{% elif stp == 4 %}bg-primary{% elif stp > 4 %}bg-success{% endif %}"
+                             style="width: 40px; height: 40px;">
+                            {% if stp > 4 %}
+                                <i class="bi bi-check-circle-fill text-white fs-4"></i>
+                            {% elif stp == 4 %}
+                                <span class="text-white fw-bold">5</span>
+                            {% else %}
+                                <span class="text-muted fw-medium">5</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Step label -->
+                        <div class="mt-2">
+                            <div class="fw-semibold {% if stp == 4 %}text-primary{% elif stp > 4 %}text-success{% else %}text-muted{% endif %}">
+                                Data Approval
+                            </div>
+                            <small class="text-muted d-block">Steward verifies and approves dataset in LFT</small>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="progress w-100 mt-2" role="progressbar"
+                             aria-label="Step 5 progress"
+                             aria-valuenow="{% if stp >= 4 %}100{% else %}0{% endif %}"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="height: 4px;">
+                            <div class="progress-bar {% if stp == 4 %}bg-primary{% elif stp > 4 %}bg-success{% endif %}"
+                                 style="width: {% if stp >= 4 %}100{% else %}0{% endif %}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 6: Completion -->
+                <div class="flex-fill text-center position-relative" style="z-index: 1;">
+                    <div class="d-flex flex-column align-items-center gap-2">
+                        <!-- Step indicator -->
+                        <div class="rounded-circle d-flex align-items-center justify-content-center {% if stp < 5 %}bg-body-secondary border border-secondary{% elif stp >= 5 %}bg-success{% endif %}"
+                             style="width: 40px; height: 40px;">
+                            {% if stp >= 5 %}
+                                <i class="bi bi-check-circle-fill text-white fs-4"></i>
+                            {% else %}
+                                <span class="text-muted fw-medium">6</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Step label -->
+                        <div class="mt-2">
+                            <div class="fw-semibold {% if stp >= 5 %}text-success{% else %}text-muted{% endif %}">
+                                Completed
+                            </div>
+                            <small class="text-muted d-block">Submission finalized and ready for export</small>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="progress w-100 mt-2" role="progressbar"
+                             aria-label="Step 6 progress"
+                             aria-valuenow="{% if stp >= 5 %}100{% else %}0{% endif %}"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="height: 4px;">
+                            <div class="progress-bar bg-success"
+                                 style="width: {% if stp >= 5 %}100{% else %}0{% endif %}%"></div>
                         </div>
                     </div>
                 </div>

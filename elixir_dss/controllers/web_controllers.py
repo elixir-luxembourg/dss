@@ -25,11 +25,15 @@ import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
 from elixir_dss.models.security import User
 from elixir_dss.models.services import (
+    approve_data,
+    approve_metadata,
     assign_role_to_user,
     create_sub,
     delete_sub,
     get_in_progress_submissions_shared_with_user,
     register_new_user,
+    reject_data,
+    reject_metadata,
     revert_sub,
     send_email_asynch,
     send_new_message_notification,
@@ -351,6 +355,52 @@ def revert_submission(sub_id):
         app.logger.error("ERROR %s", e)
         flash("Unable to revert submission to the previous state", "error")
         return "", 400
+
+
+@app.route("/submission/<int:sub_id>/approve_metadata", methods=["POST"])
+@login_required
+@app_authorization(allowed_roles=["admin"])
+def approve_metadata_endpoint(sub_id):
+    feedback = request.form.get('feedback', '').strip()
+    approve_metadata(sub_id, current_user.id, feedback if feedback else None)
+    flash("Metadata approved", "success")
+    return redirect(url_for('view_submission', sub_id=sub_id))
+
+
+@app.route("/submission/<int:sub_id>/reject_metadata", methods=["POST"])
+@login_required
+@app_authorization(allowed_roles=["admin"])
+def reject_metadata_endpoint(sub_id):
+    feedback = request.form.get('feedback', '').strip()
+    if not feedback:
+        flash("Feedback is required when rejecting", "error")
+        return redirect(url_for('view_submission', sub_id=sub_id))
+    reject_metadata(sub_id, current_user.id, feedback)
+    flash("Metadata rejected", "warning")
+    return redirect(url_for('view_submission', sub_id=sub_id))
+
+
+@app.route("/submission/<int:sub_id>/approve_data", methods=["POST"])
+@login_required
+@app_authorization(allowed_roles=["admin"])
+def approve_data_endpoint(sub_id):
+    feedback = request.form.get('feedback', '').strip()
+    approve_data(sub_id, current_user.id, feedback if feedback else None)
+    flash("Data approved", "success")
+    return redirect(url_for('view_submission', sub_id=sub_id))
+
+
+@app.route("/submission/<int:sub_id>/reject_data", methods=["POST"])
+@login_required
+@app_authorization(allowed_roles=["admin"])
+def reject_data_endpoint(sub_id):
+    feedback = request.form.get('feedback', '').strip()
+    if not feedback:
+        flash("Feedback is required when rejecting", "error")
+        return redirect(url_for('view_submission', sub_id=sub_id))
+    reject_data(sub_id, current_user.id, feedback)
+    flash("Data rejected", "warning")
+    return redirect(url_for('view_submission', sub_id=sub_id))
 
 
 @app.route("/submissions", methods=["GET"])

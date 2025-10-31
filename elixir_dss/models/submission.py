@@ -89,30 +89,38 @@ class SubmissionAttachment(db.Model):
 
 class SubmissionStatusEnum(enum.Enum):
     draft = "Draft"
-    in_progress_metadata = "Study Registration"
-    in_progress_data = "Data Upload"
-    completed = "Completion"
+    metadata_submission = "Metadata Submission"
+    metadata_approval = "Metadata Approval"
+    data_upload = "Data Upload"
+    data_approval = "Data Approval"
+    completed = "Completed"
 
     def next_state(self):
         return {
-            self.draft: self.in_progress_metadata,
-            self.in_progress_metadata: self.in_progress_data,
-            self.in_progress_data: self.completed,
+            self.draft: self.metadata_submission,
+            self.metadata_submission: self.metadata_approval,
+            self.metadata_approval: self.data_upload,
+            self.data_upload: self.data_approval,
+            self.data_approval: self.completed,
         }.get(self)
 
     def prev_state(self):
         return {
-            self.completed: self.in_progress_data,
-            self.in_progress_data: self.in_progress_metadata,
-            self.in_progress_metadata: self.draft,
+            self.completed: self.data_approval,
+            self.data_approval: self.data_upload,
+            self.data_upload: self.metadata_approval,
+            self.metadata_approval: self.metadata_submission,
+            self.metadata_submission: self.draft,
         }.get(self)
 
     def step_num(self):
         return {
             self.draft: 0,
-            self.in_progress_metadata: 1,
-            self.in_progress_data: 2,
-            self.completed: 3,
+            self.metadata_submission: 1,
+            self.metadata_approval: 2,
+            self.data_upload: 3,
+            self.data_approval: 4,
+            self.completed: 5,
         }.get(self)
 
 
@@ -167,9 +175,11 @@ class Submission(db.Model):
         return self.current_status == SubmissionStatusEnum.draft
 
     def is_in_progress(self):
-        return (
-            self.current_status == SubmissionStatusEnum.in_progress_data
-            or self.current_status == SubmissionStatusEnum.in_progress_metadata
+        return self.current_status in (
+            SubmissionStatusEnum.data_upload,
+            SubmissionStatusEnum.metadata_submission,
+            SubmissionStatusEnum.metadata_approval,
+            SubmissionStatusEnum.data_approval,
         )
 
     def provider_user_ids(self):
@@ -294,6 +304,7 @@ class SubmissionMessage(db.Model):
     sender_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     sender_user = db.relationship("User")
     message_text = db.Column(db.String, nullable=False)
+    message_type = db.Column(db.String, nullable=True)  # 'metadata_review_approval', 'metadata_review_rejection', 'data_review_approval', 'data_review_rejection', None (regular)
     # html_body = db.Column(db.String, nullable=)
 
 

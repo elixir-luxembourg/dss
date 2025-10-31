@@ -1,8 +1,8 @@
-<p>Dear Data Steward,</p>
-<p>The following submission has been steered to the Dataset Upload stage. The data provider has been instructed to upload their dataset in the LFT application using the submission reference below.</p>
+<p>Dear Data Provider,</p>
+<p>Your metadata submission has been reviewed and requires changes before it can be approved. Please review the feedback below and make the necessary corrections.</p>
 <table>
     <tr valign="top">
-        <td>Ref Name:</td>
+        <td>Submission Ref:</td>
         <td>
             {{ submission.ref_name }}
         </td>
@@ -20,8 +20,10 @@
         </td>
     </tr>
 </table>
+<p><strong>Required Changes:</strong></p>
+<p>{{ feedback }}</p>
+<p>Once you have made the necessary corrections, please click "Proceed" to resubmit for review.</p>
 <p></p>
 <p>Regards,</p>
 <p>ELIXIR LU</p>
 <p>(This is an auto-generated e-mail, please do not reply)</p>
-

@@ -1,0 +1,18 @@
+Dear Data Provider,
+
+Good news! Your metadata has been approved by the data steward. You may now proceed to the data upload stage.
+
+
+Ref Name: {{ submission.ref_name }}
+Title: {{ submission.title }}
+Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
+
+{% if feedback %}
+Feedback from Data Steward:
+{{ feedback }}
+{% endif %}
+
+
+Regards
+ELIXIR LU
+(This is an auto-generated e-mail, please do not reply)

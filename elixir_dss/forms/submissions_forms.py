@@ -197,6 +197,19 @@ class MessageForm(FlaskForm):
             self.submission_id.data = kwargs["sub_id"]
 
 
+class ReviewFeedbackForm(FlaskForm):
+    """
+    Form for data stewards to provide feedback when approving or rejecting submissions.
+    The approve/reject decision is determined by which button is clicked, not by a field in this form.
+    """
+
+    feedback = TextAreaField(
+        "Feedback",
+        description="Provide feedback about this review (required when rejecting)",
+        render_kw={"rows": 5, "maxlength": 2000},
+    )
+
+
 class SubmissionForm(FlaskForm):
     """
     Form for updating a submission's title and
