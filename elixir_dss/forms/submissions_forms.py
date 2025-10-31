@@ -295,7 +295,7 @@ class SubmissionForm(FlaskForm):
         ]
 
 
-class datasetForm(FlaskForm):
+class DatasetForm(FlaskForm):
     """
     Form for creating or updating a data set within a submission
     """

@@ -17,7 +17,7 @@ from elixir_dss.controllers.api_controllers import get_elu_partners
 from elixir_dss.forms.submissions_forms import (
     AttachmentForm,
     ContactForm,
-    datasetForm,
+    DatasetForm,
     MessageForm,
     StudyForm,
     SubmissionForm,
@@ -194,7 +194,7 @@ __all__ = [
     SubmissionForm,
     ContactForm,
     AttachmentForm,
-    datasetForm,
+    DatasetForm,
     StudyForm,
     UserForm,
     MyProfileForm,

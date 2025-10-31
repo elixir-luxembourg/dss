@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% import "forms_macros.html" as fmacros %}
-{% block title %}Data Set Form{% endblock %}
+{% block title %}Dataset Form{% endblock %}
 {% block js %}
 {{ super() }}
 {% assets "select2_js" %}
@@ -19,7 +19,7 @@
 {% block content %}
 <div class="card border shadow-sm mb-4">
     <div class="card-header bg-white border-bottom">
-        <h5 class="mb-0 fw-semibold">{% if dataset_form.id.data %}Update {% else %}Add New {% endif %}Data Set</h5>
+        <h5 class="mb-0 fw-semibold">{% if dataset_form.id.data %}Update {% else %}Add New {% endif %}Dataset</h5>
     </div>
     <div class="card-body p-4">
         <form method="POST" {% if dataset_form.id.data %}

@@ -625,10 +625,10 @@ def add_submission_dataset(sub_id):
     if request.method == "GET":
         return render_template(
             "submission/dataset_form.html",
-            dataset_form=forms.datasetForm(formdata=None, obj=None, sub_id=sub_id),
+            dataset_form=forms.DatasetForm(formdata=None, obj=None, sub_id=sub_id),
         ), 200
     elif request.method == "POST":
-        posted_form = forms.datasetForm(request.form)
+        posted_form = forms.DatasetForm(request.form)
         if (
             posted_form.validate_on_submit()
             and int(posted_form.submission_id.data) == sub_id
@@ -646,7 +646,7 @@ def add_submission_dataset(sub_id):
                 )
             db.session.add(dataset_rec)
             db.session.commit()
-            flash("Data set added", "success")
+            flash("Dataset added", "success")
             return redirect(
                 url_for("view_submission", sub_id=dataset_rec.submission_id)
             )
@@ -668,7 +668,7 @@ def add_submission_dataset(sub_id):
 def edit_submission_dataset(dataset_id):
     if request.method == "GET":
         dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
-        result_form = forms.datasetForm(obj=dataset_rec)
+        result_form = forms.DatasetForm(obj=dataset_rec)
         if dataset_rec.sci_datatypes_json:
             result_form.sci_datatypes.data = json.loads(dataset_rec.sci_datatypes_json)
         if dataset_rec.gdpr_datatypes_json:
@@ -679,7 +679,7 @@ def edit_submission_dataset(dataset_id):
             "submission/dataset_form.html", dataset_form=result_form
         ), 200
     elif request.method == "POST":
-        posted_form = forms.datasetForm(request.form)
+        posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
             dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
             posted_form.populate_obj(dataset_rec)
@@ -696,7 +696,7 @@ def edit_submission_dataset(dataset_id):
 
             db.session.add(dataset_rec)
             db.session.commit()
-            flash("Data set updated", "success")
+            flash("Dataset updated", "success")
             return redirect(
                 url_for("view_submission", sub_id=dataset_rec.submission_id)
             )
@@ -719,7 +719,7 @@ def delete_submission_dataset(dataset_id):
     dataset = SubmissionDataset.query.get_or_404(dataset_id)
     db.session.delete(dataset)
     db.session.commit()
-    flash("Data set deleted", "success")
+    flash("Dataset deleted", "success")
     return redirect(url_for("view_submission", sub_id=dataset.submission_id))
 
 

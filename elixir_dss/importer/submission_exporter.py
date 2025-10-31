@@ -4,7 +4,7 @@ import re
 from io import StringIO
 
 from elixir_dss import app, db
-from elixir_dss.forms.submissions_forms import Contact, datasetForm
+from elixir_dss.forms.submissions_forms import Contact, DatasetForm
 from elixir_dss.models.submission import Submission, SubmissionDataset
 
 
@@ -223,7 +223,7 @@ class SubmissionExporter:
 
         legal_bases = []
 
-        dataset_form = datasetForm()
+        dataset_form = DatasetForm()
 
         for dataset in sub.datasets:
             legal_base_info_collection_std = {}
@@ -291,7 +291,7 @@ class SubmissionExporter:
             "ts_lcsb": "TS-[XX]",
             "ts": "TS-[XX]",
         }
-        dataset_form = datasetForm()
+        dataset_form = DatasetForm()
         for field_prefix, restriction_code in restriction_codes.items():
             restriction_dict = {}
             restriction_dict["use_class"] = restriction_code

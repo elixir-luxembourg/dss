@@ -101,7 +101,7 @@
                    class="btn btn-primary btn-sm d-none align-items-center gap-2"
                    href="{{ url_for('add_submission_dataset', sub_id=submission.id) }}"
                    data-bs-toggle="tooltip"
-                   title="Add New Data Set">
+                   title="Add New Dataset">
                     <i class="bi bi-plus-lg"></i>
                     <span class="d-none d-lg-inline">Add Data</span>
                 </a>
@@ -131,7 +131,7 @@
     <div class="bg-primary-subtle border-bottom border-primary p-3 d-flex align-items-center gap-2">
         <i class="bi bi-info-circle fs-5 text-primary"></i>
         <div class="text-dark">
-            <strong>Study Registration Stage:</strong> Add at least one Study and one Data Set to proceed to Data Upload.
+            <strong>Study Registration Stage:</strong> Add at least one Study and one Dataset to proceed to Data Upload.
             {% if studies_count == 0 or data_count == 0 %}
                 <span class="badge bg-warning text-dark ms-2">Incomplete</span>
             {% endif %}
@@ -265,7 +265,7 @@
                 <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
                     <i class="bi bi-info-circle fs-4 text-primary"></i>
                     <div>
-                        <strong>No data sets added yet.</strong> Click "Add Data" above to declare what data you're submitting, including GDPR categories and de-identification info.
+                        <strong>No datasets added yet.</strong> Click "Add Data" above to declare what data you're submitting, including GDPR categories and de-identification info.
                     </div>
                 </div>
                 {% endif %}
