@@ -12,7 +12,7 @@ from wtforms.validators import DataRequired, Email, Length, Regexp
 from wtforms_components import SelectField, SelectMultipleField
 
 from elixir_dss import app
-from elixir_dss.controllers.api_controllers import get_elu_partners
+from elixir_dss.controllers.api_controllers import get_elu_partners, get_elu_projects
 from elixir_dss.models.services import get_active_users
 from elixir_dss.models.submission import (
     ConsentStatus,
@@ -235,16 +235,12 @@ class SubmissionForm(FlaskForm):
         description="If known please specify the Principal Investigator/Researcher that is the recipient of data.",
     )
 
-    local_project_name = StringField(
+    local_project_name = SelectField(
         "Recipient project",
         description="If you are making this submission in the context of a  collaboration/project, please specif its name here.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s]+$",
-                message="Can only contain letters, digits and underscore.",
-            )
-        ],
+        validators=[DataRequired()],
     )
+
     institution_accession = SelectField(
         "Submitting institution",
         description="Please select institute that is making the submission.",
@@ -285,13 +281,28 @@ class SubmissionForm(FlaskForm):
         self.institution_accession.choices = [
             (
                 c["external_id"],
-                f"{c['name']} - {c['acronym']}"
-                if "acronym" in c and c["acronym"] is not None and "name" in c
-                else c["name"]
-                if "name" in c
-                else "-",
+                (
+                    f"{c['name']} - {c['acronym']}"
+                    if "acronym" in c and c["acronym"] is not None and "name" in c
+                    else c["name"]
+                    if "name" in c
+                    else "-"
+                ),
             )
             for c in get_elu_partners()
+        ]
+        self.local_project_name.choices = [
+            (
+                c["external_id"],
+                (
+                    f"{c['name']} - {c['acronym']}"
+                    if "acronym" in c and c["acronym"] is not None and "name" in c
+                    else c["name"]
+                    if "name" in c
+                    else "-"
+                ),
+            )
+            for c in get_elu_projects()
         ]
 
 
@@ -647,29 +658,3 @@ class DatasetForm(FlaskForm):
                 submission_id=self.submission_id.data
             )
         ]
-        # self.cohort_accession.choices = [('', '-')] + [(c["external_id"], c["title"]) for c in get_elu_cohorts()]
-
-        # def source_stati(self):
-        #     empty_study = False
-        #     if self.study_id.data == -1:
-        #         empty_study = True
-        #     empty_cohort = False
-        #     if not self.cohort_accession.data:
-        #         empty_cohort =  True
-        #     return empty_study, empty_cohort
-        #
-        #
-        # def validate(self):
-        #     rv = Form.validate(self)
-        #     if not rv:
-        #         return False
-        #     empty_study, empty_cohort = self.source_stati()
-        #     if empty_study and empty_cohort:
-        #         self.study_id.errors.append('Missing input, provide either a study or cohort.')
-        #         self.cohort_accession.errors.append('Missing input, provide either a study or cohort.')
-        #         return False
-        #     if empty_study:
-        #         self.study_id.data = None
-        #     if empty_cohort:
-        #         self.study_id.cohort = None
-        #     return True
