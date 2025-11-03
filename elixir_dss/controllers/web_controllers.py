@@ -920,8 +920,8 @@ def list_notifications():
 @app_authorization(
     allowed_roles=["admin", "data_provider"],
     record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
+        "entity": "SubmissionDataset",
+        "entity_id_key": "dataset_id",
         "entity_ac_attribute": "id",
     },
 )
