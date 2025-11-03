@@ -98,8 +98,6 @@ sudo ln -s /home/elixirdss/app-src/elixir-dss/deploy/elixir-dss-nginx.conf \
 
 # Set permissions
 sudo chown -R nginx:nginx /var/lib/nginx
-sudo chmod 755 /home/elixirdss/app-src/elixir-dss
-
 sudo systemctl enable nginx
 sudo systemctl restart nginx
 ```
