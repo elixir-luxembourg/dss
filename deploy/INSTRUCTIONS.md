@@ -6,7 +6,7 @@ Modern deployment using systemd and nginx on Rocky Linux 8 / RHEL 8+
 
 ```bash
 sudo dnf update -y
-sudo dnf install -y python3.12 python3.12-pip nginx git
+sudo dnf install -y python3.12 python3.12-pip nginx git nodejs npm
 sudo dnf groupinstall -y "Development Tools"
 ```
 
@@ -52,9 +52,15 @@ pip install --upgrade pip
 pip install -e .
 pip install gunicorn
 
+# Build frontend assets
+cd elixir_dss/static/vendor
+npm ci
+npm run build:css
+cd ../../..
+
 # Configure environment
 cp .env.template .env
-vi elixir_dss/.env  # Set ELIXIR_DSS_ENV=prod
+vi .env  # Set ELIXIR_DSS_ENV=prod
 
 # Initialize database
 python manage.py init_db
@@ -90,22 +96,6 @@ sudo chmod 755 /home/elixirdss/app-src/elixir-dss
 
 sudo systemctl enable nginx
 sudo systemctl restart nginx
-```
-
-## 6. Firewall Configuration
-
-```bash
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --permanent --add-service=https
-sudo firewall-cmd --reload
-```
-
-## 7. SELinux Configuration (if enabled)
-
-```bash
-sudo setsebool -P httpd_can_network_connect 1
-sudo semanage fcontext -a -t httpd_sys_rw_content_t "/home/elixirdss/app-src/elixir-dss(/.*)?"
-sudo restorecon -Rv /home/elixirdss/app-src/elixir-dss
 ```
 
 ## Maintenance
