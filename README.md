@@ -135,7 +135,7 @@ cp .env.template .env
 
 **3. Authentication:**
 - **CONFIG** (default): Local username/password auth - perfect for development
-- **AAI**: ELIXIR OIDC authentication - requires `client_secrets.json` for production
+- **AAI**: ELIXIR OIDC authentication
 
 **4. Secret Key:** For production, generate a secure key:
 ```python
