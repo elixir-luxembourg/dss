@@ -1,4 +1,4 @@
-{% if submission.datadecs %}
+{% if submission.datasets %}
 <div class="container">
     <div class="col-md-12">
         <table class="table table-hover table-borderless align-middle">
@@ -20,41 +20,41 @@
             </tr>
             </thead>
             <tbody>
-            {% for datadec in submission.datadecs %}
+            {% for dataset in submission.datasets %}
             <tr class="border-bottom border-secondary border-opacity-10">
                 <td>
                     {% if current_user.is_admin() or submission.current_status.step_num() ==1 or submission.current_status.step_num() ==2 %}
-                        <a href="{{ url_for('edit_submission_datadec', datadec_id=datadec.id) }}" class="text-dark text-decoration-none">
-                            {{ datadec.title }}
+                        <a href="{{ url_for('edit_submission_dataset', dataset_id=dataset.id) }}" class="text-dark text-decoration-none">
+                            {{ dataset.title }}
                         </a>
                     {% else %}
-                        {{ datadec.title }}
+                        {{ dataset.title }}
                     {% endif %}
                 </td>
-                <td>{% if datadec.study %} {{ datadec.study.name}} {% endif %}</td>
+                <td>{% if dataset.study %} {{ dataset.study.name}} {% endif %}</td>
                 <td>
                     <ul>
-                        {% for name in datadec.sci_data_type_names() %}
+                        {% for name in dataset.sci_data_type_names() %}
                         <li>{{ name }}</li>
                         {% endfor %}
                     </ul>
                 </td>
-                <td>{{ datadec.de_identification_type.label }}</td>
-                <td>{{ datadec.has_special_subjects_display() }}</td>
-                <td>{{ datadec.consent_status.label }}</td>
+                <td>{{ dataset.de_identification_type.label }}</td>
+                <td>{{ dataset.has_special_subjects_display() }}</td>
+                <td>{{ dataset.consent_status.label }}</td>
                 {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}
                 <td>
                     <div class="d-flex align-items-center justify-content-end gap-2">
                         <a id="inline_listing_edit"
-                           href="{{ url_for('edit_submission_datadec',datadec_id=datadec.id) }}"
+                           href="{{ url_for('edit_submission_dataset',dataset_id=dataset.id) }}"
                            class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
                            role="button">
                             <i class="bi bi-pencil"></i>
                             <span>Edit</span>
                         </a>
                         <a id="inline_listing_delete"
-                           href="{{ url_for('delete_submission_datadec',datadec_id=datadec.id) }}"
+                           href="{{ url_for('delete_submission_dataset',dataset_id=dataset.id) }}"
                            class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"
                            role="button">
                             <i class="bi bi-trash"></i>

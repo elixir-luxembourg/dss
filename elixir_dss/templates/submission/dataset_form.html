@@ -1,0 +1,124 @@
+{% extends "layout.html" %}
+{% import "forms_macros.html" as fmacros %}
+{% block title %}Dataset Form{% endblock %}
+{% block js %}
+{{ super() }}
+{% assets "select2_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "submission_editor_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% assets "select2_css" %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+{% endassets %}
+{% endblock %}
+{% block content %}
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0 fw-semibold">{% if dataset_form.id.data %}Update {% else %}Add New {% endif %}Dataset</h5>
+    </div>
+    <div class="card-body p-4">
+        <form method="POST" {% if dataset_form.id.data %}
+              data-url="{{ url_for('edit_submission_dataset', dataset_id = dataset_form.id.data)}}" {% else %}
+              data-url="{{ url_for('add_submission_dataset', sub_id=dataset_form.submission_id.data)}}" {% endif %}>
+            {{ dataset_form.hidden_tag() }}
+
+            <!-- General Section -->
+            <div class="mb-4">
+                <h6 class="fw-semibold mb-3">General</h6>
+                {{ fmacros.render_field_with_errors(dataset_form.title) }}
+                {{ fmacros.render_field_with_errors(dataset_form.study_id, clazz="elx-select")}}
+                {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.sci_datatypes, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.sci_datatypes_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.de_identification_type_code, clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.has_samples) }}
+                {{ fmacros.render_field_with_errors(dataset_form.samples_notes) }}
+            </div>
+
+            <!-- Lawful Bases Section -->
+            <div class="mb-4">
+                <h6 class="fw-semibold mb-3">Lawful Bases of Data Processing</h6>
+                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_collection_std_code,
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_std_code,
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_collection_spec_code,
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_spec_code,
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_notes) }}
+            </div>
+
+            <!-- Data Subjects Section -->
+            <div class="mb-4">
+                <h6 class="fw-semibold mb-3">Data Subjects</h6>
+                {{ fmacros.render_field_with_errors(dataset_form.subject_category_code,
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.has_special_subjects) }}
+                {{ fmacros.render_field_with_errors(dataset_form.special_subjects_notes) }}
+            </div>
+
+            <!-- Consent Section -->
+            <div class="mb-4">
+                <h6 class="fw-semibold mb-3">Consent and Use Restrictions Originating from Consent</h6>
+                {{ fmacros.render_field_with_errors(dataset_form.consent_status_code,
+                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.consent_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rs) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rs_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_gs) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_gs_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_us) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_us_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_pub) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_pub_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn_notes) }}
+            </div>
+
+            <!-- Specific Use Restrictions Section -->
+            <div class="mb-4">
+                <h6 class="fw-semibold mb-3">Specific Use Restrictions</h6>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ps) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ps_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_pub) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_pub_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_other_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.access_form_required) }}
+
+                <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                    <div>If an access request form is needed, please make sure you upload the form template as an attachment to this submission.</div>
+                </div>
+
+                {{ fmacros.render_field_with_errors(dataset_form.dac_approval_required) }}
+                {{ fmacros.render_field_with_errors(dataset_form.dac_approval_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip_notes) }}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Save
+                </button>
+                <a href="{{ url_for('view_submission',sub_id=dataset_form.submission_id.data) }}" class="btn btn-outline-secondary" role="button">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -108,11 +108,11 @@
         </table>
     </div>
     <div>
-        <h3>Data Declarations</h3>
+        <h3>Datasets</h3>
         <hr/>
         <table class="table table-bordered">
 
-            {% for datadec in submission_rec.datadecs %}
+            {% for dataset in submission_rec.datasets %}
             <tr>
                 <td rowspan="10" {% if loop.index % 2== 1 %} bgcolor="#CCC" {% else %} bgcolor="#f2f2f2" {% endif %}>
                     {{loop.index}}
@@ -122,31 +122,31 @@
             <tr>
                 <th scope="row">Source Study</th>
 
-                <td>{% if datadec.study %}
-                    {{ datadec.study.name }}
+                <td>{% if dataset.study %}
+                    {{ dataset.study.name }}
                     {% endif %}
                 </td>
             </tr>
             <tr>
                 <th scope="row">Special Subjects </th>
-                <td>{{ datadec.has_special_subjects | replace("True","Yes") | replace("False","No") }}</td>
+                <td>{{ dataset.has_special_subjects | replace("True","Yes") | replace("False","No") }}</td>
             </tr>
 
             <tr>
                 <th scope="row">Notes on special subjects</th>
-                <td>{{ datadec.special_subjects_notes }}</td>
+                <td>{{ dataset.special_subjects_notes }}</td>
             </tr>
             <tr>
                 <th scope="row">Consent Status</th>
-                <td>{{ datadec.consent_status.label }}</td>
+                <td>{{ dataset.consent_status.label }}</td>
             </tr>
             <tr>
                 <th scope="row">Notes on Consent</th>
-                <td>{{ datadec.consent_notes }}</td>
+                <td>{{ dataset.consent_notes }}</td>
             </tr>
             <tr>
                 <th scope="row">De-Identification Type</th>
-                <td>{{ datadec.de_identification_type.label }}</td>
+                <td>{{ dataset.de_identification_type.label }}</td>
             </tr>
 
             {% endfor %}

@@ -355,7 +355,7 @@ def export_submission(sub: Submission):
 
     sub_info['studies'] = export_studies(sub)
 
-    sub_info['data_declarations'] = export_datadecs(sub)
+    sub_info['data_declarations'] = export_datasets(sub)
 
     sub_info['attachments'] = export_attachment_info(sub)
 

@@ -295,9 +295,9 @@ class SubmissionForm(FlaskForm):
         ]
 
 
-class DatadecForm(FlaskForm):
+class DatasetForm(FlaskForm):
     """
-    Form for creating or updating a data declaration within a submission
+    Form for creating or updating a data set within a submission
     """
 
     id = HiddenField("dataset_Id")
