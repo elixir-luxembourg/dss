@@ -1,107 +1,285 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-    <div class="row g-4">
-
-            <!-- MAIN CONTENT -->
-            <div class="col-lg-8">
-
-                <!-- Introduction Card -->
-                <div class="card border shadow-sm mb-4" id="home-description">
-                    <div class="card-body p-4">
-                        <p class="fs-5 text-secondary mb-4">
-                            This site is targeted for data providers, who want to submit
-                            Human Data to the ELIXIR-LU Data Repository or to Collaborators
-                            at Luxembourg Centre for Systems Biomedicine (LCSB).
-                        </p>
-
-                        <p class="fs-5 text-secondary mb-3">
-                            In order to use the Submission System:
-                        </p>
-
-                        <ol class="fs-5 text-secondary ps-4">
-                            <li class="mb-3">
-                                Please <a target="_blank" href="https://perun.elixir-czech.cz/fed/registrar/?vo=elixir"
-                                          class="text-primary text-decoration-underline fw-semibold">
-                                register with ELIXIR AAI
-                            </a>. You will then be able to login to the Submission System using either your Institutional, Google or ORCID account.
-                            </li>
-                            <li class="mb-3">
-                                Please notify your LCSB Collaborator or the ELIXIR-LU Data Steward (by e-mail) about your intention to submit Human Data.
-                            </li>
-                            <li>
-                                You will receive an invite (by e-mail) to login to the Submission System and follow the necessary steps.
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-
-                <!-- About Us Card -->
-                <div class="card border shadow-sm p-4" id="home-description-2">
-                    <h2 class="fw-semibold text-primary mb-3">About Us</h2>
-                    <p class="fs-5 text-secondary mb-4">
-                        ELIXIR Luxembourg and the Luxembourg Centre for Systems Biomedicine (LCSB) collaborate to provide a
-                        secure and reliable platform for sharing and managing human research data. Learn more about our partner organizations below:
-                    </p>
-                    <ul class="mb-0" id="about-links">
-                        <li class="mb-2">
-                            <a href="https://wwwen.uni.lu/lcsb" class="text-secondary text-decoration-underline fw-medium">LCSB</a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="https://elixir-luxembourg.org" class="text-secondary text-decoration-underline fw-medium">ELIXIR-Luxembourg</a>
-                        </li>
-                        <li>
-                            <a href="https://www.elixir-europe.org" class="text-secondary text-decoration-underline fw-medium">ELIXIR</a>
-                        </li>
-                    </ul>
-                </div>
-
+    <!-- Hero Section -->
+    <div class="position-relative mb-5 overflow-hidden rounded-3 bg-primary">
+        <div class="position-relative p-5 text-white text-center" style="z-index: 1;">
+            <div class="mb-2">
+                <span class="badge bg-white bg-opacity-25 text-white">
+                    <i class="bi bi-database-fill fs-1"></i>
+                </span>
             </div>
-
-            <!-- SIDEBAR -->
-            <div class="col-lg-4">
-
-                <div class="d-flex flex-column gap-4">
-
-                    <!-- Data Catalog Card -->
-                    <div class="card border shadow-sm">
-                        <div class="card-body p-4">
-                            <h5 class="card-title fw-semibold text-dark mb-3">
-                                <a href="https://datacatalog.elixir-luxembourg.org" class="text-primary text-decoration-none">
-                                    Explore our Data Catalog!
-                                </a>
-                            </h5>
-                            <p class="card-text text-secondary mb-3">
-                                If you'd like to deposit data to the ELIXIR Luxembourg Repository and have questions, please contact us at:
-                            </p>
-                            <div class="text-center">
-                                <img src="/static/public/images/datasteward_contact.png"
-                                     class="img-fluid rounded w-75"
-                                     alt="Data Steward contact">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Follow Us on X Card -->
-                    <div class="card border shadow-sm">
-                        <div class="card-body p-4">
-                            <h5 class="card-title fw-semibold text-dark mb-3">Follow Us on X</h5>
-                            <p class="card-text text-secondary mb-3">
-                                Stay updated with the latest news and announcements from ELIXIR Luxembourg.
-                            </p>
-                            <a href="https://twitter.com/elixir_lu"
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-twitter-x"></i>
-                                <span>Follow @elixir_lu</span>
-                            </a>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
+            <h1 class="display-4 fw-bold mb-3">Data Submission System</h1>
+            <p class="lead mb-4 opacity-90" style="max-width: 650px; margin: 0 auto;">
+                Securely submit research data through our guided, collaborative workflow
+            </p>
+            {% if current_user.is_authenticated %}
+                {% set user_roles = current_user.assigned_roles | map(attribute='name') | list %}
+                {% if 'user' in user_roles %}
+                    <a href="{{ url_for('list_my_submissions') }}"
+                       class="btn btn-light btn-lg px-5 fw-semibold">
+                        View My Submissions
+                    </a>
+                {% elif 'data_steward' in user_roles %}
+                    <a href="{{ url_for('submissions') }}"
+                       class="btn btn-light btn-lg px-5 fw-semibold">
+                        View Submissions
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('login') }}"
+                   class="btn btn-light btn-lg px-5 fw-semibold">
+                    Sign In
+                </a>
+            {% endif %}
 
         </div>
+    </div>
+
+    <!-- Process -->
+    <div class="mb-5">
+        <div class="text-center mb-5">
+            <h2 class="h3 fw-bold mb-2">Your Submission Journey</h2>
+            <p class="text-secondary">Follow our five-step collaborative process from initiation to completion</p>
+        </div>
+
+        <div class="position-relative" style="max-width: 1000px; margin: 0 auto;">
+
+            <div class="d-none d-md-block position-absolute top-0 start-50 translate-middle-x bg-primary bg-opacity-25"
+                 style="width: 4px; height: 100%; z-index: 0;"></div>
+
+            <!-- Step 1 -->
+            <div class="row mb-2 position-relative">
+                <div class="col-md-6 text-md-end pe-md-5 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-2">
+                                <span class="badge" style="background-color: #667eea;">Data Steward</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Initiation</h3>
+                            <p class="text-secondary mb-0">
+                                Our Data Steward creates a personalized submission form and sends you an email invitation to start the process.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
+                    <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
+                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1; top: -15px; left: -6px;">
+                        1
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="row mb-2 position-relative">
+                <div class="col-md-6 order-md-2 ps-md-5 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-2">
+                                <span class="badge bg-success">Submitter</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Metadata Submission</h3>
+                            <p class="text-secondary mb-0">
+                                Describe your research by providing study information, dataset description, and related metadata using guided forms.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 order-md-1 d-flex align-items-center justify-content-md-end justify-content-center">
+                    <div class="rounded-circle bg-secondary text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
+                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1;">
+                        2
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="row mb-2 position-relative">
+                <div class="col-md-6 text-md-end pe-md-5 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-2">
+                                <span class="badge" style="background-color: #667eea;">Data Steward</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Metadata Approval</h3>
+                            <p class="text-secondary mb-0">
+                                Our Data Steward reviews submitted metadata for completeness and compliance before approval.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
+                    <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
+                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1; left: -6px;">
+                        3
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="row mb-2 position-relative">
+                <div class="col-md-6 order-md-2 ps-md-5 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-2">
+                                <span class="badge bg-success">Submitter</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Dataset Upload</h3>
+                            <p class="text-secondary mb-0">
+                                Once approved, securely upload your dataset files to the provided upload zone.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 order-md-1 d-flex align-items-center justify-content-md-end justify-content-center">
+                    <div class="rounded-circle bg-secondary text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
+                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1;">
+                        4
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="row mb-2 position-relative">
+                <div class="col-md-6 text-md-end pe-md-5 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="mb-2">
+                                <span class="badge" style="background-color: #667eea;">Data Steward</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Data Approval</h3>
+                            <p class="text-secondary mb-0">
+                                The Data Steward verifies uploaded files, ensuring integrity and correctness before final approval.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
+                    <div class="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
+                         style="width: 70px; height: 70px; font-size: 1.5rem; z-index: 1; left: -6px;">
+                        5
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="row position-relative">
+                <div class="col-md-6 order-md-2 ps-md-5 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);">
+                        <div class="card-body p-4">
+                            <h3 class="h5 fw-bold mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                Complete
+                            </h3>
+                            <p class="text-dark mb-0">
+                                Your data has been successfully transferred and is now available within our research infrastructure.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 order-md-1 d-flex align-items-center justify-content-md-end justify-content-center">
+                    <div class="rounded-circle bg-success text-white fw-bold d-flex align-items-center justify-content-center shadow position-relative"
+                         style="width: 70px; height: 70px; font-size: 1.8rem; z-index: 1;">
+                        ✓
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <!-- Info boxes -->
+    <div class="row g-4 mb-5">
+        <!-- Quick Start -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 60px; height: 60px;">
+                        <i class="bi bi-rocket-takeoff fs-3 text-primary"></i>
+                    </div>
+                    <h3 class="h5 fw-bold mb-3">Quick Start</h3>
+                    <p class="text-secondary mb-3">
+                        New to the system? Register now or contact our data steward.
+                    </p>
+                    <a href="#"
+                       target="_blank"
+                       class="btn btn-primary">
+                        Register Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 60px; height: 60px;">
+                        <i class="bi bi-chat-dots fs-3 text-info"></i>
+                    </div>
+                    <h3 class="h5 fw-bold mb-3">Ready to Submit?</h3>
+                    <p class="text-secondary mb-3">
+                        Contact your LCSB collaborator or our Data Steward to initiate your submission.
+                    </p>
+                    <div class="mb-0">
+                        <img src="/static/public/images/datasteward_contact.png"
+                             class="img-fluid rounded"
+                             style="max-width: 180px;"
+                             alt="Contact Data Steward">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Catalog -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 60px; height: 60px;">
+                        <i class="bi bi-database fs-3 text-success"></i>
+                    </div>
+                    <h3 class="h5 fw-bold mb-3">Browse Data</h3>
+                    <p class="text-secondary mb-3">
+                        Explore existing datasets in the ELIXIR Luxembourg Repository and discover research opportunities.
+                    </p>
+                    <a href="https://datacatalog.elixir-luxembourg.org"
+                       target="_blank"
+                       class="btn btn-outline-success">
+                        View Catalog
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center py-4 border-top">
+        <p class="text-secondary mb-3 small">A collaborative platform powered by</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="https://elixir-luxembourg.org"
+               target="_blank"
+               class="text-decoration-none text-secondary fw-medium">
+                ELIXIR Luxembourg
+            </a>
+            <span class="text-secondary">•</span>
+            <a href="https://www.uni.lu/lcsb-en/"
+               target="_blank"
+               class="text-decoration-none text-secondary fw-medium">
+                LCSB
+            </a>
+            <span class="text-secondary">•</span>
+            <a href="https://www.elixir-europe.org"
+               target="_blank"
+               class="text-decoration-none text-secondary fw-medium">
+                ELIXIR Europe
+            </a>
+        </div>
+    </div>
+
 {% endblock %}
