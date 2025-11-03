@@ -933,7 +933,7 @@ def dataset_link(dataset_id):
         app.logger.warning("LFT client is not initialized. Skipping LFT link creation.")
         return render_template("submission/_lft_link_content.html", link=None)
 
-    dataset = SubmissionDataDeclaration.query.get_or_404(dataset_id)
+    dataset = SubmissionDataset.query.get_or_404(dataset_id)
     submission = Submission.query.get_or_404(dataset.submission_id)
     if submission.current_status != SubmissionStatusEnum.completed:
         app.logger.info(f"Submission {submission.id} is not in completed state.")
