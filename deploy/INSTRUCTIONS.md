@@ -15,6 +15,11 @@ sudo dnf groupinstall -y "Development Tools"
 ```bash
 sudo useradd elixirdss
 sudo passwd elixirdss
+
+# Grant limited sudo access (only for deployment commands)
+echo "elixirdss ALL=(ALL) NOPASSWD: /usr/bin/systemctl, /usr/bin/chmod, /usr/bin/chown, /usr/bin/ln" | sudo tee /etc/sudoers.d/elixirdss
+sudo chmod 440 /etc/sudoers.d/elixirdss
+
 sudo su - elixirdss
 ```
 
@@ -63,7 +68,8 @@ cp .env.template .env
 vi .env  # Set ELIXIR_DSS_ENV=prod
 
 # Initialize database
-python manage.py init_db
+./manage.py init-db
+./manage.py load-demo-users
 ```
 
 ## 4. Setup Systemd Service
@@ -133,4 +139,4 @@ sudo systemctl status elixir-dss
 sudo systemctl status nginx
 ```
 
-Access at: https://elixir-dcp.lcsb.uni.lu
+Access at: https://dss-elixir-srv.lcsb.uni.lu/
