@@ -35,12 +35,16 @@ def app_authorization(**options):
                     "record_authorization"
                 ):
                     params = options.get("record_authorization")
-                    my_entity_name = getattr(submission_models_module, params["entity"])
+                    my_entity_class = getattr(
+                        submission_models_module, params["entity"]
+                    )
                     my_entity_id = kwargs[params["entity_id_key"]]
                     # SQLAlchemy 2.0 style - use session.get() for primary key lookups
-                    my_entity = db.session.get(my_entity_name, my_entity_id)
-                    my_attribute = getattr(my_entity, params["entity_ac_attribute"])
-                    if not has_access(current_user.get_id(), my_attribute):
+                    my_entity = db.session.get(my_entity_class, my_entity_id)
+                    submission_id = getattr(my_entity, params["entity_ac_attribute"])
+                    if not has_access(
+                        user_id=current_user.get_id(), submission_id=submission_id
+                    ):
                         return (
                             render_template(
                                 "error.html",

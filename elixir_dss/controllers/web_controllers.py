@@ -922,7 +922,7 @@ def list_notifications():
     record_authorization={
         "entity": "SubmissionDataset",
         "entity_id_key": "dataset_id",
-        "entity_ac_attribute": "id",
+        "entity_ac_attribute": "submission_id",
     },
 )
 def dataset_link(dataset_id):
