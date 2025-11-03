@@ -97,10 +97,10 @@ class Config(object):
     LFT_SCHEME = os.environ.get("LFT_SCHEME", "https")
     LFT_USERNAME = os.environ.get("LFT_USERNAME")
     LFT_PASSWORD = os.environ.get("LFT_PASSWORD")
-    LFT_NAMESPACE_ID = int(os.environ.get("LFT_NAMESPACE_ID", "1"))
+    LFT_NAMESPACE_ID = int(os.environ.get("LFT_NAMESPACE_ID") or "1")
     LFT_VERIFY_SSL = os.environ.get("LFT_VERIFY_SSL", "true").lower() == "true"
     LFT_LINKS_BASE_URL = os.environ.get("LFT_LINKS_BASE_URL")
-    LFT_LINK_VALIDITY_DAYS = int(os.environ.get("LFT_LINK_VALIDITY_DAYS", "1"))
+    LFT_LINK_VALIDITY_DAYS = int(os.environ.get("LFT_LINK_VALIDITY_DAYS") or "1")
 
     CACHE_CONFIG = {
         "CACHE_TYPE": "filesystem",
