@@ -59,7 +59,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(1, len(users))
         pinar = users[0]
         self.assertEqual(2, len(pinar.assigned_roles))
-        self.assertTrue(pinar.is_admin())
+        self.assertTrue(pinar.is_data_steward())
 
         deactivate_user(pinar)
         users = User.query.all()

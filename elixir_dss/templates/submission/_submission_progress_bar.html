@@ -11,7 +11,7 @@
                 <!-- Workflow Control Buttons -->
                 <div class="d-flex gap-2">
                     {% if submission.current_status.prev_state() is not none %}
-                        {% if current_user.is_admin() %}
+                        {% if current_user.is_data_steward() %}
                         <a name="button_submission_editor_revert"
                            data-url="{{ url_for('revert_submission', sub_id=submission.id) }}"
                            class="btn btn-outline-warning btn-sm d-flex align-items-center gap-2"
@@ -23,7 +23,7 @@
                     {% endif %}
 
                     {% if submission.current_status.next_state() is not none %}
-                        {% if current_user.is_admin() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
+                        {% if current_user.is_data_steward() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
                         <a name="button_submission_editor_steer"
                            data-url="{{ url_for('steer_submission', sub_id=submission.id) }}"
                            class="btn btn-primary btn-sm d-flex align-items-center gap-2"

@@ -224,7 +224,7 @@ def _keycloak_logout_url(id_token: str):
 
 
 def landing_page_for_user(usr):
-    if usr.is_admin():
+    if usr.is_data_steward():
         return url_for("list_submissions")
     else:
         return url_for("list_my_submissions")
@@ -432,7 +432,7 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info("Sub REC: %s", submission_rec)
 
-        if current_user.is_admin():
+        if current_user.is_data_steward():
 
             class AdminSubmissionForm(forms.SubmissionForm):
                 pass
@@ -454,7 +454,7 @@ def edit_submission(sub_id):
         sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
         return render_template("submission/submission_form.html", submsn_form=sub_form)
     elif request.method == "POST":
-        if current_user.is_admin():
+        if current_user.is_data_steward():
 
             class AdminSubmissionForm(forms.SubmissionForm):
                 pass

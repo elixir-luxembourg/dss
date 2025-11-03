@@ -55,6 +55,9 @@ class User(UserMixin, db.Model):
             result.append(role.id)
         return result
 
+    def is_data_steward(self):
+        return self.has_role_from(["data_steward"])
+
 
 class Role(db.Model):
     __tablename__ = "roles"
