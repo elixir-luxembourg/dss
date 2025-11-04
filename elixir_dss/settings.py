@@ -31,7 +31,7 @@ class Config(object):
     # Menu Bar Items a list of  (Name, Link, Sub item list, role)
     APP_MENU_BAR_ITEMS = [
         (
-            "Admin",
+            "Data Steward",
             None,
             [
                 ("Submissions", "list_submissions"),
