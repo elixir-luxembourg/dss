@@ -1,55 +1,87 @@
 {% if submission.studies %}
-<div class="container">
-    <div class="col-md-12">
-        <table class="table table-hover table-borderless align-middle">
-            <thead class="table-light border-bottom border-secondary border-opacity-25">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
             <tr>
-                <th width="25%">Study Name</th>
-                <th width="25%">Study Features</th>
-                <th width="25%">Study Contacts</th>
-                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <th width="15%">Actions</th>
+                <th class="fw-semibold text-dark py-3 align-middle border-end" style="background-color: #e9ecef;">
+                    <i class="bi bi-journal-text me-2 text-primary"></i>Study Name
+                </th>
+                <th class="fw-semibold text-dark py-3 align-middle border-end" style="background-color: #e9ecef;">
+                    <i class="bi bi-tags me-2 text-primary"></i>Study Features
+                </th>
+                <th class="fw-semibold text-dark py-3 align-middle border-end" style="background-color: #e9ecef;">
+                    <i class="bi bi-people me-2 text-primary"></i>Study Contacts
+                </th>
+                {% if current_user.is_data_steward() or submission.current_status.step_num() == 1 %}
+                    <th class="fw-semibold text-dark py-3 text-end align-middle" style="background-color: #e9ecef;">Actions</th>
                 {% endif %}
             </tr>
             </thead>
+            <tbody>
             {% for study in submission.studies %}
-            <tr class="border-bottom border-secondary border-opacity-10">
-                <td>
-                    {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or submission.current_status.step_num() ==2 %}
-                        <a href="{{ url_for('edit_submission_study', study_id=study.id) }}" class="text-dark text-decoration-none">
-                            {{ study.name }}
-                        </a>
-                    {% else %}
-                        {{ study.name }}
+                <tr class="border-bottom">
+                    <td class="py-3">
+                        {% if current_user.is_data_steward() or submission.current_status.step_num() == 1 %}
+                            <a href="{{ url_for('edit_submission_study', study_id=study.id) }}"
+                               class="text-dark text-decoration-none fw-semibold d-inline-flex align-items-center gap-2">
+                                <span>{{ study.name }}</span>
+                            </a>
+                        {% else %}
+                            <span class="fw-semibold">{{ study.name }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3">
+                        {% if study.study_feature_names() %}
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for feature in study.study_feature_names() %}
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary small">{{ feature }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-muted small fst-italic">No features</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3">
+                        {% if study.study_contacts_names() %}
+                            <div class="d-flex flex-column gap-1">
+                                {% for contact in study.study_contacts_names() %}
+                                    <div class="small d-flex align-items-center gap-2">
+                                        <i class="bi bi-person text-muted"></i>
+                                        <span>{{ contact }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-muted small fst-italic">No contacts</span>
+                        {% endif %}
+                    </td>
+                    {% if current_user.is_data_steward() or submission.current_status.step_num() == 1 %}
+                        <td class="py-3">
+                            <div class="d-flex align-items-center justify-content-end gap-2">
+                                <a href="{{ url_for('edit_submission_study', study_id=study.id) }}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   data-bs-toggle="tooltip"
+                                   title="Edit study">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ url_for('delete_submission_study', study_id=study.id) }}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   data-bs-toggle="tooltip"
+                                   title="Delete study"
+                                   onclick="return confirm('Are you sure you want to delete this study?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
                     {% endif %}
-                </td>
-                <td>{{ study.study_feature_names()| join(', ') }}</td>
-                <td>{{ study.study_contacts_names()| join(', ') }}</td>
-                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <td>
-                    <div class="d-flex align-items-center justify-content-end gap-2">
-                        <a href="{{ url_for('edit_submission_study',study_id=study.id) }}"
-                           class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
-                            <i class="bi bi-pencil"></i>
-                            <span>Edit</span>
-                        </a>
-                        <a href="{{ url_for('delete_submission_study',study_id=study.id) }}"
-                           class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
-                            <i class="bi bi-trash"></i>
-                            <span>Delete</span>
-                        </a>
-                    </div>
-                </td>
-                {% endif %}
-            </tr>
+                </tr>
             {% endfor %}
+            </tbody>
         </table>
     </div>
-</div>
 {% else %}
-<div class="text-center py-5">
-    <h5 class="text-secondary">No studies declared</h5>
-</div>
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-journal-text fs-1 mb-3 d-block opacity-25"></i>
+        <p class="mb-0">No studies declared</p>
+    </div>
 {% endif %}

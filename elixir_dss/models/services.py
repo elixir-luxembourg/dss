@@ -49,11 +49,22 @@ def steer_sub(submission_id: str):
             "Submission cannot be steered to the next state!"
         )
     elif (
-        target_state == SubmissionStatusEnum.draft
+        submission.current_status == SubmissionStatusEnum.draft
         and not submission.has_providers()
     ):
         flash(
             "You need to specify a data provider user before initiating a submission",
+            "error",
+        )
+        raise RecordLifecycleException(
+            "Submission cannot be steered to the next state!"
+        )
+    elif (
+            submission.current_status == SubmissionStatusEnum.metadata_submission
+            and (not submission.has_study() or not submission.has_dataset())
+    ):
+        flash(
+            "You need to add at least one study and one dataset before proceeding to the next step.",
             "error",
         )
         raise RecordLifecycleException(

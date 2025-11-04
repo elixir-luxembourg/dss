@@ -230,6 +230,18 @@ class Submission(db.Model):
         else:
             return True
 
+    def has_study(self):
+        if not self.studies:
+            return False
+        else:
+            return True
+
+    def has_dataset(self):
+        if not self.datasets:
+            return False
+        else:
+            return True
+
     def is_overview_info_complete(self):
         return self.title and self.submission_contacts
 
