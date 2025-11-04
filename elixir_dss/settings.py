@@ -109,6 +109,8 @@ class Config(object):
         "CACHE_DEFAULT_TIMEOUT": 300,
     }
 
+    IDSERVICE_ENDPOINT = os.environ.get("IDSERVICE_ENDPOINT")
+
 
 class ProdConfig(Config):
     DEBUG = False

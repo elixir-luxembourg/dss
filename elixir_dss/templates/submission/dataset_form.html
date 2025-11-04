@@ -32,6 +32,9 @@
                 <h6 class="fw-semibold mb-3">General</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.title) }}
                 {{ fmacros.render_field_with_errors(dataset_form.study_id, clazz="elx-select")}}
+                {% if dataset_form.external_id.data %}
+                    {{ fmacros.render_field_with_errors(dataset_form.external_id) }}
+                {% endif %}
                 {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.sci_datatypes, clazz="elx-multi-select") }}

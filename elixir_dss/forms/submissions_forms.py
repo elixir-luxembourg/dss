@@ -313,6 +313,7 @@ class DatasetForm(FlaskForm):
 
     id = HiddenField("dataset_Id")
     submission_id = HiddenField("Submission_Id")
+    external_id = StringField("External ID", render_kw={"readonly": True})
 
     title = StringField(
         "Title",

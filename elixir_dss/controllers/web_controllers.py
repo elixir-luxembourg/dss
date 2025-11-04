@@ -18,9 +18,10 @@ from sqlalchemy.exc import OperationalError
 from werkzeug.utils import secure_filename
 from wtforms import FieldList, FormField
 
+from elixir_dss import app, db, lft, login_manager, oauth
+from elixir_dss.controllers.api_controllers import generate_id
 import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
-from elixir_dss import app, db, lft, login_manager, oauth
 from elixir_dss.models.security import User
 from elixir_dss.models.services import (
     assign_role_to_user,
@@ -651,23 +652,20 @@ def add_submission_dataset(sub_id):
             posted_form.validate_on_submit()
             and int(posted_form.submission_id.data) == sub_id
         ):
-            dataset_rec = SubmissionDataset()
-            posted_form.populate_obj(dataset_rec)
-            dataset_rec.id = None
+            dataset = SubmissionDataset()
+            posted_form.populate_obj(dataset)
+            dataset.id = None
             if posted_form.sci_datatypes.data:
-                dataset_rec.sci_datatypes_json = json.dumps(
-                    posted_form.sci_datatypes.data
-                )
+                dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
             if posted_form.gdpr_datatypes.data:
-                dataset_rec.gdpr_datatypes_json = json.dumps(
+                dataset.gdpr_datatypes_json = json.dumps(
                     posted_form.gdpr_datatypes.data
                 )
-            db.session.add(dataset_rec)
+            dataset.external_id = generate_id(dataset.title)
+            db.session.add(dataset)
             db.session.commit()
             flash("Dataset added", "success")
-            return redirect(
-                url_for("view_submission", sub_id=dataset_rec.submission_id)
-            )
+            return redirect(url_for("view_submission", sub_id=dataset.submission_id))
         else:
             return render_template(
                 "submission/dataset_form.html", dataset_form=posted_form
@@ -685,39 +683,36 @@ def add_submission_dataset(sub_id):
 )
 def edit_submission_dataset(dataset_id):
     if request.method == "GET":
-        dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
-        result_form = forms.DatasetForm(obj=dataset_rec)
-        if dataset_rec.sci_datatypes_json:
-            result_form.sci_datatypes.data = json.loads(dataset_rec.sci_datatypes_json)
-        if dataset_rec.gdpr_datatypes_json:
-            result_form.gdpr_datatypes.data = json.loads(
-                dataset_rec.gdpr_datatypes_json
-            )
+        dataset = SubmissionDataset.query.get_or_404(dataset_id)
+        result_form = forms.DatasetForm(obj=dataset)
+        if dataset.sci_datatypes_json:
+            result_form.sci_datatypes.data = json.loads(dataset.sci_datatypes_json)
+        if dataset.gdpr_datatypes_json:
+            result_form.gdpr_datatypes.data = json.loads(dataset.gdpr_datatypes_json)
         return render_template(
             "submission/dataset_form.html", dataset_form=result_form
         ), 200
     elif request.method == "POST":
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
-            dataset_rec = SubmissionDataset.query.get_or_404(dataset_id)
-            posted_form.populate_obj(dataset_rec)
+            dataset = SubmissionDataset.query.get_or_404(dataset_id)
+            posted_form.populate_obj(dataset)
 
             if posted_form.sci_datatypes.data:
-                dataset_rec.sci_datatypes_json = json.dumps(
-                    posted_form.sci_datatypes.data
-                )
+                dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
 
             if posted_form.gdpr_datatypes.data:
-                dataset_rec.gdpr_datatypes_json = json.dumps(
+                dataset.gdpr_datatypes_json = json.dumps(
                     posted_form.gdpr_datatypes.data
                 )
 
-            db.session.add(dataset_rec)
+            if not dataset.external_id:
+                dataset.external_id = generate_id(dataset.title)
+
+            db.session.add(dataset)
             db.session.commit()
             flash("Dataset updated", "success")
-            return redirect(
-                url_for("view_submission", sub_id=dataset_rec.submission_id)
-            )
+            return redirect(url_for("view_submission", sub_id=dataset.submission_id))
         else:
             return render_template(
                 "submission/dataset_form.html", dataset_form=posted_form
