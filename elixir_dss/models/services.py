@@ -59,9 +59,8 @@ def steer_sub(submission_id: str):
         raise RecordLifecycleException(
             "Submission cannot be steered to the next state!"
         )
-    elif (
-            submission.current_status == SubmissionStatusEnum.metadata_submission
-            and (not submission.has_study() or not submission.has_dataset())
+    elif submission.current_status == SubmissionStatusEnum.metadata_submission and (
+        not submission.has_study() or not submission.has_dataset()
     ):
         flash(
             "You need to add at least one study and one dataset before proceeding to the next step.",
@@ -320,7 +319,9 @@ def send_data_rejected_notification(submission: Submission, feedback):
         "noreply@uni.lu",
         recipients,
         render_template(
-            "email/submission_data_rejected.txt", submission=submission, feedback=feedback
+            "email/submission_data_rejected.txt",
+            submission=submission,
+            feedback=feedback,
         ),
         render_template(
             "email/submission_data_rejected.html",

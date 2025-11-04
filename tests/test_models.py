@@ -231,7 +231,8 @@ class ModelPersistenceTest(BaseTest):
             SubmissionStatusEnum.data_upload,
         )
         self.assertEqual(
-            SubmissionStatusEnum.completed.prev_state(), SubmissionStatusEnum.data_approval
+            SubmissionStatusEnum.completed.prev_state(),
+            SubmissionStatusEnum.data_approval,
         )
 
         # Test is_in_progress includes approval states

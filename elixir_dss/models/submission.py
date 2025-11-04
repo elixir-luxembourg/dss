@@ -316,7 +316,9 @@ class SubmissionMessage(db.Model):
     sender_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     sender_user = db.relationship("User")
     message_text = db.Column(db.String, nullable=False)
-    message_type = db.Column(db.String, nullable=True)  # 'metadata_review_approval', 'metadata_review_rejection', 'data_review_approval', 'data_review_rejection', None (regular)
+    message_type = db.Column(
+        db.String, nullable=True
+    )  # 'metadata_review_approval', 'metadata_review_rejection', 'data_review_approval', 'data_review_rejection', None (regular)
     # html_body = db.Column(db.String, nullable=)
 
 

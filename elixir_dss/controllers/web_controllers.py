@@ -361,46 +361,46 @@ def revert_submission(sub_id):
 @login_required
 @app_authorization(allowed_roles=["admin"])
 def approve_metadata_endpoint(sub_id):
-    feedback = request.form.get('feedback', '').strip()
+    feedback = request.form.get("feedback", "").strip()
     approve_metadata(sub_id, current_user.id, feedback if feedback else None)
     flash("Metadata approved", "success")
-    return redirect(url_for('view_submission', sub_id=sub_id))
+    return redirect(url_for("view_submission", sub_id=sub_id))
 
 
 @app.route("/submission/<int:sub_id>/reject_metadata", methods=["POST"])
 @login_required
 @app_authorization(allowed_roles=["admin"])
 def reject_metadata_endpoint(sub_id):
-    feedback = request.form.get('feedback', '').strip()
+    feedback = request.form.get("feedback", "").strip()
     if not feedback:
         flash("Feedback is required when rejecting", "error")
-        return redirect(url_for('view_submission', sub_id=sub_id))
+        return redirect(url_for("view_submission", sub_id=sub_id))
     reject_metadata(sub_id, current_user.id, feedback)
     flash("Metadata rejected", "warning")
-    return redirect(url_for('view_submission', sub_id=sub_id))
+    return redirect(url_for("view_submission", sub_id=sub_id))
 
 
 @app.route("/submission/<int:sub_id>/approve_data", methods=["POST"])
 @login_required
 @app_authorization(allowed_roles=["admin"])
 def approve_data_endpoint(sub_id):
-    feedback = request.form.get('feedback', '').strip()
+    feedback = request.form.get("feedback", "").strip()
     approve_data(sub_id, current_user.id, feedback if feedback else None)
     flash("Data approved", "success")
-    return redirect(url_for('view_submission', sub_id=sub_id))
+    return redirect(url_for("view_submission", sub_id=sub_id))
 
 
 @app.route("/submission/<int:sub_id>/reject_data", methods=["POST"])
 @login_required
 @app_authorization(allowed_roles=["admin"])
 def reject_data_endpoint(sub_id):
-    feedback = request.form.get('feedback', '').strip()
+    feedback = request.form.get("feedback", "").strip()
     if not feedback:
         flash("Feedback is required when rejecting", "error")
-        return redirect(url_for('view_submission', sub_id=sub_id))
+        return redirect(url_for("view_submission", sub_id=sub_id))
     reject_data(sub_id, current_user.id, feedback)
     flash("Data rejected", "warning")
-    return redirect(url_for('view_submission', sub_id=sub_id))
+    return redirect(url_for("view_submission", sub_id=sub_id))
 
 
 @app.route("/submissions", methods=["GET"])
