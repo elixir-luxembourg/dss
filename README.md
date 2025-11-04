@@ -224,6 +224,15 @@ This will:
 
 Push the commit and tag to git after releasing.
 
+## Deployment
+
+**Update Application on VM:**
+```bash
+sudo bash /home/elixirdss/app-src/elixir-dss/deploy/update_app.sh
+```
+
+See `deploy/INSTRUCTIONS.md` for full deployment guide.
+
 ## Current Version
 
 **v0.4.0-dev**
