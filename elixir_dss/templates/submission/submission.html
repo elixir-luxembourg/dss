@@ -274,14 +274,7 @@
 
             <!-- Attachments Tab Content -->
             <div class="tab-pane fade" id="attachments" role="tabpanel">
-                {% if stp < 2 %}
-                <div class="bg-secondary-subtle border border-secondary rounded p-3 d-flex align-items-center gap-3 mb-3">
-                    <i class="bi bi-lock fs-4 text-secondary"></i>
-                    <div>
-                        <strong>Attachments will be available in the Data Upload stage.</strong> Complete Study Registration first, then proceed to upload files.
-                    </div>
-                </div>
-                {% elif attachments_count == 0 and can_edit %}
+                {% if attachments_count == 0 and can_edit %}
                 <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
                     <i class="bi bi-info-circle fs-4 text-info"></i>
                     <div>
