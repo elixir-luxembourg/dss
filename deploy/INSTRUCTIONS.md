@@ -138,6 +138,7 @@ source project_venv/bin/activate
 pip install -e . --upgrade
 cd elixir_dss/static/vendor
 npm ci
+npm run build:css
 exit
 
 sudo systemctl restart elixir-dss
