@@ -8,13 +8,23 @@ Modern deployment using systemd and nginx on Rocky Linux 8 / RHEL 8+
 sudo dnf update -y
 sudo dnf install -y python3.12 python3.12-pip nginx git nodejs npm
 sudo dnf groupinstall -y "Development Tools"
+
+# Required for JS/CSS minification (webassets Closure filter)
+# Install Java 21 (recommended) or java-11-openjdk
+sudo dnf install -y java-21-openjdk
+
+# Set Java 21 as default (if multiple versions are installed)
+sudo alternatives --config java
+# Select the number corresponding to java-21-openjdk
+
+# Verify Java version
+java -version
 ```
 
 ## 2. Setup Application User
 
 ```bash
 sudo useradd elixirdss
-sudo passwd elixirdss
 
 # Grant limited sudo access (only for deployment commands)
 echo "elixirdss ALL=(ALL) NOPASSWD: /usr/bin/systemctl, /usr/bin/chmod, /usr/bin/chown, /usr/bin/ln" | sudo tee /etc/sudoers.d/elixirdss
@@ -95,8 +105,24 @@ Setup nginx:
 ```bash
 sudo ln -s /home/elixirdss/app-src/elixir-dss/deploy/elixir-dss-nginx.conf \
            /etc/nginx/conf.d/elixir-dss.conf
+```
 
-# Set permissions
+### Fix static file permissions for nginx
+If you see nginx errors like `Permission denied` for static files, run the following commands to ensure nginx can traverse directories and read static files:
+
+```bash
+# Make directories traversable and files readable by nginx
+sudo chmod 755 /home/elixirdss
+sudo chmod 755 /home/elixirdss/app-src
+sudo chmod 755 /home/elixirdss/app-src/elixir-dss
+sudo chmod 755 /home/elixirdss/app-src/elixir-dss/elixir_dss
+sudo chmod 755 /home/elixirdss/app-src/elixir-dss/elixir_dss/static
+sudo chmod -R 755 /home/elixirdss/app-src/elixir-dss/elixir_dss/static/public
+sudo chmod -R +r /home/elixirdss/app-src/elixir-dss/elixir_dss/static/public
+```
+
+Continue with nginx setup:
+```bash
 sudo chown -R nginx:nginx /var/lib/nginx
 sudo systemctl enable nginx
 sudo systemctl restart nginx
@@ -106,8 +132,6 @@ sudo systemctl restart nginx
 
 ### Update Application
 ```bash
-sudo systemctl stop elixir-dss
-
 su - elixirdss
 cd ~/app-src/elixir-dss
 git pull
@@ -117,17 +141,16 @@ cd elixir_dss/static/vendor
 npm ci
 exit
 
-sudo systemctl start elixir-dss
+sudo systemctl restart elixir-dss
 sudo systemctl restart nginx
 ```
 
 ### View Logs
 ```bash
 # Application logs
-sudo journalctl -u elixir-dss -f
 tail -f /home/elixirdss/app-logs/gunicorn-error.log
 
-# Nginx logs
+# Nginx logs (only for sudo?)
 sudo tail -f /var/log/nginx/error.log
 ```
 
