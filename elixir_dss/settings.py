@@ -24,7 +24,6 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    UPLOADS_SERVER_PATH = "/attachments"
     UPLOAD_FOLDER = os.path.join(APP_DATA_BASE_DIR, "uploads")
     SUBMISSION_EXPORT_FOLDER = os.path.join(APP_DATA_BASE_DIR, "exports")
 

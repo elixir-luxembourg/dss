@@ -1,11 +1,12 @@
 import enum
 import json
-import os
 
+
+from flask import url_for
 from sqlalchemy import Sequence
 from sqlalchemy.orm import object_mapper
 
-from elixir_dss import app, db
+from elixir_dss import db
 from elixir_dss.controllers.api_controllers import get_elu_partners
 from elixir_dss.controllers.utils import dict_list_lookup
 
@@ -73,16 +74,15 @@ class SubmissionAttachment(db.Model):
             for name in names:
                 result.append(
                     (
-                        os.path.join(
-                            os.path.join(
-                                app.config.get("UPLOADS_SERVER_PATH"), self.folder_name
-                            ),
-                            name,
+                        url_for(
+                            "download_submission_attachment",
+                            attach_id=self.id,
+                            filename=name,
                         ),
                         name,
                     )
                 )
-                return result
+            return result
         else:
             return None
 

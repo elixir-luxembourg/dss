@@ -1,6 +1,6 @@
 # Elixir DSS Deployment Guide
 
-Modern deployment using systemd and nginx on Rocky Linux 8 / RHEL 8+
+Deployment using systemd and nginx on Rocky Linux 8
 
 ## 1. Install System Dependencies
 
@@ -9,11 +9,10 @@ sudo dnf update -y
 sudo dnf install -y python3.12 python3.12-pip nginx git nodejs npm
 sudo dnf groupinstall -y "Development Tools"
 
-# Required for JS/CSS minification (webassets Closure filter)
-# Install Java 21 (recommended) or java-11-openjdk
+# Install Java 21 (for webassets)
 sudo dnf install -y java-21-openjdk
 
-# Set Java 21 as default (if multiple versions are installed)
+# Set Java 21 as default
 sudo alternatives --config java
 # Select the number corresponding to java-21-openjdk
 
@@ -150,8 +149,8 @@ sudo systemctl restart nginx
 # Application logs
 tail -f /home/elixirdss/app-logs/gunicorn-error.log
 
-# Nginx logs (only for sudo?)
-sudo tail -f /var/log/nginx/error.log
+# Nginx logs
+tail -f /var/log/nginx/error.log
 ```
 
 ### Check Status
