@@ -1,6 +1,7 @@
 import json
 
 from elixir_dss import db
+from elixir_dss.exceptions import RecordLifecycleException
 from elixir_dss.importer.submission_exporter import SubmissionExporter
 from elixir_dss.models.security import User
 from elixir_dss.models.services import (
@@ -11,12 +12,15 @@ from elixir_dss.models.services import (
     register_new_user,
     update_submission_basic_info,
     clone_sub,
+    revert_sub,
+    steer_sub,
 )
 from elixir_dss.models.submission import (
     Contact,
     ContactType,
     Submission,
     SubmissionAccess,
+    SubmissionAttachment,
     SubmissionDataset,
     SubmissionScope,
     SubmissionStatusEnum,
@@ -71,13 +75,6 @@ class ModelPersistenceTest(BaseTest):
     def test_create_submission(self):
         self.assertEqual(18, len(SubmissionScope.query.all()))
 
-        # con = db.session.connection()
-        # res = con.execute("select sqlite_version();")
-        # for row in res:
-        #     print(row[0])
-        #
-        # con.execute("PRAGMA foreign_keys=ON")
-
         submission_rec = create_sub("Test Submission", "ELU_I_77")
 
         self.assertEqual(1, len(Submission.query.all()))
@@ -118,65 +115,69 @@ class ModelPersistenceTest(BaseTest):
         # Testing delete-orphan annotations on the relations of Submission
         self.assertEqual(0, len(SubmissionAccess.query.all()))
 
-    # def test_steer_submission(self):
-    #
-    #     submission_rec = create_sub('Test Submission','ELU_I_77')
-    #
-    #     sub_id = Submission.query.get_or_404(submission_rec.id).id
-    #
-    #     try:
-    #         steer_sub(sub_id)
-    #     except RecordLifecycleException:
-    #         # we should not be able to steer the submission
-    #         # because we have not supplied a data provider yet
-    #         pass
-    #     except Exception as e:
-    #         self.fail('Unexpected exception raised:', e)
-    #     else:
-    #         self.fail('Expected Exception not raised')
-    #
-    #     u1 = User(first_name='Kavita', last_name='Rege',
-    #               elixir_sub_id='SOME_ELX_ID', email='kavita.rege@uni.lu',
-    #               institution='University of Luxembourg',
-    #               phone_no='+352123456789')
-    #     usr = register_new_user(u1)
-    #
-    #
-    #     sub = Submission.query.get_or_404(sub_id)
-    #
-    #     update_submission_basic_info(sub, provider_user_ids=[usr.id])
-    #
-    #     accesses = SubmissionAccess.query.all()
-    #     self.assertEqual(1, len(accesses))
-    #     #
-    #     sub = Submission.query.get_or_404(sub_id)
-    #     self.assertEqual(1,len(sub.submission_accesses))
-    #
-    #     steer_sub(sub_id)
-    #     self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_metadata)
-    #
-    #     steer_sub(sub_id)
-    #     self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_data)
-    #
-    #     revert_sub(sub_id)
-    #     self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_metadata)
-    #
-    #     steer_sub(sub_id)
-    #     self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_data)
-    #
-    #     steer_sub(sub_id)
-    #     self.assertEqual(sub.current_status, SubmissionStatusEnum.completed)
-    #
-    #     try:
-    #         steer_sub(sub_id)
-    #     except RecordLifecycleException:
-    #         # we should not be able to steer the submission
-    #         # because it is already complete
-    #         pass
-    #     except Exception as e:
-    #         self.fail('Unexpected exception raised:', e)
-    #     else:
-    #         self.fail('Expected Exception not raised')
+    def test_steer_submission(self):
+        submission_rec = create_sub("Test Submission", "ELU_I_77")
+
+        sub_id = Submission.query.get_or_404(submission_rec.id).id
+
+        try:
+            steer_sub(sub_id)
+        except RecordLifecycleException:
+            # we should not be able to steer the submission
+            # because we have not supplied a data provider yet
+            pass
+        except Exception as e:
+            self.fail("Unexpected exception raised:", e)
+        else:
+            self.fail("Expected Exception not raised")
+
+        u1 = User(
+            first_name="Kavita",
+            last_name="Rege",
+            elixir_sub_id="SOME_ELX_ID",
+            email="kavita.rege@uni.lu",
+            addr_line1="Meyerhofstraße 1, 69117",
+            addr_line2="Heidelberg, Germany",
+            institution_accession="ELU_I_2",
+            phone_no="+352123456789",
+        )
+        usr = register_new_user(u1)
+
+        sub = Submission.query.get_or_404(sub_id)
+
+        update_submission_basic_info(sub, provider_user_ids=[usr.id])
+
+        accesses = SubmissionAccess.query.all()
+        self.assertEqual(1, len(accesses))
+
+        sub = Submission.query.get_or_404(sub_id)
+        self.assertEqual(1, len(sub.submission_accesses))
+
+        steer_sub(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_metadata)
+
+        steer_sub(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_data)
+
+        revert_sub(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_metadata)
+
+        steer_sub(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_data)
+
+        steer_sub(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.completed)
+
+        try:
+            steer_sub(sub_id)
+        except RecordLifecycleException:
+            # we should not be able to steer the submission
+            # because it is already complete
+            pass
+        except Exception as e:
+            self.fail("Unexpected exception raised:", e)
+        else:
+            self.fail("Expected Exception not raised")
 
     def test_export_submission(self):
         submission_rec = create_sub("Test Submission to be exported.", "ELU_I_5")
@@ -246,24 +247,23 @@ class ModelPersistenceTest(BaseTest):
         db.session.add(dataset_rec2)
         db.session.commit()
 
-        # a_rec = SubmissionAttachment()
-        # a_rec.submission_id = submission_rec.id
-        # a_rec.note = 'Ethics approval'
-        # a_rec.folder_name = '1b523cd3-5953-4af2-a0e3-5bd2dde483b5'
-        # a_rec.file_names = 'CNER-AVIS20140713-Dr_RK-ND_COLLECTION.pdf'
-        #
-        # db.session.add(a_rec)
-        # db.session.commit()
-        #
-        #
-        # a_rec = SubmissionAttachment()
-        # a_rec.submission_id = submission_rec.id
-        # a_rec.note = 'Subject Consents and Info Sheet'
-        # a_rec.folder_name = '7be19c77-8b8c-4a2c-845b-8764817641e2'
-        # a_rec.file_names = 'CA_UNI_SAAR_58_01.pdf 140174_ND_SIS_v8-0_EN_21JUN2017.pdf'
-        #
-        # db.session.add(a_rec)
-        # db.session.commit()
+        a_rec = SubmissionAttachment()
+        a_rec.submission_id = submission_rec.id
+        a_rec.note = "Ethics approval"
+        a_rec.folder_name = "1b523cd3-5953-4af2-a0e3-5bd2dde483b5"
+        a_rec.file_names = "CNER-AVIS20140713-Dr_RK-ND_COLLECTION.pdf"
+
+        db.session.add(a_rec)
+        db.session.commit()
+
+        a_rec = SubmissionAttachment()
+        a_rec.submission_id = submission_rec.id
+        a_rec.note = "Subject Consents and Info Sheet"
+        a_rec.folder_name = "7be19c77-8b8c-4a2c-845b-8764817641e2"
+        a_rec.file_names = "CA_UNI_SAAR_58_01.pdf 140174_ND_SIS_v8-0_EN_21JUN2017.pdf"
+
+        db.session.add(a_rec)
+        db.session.commit()
 
         submission_rec = Submission.query.get_or_404(submission_rec.id)
         exporter = SubmissionExporter()
