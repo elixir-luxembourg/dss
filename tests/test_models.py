@@ -329,3 +329,24 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(clone.datasets[0].title, "Dataset 1")
         self.assertNotEqual(clone.datasets[0].id, dataset.id)
         self.assertNotEqual(clone.studies[0].id, study.id)
+
+    def test_clone_submission_rollback_on_error(self):
+        from unittest.mock import patch
+        from tests.factories import (
+            SubmissionFactory,
+            SubmissionStudyFactory,
+            SubmissionDatasetFactory,
+        )
+
+        original = SubmissionFactory()
+        SubmissionStudyFactory(submission_id=original.id)
+        SubmissionDatasetFactory(submission_id=original.id)
+
+        submissions_before = Submission.query.count()
+
+        with patch.object(db.session, "commit", side_effect=Exception("DB error")):
+            with self.assertRaises(Exception):
+                clone_sub(original.id, clone_studies=True, clone_datasets=True)
+
+        self.assertEqual(submissions_before, Submission.query.count())
+        self.assertIsNotNone(Submission.query.get(original.id))
