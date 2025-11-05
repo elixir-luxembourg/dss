@@ -7,6 +7,7 @@ from elixir_dss.models.submission import (
     Submission,
     SubmissionDataset,
     SubmissionStatusEnum,
+    SubmissionStudy,
 )
 
 
@@ -55,3 +56,17 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
     legal_basis_sharing_std_code = "61a"
     legal_basis_collection_spec_code = "61a"
     legal_basis_sharing_spec_code = "61a"
+
+
+class SubmissionStudyFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = SubmissionStudy
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = "commit"
+
+    name = factory.Faker("catch_phrase")
+    description = factory.Faker("text", max_nb_chars=200)
+    website = factory.Faker("url")
+    ethics_approval_exists = True
+    ethics_approval_no = factory.Sequence(lambda n: f"ETH-{n + 1:04d}")
+    study_types_json = '["observational", "interventional"]'

@@ -350,8 +350,8 @@ class SubmissionStudy(db.Model):
 class SubmissionDataset(db.Model):
     __tablename__ = "submission_dataset"
 
-    # Data
     id = db.Column(db.Integer, primary_key=True)
+    external_id = db.Column(db.String(20), unique=True, nullable=True)
     title = db.Column(db.String, nullable=False)
     submission_id = db.Column(
         db.Integer, db.ForeignKey("submissions.id"), nullable=False
@@ -360,8 +360,6 @@ class SubmissionDataset(db.Model):
         db.Integer, db.ForeignKey("submission_study.id"), nullable=True
     )
     study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
-
-    # cohort_accession =  db.Column(db.String, nullable=True)
 
     gdpr_datatypes_json = db.Column(db.String, nullable=False)
     gdpr_datatypes_notes = db.Column(db.String, nullable=True)

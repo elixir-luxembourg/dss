@@ -5,12 +5,18 @@ from flask import url_for
 from elixir_dss import db
 
 from elixir_dss.models.security import User
+from elixir_dss.models.services import create_sub
 from elixir_dss.models.submission import (
+    SubmissionDataset,
     SubmissionStatusEnum,
 )
 from elixir_dss.clients.lft import LFTLink
 from tests import BaseIntegrationTest
-from tests.factories import SubmissionFactory, SubmissionDatasetFactory
+from tests.factories import (
+    SubmissionDatasetFactory,
+    SubmissionFactory,
+    SubmissionStudyFactory,
+)
 
 __author__ = "Pinar Alper"
 
@@ -167,3 +173,39 @@ class ControllersTest(BaseIntegrationTest):
             mock_lft.get_or_create_link.assert_called_once_with(
                 dataset=dataset, sub=submission.ref_name
             )
+
+    def test_add_submission_dataset(self):
+        self.login("steward1@uni.lu", "steward1")
+
+        submission = create_sub("Test Submission", "ELU_I_9")
+        study = SubmissionStudyFactory(submission_id=submission.id)
+
+        get_response = self.client.get(
+            url_for("add_submission_dataset", sub_id=submission.id)
+        )
+        self.assert200(get_response)
+
+        response = self.client.post(
+            url_for("add_submission_dataset", sub_id=submission.id),
+            data={
+                "submission_id": submission.id,
+                "title": "Test_Dataset",
+                "study_id": study.id,
+                "gdpr_datatypes": ["genetic"],
+                "sci_datatypes": ["Whole_genome_sequencing"],
+                "de_identification_type_code": "p",
+                "legal_basis_collection_std_code": "61a",
+                "legal_basis_sharing_std_code": "61a",
+                "legal_basis_collection_spec_code": "61a",
+                "legal_basis_sharing_spec_code": "61a",
+                "subject_category_code": "ca",
+                "consent_status_code": "hm",
+            },
+            follow_redirects=True,
+        )
+        self.assert200(response)
+
+        dataset = SubmissionDataset.query.filter_by(submission_id=submission.id).first()
+        self.assertIsNotNone(dataset)
+        self.assertIsNotNone(dataset.external_id)
+        self.assertEqual("Test_Dataset", dataset.title)
