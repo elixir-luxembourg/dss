@@ -31,16 +31,16 @@ class Config(object):
     # Menu Bar Items a list of  (Name, Link, Sub item list, role)
     APP_MENU_BAR_ITEMS = [
         (
-            "Admin",
+            "Data Steward",
             None,
             [
                 ("Submissions", "list_submissions"),
-                ("Users", "list_users"),
                 ("Email Notifications", "list_notifications"),
             ],
-            "admin",
+            "data_steward",
         ),
-        ("My Submissions", "list_my_submissions", [], "data_provider"),
+        ("My Submissions", "list_my_submissions", [], "user"),
+        ("Admin", None, [("Users", "list_users")], "admin"),
     ]
     DATA_INIT = START_UP_DATA
 
@@ -60,6 +60,7 @@ class Config(object):
         "steward1@uni.lu": "steward1",
         "submitter1@some.edu": "submitter1",
         "submitter2@some.edu": "submitter2",
+        "admin@uni.lu": "admin",
     }
 
     # OIDC config

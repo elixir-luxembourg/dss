@@ -7,7 +7,7 @@
             <tr>
                 <th width="40%">Note</th>
                 <th width="50%">File(s)</th>
-                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}
                 <th width="15%">Actions</th>
                 {% endif %}
@@ -25,7 +25,7 @@
                     </ul>
                     {% endif %}
                 </td>
-                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}
                 <td>
                     <div class="d-flex align-items-center justify-content-end gap-2">

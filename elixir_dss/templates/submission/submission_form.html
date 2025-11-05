@@ -82,7 +82,7 @@
                     </div>
                 </fieldset>
                 {{ fmacros.render_field_with_errors(submsn_form.notes) }}
-                {% if current_user.is_admin() %}
+                {% if current_user.is_data_steward() %}
                 {{ fmacros.render_field_with_errors(submsn_form.provider_user_ids, clazz="elx-multi-select") }}
                 {% endif %}
                 </fieldset>

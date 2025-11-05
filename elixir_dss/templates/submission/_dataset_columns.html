@@ -8,7 +8,7 @@
                 <th rowspan="2">Source Study</th>
                 <th rowspan="2">Data Type(s)</th>
                 <th colspan="3">Data Protection</th>
-                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}
                 <th rowspan="2">Actions</th>
                 {% endif %}
@@ -23,7 +23,7 @@
             {% for dataset in submission.datasets %}
             <tr class="border-bottom border-secondary border-opacity-10">
                 <td>
-                    {% if current_user.is_admin() or submission.current_status.step_num() ==1 or submission.current_status.step_num() ==2 %}
+                    {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or submission.current_status.step_num() ==2 %}
                         <a href="{{ url_for('edit_submission_dataset', dataset_id=dataset.id) }}" class="text-dark text-decoration-none">
                             {{ dataset.title }}
                         </a>
@@ -42,7 +42,7 @@
                 <td>{{ dataset.de_identification_type.label }}</td>
                 <td>{{ dataset.has_special_subjects_display() }}</td>
                 <td>{{ dataset.consent_status.label }}</td>
-                {% if current_user.is_admin() or submission.current_status.step_num() ==1 or
+                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}
                 <td>
                     <div class="d-flex align-items-center justify-content-end gap-2">

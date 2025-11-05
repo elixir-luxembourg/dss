@@ -31,7 +31,7 @@ def app_authorization(**options):
                         ),
                         403,
                     )
-                if (not current_user.is_admin()) and options.get(
+                if (not current_user.is_data_steward()) and options.get(
                     "record_authorization"
                 ):
                     params = options.get("record_authorization")

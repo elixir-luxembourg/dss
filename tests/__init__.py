@@ -79,7 +79,7 @@ class BaseIntegrationTest(BaseTest):
             phone_no="+352123456789",
         )
         register_new_user(u1)
-        assign_role_to_user(u1, "admin")
+        assign_role_to_user(u1, "data_steward")
 
         u2 = User(
             first_name="Submitter",
@@ -90,7 +90,7 @@ class BaseIntegrationTest(BaseTest):
             phone_no="+352123456789",
         )
         register_new_user(u2)
-        assign_role_to_user(u2, "data_provider")
+        assign_role_to_user(u2, "user")
 
         u3 = User(
             first_name="Submitter",
@@ -101,4 +101,15 @@ class BaseIntegrationTest(BaseTest):
             phone_no="+352123456789",
         )
         register_new_user(u3)
-        assign_role_to_user(u3, "data_provider")
+        assign_role_to_user(u3, "user")
+
+        u4 = User(
+            first_name="admin",
+            last_name="One",
+            elixir_sub_id="ADMIN_ELX_ID",
+            email="admin@uni.lu",
+            institution_accession="ELU_I_77",
+            phone_no="+352123456789",
+        )
+        register_new_user(u4)
+        assign_role_to_user(u4, "admin")

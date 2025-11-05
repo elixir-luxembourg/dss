@@ -27,13 +27,13 @@
 
             <!-- Action Buttons -->
             <div class="d-flex gap-2">
-                <a {% if current_user.is_admin() %} href="{{ url_for('list_submissions') }}" {% else %}
+                <a {% if current_user.is_data_steward() %} href="{{ url_for('list_submissions') }}" {% else %}
                    href="{{ url_for('list_my_submissions') }}" {% endif %}
                    class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
                     <i class="bi bi-x-circle"></i>
                     <span class="d-none d-lg-inline">Close</span>
                 </a>
-                {% if current_user.is_admin() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
+                {% if current_user.is_data_steward() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
                 <a name="button_submission_edit"
                    href="{{ url_for('edit_submission',sub_id=submission.id) }}"
                    class="btn btn-primary btn-sm d-flex align-items-center gap-2">
@@ -62,7 +62,7 @@
 {% set data_count = submission.datasets|length %}
 {% set attachments_count = submission.attachments|length %}
 {% set messages_count = submission.messages|length %}
-{% set can_edit = current_user.is_admin() or stp == 1 or stp == 2 %}
+{% set can_edit = current_user.is_data_steward() or stp == 1 or stp == 2 %}
 
 <div class="card border shadow-sm mb-4">
     <!-- Card Header with Stage-Aware Title -->

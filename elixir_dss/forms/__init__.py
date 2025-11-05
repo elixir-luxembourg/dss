@@ -82,6 +82,7 @@ class SignupForm(FlaskForm):
             ),
             Length(min=2, max=20, message="Must be 2 to 20 characters long."),
         ],
+        render_kw={"readonly": True},
     )
     last_name = StringField(
         "Last Name",
@@ -93,6 +94,7 @@ class SignupForm(FlaskForm):
             ),
             Length(min=2, max=20, message="Must be 2 to 20 characters long."),
         ],
+        render_kw={"readonly": True},
     )
 
     institution_accession = SelectField(
@@ -116,7 +118,10 @@ class SignupForm(FlaskForm):
         "E Mail",
         description="Your institutional email.",
         validators=[DataRequired(), Email("Requires an email address.")],
-        render_kw={"placeholder": "Email with which ELIXIR-LU can contact you."},
+        render_kw={
+            "placeholder": "Email with which ELIXIR-LU can contact you.",
+            "readonly": True,
+        },
     )
 
     addr_line1 = StringField(

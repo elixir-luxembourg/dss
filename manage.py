@@ -71,8 +71,8 @@ def load_demo_users():
         phone_no="+352123456789",
     )
     register_new_user(u1)
-    assign_role_to_user(u1, "admin")
-    click.echo("Created admin user: steward1@uni.lu")
+    assign_role_to_user(u1, "data_steward")
+    click.echo("Created data steward user: steward1@uni.lu")
 
     u2 = User(
         first_name="Submitter",
@@ -83,7 +83,7 @@ def load_demo_users():
         phone_no="+352123456789",
     )
     register_new_user(u2)
-    assign_role_to_user(u2, "data_provider")
+    assign_role_to_user(u2, "user")
     click.echo("Created data provider: submitter1@some.edu")
 
     u3 = User(
@@ -95,8 +95,20 @@ def load_demo_users():
         phone_no="+352123456789",
     )
     register_new_user(u3)
-    assign_role_to_user(u3, "data_provider")
+    assign_role_to_user(u3, "user")
     click.echo("Created data provider: submitter2@some.edu")
+
+    u4 = User(
+        first_name="Admin",
+        last_name="One",
+        elixir_sub_id="admin@uni.lu",
+        email="admin@uni.lu",
+        institution_accession="ELU_I_77",
+        phone_no="+352123456789",
+    )
+    register_new_user(u4)
+    assign_role_to_user(u4, "admin")
+    click.echo("Created admin user: admin@uni.lu")
 
     click.echo("Demo users loaded successfully!")
 
