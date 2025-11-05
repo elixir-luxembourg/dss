@@ -274,6 +274,7 @@ class Contact(db.Model):
     def clone(self, **overrides):
         mapper = object_mapper(self)
         exclude = {"id", "submission_id", "study_id"}
+        exclude.update({c.key for c in mapper.columns if c.unique})
         attrs = {
             c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude
         }
@@ -340,6 +341,7 @@ class SubmissionStudy(db.Model):
     def clone(self, **overrides):
         mapper = object_mapper(self)
         exclude = {"id", "submission_id"}
+        exclude.update({c.key for c in mapper.columns if c.unique})
         attrs = {
             c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude
         }
@@ -502,6 +504,7 @@ class SubmissionDataset(db.Model):
     def clone(self, **overrides):
         mapper = object_mapper(self)
         exclude = {"id"}
+        exclude.update({c.key for c in mapper.columns if c.unique})
         attrs = {
             c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude
         }
