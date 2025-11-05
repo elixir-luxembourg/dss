@@ -935,8 +935,13 @@ def dataset_link(dataset_id):
 
     dataset = SubmissionDataset.query.get_or_404(dataset_id)
     submission = Submission.query.get_or_404(dataset.submission_id)
-    if submission.current_status != SubmissionStatusEnum.completed:
-        app.logger.info(f"Submission {submission.id} is not in completed state.")
+    if submission.current_status not in [
+        SubmissionStatusEnum.in_progress_data,
+        SubmissionStatusEnum.completed,
+    ]:
+        app.logger.info(
+            f"Submission {submission.id} is not in progress_data or completed state."
+        )
         return render_template("submission/_lft_link_content.html", link=None)
 
     try:
