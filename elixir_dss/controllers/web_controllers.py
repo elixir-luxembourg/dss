@@ -918,7 +918,7 @@ def list_notifications():
 
 @app.route("/dataset_link/<int:dataset_id>", methods=["GET"])
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "SubmissionDataset",
         "entity_id_key": "dataset_id",
