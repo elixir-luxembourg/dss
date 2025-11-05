@@ -1,8 +1,16 @@
+from unittest.mock import MagicMock, patch
+from datetime import datetime, timedelta
+
 from flask import url_for
 from elixir_dss import db
 
 from elixir_dss.models.security import User
+from elixir_dss.models.submission import (
+    SubmissionStatusEnum,
+)
+from elixir_dss.clients.lft import LFTLink
 from tests import BaseIntegrationTest
+from tests.factories import SubmissionFactory, SubmissionDatasetFactory
 
 __author__ = "Pinar Alper"
 
@@ -133,22 +141,29 @@ class ControllersTest(BaseIntegrationTest):
         )
         self.assert200(response)
 
+    def test_dataset_link(self):
+        self.login("steward1@uni.lu", "steward1")
 
-#     def test_update_and_steer_submission(self):
-#         submission_rec = create_sub('Test Submission')
-#
-#
-#         data_provider = User.query.filter_by(first_name='Kavita').one_or_none()
-#
-# d = url_for('create_submission')
-#         response = self.client.post(url_for('edit_submission', sub_id=submission_rec.id),
-#                                     data={"title": "Test Submission 123",
-#                                           "submission_scope_code": "e"},
-#                                     follow_redirects=True)
-#         data = response.data.decode('utf-8')
-#         self.assert200(response)
+        submission = SubmissionFactory(current_status=SubmissionStatusEnum.completed)
+        dataset = SubmissionDatasetFactory(submission_id=submission.id)
+        mock_link = LFTLink(
+            id="test_link_id",
+            absolute_url="https://lft.example.com/links/test_link",
+            expiration_date=datetime.now() + timedelta(days=1),
+            password="test_password",
+        )
 
-#
-# "local_custodians": ['Some PI', 'Some other PI'],
-# "local_project_name": "",
-# "provider_user_ids": [data_provider.id]
+        with patch("elixir_dss.controllers.web_controllers.lft") as mock_lft:
+            mock_lft.client = MagicMock()
+            mock_lft.get_or_create_link.return_value = mock_link
+
+            response = self.client.get(
+                url_for("dataset_link", dataset_id=dataset.id, sub_id=submission.id)
+            )
+            self.assert200(response)
+            data = response.data.decode("utf-8")
+            self.assertIn("test_link", data)
+
+            mock_lft.get_or_create_link.assert_called_once_with(
+                dataset=dataset, sub=submission.ref_name
+            )

@@ -20,7 +20,7 @@ from wtforms import FieldList, FormField
 
 import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
-from elixir_dss import app, db, login_manager, oauth
+from elixir_dss import app, db, lft, login_manager, oauth
 from elixir_dss.models.security import User
 from elixir_dss.models.services import (
     assign_role_to_user,
@@ -43,6 +43,7 @@ from elixir_dss.models.submission import (
     SubmissionAttachment,
     SubmissionDataset,
     SubmissionMessage,
+    SubmissionStatusEnum,
     SubmissionStudy,
 )
 
@@ -913,3 +914,44 @@ def send_notification(notification_id):
 def list_notifications():
     notifications = EmailNotification.query.all()
     return render_template("email/notifications.html", notifications=notifications)
+
+
+@app.route("/dataset_link/<int:dataset_id>", methods=["GET"])
+@app_authorization(
+    allowed_roles=["user", "data_steward"],
+    record_authorization={
+        "entity": "SubmissionDataset",
+        "entity_id_key": "dataset_id",
+        "entity_ac_attribute": "submission_id",
+    },
+)
+def dataset_link(dataset_id):
+    if not request.method == "GET":
+        return "", 405
+
+    if lft.client is None:
+        app.logger.warning("LFT client is not initialized. Skipping LFT link creation.")
+        return render_template("submission/_lft_link_content.html", link=None)
+
+    dataset = SubmissionDataset.query.get_or_404(dataset_id)
+    submission = Submission.query.get_or_404(dataset.submission_id)
+    if submission.current_status not in [
+        SubmissionStatusEnum.in_progress_data,
+        SubmissionStatusEnum.completed,
+    ]:
+        app.logger.info(
+            f"Submission {submission.id} is not in progress_data or completed state."
+        )
+        return render_template("submission/_lft_link_content.html", link=None)
+
+    try:
+        link = lft.get_or_create_link(dataset=dataset, sub=submission.ref_name)
+        app.logger.info(
+            f"Created LFT link for dataset {dataset.id}: {link.absolute_url}"
+        )
+        return render_template("submission/_lft_link_content.html", link=link)
+    except Exception as e:
+        app.logger.error(
+            f"Failed to create LFT link for dataset {dataset.id}: {str(e)}"
+        )
+        return render_template("submission/_lft_link_content.html", link=None)

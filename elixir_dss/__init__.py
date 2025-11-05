@@ -12,9 +12,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 
+from elixir_dss.clients.lft import LFTHandler
 from elixir_dss.settings import ELIXIR_DSS_ENV
 import elixir_dss.assets as assets
 import elixir_dss.exceptions as exceptions
+
 
 __VERSION__ = "0.4.0-dev"
 
@@ -77,6 +79,8 @@ migrate = Migrate(app, db)
 # Setup Flask-Mail
 mail = Mail(app)
 
+lft = LFTHandler(app)
+
 app.add_template_global(login_manager.login_view, "login_page")
 
 
@@ -107,7 +111,7 @@ def run_export_submission():
 # Import controllers and models after all other objects are created to avoid circular imports
 from . import controllers, models  # noqa: E402
 
-__all__ = [controllers, assets, app, db, exceptions, oauth, mail]
+__all__ = [controllers, assets, app, db, exceptions, oauth, mail, lft]
 
 if __name__ == "__main__":
     app.run(use_reloader=False)

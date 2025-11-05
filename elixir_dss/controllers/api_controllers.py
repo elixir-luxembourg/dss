@@ -25,7 +25,10 @@ def get_elu_entities(entity_name):
         daisy_url = app.config.get("DAISY_URL")
         api_key = app.config.get("DAISY_API_KEY")
         result = requests.get(
-            f"{daisy_url}/api/{entity_name}?API_KEY={api_key}&fields=external_id,acronym,name"
+            f"{daisy_url}/api/{entity_name}",
+            params={"API_KEY": api_key, "fields": "external_id,acronym,name"},
+            timeout=10,
+            verify=False,
         )
         result.raise_for_status()
         data = result.json()

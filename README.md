@@ -102,6 +102,7 @@ Only needed if you want to customize the setup process. Otherwise, use `./setup_
 - Python 3.12 or newer
 - Node.js and npm
 - OpenJDK 21+ (for some dependencies)
+- **Optional:** [lftpythonclient](https://gitlab.com/uniluxembourg/lcsb/elixir/lft/lftpythonclient) - Required for LFT integration to generate upload links
 
 ### Python Environment Setup
 

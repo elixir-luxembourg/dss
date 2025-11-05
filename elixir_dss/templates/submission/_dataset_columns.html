@@ -8,6 +8,9 @@
                 <th rowspan="2">Source Study</th>
                 <th rowspan="2">Data Type(s)</th>
                 <th colspan="3">Data Protection</th>
+                {% if submission.current_status.step_num() >= 2 %}
+                <th rowspan="2">Upload Link</th>
+                {% endif %}
                 {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}
                 <th rowspan="2">Actions</th>
@@ -42,6 +45,20 @@
                 <td>{{ dataset.de_identification_type.label }}</td>
                 <td>{{ dataset.has_special_subjects_display() }}</td>
                 <td>{{ dataset.consent_status.label }}</td>
+                {% if submission.current_status.step_num() >= 2 %}
+                <td>
+                    <button type="button" 
+                            class="btn btn-primary btn-sm"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#lftLinkModal"
+                            hx-get="{{ url_for('dataset_link', dataset_id=dataset.id) }}"
+                            hx-trigger="click"
+                            hx-target="#lftLinkModalBody"
+                            hx-swap="innerHTML">
+                    <i class="bi bi-link-45deg"></i> Get Upload Link
+                    </button>
+                </td>
+                {% endif %}
                 {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
                 submission.current_status.step_num() ==2 %}
                 <td>
@@ -74,3 +91,7 @@
     <h5 class="text-secondary">No data declared</h5>
 </div>
 {% endif %}
+
+<!-- LFT Link Modal - placed outside the loop to avoid duplicate IDs -->
+{% include 'submission/_lft_link_modal.html' %}
+
