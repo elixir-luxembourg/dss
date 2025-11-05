@@ -70,9 +70,13 @@ class LFTHandler:
         except LFTClientException as e:
             raise RuntimeError("LFT login failed") from e
 
+        share_name = dataset.external_id
+        if not share_name:
+            raise RuntimeError("Dataset external_id is required for LFT link")
+
         try:
             links = self.client.links_list(
-                namespace_id=self.namespace_id, share_name=dataset.id, sub=sub
+                namespace_id=self.namespace_id, share_name=share_name, sub=sub
             )
             if links:
                 for link in links:
@@ -89,7 +93,7 @@ class LFTHandler:
         try:
             link = self.client.create_link(
                 namespace_id=self.namespace_id,
-                share_name=dataset.id,
+                share_name=share_name,
                 sub=sub,
                 expiration_date=dt.date(dt.now() + td(days=self.link_validity_days)),
             )
