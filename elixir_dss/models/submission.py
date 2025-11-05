@@ -2,7 +2,7 @@ import enum
 import json
 import os
 
-from sqlalchemy import Sequence, inspect
+from sqlalchemy import Sequence
 from sqlalchemy.orm import object_mapper
 
 from elixir_dss import app, db
