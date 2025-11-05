@@ -17,7 +17,7 @@ from elixir_dss.models.submission import (
     SubmissionStatusEnum,
     Contact,
     SubmissionStudy,
-    SubmissionDataDeclaration,
+    SubmissionDataset,
 )
 
 
@@ -386,9 +386,7 @@ def clone_sub(
 
     # clone data declarations if selected
     if clone_datasets:
-        old_datasets = SubmissionDataDeclaration.query.filter_by(
-            submission_id=old_sub.id
-        ).all()
+        old_datasets = SubmissionDataset.query.filter_by(submission_id=old_sub.id).all()
         for d in old_datasets:
             new_d = d.clone(
                 submission_id=new_sub.id,

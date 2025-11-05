@@ -287,7 +287,7 @@ class ModelPersistenceTest(BaseTest):
         )
 
         self.assertEqual(len(clone.submission_contacts), 0)
-        self.assertEqual(len(clone.datadecs), 0)
+        self.assertEqual(len(clone.datasets), 0)
         self.assertEqual(len(clone.studies), 0)
         self.assertFalse(clone.exported)
 
@@ -300,7 +300,7 @@ class ModelPersistenceTest(BaseTest):
         db.session.add(sub)
         db.session.commit()
 
-        # Add study + data declaration
+        # Add study + dataset
         study = SubmissionStudy(
             submission_id=sub.id,
             name="Study 1",
@@ -311,21 +311,21 @@ class ModelPersistenceTest(BaseTest):
         db.session.add(study)
         db.session.commit()
 
-        datadec = SubmissionDataDeclaration(
+        dataset = SubmissionDataset(
             submission_id=sub.id,
             study_id=study.id,
-            title="Data declaration 1",
+            title="Dataset 1",
             gdpr_datatypes_json=json.dumps(["personal"]),
             sci_datatypes_json=json.dumps(["RNASeq"]),
         )
-        db.session.add(datadec)
+        db.session.add(dataset)
         db.session.commit()
 
         clone = clone_sub(sub.id, clone_studies=True, clone_datasets=True)
         db.session.commit()
 
         self.assertEqual(len(clone.studies), 1)
-        self.assertEqual(len(clone.datadecs), 1)
-        self.assertEqual(clone.datadecs[0].title, "Data declaration 1")
-        self.assertNotEqual(clone.datadecs[0].id, datadec.id)
+        self.assertEqual(len(clone.datasets), 1)
+        self.assertEqual(clone.datasets[0].title, "Dataset 1")
+        self.assertNotEqual(clone.datasets[0].id, dataset.id)
         self.assertNotEqual(clone.studies[0].id, study.id)
