@@ -385,11 +385,11 @@ def clone_sub(
                 db.session.add(new_sc)
 
     # clone data declarations if selected
-    if clone_datasets and clone_studies:
-        old_datadecs = SubmissionDataDeclaration.query.filter_by(
+    if clone_datasets:
+        old_datasets = SubmissionDataDeclaration.query.filter_by(
             submission_id=old_sub.id
         ).all()
-        for d in old_datadecs:
+        for d in old_datasets:
             new_d = d.clone(
                 submission_id=new_sub.id,
                 study_id=study_id_map.get(d.study_id) if d.study_id else None,

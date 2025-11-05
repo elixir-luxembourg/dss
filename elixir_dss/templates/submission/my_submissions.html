@@ -25,21 +25,6 @@
             datasetsLabel.classList.remove('text-muted');
         });
 
-        // Handle "Studies" checkbox toggle
-        document.getElementById('clone_studies').addEventListener('change', event => {
-            const datasetsCheckbox = document.getElementById('clone_datasets');
-            const datasetsLabel = document.querySelector('label[for="clone_datasets"]');
-
-            if (!event.target.checked) {
-                datasetsCheckbox.checked = false;
-                datasetsCheckbox.disabled = true;
-                datasetsLabel.classList.add('text-muted');
-            } else {
-                datasetsCheckbox.disabled = false;
-                datasetsCheckbox.checked = true;
-                datasetsLabel.classList.remove('text-muted');
-            }
-        });
 
         // click event
         document.getElementById('confirmCloneBtn').addEventListener('click', () => {

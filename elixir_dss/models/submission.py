@@ -3,6 +3,7 @@ import json
 import os
 
 from sqlalchemy import Sequence, inspect
+from sqlalchemy.orm import object_mapper
 
 from elixir_dss import app, db
 from elixir_dss.controllers.api_controllers import get_elu_partners
@@ -271,7 +272,7 @@ class Contact(db.Model):
         return base_dict
 
     def clone(self, **overrides):
-        mapper = inspect(self.__class__)
+        mapper = object_mapper(self)
         exclude = {"id", "submission_id", "study_id"}
         attrs = {
             c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude
@@ -337,7 +338,7 @@ class SubmissionStudy(db.Model):
         return base_dict
 
     def clone(self, **overrides):
-        mapper = inspect(self.__class__)
+        mapper = object_mapper(self)
         exclude = {"id", "submission_id"}
         attrs = {
             c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude
@@ -501,7 +502,7 @@ class SubmissionDataset(db.Model):
         return base_dict
 
     def clone(self, **overrides):
-        mapper = inspect(self.__class__)
+        mapper = object_mapper(self)
         exclude = {"id"}
         attrs = {
             c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude
