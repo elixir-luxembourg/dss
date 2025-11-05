@@ -34,6 +34,7 @@ from elixir_dss.models.services import (
     steer_sub,
     update_submission_basic_info,
     update_user_info,
+    clone_sub,
 )
 from elixir_dss.models.submission import (
     Contact,
@@ -490,6 +491,22 @@ def edit_submission(sub_id):
             return render_template(
                 "submission/submission_form.html", submsn_form=form
             ), 400
+
+
+@app.route("/submission/clone/<int:submission_id>")
+@login_required
+def clone_submission(submission_id):
+    clone_studies = request.args.get("clone_studies", "true").lower() == "true"
+    clone_datasets = request.args.get("clone_datasets", "true").lower() == "true"
+
+    new_sub = clone_sub(
+        submission_id,
+        clone_studies=clone_studies,
+        clone_datasets=clone_datasets,
+    )
+
+    flash(f"Submission {new_sub.ref_name} cloned successfully.", "success")
+    return redirect(url_for("view_submission", sub_id=new_sub.id))
 
 
 """-------------------------------------------------------"""
