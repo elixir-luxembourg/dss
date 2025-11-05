@@ -10,6 +10,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     session,
     url_for,
 )
@@ -514,14 +515,6 @@ def clone_submission(submission_id):
 """AJAX Endpoints for managing a submission's attachments."""
 """-------------------------------------------------------"""
 
-#
-#
-# @app.route('/submission_attachments/<int:sub_id>', methods=['GET'])
-# @app_authorization(allowed_roles=['admin', 'data_provider'], record_authorization={'entity':'Submission', 'entity_id_key':'sub_id', 'entity_ac_attribute':'id'})
-# def list_submission_attachments(sub_id):
-#     submission_rec = Submission.query.get_or_404(sub_id)
-#     return render_template('submission/_attachment_columns.html', submission = submission_rec), 200
-
 
 def is_allowed_type(filename):
     allowed_extensions = set(["txt", "pdf", "png"])
@@ -616,18 +609,36 @@ def delete_submission_attachment(attach_id):
     )
 
 
+@app.route(
+    "/submission_attachment_download/<int:attach_id>/<filename>", methods=["GET"]
+)
+@app_authorization(
+    allowed_roles=["admin", "data_provider"],
+    record_authorization={
+        "entity": "SubmissionAttachment",
+        "entity_id_key": "attach_id",
+        "entity_ac_attribute": "submission_id",
+    },
+)
+def download_submission_attachment(attach_id, filename):
+    submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
+    file_names = submission_attachment.file_names.strip(" \t\n\r").split(" ")
+    if filename not in file_names:
+        return "File not found", 404
+
+    file_path = os.path.join(
+        app.config["UPLOAD_FOLDER"], submission_attachment.folder_name, filename
+    )
+
+    if not os.path.exists(file_path):
+        return "File not found", 404
+
+    return send_file(file_path, as_attachment=True, download_name=filename)
+
+
 """----------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's datasets."""
 """----------------------------------------------------"""
-#
-#
-# @app.route('/submission_datasets/<int:sub_id>', methods=['GET'])
-# @app_authorization(allowed_roles=['admin', 'data_provider'],
-#                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
-#                                          'entity_ac_attribute': 'id'})
-# def list_submission_datasets(sub_id):
-#     submission_rec = Submission.query.get_or_404(sub_id)
-#     return render_template('submission/_dataset_columns.html', submission=submission_rec)
 
 
 @app.route("/submission_dataset_add/<int:sub_id>", methods=["GET", "POST"])
@@ -744,14 +755,6 @@ def delete_submission_dataset(dataset_id):
 """----------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's Studies."""
 """----------------------------------------------------"""
-
-# @app.route('/submission_studies/<int:sub_id>', methods=['GET'])
-# @app_authorization(allowed_roles=['admin', 'data_provider'],
-#                    record_authorization={'entity': 'Submission', 'entity_id_key': 'sub_id',
-#                                          'entity_ac_attribute': 'id'})
-# def list_submission_studies(sub_id):
-#     submission_rec = Submission.query.get_or_404(sub_id)
-#     return render_template('submission/_study_columns.html', submission=submission_rec), 200
 
 
 @app.route("/submission_study_add/<int:sub_id>", methods=["GET", "POST"])
@@ -887,11 +890,6 @@ def add_submission_message(sub_id):
 """----------------------------------------------------"""
 """ Miscellaneous endpoints                            """
 """----------------------------------------------------"""
-
-
-# @app.route('/autocomplete_institutes', methods=['GET'])
-# def autocomplete_institutes():
-#     return Response(dumps(app.config.get('DATA_INIT')['collab_institutions']), mimetype='application/json')
 
 
 @app.route("/notification/<int:notification_id>", methods=["GET"])

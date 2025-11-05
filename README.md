@@ -136,7 +136,7 @@ cp .env.template .env
 
 **3. Authentication:**
 - **CONFIG** (default): Local username/password auth - perfect for development
-- **AAI**: ELIXIR OIDC authentication - requires `client_secrets.json` for production
+- **AAI**: ELIXIR OIDC authentication
 
 **4. Secret Key:** For production, generate a secure key:
 ```python
@@ -224,6 +224,15 @@ This will:
 - Create a commit and tag
 
 Push the commit and tag to git after releasing.
+
+## Deployment
+
+**Update Application on VM:**
+```bash
+sudo bash /home/elixirdss/app-src/elixir-dss/deploy/update_app.sh
+```
+
+See `deploy/INSTRUCTIONS.md` for full deployment guide.
 
 ## Current Version
 

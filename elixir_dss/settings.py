@@ -13,7 +13,7 @@ APP_DATA_BASE_DIR = os.path.abspath(os.path.join(basedir, "../../app-data"))
 ELIXIR_DSS_ENV = os.environ.get("ELIXIR_DSS_ENV")
 
 # Above command does not work on the deployment server CentOS, so when deploying use below
-# APP_DATA_BASE_DIR = '/home/elixirdcp/app-data'
+# APP_DATA_BASE_DIR = '/home/elixirdss/app-data'
 
 
 class Config(object):
@@ -24,7 +24,6 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    UPLOADS_SERVER_PATH = "/attachments"
     UPLOAD_FOLDER = os.path.join(APP_DATA_BASE_DIR, "uploads")
     SUBMISSION_EXPORT_FOLDER = os.path.join(APP_DATA_BASE_DIR, "exports")
 
