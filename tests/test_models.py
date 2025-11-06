@@ -168,7 +168,9 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(sub.current_status, SubmissionStatusEnum.completed)
 
         # Steer fails when COMPLETED
-        self._assert_steer_fails(sub_id, "Steering should fail because submission is complete.")
+        self._assert_steer_fails(
+            sub_id, "Steering should fail because submission is complete."
+        )
 
     def test_new_6_step_workflow_state_transitions(self):
         """Test the new 6-step workflow with approval states"""
@@ -344,9 +346,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertTrue(clone.title.startswith("Brain Study"))
         self.assertIn("(Clone", clone.title)
 
-        self.assertEqual(
-            clone.current_status, SubmissionStatusEnum.metadata_submission
-        )
+        self.assertEqual(clone.current_status, SubmissionStatusEnum.metadata_submission)
 
         self.assertEqual(len(clone.submission_contacts), 0)
         self.assertEqual(len(clone.datasets), 0)
@@ -392,7 +392,6 @@ class ModelPersistenceTest(BaseTest):
         self.assertNotEqual(clone.datasets[0].id, dataset.id)
         self.assertNotEqual(clone.studies[0].id, study.id)
 
-
     def _create_test_user(self):
         """Creates and registers a standard test user"""
         u1 = User(
@@ -417,7 +416,7 @@ class ModelPersistenceTest(BaseTest):
             lastname="Doe",
             email="john.doe@acme.edu",
             address="Some Address",
-            contact_category=ContactType.query.get_or_404(1)
+            contact_category=ContactType.query.get_or_404(1),
         )
 
         # 2. Create Study
@@ -446,6 +445,7 @@ class ModelPersistenceTest(BaseTest):
         """Assert that steering fails with the expected exception and message."""
         with self.assertRaises(RecordLifecycleException, msg=reason):
             steer_sub(sub_id)
+
     def test_clone_submission_rollback_on_error(self):
         from unittest.mock import patch
         from tests.factories import (
@@ -466,3 +466,4 @@ class ModelPersistenceTest(BaseTest):
 
         self.assertEqual(submissions_before, Submission.query.count())
         self.assertIsNotNone(Submission.query.get(original.id))
+
