@@ -155,9 +155,7 @@ class ModelPersistenceTest(BaseTest):
         study_rec = SubmissionStudyFactory(
             submission_id=sub_id, study_contacts=[ContactFactory()]
         )
-        SubmissionDatasetFactory(
-            submission_id=sub_id, study_id=study_rec.id
-        )
+        SubmissionDatasetFactory(submission_id=sub_id, study_id=study_rec.id)
         db.session.commit()
 
         steer_sub(sub_id)
