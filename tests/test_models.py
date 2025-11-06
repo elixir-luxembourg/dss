@@ -357,7 +357,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertIn("(Clone", clone.title)
 
         self.assertEqual(
-            clone.current_status, SubmissionStatusEnum.
+            clone.current_status, SubmissionStatusEnum.in_progress_metadata
         )
 
         self.assertEqual(len(clone.submission_contacts), 0)
