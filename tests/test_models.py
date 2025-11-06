@@ -117,70 +117,58 @@ class ModelPersistenceTest(BaseTest):
 
     def test_steer_submission(self):
         submission_rec = create_sub("Test Submission", "ELU_I_77")
+        sub_id = submission_rec.id
 
-        sub_id = Submission.query.get_or_404(submission_rec.id).id
-
-        try:
-            steer_sub(sub_id)
-        except RecordLifecycleException:
-            # we should not be able to steer the submission
-            # because we have not supplied a data provider yet
-            pass
-        except Exception as e:
-            self.fail("Unexpected exception raised:", e)
-        else:
-            self.fail("Expected Exception not raised")
-
-        u1 = User(
-            first_name="Kavita",
-            last_name="Rege",
-            elixir_sub_id="SOME_ELX_ID",
-            email="kavita.rege@uni.lu",
-            addr_line1="Meyerhofstraße 1, 69117",
-            addr_line2="Heidelberg, Germany",
-            institution_accession="ELU_I_2",
-            phone_no="+352123456789",
+        # Steer fails without Data Provider
+        self._assert_steer_fails(
+            sub_id, "Steering should fail because provider is missing."
         )
-        usr = register_new_user(u1)
 
+        # Add Data Provider
+        usr = self._create_test_user()
         sub = Submission.query.get_or_404(sub_id)
-
         update_submission_basic_info(sub, provider_user_ids=[usr.id])
 
-        accesses = SubmissionAccess.query.all()
-        self.assertEqual(1, len(accesses))
-
-        sub = Submission.query.get_or_404(sub_id)
+        self.assertEqual(1, len(SubmissionAccess.query.all()))
         self.assertEqual(1, len(sub.submission_accesses))
 
+        # Steer to METADATA_SUBMISSION
         steer_sub(sub_id)
+        sub = Submission.query.get_or_404(sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_submission)
 
+        # Steer fails without Study/Dataset
+        self._assert_steer_fails(sub_id)
+
+        # Add metadata
+        self._add_metadata_to_submission(sub_id)
+
         steer_sub(sub_id)
+        sub = Submission.query.get_or_404(sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_approval)
+
+        steer_sub(sub_id)
+        sub = Submission.query.get_or_404(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.data_upload)
 
         revert_sub(sub_id)
-        self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_submission)
-
-        steer_sub(sub_id)
+        sub = Submission.query.get_or_404(sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_approval)
 
         steer_sub(sub_id)
-        print(f'1: {sub.current_status}')
+        sub = Submission.query.get_or_404(sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.data_upload)
-        steer_sub(sub_id)
-        print(f'2: {sub.current_status}')
 
-        try:
-            steer_sub(sub_id)
-        except RecordLifecycleException:
-            # we should not be able to steer the submission
-            # because it is already complete
-            pass
-        except Exception as e:
-            self.fail("Unexpected exception raised:", e)
-        else:
-            self.fail("Expected Exception not raised")
+        steer_sub(sub_id)
+        sub = Submission.query.get_or_404(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.data_approval)
+
+        steer_sub(sub_id)
+        sub = Submission.query.get_or_404(sub_id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.completed)
+
+        # Steer fails when COMPLETED
+        self._assert_steer_fails(sub_id, "Steering should fail because submission is complete.")
 
     def test_new_6_step_workflow_state_transitions(self):
         """Test the new 6-step workflow with approval states"""
@@ -357,7 +345,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertIn("(Clone", clone.title)
 
         self.assertEqual(
-            clone.current_status, SubmissionStatusEnum.in_progress_metadata
+            clone.current_status, SubmissionStatusEnum.metadata_submission
         )
 
         self.assertEqual(len(clone.submission_contacts), 0)
@@ -404,6 +392,60 @@ class ModelPersistenceTest(BaseTest):
         self.assertNotEqual(clone.datasets[0].id, dataset.id)
         self.assertNotEqual(clone.studies[0].id, study.id)
 
+
+    def _create_test_user(self):
+        """Creates and registers a standard test user"""
+        u1 = User(
+            first_name="Kavita",
+            last_name="Rege",
+            elixir_sub_id="SOME_ELX_ID",
+            email="kavita.rege@uni.lu",
+            addr_line1="Meyerhofstraße 1, 69117",
+            addr_line2="Heidelberg, Germany",
+            institution_accession="ELU_I_77",
+            phone_no="+352123456789",
+        )
+        return register_new_user(u1)
+
+    def _add_metadata_to_submission(self, sub_id):
+        """Creates and adds a Study and Dataset to the submission."""
+        submission_rec = Submission.query.get_or_404(sub_id)
+
+        # 1. Create Contact
+        c1 = Contact(
+            firstname="John",
+            lastname="Doe",
+            email="john.doe@acme.edu",
+            address="Some Address",
+            contact_category=ContactType.query.get_or_404(1)
+        )
+
+        # 2. Create Study
+        study_rec = SubmissionStudy(
+            submission_id=submission_rec.id,
+            name="Test Study ABC",
+            description="This study does blah blah...",
+            ethics_approval_exists=True,
+            study_types_json=json.dumps(["Interventional", "Observational"]),
+            study_contacts=[c1]
+        )
+
+        # 3. Create Dataset
+        dataset_rec = SubmissionDataset(
+            submission_id=submission_rec.id,
+            study_id=None,
+            title="Test dataset 1",
+            sci_datatypes_json=json.dumps(["Genomics_variant_array", "RNASeq"]),
+            gdpr_datatypes_json=json.dumps(["standard", "ethnic"]),
+        )
+
+        submission_rec.datasets.append(dataset_rec)
+        submission_rec.studies.append(study_rec)
+
+    def _assert_steer_fails(self, sub_id, reason="Expected failure"):
+        """Assert that steering fails with the expected exception and message."""
+        with self.assertRaises(RecordLifecycleException, msg=reason):
+            steer_sub(sub_id)
     def test_clone_submission_rollback_on_error(self):
         from unittest.mock import patch
         from tests.factories import (
