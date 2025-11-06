@@ -30,8 +30,13 @@ from tests import BaseTest
 
 __author__ = "Pinar Alper"
 
-from tests.factories import SubmissionStudyFactory, SubmissionDatasetFactory, UserFactory, SubmissionFactory, \
-    ContactFactory
+from tests.factories import (
+    SubmissionStudyFactory,
+    SubmissionDatasetFactory,
+    UserFactory,
+    SubmissionFactory,
+    ContactFactory,
+)
 
 
 class ModelPersistenceTest(BaseTest):
@@ -129,7 +134,9 @@ class ModelPersistenceTest(BaseTest):
         )
 
         # Add Data Provider
-        usr = UserFactory(first_name="Kavita", last_name="Rege", institution_accession="ELU_I_2")
+        usr = UserFactory(
+            first_name="Kavita", last_name="Rege", institution_accession="ELU_I_2"
+        )
         sub = Submission.query.get_or_404(sub_id)
         update_submission_basic_info(sub, provider_user_ids=[usr.id])
 
@@ -145,8 +152,12 @@ class ModelPersistenceTest(BaseTest):
         self._assert_steer_fails(sub_id)
 
         # Add metadata
-        study_rec = SubmissionStudyFactory(submission_id=sub_id, study_contacts=[ContactFactory()])
-        dataset_rec = SubmissionDatasetFactory(submission_id=sub_id, study_id=study_rec.id)
+        study_rec = SubmissionStudyFactory(
+            submission_id=sub_id, study_contacts=[ContactFactory()]
+        )
+        dataset_rec = SubmissionDatasetFactory(
+            submission_id=sub_id, study_id=study_rec.id
+        )
         db.session.commit()
 
         steer_sub(sub_id)
@@ -397,7 +408,6 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(clone.datasets[0].title, "Dataset 1")
         self.assertNotEqual(clone.datasets[0].id, dataset.id)
         self.assertNotEqual(clone.studies[0].id, study.id)
-
 
     def _assert_steer_fails(self, sub_id, reason="Expected failure"):
         """Assert that steering fails with the expected exception and message."""

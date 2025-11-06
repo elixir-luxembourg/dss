@@ -9,7 +9,9 @@ from elixir_dss.models.submission import (
     Submission,
     SubmissionDataset,
     SubmissionStatusEnum,
-    SubmissionStudy, Contact, ContactType,
+    SubmissionStudy,
+    Contact,
+    ContactType,
 )
 
 
@@ -73,6 +75,7 @@ class SubmissionStudyFactory(factory.alchemy.SQLAlchemyModelFactory):
     ethics_approval_no = factory.Sequence(lambda n: f"ETH-{n + 1:04d}")
     study_types_json = '["observational", "interventional"]'
 
+
 class UserFactory(SQLAlchemyModelFactory):
     class Meta:
         model = User
@@ -90,6 +93,7 @@ class UserFactory(SQLAlchemyModelFactory):
     def _create(cls, model_class, *args, **kwargs):
         user_instance = super()._create(model_class, *args, **kwargs)
         return register_new_user(user_instance)
+
 
 class ContactFactory(SQLAlchemyModelFactory):
     class Meta:
