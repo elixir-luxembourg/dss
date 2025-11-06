@@ -154,19 +154,22 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(1, len(sub.submission_accesses))
 
         steer_sub(sub_id)
-        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_metadata)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_submission)
 
         steer_sub(sub_id)
-        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_data)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_approval)
 
         revert_sub(sub_id)
-        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_metadata)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_submission)
 
         steer_sub(sub_id)
-        self.assertEqual(sub.current_status, SubmissionStatusEnum.in_progress_data)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_approval)
 
         steer_sub(sub_id)
-        self.assertEqual(sub.current_status, SubmissionStatusEnum.completed)
+        print(f'1: {sub.current_status}')
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.data_upload)
+        steer_sub(sub_id)
+        print(f'2: {sub.current_status}')
 
         try:
             steer_sub(sub_id)
@@ -354,7 +357,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertIn("(Clone", clone.title)
 
         self.assertEqual(
-            clone.current_status, SubmissionStatusEnum.in_progress_metadata
+            clone.current_status, SubmissionStatusEnum.
         )
 
         self.assertEqual(len(clone.submission_contacts), 0)

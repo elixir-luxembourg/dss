@@ -359,7 +359,7 @@ def revert_submission(sub_id):
 
 @app.route("/submission/<int:sub_id>/approve_metadata", methods=["POST"])
 @login_required
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 def approve_metadata_endpoint(sub_id):
     feedback = request.form.get("feedback", "").strip()
     approve_metadata(sub_id, current_user.id, feedback if feedback else None)
@@ -369,7 +369,7 @@ def approve_metadata_endpoint(sub_id):
 
 @app.route("/submission/<int:sub_id>/reject_metadata", methods=["POST"])
 @login_required
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 def reject_metadata_endpoint(sub_id):
     feedback = request.form.get("feedback", "").strip()
     if not feedback:
@@ -382,7 +382,7 @@ def reject_metadata_endpoint(sub_id):
 
 @app.route("/submission/<int:sub_id>/approve_data", methods=["POST"])
 @login_required
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 def approve_data_endpoint(sub_id):
     feedback = request.form.get("feedback", "").strip()
     approve_data(sub_id, current_user.id, feedback if feedback else None)
@@ -392,7 +392,7 @@ def approve_data_endpoint(sub_id):
 
 @app.route("/submission/<int:sub_id>/reject_data", methods=["POST"])
 @login_required
-@app_authorization(allowed_roles=["admin"])
+@app_authorization(allowed_roles=["data_steward"])
 def reject_data_endpoint(sub_id):
     feedback = request.form.get("feedback", "").strip()
     if not feedback:
@@ -984,11 +984,12 @@ def dataset_link(dataset_id):
     dataset = SubmissionDataset.query.get_or_404(dataset_id)
     submission = Submission.query.get_or_404(dataset.submission_id)
     if submission.current_status not in [
-        SubmissionStatusEnum.in_progress_data,
+        SubmissionStatusEnum.data_upload,
+        SubmissionStatusEnum.data_approval,
         SubmissionStatusEnum.completed,
     ]:
         app.logger.info(
-            f"Submission {submission.id} is not in progress_data or completed state."
+            f"Submission {submission.id} is not in data upload or completed state."
         )
         return render_template("submission/_lft_link_content.html", link=None)
 

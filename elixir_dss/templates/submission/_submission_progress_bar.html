@@ -10,7 +10,7 @@
                     <i class="bi bi-list me-2"></i>
                     {{ submission.title }}
                 </h6>
-                {% if current_user.is_admin() or stp == 1 or stp == 3 %}
+                {% if current_user.is_data_steward() or stp == 1 or stp == 3 %}
                     <a href="{{ url_for('edit_submission', sub_id=submission.id) }}"
                        class="btn btn-sm btn-outline-light"
                        data-bs-toggle="tooltip"
@@ -99,7 +99,7 @@
                     </div>
 
                     <!-- Workflow Control Buttons -->
-                    {% if current_user.is_admin() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
+                    {% if current_user.is_data_steward() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
                         <div class="d-flex gap-2">
                             {% if submission.current_status.prev_state() is not none %}
                                 {% if current_user.is_data_steward() %}

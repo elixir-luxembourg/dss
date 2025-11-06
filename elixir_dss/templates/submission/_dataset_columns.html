@@ -16,7 +16,9 @@
                     <i class="bi bi-shield-check me-2 text-primary"></i>Data Protection
                 </th>
                 {% if submission.current_status.step_num() >= 2 %}
-                <th rowspan="2">Upload Link</th>
+                    <th rowspan="2" class="fw-semibold text-dark py-3 align-middle border-end" style="background-color: #e9ecef;">
+                        <i class="bi bi-link-45deg me-2 text-primary"></i>Upload Link
+                    </th>
                 {% endif %}
                 {% if current_user.is_data_steward() or submission.current_status.step_num() == 1 %}
                     <th rowspan="2" class="fw-semibold text-dark py-3 text-end align-middle" style="background-color: #e9ecef;">Actions</th>
@@ -98,7 +100,7 @@
                             <span class="text-muted small fst-italic">Not specified</span>
                         {% endif %}
                     </td>
-                    {% if submission.current_status.step_num() >= 2 %}
+                    {% if submission.current_status.step_num() > 2 %}
                 <td>
                     <button type="button"
                             class="btn btn-primary btn-sm"
