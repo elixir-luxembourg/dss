@@ -30,6 +30,9 @@ from tests import BaseTest
 
 __author__ = "Pinar Alper"
 
+from tests.factories import SubmissionStudyFactory, SubmissionDatasetFactory, UserFactory, SubmissionFactory, \
+    ContactFactory
+
 
 class ModelPersistenceTest(BaseTest):
     def test_users_roles(self):
@@ -116,7 +119,8 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(0, len(SubmissionAccess.query.all()))
 
     def test_steer_submission(self):
-        submission_rec = create_sub("Test Submission", "ELU_I_77")
+        # Setup initial DRAFT submission using the factory
+        submission_rec = SubmissionFactory()
         sub_id = submission_rec.id
 
         # Steer fails without Data Provider
@@ -125,7 +129,7 @@ class ModelPersistenceTest(BaseTest):
         )
 
         # Add Data Provider
-        usr = self._create_test_user()
+        usr = UserFactory(first_name="Kavita", last_name="Rege", institution_accession="ELU_I_2")
         sub = Submission.query.get_or_404(sub_id)
         update_submission_basic_info(sub, provider_user_ids=[usr.id])
 
@@ -141,7 +145,9 @@ class ModelPersistenceTest(BaseTest):
         self._assert_steer_fails(sub_id)
 
         # Add metadata
-        self._add_metadata_to_submission(sub_id)
+        study_rec = SubmissionStudyFactory(submission_id=sub_id, study_contacts=[ContactFactory()])
+        dataset_rec = SubmissionDatasetFactory(submission_id=sub_id, study_id=study_rec.id)
+        db.session.commit()
 
         steer_sub(sub_id)
         sub = Submission.query.get_or_404(sub_id)
@@ -392,54 +398,6 @@ class ModelPersistenceTest(BaseTest):
         self.assertNotEqual(clone.datasets[0].id, dataset.id)
         self.assertNotEqual(clone.studies[0].id, study.id)
 
-    def _create_test_user(self):
-        """Creates and registers a standard test user"""
-        u1 = User(
-            first_name="Kavita",
-            last_name="Rege",
-            elixir_sub_id="SOME_ELX_ID",
-            email="kavita.rege@uni.lu",
-            addr_line1="Meyerhofstraße 1, 69117",
-            addr_line2="Heidelberg, Germany",
-            institution_accession="ELU_I_77",
-            phone_no="+352123456789",
-        )
-        return register_new_user(u1)
-
-    def _add_metadata_to_submission(self, sub_id):
-        """Creates and adds a Study and Dataset to the submission."""
-        submission_rec = Submission.query.get_or_404(sub_id)
-
-        # 1. Create Contact
-        c1 = Contact(
-            firstname="John",
-            lastname="Doe",
-            email="john.doe@acme.edu",
-            address="Some Address",
-            contact_category=ContactType.query.get_or_404(1),
-        )
-
-        # 2. Create Study
-        study_rec = SubmissionStudy(
-            submission_id=submission_rec.id,
-            name="Test Study ABC",
-            description="This study does blah blah...",
-            ethics_approval_exists=True,
-            study_types_json=json.dumps(["Interventional", "Observational"]),
-            study_contacts=[c1]
-        )
-
-        # 3. Create Dataset
-        dataset_rec = SubmissionDataset(
-            submission_id=submission_rec.id,
-            study_id=None,
-            title="Test dataset 1",
-            sci_datatypes_json=json.dumps(["Genomics_variant_array", "RNASeq"]),
-            gdpr_datatypes_json=json.dumps(["standard", "ethnic"]),
-        )
-
-        submission_rec.datasets.append(dataset_rec)
-        submission_rec.studies.append(study_rec)
 
     def _assert_steer_fails(self, sub_id, reason="Expected failure"):
         """Assert that steering fails with the expected exception and message."""
