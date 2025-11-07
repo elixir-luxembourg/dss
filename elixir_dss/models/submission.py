@@ -94,6 +94,7 @@ class SubmissionStatusEnum(enum.Enum):
     data_upload = "Data Upload"
     data_approval = "Data Approval"
     completed = "Completed"
+    cancelled = "Cancelled"
 
     def next_state(self):
         return {
@@ -120,7 +121,7 @@ class SubmissionStatusEnum(enum.Enum):
             self.metadata_approval: 2,
             self.data_upload: 3,
             self.data_approval: 4,
-            self.completed: 5,
+            self.cancelled: -1,
         }.get(self)
 
 
@@ -170,6 +171,9 @@ class Submission(db.Model):
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
     datasets = db.relationship("SubmissionDataset", cascade="all, delete-orphan")
     messages = db.relationship("SubmissionMessage", cascade="all, delete-orphan")
+    cancellation_reason = db.Column(db.String(500), nullable=True)
+    cancelled_by_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    cancelled_by = db.relationship("User", foreign_keys=[cancelled_by_user_id])
 
     def is_deletable(self):
         return self.current_status == SubmissionStatusEnum.draft
@@ -181,6 +185,9 @@ class Submission(db.Model):
             SubmissionStatusEnum.metadata_approval,
             SubmissionStatusEnum.data_approval,
         )
+
+    def is_frozen(self):
+        return self.current_status == SubmissionStatusEnum.cancelled
 
     def provider_user_ids(self):
         result = []

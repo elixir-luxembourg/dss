@@ -40,6 +40,7 @@ from elixir_dss.models.services import (
     steer_sub,
     update_submission_basic_info,
     update_user_info,
+    clone_sub, cancel_sub,
     clone_sub,
     invite_submitters,
 )
@@ -427,6 +428,7 @@ def list_submissions():
         "submission/submissions.html",
         submissions=submissions,
         submsn_create_form=forms.SubmissionForm(),
+        cancel_submission_form = forms.CancelSubmissionForm()
     )
 
 
@@ -580,6 +582,48 @@ def clone_submission(submission_id):
 
     flash(f"Submission {new_sub.ref_name} cloned successfully.", "success")
     return redirect(url_for("view_submission", sub_id=new_sub.id))
+
+@app.route("/submission/cancel/<int:sub_id>", methods=["POST"])
+@app_authorization(allowed_roles=["data_steward"])
+def cancel_submission(sub_id):
+    submission = Submission.query.get_or_404(sub_id)
+
+    reason = request.form.get("cancellation_reason", "").strip()
+    if not reason:
+        flash("Cancellation failed: Reason is required.", "danger")
+        return redirect(url_for("list_submissions"))
+
+    # authorization - owners OR data stewards
+    is_owner = current_user.get_id() in submission.provider_user_ids()
+    if not (current_user.is_data_steward() or is_owner):
+        return (
+            render_template(
+                "error.html",
+                message="Error 403 - You are not authorized to cancel this submission.",
+                show_home_link=True,
+            ),
+            403,
+        )
+
+    if submission.is_frozen():
+        flash("Submission already cancelled.", "warning")
+        return redirect(url_for("list_submissions"))
+
+    try:
+        cancel_sub(
+            submission=submission,
+            reason=reason,
+            cancelled_by_user=current_user
+        )
+        db.session.commit()
+
+        flash(f"Submission {submission.ref_name} successfully cancelled.", "success")
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"cancel submission error: {e}")
+        flash("Internal error while cancelling submission.", "danger")
+
+    return redirect(url_for("list_submissions"))
 
 
 """-------------------------------------------------------"""

@@ -1,0 +1,34 @@
+<p>Dear All,</p>
+
+<p>The following Submission has been <strong>CANCELLED</strong>.</p>
+
+<table>
+    <tr valign="top">
+        <td>Submission Ref:</td>
+        <td>{{ submission.ref_name }}</td>
+    </tr>
+    <tr valign="top">
+        <td>Title:</td>
+        <td>{{ submission.title }}</td>
+    </tr>
+    <tr valign="top">
+        <td>Cancelled By:</td>
+        <td>{{ cancelled_by_user.display_name() if cancelled_by_user else "Unknown" }}</td>
+    </tr>
+    <tr valign="top">
+        <td>Reason:</td>
+        <td>{{ submission.cancellation_reason }}</td>
+    </tr>
+    <tr valign="top">
+        <td>Submission Page:</td>
+        <td>
+            <a href="{{ url_for('view_submission', sub_id=submission.id, _external=True) }}">
+                {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p>Regards,</p>
+<p>ELIXIR LU</p>
+<p>(This is an auto-generated e-mail, please do not reply)</p>

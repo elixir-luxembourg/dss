@@ -6,7 +6,7 @@ from flask import flash, render_template
 from flask_mail import Message
 from sqlalchemy import and_, select
 
-from elixir_dss import app, db, mail
+from elixir_dss import app, db, mail, lft
 from elixir_dss.exceptions import RecordLifecycleException, RecordNotExistsException
 from elixir_dss.models.security import Role, User, UsersRoles
 from elixir_dss.models.submission import (
@@ -657,6 +657,72 @@ def clone_sub(
             f"Failed to clone submission {original_submission_id}: {str(e)}"
         )
         raise
+
+
+def send_submission_cancellation_notification(submission: Submission, cancelled_by_user:User):
+    """Sends notification to all parties when a submission is cancelled."""
+    recipients = []
+
+    for access in submission.submission_accesses:
+        recipients.append(access.user.email)
+
+    recipients = recipients + app.config.get("DATA_STEWARDS_MAILS", [])
+
+    persist_and_send_notification(
+        "Submission [%s] has been CANCELLED" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template("email/submission_cancelled.txt", submission=submission, cancelled_by_user=cancelled_by_user),
+        render_template("email/submission_cancelled.html", submission=submission, cancelled_by_user=cancelled_by_user),
+        )
+
+def invalidate_links_for_submission(self, submission_id: int):
+    if not self.client:
+        app.logger.warning("LFT not configured")
+        return
+
+    datasets = SubmissionDataset.query.filter_by(submission_id=submission_id).all()
+
+    self.client.login(self.username, self.password)
+
+    for ds in datasets:
+        if not ds.external_id:
+            continue
+
+        try:
+            links = self.client.links_list(namespace_id=self.namespace_id,
+                                           share_name=ds.external_id,
+                                           sub=None)
+            for lk in links:
+                self.client.link_delete(link_id=lk.id)
+        except Exception as e:
+            app.logger.error(f"LFT invalidate failed for ds {ds.id}: {e}")
+
+
+def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
+    """
+    cancelling a submission:
+    - Updates status and cancellation details.
+    - Invalidates LFT links.
+    - Sends notifications.
+    """
+    submission.current_status = SubmissionStatusEnum.cancelled
+    submission.cancellation_reason = reason
+    submission.cancelled_by_user_id = cancelled_by_user.id
+
+    # invalidate lft
+    if lft.client:
+        try:
+            lft.invalidate_links_for_submission(submission.id)
+        except Exception as e:
+            app.logger.error(f"LFT invalidate failed for ds {submission.id}: {e}")
+
+    db.session.add(submission)
+    db.session.commit()
+    # notification
+    send_submission_cancellation_notification(submission,cancelled_by_user)
+
+    return submission
 
 
 def invite_submitters(submission: Submission, contacts: list[Contact]):
