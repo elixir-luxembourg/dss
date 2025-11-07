@@ -40,8 +40,8 @@ from elixir_dss.models.services import (
     steer_sub,
     update_submission_basic_info,
     update_user_info,
-    clone_sub, cancel_sub,
     clone_sub,
+    cancel_sub,
     invite_submitters,
 )
 from elixir_dss.models.submission import (
@@ -428,7 +428,7 @@ def list_submissions():
         "submission/submissions.html",
         submissions=submissions,
         submsn_create_form=forms.SubmissionForm(),
-        cancel_submission_form = forms.CancelSubmissionForm()
+        cancel_submission_form=forms.CancelSubmissionForm(),
     )
 
 
@@ -442,7 +442,9 @@ def list_my_submissions():
     my_submissions = get_in_progress_submissions_shared_with_user(current_user.id)
 
     return render_template(
-        "submission/my_submissions.html", my_submissions=my_submissions, cancel_submission_form = forms.CancelSubmissionForm()
+        "submission/my_submissions.html",
+        my_submissions=my_submissions,
+        cancel_submission_form=forms.CancelSubmissionForm(),
     )
 
 
@@ -585,12 +587,14 @@ def clone_submission(submission_id):
 
 
 @app.route("/submission/cancel/<int:sub_id>", methods=["POST"])
-@app_authorization( allowed_roles=["user", "data_steward"],
-                    record_authorization={
-                        "entity": "Submission",
-                        "entity_id_key": "sub_id",
-                        "entity_ac_attribute": "id",
-                    },)
+@app_authorization(
+    allowed_roles=["user", "data_steward"],
+    record_authorization={
+        "entity": "Submission",
+        "entity_id_key": "sub_id",
+        "entity_ac_attribute": "id",
+    },
+)
 def cancel_submission(sub_id):
     submission = Submission.query.get_or_404(sub_id)
 
@@ -626,11 +630,7 @@ def cancel_submission(sub_id):
         return redirect(dest)
 
     try:
-        cancel_sub(
-            submission=submission,
-            reason=reason,
-            cancelled_by_user=current_user
-        )
+        cancel_sub(submission=submission, reason=reason, cancelled_by_user=current_user)
         db.session.commit()
 
         flash(f"Submission {submission.ref_name} successfully cancelled.", "success")

@@ -659,7 +659,9 @@ def clone_sub(
         raise
 
 
-def send_submission_cancellation_notification(submission: Submission, cancelled_by_user:User):
+def send_submission_cancellation_notification(
+    submission: Submission, cancelled_by_user: User
+):
     """Sends notification to all parties when a submission is cancelled."""
     recipients = []
 
@@ -672,9 +674,18 @@ def send_submission_cancellation_notification(submission: Submission, cancelled_
         "Submission [%s] has been CANCELLED" % submission.ref_name,
         "noreply@uni.lu",
         recipients,
-        render_template("email/submission_cancelled.txt", submission=submission, cancelled_by_user=cancelled_by_user),
-        render_template("email/submission_cancelled.html", submission=submission, cancelled_by_user=cancelled_by_user),
-        )
+        render_template(
+            "email/submission_cancelled.txt",
+            submission=submission,
+            cancelled_by_user=cancelled_by_user,
+        ),
+        render_template(
+            "email/submission_cancelled.html",
+            submission=submission,
+            cancelled_by_user=cancelled_by_user,
+        ),
+    )
+
 
 def invalidate_links_for_submission(self, submission_id: int):
     if not self.client:
@@ -690,9 +701,9 @@ def invalidate_links_for_submission(self, submission_id: int):
             continue
 
         try:
-            links = self.client.links_list(namespace_id=self.namespace_id,
-                                           share_name=ds.external_id,
-                                           sub=None)
+            links = self.client.links_list(
+                namespace_id=self.namespace_id, share_name=ds.external_id, sub=None
+            )
             for lk in links:
                 self.client.link_delete(link_id=lk.id)
         except Exception as e:
@@ -720,7 +731,7 @@ def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
     db.session.add(submission)
     db.session.commit()
     # notification
-    send_submission_cancellation_notification(submission,cancelled_by_user)
+    send_submission_cancellation_notification(submission, cancelled_by_user)
 
     return submission
 

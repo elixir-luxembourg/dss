@@ -9,7 +9,8 @@ from wtforms import (
     PasswordField,
     SelectField,
     SelectMultipleField,
-    StringField, TextAreaField,
+    StringField,
+    TextAreaField,
 )
 from wtforms.validators import DataRequired, Email, Length, Regexp
 
@@ -194,8 +195,12 @@ class UserForm(SignupForm):
             (rol.id, rol.name) for rol in Role.query.all()
         ]
 
+
 class CancelSubmissionForm(FlaskForm):
-    cancellation_reason = TextAreaField("Reason for Cancellation", validators=[DataRequired()])
+    cancellation_reason = TextAreaField(
+        "Reason for Cancellation", validators=[DataRequired()]
+    )
+
 
 __all__ = [
     SubmissionForm,

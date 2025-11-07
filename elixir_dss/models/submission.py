@@ -172,7 +172,9 @@ class Submission(db.Model):
     datasets = db.relationship("SubmissionDataset", cascade="all, delete-orphan")
     messages = db.relationship("SubmissionMessage", cascade="all, delete-orphan")
     cancellation_reason = db.Column(db.String(500), nullable=True)
-    cancelled_by_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    cancelled_by_user_id = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=True
+    )
     cancelled_by = db.relationship("User", foreign_keys=[cancelled_by_user_id])
 
     def is_deletable(self):
