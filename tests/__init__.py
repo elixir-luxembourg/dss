@@ -113,3 +113,6 @@ class BaseIntegrationTest(BaseTest):
         )
         register_new_user(u4)
         assign_role_to_user(u4, "admin")
+
+    def logout(self):
+        return self.client.get("/logout", follow_redirects=True)

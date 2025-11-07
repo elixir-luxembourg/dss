@@ -86,6 +86,14 @@
                             </td>
                             <td>
                                 <div class="d-flex align-items-center justify-content-end gap-2">
+                                    {% if submission.current_status.step_num() == 0 %}
+                                        <button type="button"
+                                                data-url="{{ url_for('delete_submission', sub_id=submission.id) }}"
+                                                class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 delete-submission-btn">
+                                            <i class="bi bi-trash"></i>
+                                            <span>Delete</span>
+                                        </button>
+                                    {% endif %}
                                     <div class="dropdown position-static">
                                         <button class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button"
                                                 id="dropdownMenu{{ submission.id }}" data-bs-toggle="dropdown" aria-expanded="false">
@@ -105,10 +113,6 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <button type="button" data-url="{{ url_for('delete_submission', sub_id=submission.id) }}" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
-                                        <i class="bi bi-trash"></i>
-                                        <span>Delete</span>
-                                    </button>
                                 </div>
                             </td>
                         </tr>
