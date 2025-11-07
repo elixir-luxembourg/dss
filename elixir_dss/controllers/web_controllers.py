@@ -442,7 +442,7 @@ def list_my_submissions():
     my_submissions = get_in_progress_submissions_shared_with_user(current_user.id)
 
     return render_template(
-        "submission/my_submissions.html", my_submissions=my_submissions
+        "submission/my_submissions.html", my_submissions=my_submissions, cancel_submission_form = forms.CancelSubmissionForm()
     )
 
 
@@ -583,18 +583,29 @@ def clone_submission(submission_id):
     flash(f"Submission {new_sub.ref_name} cloned successfully.", "success")
     return redirect(url_for("view_submission", sub_id=new_sub.id))
 
+
 @app.route("/submission/cancel/<int:sub_id>", methods=["POST"])
-@app_authorization(allowed_roles=["data_steward"])
+@app_authorization( allowed_roles=["user", "data_steward"],
+                    record_authorization={
+                        "entity": "Submission",
+                        "entity_id_key": "sub_id",
+                        "entity_ac_attribute": "id",
+                    },)
 def cancel_submission(sub_id):
     submission = Submission.query.get_or_404(sub_id)
 
     reason = request.form.get("cancellation_reason", "").strip()
     if not reason:
         flash("Cancellation failed: Reason is required.", "danger")
-        return redirect(url_for("list_submissions"))
+        if current_user.is_data_steward():
+            dest = url_for("list_submissions")
+        else:
+            dest = url_for("list_my_submissions")
+
+        return redirect(dest)
 
     # authorization - owners OR data stewards
-    is_owner = current_user.get_id() in submission.provider_user_ids()
+    is_owner = int(current_user.get_id()) in submission.provider_user_ids()
     if not (current_user.is_data_steward() or is_owner):
         return (
             render_template(
@@ -607,7 +618,12 @@ def cancel_submission(sub_id):
 
     if submission.is_frozen():
         flash("Submission already cancelled.", "warning")
-        return redirect(url_for("list_submissions"))
+        if current_user.is_data_steward():
+            dest = url_for("list_submissions")
+        else:
+            dest = url_for("list_my_submissions")
+
+        return redirect(dest)
 
     try:
         cancel_sub(
@@ -623,7 +639,12 @@ def cancel_submission(sub_id):
         app.logger.error(f"cancel submission error: {e}")
         flash("Internal error while cancelling submission.", "danger")
 
-    return redirect(url_for("list_submissions"))
+    if current_user.is_data_steward():
+        dest = url_for("list_submissions")
+    else:
+        dest = url_for("list_my_submissions")
+
+    return redirect(dest)
 
 
 """-------------------------------------------------------"""
