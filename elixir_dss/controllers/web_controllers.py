@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import uuid
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timezone
 
 from flask import (
     flash,
@@ -921,7 +921,7 @@ def add_submission_message(sub_id):
             posted_form.populate_obj(message_rec)
             message_rec.id = None
             message_rec.sender_user = current_user
-            message_rec.created_on = datetime.now()
+            message_rec.created_on = datetime.now(timezone.utc)
             db.session.add(message_rec)
             db.session.commit()
             if message_rec.submission.is_in_progress():

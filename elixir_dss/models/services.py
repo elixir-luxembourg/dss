@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from threading import Thread
 
 from flask import flash, render_template
@@ -332,79 +332,91 @@ def send_data_rejected_notification(submission: Submission, feedback):
 
 
 def approve_metadata(submission_id, reviewer_id, feedback=None):
-    """Approve metadata and optionally create approval message"""
     submission = Submission.query.get_or_404(submission_id)
     submission.current_status = SubmissionStatusEnum.data_upload
     db.session.add(submission)
 
     if feedback:
-        message = SubmissionMessage()
-        message.submission_id = submission_id
-        message.sender_user_id = reviewer_id
-        message.message_text = f"✅ **Metadata Approved**\n\n{feedback}"
-        message.message_type = "metadata_approval"
-        message.created_on = datetime.now()
-        db.session.add(message)
+        message_text = f"Metadata approved.<br>{feedback.strip()}"
+    else:
+        message_text = "Metadata approved."
 
+    message = SubmissionMessage(
+        submission_id=submission_id,
+        sender_user_id=reviewer_id,
+        message_text=message_text,
+        message_type="metadata_approval",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
     db.session.commit()
+
     send_metadata_approved_notification(submission, feedback)
     return submission
 
 
 def reject_metadata(submission_id, reviewer_id, feedback):
-    """Reject metadata and create rejection message (feedback required)"""
     submission = Submission.query.get_or_404(submission_id)
     submission.current_status = SubmissionStatusEnum.metadata_submission
     db.session.add(submission)
 
-    message = SubmissionMessage()
-    message.submission_id = submission_id
-    message.sender_user_id = reviewer_id
-    message.message_text = f"❌ **Metadata Rejected**\n\n{feedback}"
-    message.message_type = "metadata_rejection"
-    message.created_on = datetime.now()
-    db.session.add(message)
+    message_text = f"Metadata rejected.<br>{feedback.strip()}"
 
+    message = SubmissionMessage(
+        submission_id=submission_id,
+        sender_user_id=reviewer_id,
+        message_text=message_text,
+        message_type="metadata_rejection",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
     db.session.commit()
+
     send_metadata_rejected_notification(submission, feedback)
     return submission
 
 
 def approve_data(submission_id, reviewer_id, feedback=None):
-    """Approve data upload and optionally create approval message"""
     submission = Submission.query.get_or_404(submission_id)
     submission.current_status = SubmissionStatusEnum.completed
     db.session.add(submission)
 
     if feedback:
-        message = SubmissionMessage()
-        message.submission_id = submission_id
-        message.sender_user_id = reviewer_id
-        message.message_text = f"✅ **Data Approved**\n\n{feedback}"
-        message.message_type = "data_approval"
-        message.created_on = datetime.now()
-        db.session.add(message)
+        message_text = f"Data approved.<br>{feedback.strip()}"
+    else:
+        message_text = "Data approved."
 
+    message = SubmissionMessage(
+        submission_id=submission_id,
+        sender_user_id=reviewer_id,
+        message_text=message_text,
+        message_type="data_approval",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
     db.session.commit()
+
     send_data_approved_notification(submission, feedback)
     return submission
 
 
 def reject_data(submission_id, reviewer_id, feedback):
-    """Reject data upload and create rejection message (feedback required)"""
     submission = Submission.query.get_or_404(submission_id)
     submission.current_status = SubmissionStatusEnum.data_upload
     db.session.add(submission)
 
-    message = SubmissionMessage()
-    message.submission_id = submission_id
-    message.sender_user_id = reviewer_id
-    message.message_text = f"❌ **Data Rejected**\n\n{feedback}"
-    message.message_type = "data_rejection"
-    message.created_on = datetime.now()
-    db.session.add(message)
+    message_text = f"Data rejected.<br>{feedback.strip()}"
 
+    message = SubmissionMessage(
+        submission_id=submission_id,
+        sender_user_id=reviewer_id,
+        message_text=message_text,
+        message_type="data_rejection",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
     db.session.commit()
+
     send_data_rejected_notification(submission, feedback)
     return submission
 

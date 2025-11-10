@@ -1,6 +1,7 @@
-{% if submission.messages %}
+{% set sorted_messages = submission.messages|sort(attribute='created_on', reverse=True) %}
+{% if sorted_messages %}
 <div class="d-flex flex-column gap-3">
-    {% for message in submission.messages %}
+    {% for message in sorted_messages %}
     {# Determine if this is a review message and its type #}
     {% set is_approval = message.message_type and 'approval' in message.message_type %}
     {% set is_rejection = message.message_type and 'rejection' in message.message_type %}
