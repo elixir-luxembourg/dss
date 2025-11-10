@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime as dt, timedelta as td
 
-from flask import Flask
+from flask import Flask, app
 
 try:
     from lftclient import LFTClient, LFTClientException
@@ -105,6 +105,39 @@ class LFTHandler:
             )
         except LFTClientException as e:
             raise RuntimeError("LFT link creation failed") from e
+
+    def invalidate_links_for_submission(self, submission_id: int):
+        from elixir_dss.models.submission import SubmissionDataset
+
+        if not self.client:
+            app.logger.warning("LFT not configured")
+            return
+
+        datasets = SubmissionDataset.query.filter_by(submission_id=submission_id).all()
+
+        try:
+            self.client.login(self.username, self.password)
+        except Exception as e:
+            app.logger.error(f"LFT login failed: {e}")
+            return
+
+        for ds in datasets:
+            if not ds.external_id:
+                continue
+
+            try:
+                links = (
+                    self.client.links_list(
+                        namespace_id=self.namespace_id,
+                        share_name=ds.external_id,
+                        sub=None,
+                    )
+                    or []
+                )
+                for lk in links:
+                    self.client.link_delete(link_id=lk.id)
+            except Exception as e:
+                app.logger.error(f"LFT invalidate failed for ds {ds.id}: {e}")
 
 
 __all__ = ["LFTHandler"]

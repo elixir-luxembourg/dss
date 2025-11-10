@@ -2,10 +2,13 @@ from unittest.mock import MagicMock, patch
 from datetime import datetime, timedelta
 
 from flask import url_for
-from elixir_dss import db
+from elixir_dss import db, lft
 
 from elixir_dss.models.security import User
-from elixir_dss.models.services import create_sub
+from elixir_dss.models.services import (
+    create_sub,
+    update_submission_basic_info,
+)
 from elixir_dss.models.submission import (
     SubmissionDataset,
     SubmissionStatusEnum,
@@ -235,3 +238,73 @@ class ControllersTest(BaseIntegrationTest):
 
         response_bad_request = self.client.delete(non_deletable_url)
         self.assertEqual(response_bad_request.status_code, 400)
+
+    def test_provider_can_cancel_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = create_sub("To Cancel", "ELU_I_77")
+        db.session.add(sub)
+        db.session.commit()
+
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        resp = self.client.post(
+            url_for("cancel_submission", sub_id=sub.id),
+            data={"cancellation_reason": "integration test"},
+            follow_redirects=True,
+        )
+
+        self.assert200(resp)
+        sub = Submission.query.get(sub.id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.cancelled)
+
+    def test_lft_links_deleted_on_submission_cancel(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = create_sub("LFT Cancel Test", "ELU_I_100")
+        db.session.add(sub)
+        db.session.flush()
+
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        SubmissionDatasetFactory(submission_id=sub.id, external_id="ds1")
+        SubmissionDatasetFactory(submission_id=sub.id, external_id="ds2")
+        db.session.flush()
+
+        original_client = lft.client
+        try:
+            mock_client = MagicMock()
+
+            link1 = MagicMock()
+            link1.id = "link_ds1"
+            link2 = MagicMock()
+            link2.id = "link_ds2"
+
+            mock_client.links_list.side_effect = [
+                [link1],
+                [link2],
+            ]
+
+            lft.client = mock_client
+            lft.namespace_id = "ns"
+            lft.username = "user"
+            lft.password = "pass"
+
+            resp = self.client.post(
+                url_for("cancel_submission", sub_id=sub.id),
+                data={"cancellation_reason": "testing LFT cleanup"},
+                follow_redirects=True,
+            )
+
+            self.assert200(resp)
+
+            expected_calls = [{"link_id": "link_ds1"}, {"link_id": "link_ds2"}]
+            actual_calls = [
+                call.kwargs for call in mock_client.link_delete.call_args_list
+            ]
+            self.assertEqual(expected_calls, actual_calls)
+
+        finally:
+            lft.client = original_client

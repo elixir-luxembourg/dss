@@ -662,7 +662,6 @@ def clone_sub(
 def send_submission_cancellation_notification(
     submission: Submission, cancelled_by_user: User
 ):
-    """Sends notification to all parties when a submission is cancelled."""
     recipients = []
 
     for access in submission.submission_accesses:
@@ -687,36 +686,7 @@ def send_submission_cancellation_notification(
     )
 
 
-def invalidate_links_for_submission(self, submission_id: int):
-    if not self.client:
-        app.logger.warning("LFT not configured")
-        return
-
-    datasets = SubmissionDataset.query.filter_by(submission_id=submission_id).all()
-
-    self.client.login(self.username, self.password)
-
-    for ds in datasets:
-        if not ds.external_id:
-            continue
-
-        try:
-            links = self.client.links_list(
-                namespace_id=self.namespace_id, share_name=ds.external_id, sub=None
-            )
-            for lk in links:
-                self.client.link_delete(link_id=lk.id)
-        except Exception as e:
-            app.logger.error(f"LFT invalidate failed for ds {ds.id}: {e}")
-
-
 def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
-    """
-    cancelling a submission:
-    - Updates status and cancellation details.
-    - Invalidates LFT links.
-    - Sends notifications.
-    """
     submission.current_status = SubmissionStatusEnum.cancelled
     submission.cancellation_reason = reason
     submission.cancelled_by_user_id = cancelled_by_user.id
@@ -729,8 +699,6 @@ def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
             app.logger.error(f"LFT invalidate failed for ds {submission.id}: {e}")
 
     db.session.add(submission)
-    db.session.commit()
-    # notification
     send_submission_cancellation_notification(submission, cancelled_by_user)
 
     return submission
