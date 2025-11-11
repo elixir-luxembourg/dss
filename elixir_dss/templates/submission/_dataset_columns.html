@@ -1,4 +1,5 @@
 {% if submission.datasets %}
+    {% set can_edit = (current_user.is_data_steward() and submission.current_status.step_num() < 5) or submission.current_status.step_num() == 1 %}
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
@@ -21,7 +22,7 @@
                         <i class="bi bi-link-45deg me-2 text-primary"></i>Upload Link
                     </th>
                 {% endif %}
-                {% if (current_user.is_data_steward() and submission.current_status.step_num() < 5) or submission.current_status.step_num() == 1 %}
+                {% if can_edit %}
                     <th rowspan="2" class="fw-semibold text-dark py-2 align-middle" style="background-color: #e9ecef;">Actions</th>
                 {% endif %}
             </tr>
@@ -35,7 +36,7 @@
             {% for dataset in submission.datasets %}
                 <tr class="border-bottom">
                     <td class="py-2">
-                        {% if (current_user.is_data_steward() and submission.current_status.step_num() < 5) or submission.current_status.step_num() == 1 %}
+                        {% if can_edit %}
                             <a href="{{ url_for('edit_submission_dataset', dataset_id=dataset.id) }}"
                                class="text-dark text-decoration-none fw-semibold d-inline-flex align-items-center gap-2">
                                 <span>{{ dataset.title }}</span>
@@ -115,7 +116,7 @@
                     </button>
                 </td>
                 {% endif %}
-                {% if (current_user.is_data_steward() and submission.current_status.step_num() < 5) or submission.current_status.step_num() == 1 %}
+                {% if can_edit %}
                         <td class="py-2">
                             <div class="d-flex align-items-center justify-content-end gap-2">
                                 <a href="{{ url_for('edit_submission_dataset', dataset_id=dataset.id) }}"

@@ -198,11 +198,6 @@ class MessageForm(FlaskForm):
 
 
 class ReviewFeedbackForm(FlaskForm):
-    """
-    Form for data stewards to provide feedback when approving or rejecting submissions.
-    The approve/reject decision is determined by which button is clicked, not by a field in this form.
-    """
-
     feedback = TextAreaField(
         "Feedback",
         description="Provide feedback about this review (required when rejecting)",

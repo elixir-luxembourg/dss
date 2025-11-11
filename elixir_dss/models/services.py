@@ -214,7 +214,6 @@ def send_new_message_notification(submission_message: SubmissionMessage):
 
 
 def send_metadata_approval_request_notification(submission: Submission):
-    """Send notification to stewards when metadata is ready for approval"""
     persist_and_send_notification(
         "Submission [%s] ready for metadata approval" % submission.ref_name,
         "noreply@uni.lu",
@@ -229,7 +228,6 @@ def send_metadata_approval_request_notification(submission: Submission):
 
 
 def send_metadata_approved_notification(submission: Submission, feedback=None):
-    """Send notification to providers when metadata is approved"""
     recipients = []
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
@@ -251,7 +249,6 @@ def send_metadata_approved_notification(submission: Submission, feedback=None):
 
 
 def send_metadata_rejected_notification(submission: Submission, feedback):
-    """Send notification to providers when metadata is rejected"""
     recipients = []
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
@@ -273,7 +270,6 @@ def send_metadata_rejected_notification(submission: Submission, feedback):
 
 
 def send_data_approval_request_notification(submission: Submission):
-    """Send notification to stewards when data upload is ready for approval"""
     persist_and_send_notification(
         "Submission [%s] ready for data approval" % submission.ref_name,
         "noreply@uni.lu",
@@ -288,7 +284,6 @@ def send_data_approval_request_notification(submission: Submission):
 
 
 def send_data_approved_notification(submission: Submission, feedback=None):
-    """Send notification to providers when data upload is approved"""
     recipients = []
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
@@ -310,7 +305,6 @@ def send_data_approved_notification(submission: Submission, feedback=None):
 
 
 def send_data_rejected_notification(submission: Submission, feedback):
-    """Send notification to providers when data upload is rejected"""
     recipients = []
     for access in submission.submission_accesses:
         recipients.append(access.user.email)
