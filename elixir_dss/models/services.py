@@ -329,49 +329,44 @@ def clone_sub(
     - submission_access (users) and submission_contacts are duplicated.
     - attachments are ignored
     """
-    new_sub = None
     try:
         old_sub = Submission.query.get_or_404(original_submission_id)
 
         # setting title
         base_title = f"{old_sub.title}{clone_title_suffix}"
-
-        # existing clones with the same base title
         existing_clones = Submission.query.filter(
             Submission.title.like(f"{base_title}%")
         ).count()
-        if existing_clones > 0:
-            title = f"{base_title} {existing_clones + 1}"
-        else:
-            title = base_title
-
-        # create new submission (this commits its own transaction)
-        new_sub = create_sub(
-            title=title, institute_accession=old_sub.institution_accession
+        title = (
+            f"{base_title} {existing_clones + 1}" if existing_clones > 0 else base_title
         )
 
-        # copy basic fields
-        new_sub.submission_scope_code = old_sub.submission_scope_code
-        new_sub.local_custodians_json = old_sub.local_custodians_json
-        new_sub.local_project_name = old_sub.local_project_name
-        # state
-        new_sub.current_status = SubmissionStatusEnum.in_progress_metadata
-        new_sub.finalised_on = None
-
+        new_sub = Submission(
+            title=title,
+            institution_accession=old_sub.institution_accession,
+            created_on=datetime.now(),
+            submission_scope_code=old_sub.submission_scope_code,
+            local_custodians_json=old_sub.local_custodians_json,
+            local_project_name=old_sub.local_project_name,
+            current_status=SubmissionStatusEnum.in_progress_metadata,
+        )
         db.session.add(new_sub)
         db.session.flush()
 
+        new_sub.ref_name = f"ELX_LU_SUB-{new_sub.id}"
+
         # clone contacts
         for c in old_sub.submission_contacts:
-            new_contact = Contact(
-                firstname=c.firstname,
-                lastname=c.lastname,
-                email=c.email,
-                address=c.address,
-                category_id=c.category_id,
-                submission_id=new_sub.id,
+            db.session.add(
+                Contact(
+                    firstname=c.firstname,
+                    lastname=c.lastname,
+                    email=c.email,
+                    address=c.address,
+                    category_id=c.category_id,
+                    submission_id=new_sub.id,
+                )
             )
-            db.session.add(new_contact)
 
         # clone studies if selected
         study_id_map = {}
@@ -387,30 +382,33 @@ def clone_sub(
 
                 # study contacts
                 for sc in s.study_contacts:
-                    new_sc = sc.clone(submission_id=new_sub.id, study_id=new_s.id)
-                    db.session.add(new_sc)
+                    db.session.add(
+                        sc.clone(submission_id=new_sub.id, study_id=new_s.id)
+                    )
 
-        # clone data declarations if selected
+        # clone datasets if selected
         if clone_datasets:
             old_datasets = SubmissionDataset.query.filter_by(
                 submission_id=old_sub.id
             ).all()
             for d in old_datasets:
-                new_d = d.clone(
-                    submission_id=new_sub.id,
-                    study_id=study_id_map.get(d.study_id) if d.study_id else None,
+                db.session.add(
+                    d.clone(
+                        submission_id=new_sub.id,
+                        study_id=study_id_map.get(d.study_id) if d.study_id else None,
+                    )
                 )
-                db.session.add(new_d)
 
         # clone access (users)
         for access in old_sub.submission_accesses:
             if not has_access(access.user_id, new_sub.id):
-                new_access = SubmissionAccess(
-                    submission_id=new_sub.id,
-                    user_id=access.user_id,
-                    access_granted_on=datetime.now(),
+                db.session.add(
+                    SubmissionAccess(
+                        submission_id=new_sub.id,
+                        user_id=access.user_id,
+                        access_granted_on=datetime.now(),
+                    )
                 )
-                db.session.add(new_access)
 
         db.session.commit()
 
@@ -421,12 +419,6 @@ def clone_sub(
 
     except Exception as e:
         db.session.rollback()
-        if new_sub and new_sub.id:
-            try:
-                db.session.delete(new_sub)
-                db.session.commit()
-            except Exception:
-                pass
         app.logger.error(
             f"Failed to clone submission {original_submission_id}: {str(e)}"
         )
