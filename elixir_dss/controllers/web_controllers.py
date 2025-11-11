@@ -669,7 +669,7 @@ def delete_submission_attachment(attach_id):
     "/submission_attachment_download/<int:attach_id>/<filename>", methods=["GET"]
 )
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "SubmissionAttachment",
         "entity_id_key": "attach_id",
