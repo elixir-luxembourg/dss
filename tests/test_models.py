@@ -432,4 +432,3 @@ class ModelPersistenceTest(BaseTest):
 
         self.assertEqual(submissions_before, Submission.query.count())
         self.assertIsNotNone(Submission.query.get(original.id))
-

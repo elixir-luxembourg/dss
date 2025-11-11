@@ -564,7 +564,7 @@ def clone_sub(
             submission_scope_code=old_sub.submission_scope_code,
             local_custodians_json=old_sub.local_custodians_json,
             local_project_name=old_sub.local_project_name,
-            current_status=SubmissionStatusEnum.in_progress_metadata,
+            current_status=SubmissionStatusEnum.metadata_submission,
         )
         db.session.add(new_sub)
         db.session.flush()
