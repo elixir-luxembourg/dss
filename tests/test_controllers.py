@@ -9,6 +9,7 @@ from elixir_dss.models.services import create_sub
 from elixir_dss.models.submission import (
     SubmissionDataset,
     SubmissionStatusEnum,
+    Submission,
 )
 from elixir_dss.clients.lft import LFTLink
 from tests import BaseIntegrationTest
@@ -209,3 +210,25 @@ class ControllersTest(BaseIntegrationTest):
         self.assertIsNotNone(dataset)
         self.assertIsNotNone(dataset.external_id)
         self.assertEqual("Test_Dataset", dataset.title)
+
+    def test_delete_submission(self):
+        self.login("steward1@uni.lu", "steward1")
+
+        submission = SubmissionFactory(current_status=SubmissionStatusEnum.draft)
+        db.session.commit()
+        delete_url = url_for("delete_submission", sub_id=submission.id)
+
+        response = self.client.delete(delete_url)
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(0, len(db.session.query(Submission).all()))
+
+        submission_non_deletable = SubmissionFactory(
+            current_status=SubmissionStatusEnum.completed
+        )
+        db.session.commit()
+        non_deletable_url = url_for(
+            "delete_submission", sub_id=submission_non_deletable.id
+        )
+
+        response_bad_request = self.client.delete(non_deletable_url)
+        self.assertEqual(response_bad_request.status_code, 400)

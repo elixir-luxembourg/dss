@@ -16,7 +16,7 @@ $(document).ready(function () {
         });
     });
 
-    $("#submission_list_table").on('click','a[name="button_submission_listing_delete"]', function () {
+    $("#submission_list_table").on('click', '.delete-submission-btn', function () {
         let endpoint = $(this).attr('data-url');
         confirmDialog("delete submission").done(function() {
             $.ajax({
