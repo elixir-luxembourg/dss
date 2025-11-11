@@ -502,11 +502,16 @@ def clone_submission(submission_id):
     clone_studies = request.args.get("clone_studies", "true").lower() == "true"
     clone_datasets = request.args.get("clone_datasets", "true").lower() == "true"
 
-    new_sub = clone_sub(
-        submission_id,
-        clone_studies=clone_studies,
-        clone_datasets=clone_datasets,
-    )
+    try:
+        new_sub = clone_sub(
+            submission_id,
+            clone_studies=clone_studies,
+            clone_datasets=clone_datasets,
+        )
+    except Exception as e:
+        app.logger.error("ERROR %s", e)
+        flash("Unable to clone submission")
+        return redirect(url_for("view_submission", sub_id=submission_id))
 
     flash(f"Submission {new_sub.ref_name} cloned successfully.", "success")
     return redirect(url_for("view_submission", sub_id=new_sub.id))
