@@ -152,7 +152,8 @@ class ControllersTest(BaseIntegrationTest):
         self.login("steward1@uni.lu", "steward1")
 
         submission = SubmissionFactory(current_status=SubmissionStatusEnum.completed)
-        dataset = SubmissionDatasetFactory(submission_id=submission.id)
+        study = SubmissionStudyFactory(submission_id=submission.id)
+        dataset = SubmissionDatasetFactory(submission_id=submission.id, study_id=study.id)
         mock_link = LFTLink(
             id="test_link_id",
             absolute_url="https://lft.example.com/links/test_link",

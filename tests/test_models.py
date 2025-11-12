@@ -424,8 +424,8 @@ class ModelPersistenceTest(BaseTest):
         )
 
         original = SubmissionFactory()
-        SubmissionStudyFactory(submission_id=original.id)
-        SubmissionDatasetFactory(submission_id=original.id)
+        study = SubmissionStudyFactory(submission_id=original.id)
+        SubmissionDatasetFactory(submission_id=original.id, study_id=study.id)
 
         submissions_before = Submission.query.count()
 
