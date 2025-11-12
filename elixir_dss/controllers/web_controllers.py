@@ -41,6 +41,7 @@ from elixir_dss.models.services import (
     update_submission_basic_info,
     update_user_info,
     clone_sub,
+    send_new_user_invitations,
 )
 from elixir_dss.models.submission import (
     Contact,
@@ -147,6 +148,10 @@ def auth_callback():
     user = User.query.filter_by(elixir_sub_id=sub).first()
     if not user and email:
         user = User.query.filter_by(email=email).first()
+        if user:
+            user.elixir_sub_id = sub
+            db.session.add(user)
+            db.session.commit()
 
     if not user:
         user = User(
@@ -538,6 +543,10 @@ def edit_submission(sub_id):
                 else None,
             )
 
+            if current_user.is_data_steward():
+                send_new_user_invitations(
+                    submission_rec, submission_rec.submission_contacts
+                )
             flash("Submission updated", "success")
             return redirect(url_for("view_submission", sub_id=submission_rec.id))
         else:

@@ -6,6 +6,7 @@ from elixir_dss import db
 from elixir_dss.models.security import User
 from elixir_dss.models.services import register_new_user
 from elixir_dss.models.submission import (
+    Contact,
     Submission,
     SubmissionDataset,
     SubmissionStatusEnum,
@@ -84,15 +85,17 @@ class UserFactory(SQLAlchemyModelFactory):
 
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
-    elixir_sub_id = factory.Sequence(lambda n: f"ELX_ID_{n}")
+    elixir_sub_id = factory.LazyAttribute(lambda obj: obj.email)
     email = factory.Faker("email")
-    institution_accession = "ELU_I_77"
+    institution_accession = factory.Sequence(lambda n: f"ELU_I_{n + 1}")
     active_user = True
+    phone_no = factory.Faker("phone_number")
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         user_instance = super()._create(model_class, *args, **kwargs)
         return register_new_user(user_instance)
+    
 
 
 class ContactFactory(SQLAlchemyModelFactory):
@@ -106,3 +109,4 @@ class ContactFactory(SQLAlchemyModelFactory):
     email = factory.Faker("email")
     address = factory.Faker("address")
     contact_category = factory.LazyFunction(lambda: ContactType.query.get_or_404(1))
+    category_id = 1

@@ -325,6 +325,24 @@ def send_data_rejected_notification(submission: Submission, feedback):
     )
 
 
+def send_invitations(submission: Submission, users: list[User]):
+    recipients = []
+    for user in users:
+        recipients.append(user.email)
+    recipients = recipients + app.config.get("DATA_STEWARDS_MAILS")
+
+    persist_and_send_notification(
+        "Invitation to collaborate on Submission [%s]" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template("email/submission_invitation.txt", submission=submission),
+        render_template(
+            "email/submission_invitation.html",
+            submission=submission,
+        ),
+    )
+
+
 def approve_metadata(submission_id, reviewer_id, feedback=None):
     submission = Submission.query.get_or_404(submission_id)
     submission.current_status = SubmissionStatusEnum.data_upload
@@ -639,6 +657,35 @@ def clone_sub(
             f"Failed to clone submission {original_submission_id}: {str(e)}"
         )
         raise
+
+
+def send_new_user_invitations(submission: Submission, contacts: list[Contact]):
+    users_for_invitation = []
+
+    for contact in contacts:
+        user = User.query.filter_by(email=contact.email).first()
+        if not user:
+            user = User(
+                first_name=contact.firstname,
+                last_name=contact.lastname,
+                email=contact.email,
+                elixir_sub_id=contact.email,
+                active_user=True,
+            )
+            db.session.add(user)
+            db.session.flush()
+            assign_role_to_user(user, "user")
+            access = SubmissionAccess(
+                submission_id=submission.id,
+                user_id=user.id,
+                access_granted_on=datetime.now(),
+            )
+            db.session.add(access)
+            users_for_invitation.append(user)
+
+    db.session.commit()
+    if users_for_invitation:
+        send_invitations(submission, users_for_invitation)
 
 
 """
