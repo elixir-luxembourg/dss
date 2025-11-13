@@ -121,6 +121,7 @@ class SubmissionStatusEnum(enum.Enum):
             self.metadata_approval: 2,
             self.data_upload: 3,
             self.data_approval: 4,
+            self.completed: 5,
             self.cancelled: -1,
         }.get(self)
 
