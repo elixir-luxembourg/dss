@@ -9,6 +9,7 @@ from elixir_dss.models.submission import (
     Contact,
     ContactType,
     Submission,
+    SubmissionAccess,
     SubmissionDataset,
     SubmissionStatusEnum,
     SubmissionStudy,
@@ -40,6 +41,7 @@ class SubmissionFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     title = factory.Faker("sentence", nb_words=4)
+    ref_name = factory.Sequence(lambda n: f"submission-{n}")
     institution_accession = "ELU_I_77"
     submission_scope_code = "e"
     current_status = SubmissionStatusEnum.draft
@@ -108,3 +110,14 @@ class ContactFactory(SQLAlchemyModelFactory):
     address = factory.Faker("address")
     contact_category = factory.LazyFunction(lambda: ContactType.query.get_or_404(1))
     category_id = 1
+
+
+class SubmissionAccessFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = SubmissionAccess
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = "commit"
+
+    submission_id = factory.SubFactory(SubmissionFactory)
+    user_id = factory.SubFactory(UserFactory)
+    access_granted_on = factory.LazyFunction(date.today)

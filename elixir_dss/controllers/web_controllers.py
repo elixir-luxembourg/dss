@@ -152,6 +152,14 @@ def auth_callback():
             user.elixir_sub_id = sub
             db.session.add(user)
             db.session.commit()
+            app.logger.info(f"User {user.email} connected")
+            sub_ids = user.get_accessible_submission_ids()
+            if sub_ids:
+                login_user(user)
+                flash("Logged in successfully!", "success")
+                if len(sub_ids) > 1:
+                    return redirect(url_for("list_my_submissions"))
+                return redirect(url_for("view_submission", sub_id=sub_ids[0]))
 
     if not user:
         user = User(
