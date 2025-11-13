@@ -15,7 +15,7 @@ from elixir_dss.models.services import (
     clone_sub,
     revert_sub,
     steer_sub,
-    send_new_user_invitations,
+    invite_submitters,
 )
 from elixir_dss.models.submission import (
     Contact,
@@ -435,7 +435,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertIsNotNone(Submission.query.get(original.id))
 
     @patch("elixir_dss.models.services.send_invitations")
-    def test_send_new_user_invitations(self, mock_send_invitations):
+    def test_invite_submitters(self, mock_send_invitations):
         submission = create_sub("Test Submission", "ELU_I_77")
 
         existing_user = UserFactory()
@@ -452,7 +452,7 @@ class ModelPersistenceTest(BaseTest):
         db.session.add_all([contact_existing, contact_new])
         db.session.commit()
 
-        send_new_user_invitations(submission, [contact_existing, contact_new])
+        invite_submitters(submission, [contact_existing, contact_new])
 
         self.assertEqual(User.query.count(), 2)
         self.assertEqual(SubmissionAccess.query.count(), 1)
@@ -466,12 +466,12 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(invited_users[0].email, contact_new.email)
 
     @patch("elixir_dss.models.services.send_invitations")
-    def test_send_new_user_invitations_empty_list(self, mock_send_invitations):
+    def test_invite_submitters_empty_list(self, mock_send_invitations):
         submission = create_sub("Test Submission", "ELU_I_77")
         db.session.add(submission)
         db.session.commit()
 
-        send_new_user_invitations(submission, [])
+        invite_submitters(submission, [])
 
         self.assertEqual(User.query.count(), 0)
         self.assertEqual(SubmissionAccess.query.count(), 0)

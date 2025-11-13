@@ -41,7 +41,7 @@ from elixir_dss.models.services import (
     update_submission_basic_info,
     update_user_info,
     clone_sub,
-    send_new_user_invitations,
+    invite_submitters,
 )
 from elixir_dss.models.submission import (
     Contact,
@@ -544,9 +544,7 @@ def edit_submission(sub_id):
             )
 
             if current_user.is_data_steward():
-                send_new_user_invitations(
-                    submission_rec, submission_rec.submission_contacts
-                )
+                invite_submitters(submission_rec, submission_rec.submission_contacts)
             flash("Submission updated", "success")
             return redirect(url_for("view_submission", sub_id=submission_rec.id))
         else:

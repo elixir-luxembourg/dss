@@ -659,7 +659,7 @@ def clone_sub(
         raise
 
 
-def send_new_user_invitations(submission: Submission, contacts: list[Contact]):
+def invite_submitters(submission: Submission, contacts: list[Contact]):
     users_for_invitation = []
 
     for contact in contacts:
