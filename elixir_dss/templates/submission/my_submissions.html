@@ -99,7 +99,7 @@
                             </td>
                             <td>
                                 <div class="d-flex align-items-center justify-content-end gap-2">
-                                    {% if submission.current_status.value not in ['Completion', 'Cancelled', 'Draft'] %}
+                                    {% if submission.is_cancellable() %}
                                         <button type="button"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#submission_cancel_modal"

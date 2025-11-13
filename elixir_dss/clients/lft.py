@@ -135,7 +135,11 @@ class LFTHandler:
                     or []
                 )
                 for lk in links:
-                    self.client.link_delete(link_id=lk.id)
+                    self.client.delete_link(
+                        link_id=lk.id,
+                        absolute_url=self.links_url + lk.link_url,
+                        password=lk.page_password,
+                    )
             except Exception as e:
                 app.logger.error(f"LFT invalidate failed for ds {ds.id}: {e}")
 

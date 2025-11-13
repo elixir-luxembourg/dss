@@ -189,8 +189,11 @@ class Submission(db.Model):
             SubmissionStatusEnum.data_approval,
         )
 
-    def is_frozen(self):
+    def is_cancelled(self):
         return self.current_status == SubmissionStatusEnum.cancelled
+
+    def is_cancellable(self):
+        return self.current_status not in ["Completion", "Cancelled", "Draft"]
 
     def provider_user_ids(self):
         result = []

@@ -69,9 +69,9 @@
                             <td>
                                 {% if submission.current_status.value == 'Pending' %}
                                     <span class="badge bg-warning text-dark">{{ submission.current_status.value }}</span>
-                                {% elif submission.current_status.value == 'Approved' %}
+                                {% elif submission.current_status.value == 'Completed' %}
                                     <span class="badge bg-success">{{ submission.current_status.value }}</span>
-                                {% elif submission.current_status.value == 'Rejected' %}
+                                {% elif submission.current_status.value == 'Cancelled' %}
                                     <span class="badge bg-danger">{{ submission.current_status.value }}</span>
                                 {% else %}
                                     <span class="badge bg-secondary">{{ submission.current_status.value }}</span>
@@ -94,7 +94,7 @@
                                             <span>Delete</span>
                                         </button>
                                     {% endif %}
-                                    {% if submission.current_status.value != 'Completion' and submission.current_status.value != 'Cancelled' and submission.current_status.value != 'Draft' %}
+                                    {% if submission.is_cancellable() %}
                                         <button type="button"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#submission_cancel_modal"

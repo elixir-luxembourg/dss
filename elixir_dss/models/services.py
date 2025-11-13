@@ -699,6 +699,18 @@ def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
             app.logger.error(f"LFT invalidate failed for ds {submission.id}: {e}")
 
     db.session.add(submission)
+
+    message_text = f"Submission Cancelled.<br>This submission was cancelled by {cancelled_by_user.display_name()}.<br>Cancellation comment: {reason}."
+    message = SubmissionMessage(
+        submission_id=submission.id,
+        sender_user_id=cancelled_by_user.id,
+        message_text=message_text,
+        message_type="submission_cancellation",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
+    db.session.commit()
+
     send_submission_cancellation_notification(submission, cancelled_by_user)
 
     return submission

@@ -620,7 +620,7 @@ def cancel_submission(sub_id):
             403,
         )
 
-    if submission.is_frozen():
+    if submission.is_cancelled():
         flash("Submission already cancelled.", "warning")
         if current_user.is_data_steward():
             dest = url_for("list_submissions")

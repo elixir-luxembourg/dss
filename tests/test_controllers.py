@@ -281,6 +281,10 @@ class ControllersTest(BaseIntegrationTest):
             link1.id = "link_ds1"
             link2 = MagicMock()
             link2.id = "link_ds2"
+            link1.link_url = "/link_ds1"
+            link2.link_url = "/link_ds2"
+            link1.page_password = "pass1"
+            link2.page_password = "pass2"
 
             mock_client.links_list.side_effect = [
                 [link1],
@@ -289,6 +293,7 @@ class ControllersTest(BaseIntegrationTest):
 
             lft.client = mock_client
             lft.namespace_id = "ns"
+            lft.links_url = "https://lft.lcsb.uni.lu"
             lft.username = "user"
             lft.password = "pass"
 
@@ -300,11 +305,59 @@ class ControllersTest(BaseIntegrationTest):
 
             self.assert200(resp)
 
-            expected_calls = [{"link_id": "link_ds1"}, {"link_id": "link_ds2"}]
+            expected_calls = [
+                {
+                    "link_id": "link_ds1",
+                    "absolute_url": f"{lft.links_url}{link1.link_url}",
+                    "password": link1.page_password,
+                },
+                {
+                    "link_id": "link_ds2",
+                    "absolute_url": f"{lft.links_url}{link2.link_url}",
+                    "password": link2.page_password,
+                },
+            ]
             actual_calls = [
-                call.kwargs for call in mock_client.link_delete.call_args_list
+                call.kwargs for call in mock_client.delete_link.call_args_list
             ]
             self.assertEqual(expected_calls, actual_calls)
 
         finally:
             lft.client = original_client
+
+    def test_cannot_modify_cancelled_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = create_sub("Unmodifiable Submission", "ELU_I_200")
+        db.session.add(sub)
+        db.session.commit()
+
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        cancel_resp = self.client.post(
+            url_for("cancel_submission", sub_id=sub.id),
+            data={"cancellation_reason": "Testing modification block"},
+            follow_redirects=True,
+        )
+        self.assert200(cancel_resp)
+
+        sub = Submission.query.get(sub.id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.cancelled)
+
+        response = self.client.post(
+            url_for("add_submission_dataset", sub_id=sub.id),
+            data={
+                "submission_id": sub.id,
+                "title": "Should_Not_Work",
+                "gdpr_datatypes": ["genetic"],
+                "sci_datatypes": ["Whole_genome_sequencing"],
+            },
+            follow_redirects=False,
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("cancelled", response.data.decode("utf-8"))
+
+        dataset_count = SubmissionDataset.query.filter_by(submission_id=sub.id).count()
+        self.assertEqual(dataset_count, 0)
