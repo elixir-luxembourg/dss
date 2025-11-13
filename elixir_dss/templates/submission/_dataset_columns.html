@@ -1,55 +1,112 @@
 {% if submission.datasets %}
-<div class="container">
-    <div class="col-md-12">
-        <table class="table table-hover table-borderless align-middle">
-            <thead class="table-light border-bottom border-secondary border-opacity-25">
+    {% set can_edit = (current_user.is_data_steward() and submission.current_status.step_num() < 5) or submission.current_status.step_num() == 1 %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
             <tr>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Source Study</th>
-                <th rowspan="2">Data Type(s)</th>
-                <th colspan="3">Data Protection</th>
-                {% if submission.current_status.step_num() >= 2 %}
-                <th rowspan="2">Upload Link</th>
+                <th rowspan="2" class="fw-semibold text-dark py-2 align-middle border-end" style="background-color: #e9ecef;">
+                    <i class="bi bi-database me-2 text-primary"></i>Title
+                </th>
+                <th rowspan="2" class="fw-semibold text-dark py-2 align-middle border-end text-nowrap" style="background-color: #e9ecef;">
+                    <i class="bi bi-journal-text me-2 text-primary"></i>Source Study
+                </th>
+
+                <th rowspan="2" class="fw-semibold text-dark py-2 align-middle border-end" style="background-color: #e9ecef;">
+                    <i class="bi bi-file-earmark-bar-graph me-2 text-primary"></i>Data Type(s)
+                </th>
+                <th colspan="3" class="fw-semibold text-dark text-center py-2 border-bottom" style="background-color: #e9ecef;">
+                    <i class="bi bi-shield-check me-2 text-primary"></i>Data Protection
+                </th>
+                {% if submission.current_status.step_num() >= 2 and submission.current_status.step_num() < 5 %}
+                    <th rowspan="2" class="fw-semibold text-dark py-2 align-middle border-end" style="background-color: #e9ecef;">
+                        <i class="bi bi-link-45deg me-2 text-primary"></i>Upload Link
+                    </th>
                 {% endif %}
-                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <th rowspan="2">Actions</th>
+                {% if can_edit %}
+                    <th rowspan="2" class="fw-semibold text-dark py-2 align-middle" style="background-color: #e9ecef;">Actions</th>
                 {% endif %}
             </tr>
             <tr>
-                <th>De-Identification</th>
-                <th>Special Subjects</th>
-                <th>Consent Status</th>
+                <th class="fw-medium text-muted small py-2 border-end">De-Identification</th>
+                <th class="fw-medium text-muted small py-2 border-end">Special Subjects</th>
+                <th class="fw-medium text-muted small py-2 border-end">Consent Status</th>
             </tr>
             </thead>
             <tbody>
             {% for dataset in submission.datasets %}
-            <tr class="border-bottom border-secondary border-opacity-10">
+                <tr class="border-bottom">
+                    <td class="py-2">
+                        {% if can_edit %}
+                            <a href="{{ url_for('edit_submission_dataset', dataset_id=dataset.id) }}"
+                               class="text-dark text-decoration-none fw-semibold d-inline-flex align-items-center gap-2">
+                                <span>{{ dataset.title }}</span>
+                            </a>
+                        {% else %}
+                            <span class="fw-semibold">{{ dataset.title }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2">
+                        {% if dataset.study %}
+                            <span class="text-dark">{{ dataset.study.name }}</span>
+                        {% else %}
+                            <span class="text-muted small fst-italic">No study linked</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2">
+                        {% if dataset.sci_data_type_names() %}
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for name in dataset.sci_data_type_names() %}
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary small">{{ name }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span class="text-muted small fst-italic">No data types</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2">
+                        {% if dataset.de_identification_type %}
+                            <div class="d-flex align-items-center gap-2">
+                                {% if 'Anonymized' in dataset.de_identification_type.label %}
+                                    <i class="bi bi-shield-fill-check text-success"></i>
+                                {% elif 'Pseudonymized' in dataset.de_identification_type.label %}
+                                    <i class="bi bi-shield-fill text-warning"></i>
+                                {% else %}
+                                    <i class="bi bi-shield text-secondary"></i>
+                                {% endif %}
+                                <span class="small">{{ dataset.de_identification_type.label }}</span>
+                            </div>
+                        {% else %}
+                            <span class="text-muted small fst-italic">Not specified</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2">
+                        {% if dataset.has_special_subjects_display() %}
+                            <div class="d-flex align-items-center gap-2">
+                                {% if 'Yes' in dataset.has_special_subjects_display() %}
+                                    <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                                {% else %}
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                {% endif %}
+                                <span class="small">{{ dataset.has_special_subjects_display() }}</span>
+                            </div>
+                        {% else %}
+                            <span class="text-muted small fst-italic">Not specified</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-2">
+                        {% if dataset.consent_status %}
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="small">{{ dataset.consent_status.label }}</span>
+                            </div>
+                        {% else %}
+                            <span class="text-muted small fst-italic">Not specified</span>
+                        {% endif %}
+                    </td>
+                    {% if submission.current_status.step_num() > 2 and submission.current_status.step_num() < 5 %}
                 <td>
-                    {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or submission.current_status.step_num() ==2 %}
-                        <a href="{{ url_for('edit_submission_dataset', dataset_id=dataset.id) }}" class="text-dark text-decoration-none">
-                            {{ dataset.title }}
-                        </a>
-                    {% else %}
-                        {{ dataset.title }}
-                    {% endif %}
-                </td>
-                <td>{% if dataset.study %} {{ dataset.study.name}} {% endif %}</td>
-                <td>
-                    <ul>
-                        {% for name in dataset.sci_data_type_names() %}
-                        <li>{{ name }}</li>
-                        {% endfor %}
-                    </ul>
-                </td>
-                <td>{{ dataset.de_identification_type.label }}</td>
-                <td>{{ dataset.has_special_subjects_display() }}</td>
-                <td>{{ dataset.consent_status.label }}</td>
-                {% if submission.current_status.step_num() >= 2 %}
-                <td>
-                    <button type="button" 
+                    <button type="button"
                             class="btn btn-primary btn-sm"
-                            data-bs-toggle="modal" 
+                            data-bs-toggle="modal"
                             data-bs-target="#lftLinkModal"
                             hx-get="{{ url_for('dataset_link', dataset_id=dataset.id) }}"
                             hx-trigger="click"
@@ -59,37 +116,35 @@
                     </button>
                 </td>
                 {% endif %}
-                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <td>
-                    <div class="d-flex align-items-center justify-content-end gap-2">
-                        <a id="inline_listing_edit"
-                           href="{{ url_for('edit_submission_dataset',dataset_id=dataset.id) }}"
-                           class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
-                           role="button">
-                            <i class="bi bi-pencil"></i>
-                            <span>Edit</span>
-                        </a>
-                        <a id="inline_listing_delete"
-                           href="{{ url_for('delete_submission_dataset',dataset_id=dataset.id) }}"
-                           class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"
-                           role="button">
-                            <i class="bi bi-trash"></i>
-                            <span>Delete</span>
-                        </a>
-                    </div>
-                </td>
-                {% endif %}
-            </tr>
+                {% if can_edit %}
+                        <td class="py-2">
+                            <div class="d-flex align-items-center justify-content-end gap-2">
+                                <a href="{{ url_for('edit_submission_dataset', dataset_id=dataset.id) }}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   data-bs-toggle="tooltip"
+                                   title="Edit dataset">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ url_for('delete_submission_dataset', dataset_id=dataset.id) }}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   data-bs-toggle="tooltip"
+                                   title="Delete dataset"
+                                   onclick="return confirm('Are you sure you want to delete this dataset?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    {% endif %}
+                </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
-</div>
 {% else %}
-<div class="text-center py-5">
-    <h5 class="text-secondary">No data declared</h5>
-</div>
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-database fs-1 mb-3 d-block opacity-25"></i>
+        <p class="mb-0">No data declared</p>
+    </div>
 {% endif %}
 
 <!-- LFT Link Modal - placed outside the loop to avoid duplicate IDs -->

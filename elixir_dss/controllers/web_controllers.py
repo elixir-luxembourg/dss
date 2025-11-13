@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import uuid
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timezone
 
 from flask import (
     flash,
@@ -25,11 +25,15 @@ import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
 from elixir_dss.models.security import User
 from elixir_dss.models.services import (
+    approve_data,
+    approve_metadata,
     assign_role_to_user,
     create_sub,
     delete_sub,
     get_in_progress_submissions_shared_with_user,
     register_new_user,
+    reject_data,
+    reject_metadata,
     revert_sub,
     send_email_asynch,
     send_new_message_notification,
@@ -353,6 +357,52 @@ def revert_submission(sub_id):
         return "", 400
 
 
+@app.route("/submission/<int:sub_id>/approve_metadata", methods=["POST"])
+@login_required
+@app_authorization(allowed_roles=["data_steward"])
+def approve_metadata_endpoint(sub_id):
+    feedback = request.form.get("feedback", "").strip()
+    approve_metadata(sub_id, current_user.id, feedback if feedback else None)
+    flash("Metadata approved", "success")
+    return redirect(url_for("view_submission", sub_id=sub_id))
+
+
+@app.route("/submission/<int:sub_id>/reject_metadata", methods=["POST"])
+@login_required
+@app_authorization(allowed_roles=["data_steward"])
+def reject_metadata_endpoint(sub_id):
+    feedback = request.form.get("feedback", "").strip()
+    if not feedback:
+        flash("Feedback is required when rejecting", "error")
+        return redirect(url_for("view_submission", sub_id=sub_id))
+    reject_metadata(sub_id, current_user.id, feedback)
+    flash("Metadata rejected", "warning")
+    return redirect(url_for("view_submission", sub_id=sub_id))
+
+
+@app.route("/submission/<int:sub_id>/approve_data", methods=["POST"])
+@login_required
+@app_authorization(allowed_roles=["data_steward"])
+def approve_data_endpoint(sub_id):
+    feedback = request.form.get("feedback", "").strip()
+    approve_data(sub_id, current_user.id, feedback if feedback else None)
+    flash("Data approved", "success")
+    return redirect(url_for("view_submission", sub_id=sub_id))
+
+
+@app.route("/submission/<int:sub_id>/reject_data", methods=["POST"])
+@login_required
+@app_authorization(allowed_roles=["data_steward"])
+def reject_data_endpoint(sub_id):
+    feedback = request.form.get("feedback", "").strip()
+    if not feedback:
+        flash("Feedback is required when rejecting", "error")
+        return redirect(url_for("view_submission", sub_id=sub_id))
+    reject_data(sub_id, current_user.id, feedback)
+    flash("Data rejected", "warning")
+    return redirect(url_for("view_submission", sub_id=sub_id))
+
+
 @app.route("/submissions", methods=["GET"])
 @app_authorization(allowed_roles=["data_steward"])
 def list_submissions():
@@ -619,7 +669,7 @@ def delete_submission_attachment(attach_id):
     "/submission_attachment_download/<int:attach_id>/<filename>", methods=["GET"]
 )
 @app_authorization(
-    allowed_roles=["admin", "data_provider"],
+    allowed_roles=["user", "data_steward"],
     record_authorization={
         "entity": "SubmissionAttachment",
         "entity_id_key": "attach_id",
@@ -871,7 +921,7 @@ def add_submission_message(sub_id):
             posted_form.populate_obj(message_rec)
             message_rec.id = None
             message_rec.sender_user = current_user
-            message_rec.created_on = datetime.now()
+            message_rec.created_on = datetime.now(timezone.utc)
             db.session.add(message_rec)
             db.session.commit()
             if message_rec.submission.is_in_progress():
@@ -934,11 +984,12 @@ def dataset_link(dataset_id):
     dataset = SubmissionDataset.query.get_or_404(dataset_id)
     submission = Submission.query.get_or_404(dataset.submission_id)
     if submission.current_status not in [
-        SubmissionStatusEnum.in_progress_data,
+        SubmissionStatusEnum.data_upload,
+        SubmissionStatusEnum.data_approval,
         SubmissionStatusEnum.completed,
     ]:
         app.logger.info(
-            f"Submission {submission.id} is not in progress_data or completed state."
+            f"Submission {submission.id} is not in data upload or completed state."
         )
         return render_template("submission/_lft_link_content.html", link=None)
 

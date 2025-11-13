@@ -1,19 +1,36 @@
-{% if submission.messages %}
+{% set sorted_messages = submission.messages|sort(attribute='created_on', reverse=True) %}
+{% if sorted_messages %}
 <div class="d-flex flex-column gap-3">
-    {% for message in submission.messages %}
-    <div class="card border">
-        <div class="card-body p-3">
+    {% for message in sorted_messages %}
+    {# Determine if this is a review message and its type #}
+    {% set is_approval = message.message_type and 'approval' in message.message_type %}
+    {% set is_rejection = message.message_type and 'rejection' in message.message_type %}
+    {% set is_review = is_approval or is_rejection %}
+
+    <div class="card border {% if is_approval %}border-success border-2{% elif is_rejection %}border-danger border-2{% endif %}">
+        <div class="card-body p-3 {% if is_approval %}bg-success-subtle{% elif is_rejection %}bg-danger-subtle{% endif %}">
             <!-- Message Header -->
             <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
                 <div class="d-flex align-items-center gap-2">
                     <!-- Sender Avatar -->
-                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                    <div class="{% if is_approval %}bg-success{% elif is_rejection %}bg-danger{% else %}bg-primary{% endif %} text-white rounded-circle d-flex align-items-center justify-content-center"
                          style="width: 32px; height: 32px; flex-shrink: 0;">
-                        <i class="bi bi-person-fill"></i>
+                        {% if is_approval %}
+                            <i class="bi bi-check-circle-fill"></i>
+                        {% elif is_rejection %}
+                            <i class="bi bi-x-circle-fill"></i>
+                        {% else %}
+                            <i class="bi bi-person-fill"></i>
+                        {% endif %}
                     </div>
                     <!-- Sender Info -->
                     <div>
                         <div class="fw-semibold text-dark small">{{ message.sender_user.display_name() }}</div>
+                        {% if is_approval %}
+                            <span class="badge bg-success text-white small">Approved</span>
+                        {% elif is_rejection %}
+                            <span class="badge bg-danger text-white small">Changes Required</span>
+                        {% endif %}
                     </div>
                 </div>
                 <!-- Timestamp -->
@@ -21,7 +38,7 @@
             </div>
 
             <!-- Message Content -->
-            <div class="message-content">
+            <div class="message-content {% if is_review %}fw-medium{% endif %}">
                 {{ message.message_text|safe }}
             </div>
         </div>

@@ -22,10 +22,9 @@
         <h5 class="mb-0 fw-semibold">Add New Attachment</h5>
     </div>
     <div class="card-body p-4">
-        <p class="mb-3">In this section you can upload documents to support the information
-            provided in the submission forms. E.g. a copy of the Ethics Approval for the source study, a template of the Consent Form used
-            during data collection etc.
-            <span  class="text-danger">Please do NOT upload any DATA or METADATA through this section.</span>
+        <p class="mb-3">Upload supporting documents for your submission (e.g., Ethics Approval, Consent Form templates, checksums, etc.).
+            <span class="text-danger fw-bold d-block mt-2">⚠️ Do NOT upload the actual dataset here! The dataset is uploaded separately in the LFT application.</span>
+            <span class="text-muted d-block mt-1">Attachments are supporting documents that help validate your submission.</span>
         </p>
         <form method="POST" enctype="multipart/form-data"
               data-url="{{ url_for('add_submission_attachment', sub_id=attachment_form.submission_id.data)}}">

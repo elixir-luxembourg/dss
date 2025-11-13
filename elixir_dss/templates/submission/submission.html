@@ -3,351 +3,842 @@
 {% import "forms_macros.html" as fmacros %}
 {% block title %}View Submission{% endblock %}
 {% block js %}
-{{ super() }}
-{% assets "submission_editor_js" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-
+    {{ super() }}
+    {% assets "submission_editor_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
 {% endblock %}
 
 {% block content %}
 
-<div class="card border shadow-sm mb-4">
-    <!-- Card Header with Title and Action Buttons -->
-    <div class="card-header bg-white border-bottom">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-                <h5 class="fw-semibold mb-0 text-primary">Submission Overview</h5>
-                {% if submission.is_overview_info_complete() %}
-                <span class="badge bg-success">✓</span>
+    {% set stp = submission.current_status.step_num() %}
+    {% set studies_count = submission.studies|length %}
+    {% set data_count = submission.datasets|length %}
+    {% set attachments_count = submission.attachments|length %}
+    {% set messages_count = submission.messages|length %}
+    {% set can_edit = current_user.is_data_steward() or stp == 1 or stp == 3 %}
+    {% set can_edit_other = current_user.is_data_steward() or stp != 5 %}
+
+
+    <!-- Progress Bar - Always at Top -->
+    {% include 'submission/_submission_progress_bar.html' %}
+
+    <!-- Main Container with Sidebar Layout -->
+    <div class="row g-4">
+
+        <!-- MAIN CONTENT AREA - Step Takes Over -->
+        <div class="col-lg-8">
+
+            <!-- STEP 0: DRAFT - Overview Takes Over -->
+            {% if stp == 0 %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-semibold mb-1">
+                                    <i class="bi bi-pencil-square me-2"></i>
+                                    Setup Your Submission
+                                </h5>
+                                {% if current_user.is_data_steward() %}
+                                <p class="mb-0 text-white-50 small">Complete the submission overview to get started</p>
+                                {% else %}
+                                    <p class="mb-0 text-white-50 small">Our data steward is working on creating a new submission for you.</p>
+                                    <p class="mb-0 text-white-50 small">You will get a notification soon when they are done.</p>
+                                {% endif %}
+                            </div>
+                            {% if current_user.is_data_steward() or stp == 1 or stp == 3 %}
+                                <a href="{{ url_for('edit_submission',sub_id=submission.id) }}"
+                                   class="btn btn-light btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Edit
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        {% with %}
+                            {% set details = True %}
+                            {% include 'submission/_submission_header.html' %}
+                        {% endwith %}
+
+                        {% if submission.is_overview_info_complete() and current_user.is_data_steward() %}
+                            <div class="d-flex justify-content-end mt-4 mb-2">
+                                <a name="button_submission_editor_steer"
+                                   data-url="{{ url_for('steer_submission', sub_id=submission.id) }}"
+                                   class="btn btn-primary btn-lg shadow-sm px-4">
+                                    Proceed to Metadata Entry
+                                    <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                            <div class="alert alert-success d-flex align-items-start gap-3 border-0 shadow-sm" role="alert">
+                                <i class="bi bi-check-circle fs-5"></i>
+                                <div>
+                                    <strong class="d-block mb-1">Ready to Proceed</strong>
+                                    <span class="small">Overview requirements satisfied. Continue to enter studies and datasets metadata.</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning d-flex align-items-start gap-3 border-0 shadow-sm mt-4" role="alert">
+                                <i class="bi bi-exclamation-triangle fs-5"></i>
+                                <div>
+                                    <strong class="d-block mb-1">Requirements Not Met</strong>
+                                    <span class="small">Recipients and Contacts are required before moving to Metadata Entry.</span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- STEP 1: METADATA ENTRY - Studies & Datasets Take Over -->
+            {% if stp == 1 %}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white p-4">
+                        <h5 class="fw-semibold mb-1">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Metadata Entry
+                        </h5>
+                        <p class="mb-0 text-white-50 small">Add your research studies and declare your datasets</p>
+                    </div>
+                </div>
+
+                <!-- Studies Section -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-semibold mb-1">
+                                    <i class="bi bi-journal-text me-2 text-primary"></i>
+                                    Studies
+                                    <span class="badge bg-primary ms-2">
+                                        {{ studies_count }}
+                                    </span>
+                                    {% if studies_count == 0 %}
+                                        <span class="badge bg-danger ms-1">Required</span>
+                                    {% else %}
+                                        <i class="bi bi-check-circle-fill text-success ms-1"></i>
+                                    {% endif %}
+                                </h5>
+                                <p class="mb-0 text-muted small">Describe your research studies with ethics approval details</p>
+                            </div>
+                            {% if can_edit %}
+                                <a href="{{ url_for('add_submission_study', sub_id=submission.id) }}"
+                                   class="btn btn-primary btn-sm">
+                                    <i class="bi bi-plus-lg me-1"></i>Add Study
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if studies_count == 0 %}
+                            <div class="text-center py-5 bg-light rounded">
+                                <i class="bi bi-journal-text text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                                <h6 class="text-dark mb-2">No studies added yet</h6>
+                                <p class="text-muted small mb-3 mx-auto" style="max-width: 400px;">
+                                    Add your first study to describe your research, including ethics approval and study details.
+                                </p>
+                                {% if can_edit %}
+                                    <a href="{{ url_for('add_submission_study', sub_id=submission.id) }}"
+                                       class="btn btn-primary">
+                                        <i class="bi bi-plus-lg me-1"></i>Add Your First Study
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            {% include 'submission/_study_columns.html' %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Datasets Section -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-semibold mb-1">
+                                    <i class="bi bi-database me-2 text-primary"></i>
+                                    Datasets
+                                    <span class="badge bg-primary ms-2">
+                                        {{ data_count }}
+                                    </span>
+                                    {% if data_count == 0 %}
+                                        <span class="badge bg-danger ms-1">Required</span>
+                                    {% else %}
+                                        <i class="bi bi-check-circle-fill text-success ms-1"></i>
+                                    {% endif %}
+                                </h5>
+                                <p class="mb-0 text-muted small">Declare what data you're submitting with GDPR categories</p>
+                            </div>
+                            {% if can_edit %}
+                                <a href="{{ url_for('add_submission_dataset', sub_id=submission.id) }}"
+                                   class="btn btn-primary btn-sm">
+                                    <i class="bi bi-plus-lg me-1"></i>Add Dataset
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if data_count == 0 %}
+                            <div class="text-center py-5 bg-light rounded">
+                                <i class="bi bi-database text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
+                                <h6 class="text-dark mb-2">No datasets added yet</h6>
+                                <p class="text-muted small mb-3 mx-auto" style="max-width: 400px;">
+                                    Add dataset declarations including GDPR categories and de-identification information.
+                                </p>
+                                {% if can_edit %}
+                                    <a href="{{ url_for('add_submission_dataset', sub_id=submission.id) }}"
+                                       class="btn btn-primary">
+                                        <i class="bi bi-plus-lg me-1"></i>Add Your First Dataset
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            {% include 'submission/_dataset_columns.html' %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Requirements Check -->
+                {% if studies_count == 0 or data_count == 0 %}
+                    <div class="alert alert-warning d-flex align-items-start gap-3 border-0 shadow-sm" role="alert">
+                        <i class="bi bi-exclamation-triangle fs-5"></i>
+                        <div>
+                            <strong class="d-block mb-1">Requirements Not Met</strong>
+                            <span class="small">You must add at least one Study and one Dataset before proceeding to the next step.</span>
+                        </div>
+                    </div>
                 {% else %}
-                <span class="badge bg-warning text-dark" data-bs-toggle="tooltip" title="Missing information! Please edit submission overview to declare Recipients and Contacts.">!</span>
+                    <div class="d-flex justify-content-end mt-4 mb-2">
+                        <a name="button_submission_editor_steer"
+                           data-url="{{ url_for('steer_submission', sub_id=submission.id) }}"
+                           class="btn btn-primary btn-lg shadow-sm px-4">
+                            Proceed to Metadata Review
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                    <div class="alert alert-success d-flex align-items-start gap-3 border-0 shadow-sm" role="alert">
+                        <i class="bi bi-check-circle fs-5"></i>
+                        <div>
+                            <strong class="d-block mb-1">Ready to Proceed</strong>
+                            <span class="small">All requirements met. Use the "Proceed" button in the progress bar above to submit for review.</span>
+                        </div>
+                    </div>
+
                 {% endif %}
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="d-flex gap-2">
-                <a {% if current_user.is_data_steward() %} href="{{ url_for('list_submissions') }}" {% else %}
-                   href="{{ url_for('list_my_submissions') }}" {% endif %}
-                   class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-x-circle"></i>
-                    <span class="d-none d-lg-inline">Close</span>
-                </a>
-                {% if current_user.is_data_steward() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
-                <a name="button_submission_edit"
-                   href="{{ url_for('edit_submission',sub_id=submission.id) }}"
-                   class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-                    <i class="bi bi-pencil"></i>
-                    <span class="d-none d-lg-inline">Edit</span>
-                </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Card Body with Submission Details -->
-    <div class="card-body p-4">
-        {% with %}
-        {% set details = True %}
-        {% include 'submission/_submission_header.html' %}
-        {% endwith %}
-    </div>
-</div>
-
-{% include 'submission/_submission_progress_bar.html' %}
-
-
-{% set stp = submission.current_status.step_num() %}
-{% set studies_count = submission.studies|length %}
-{% set data_count = submission.datasets|length %}
-{% set attachments_count = submission.attachments|length %}
-{% set messages_count = submission.messages|length %}
-{% set can_edit = current_user.is_data_steward() or stp == 1 or stp == 2 %}
-
-<div class="card border shadow-sm mb-4">
-    <!-- Card Header with Stage-Aware Title -->
-    <div class="card-header bg-white border-bottom">
-        <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-                <h5 class="fw-semibold mb-0 text-primary">
-                    Submission Details
-                    {% if stp == 1 %}
-                        <span class="text-muted fw-normal fs-6">- Study Registration</span>
-                    {% elif stp == 2 %}
-                        <span class="text-muted fw-normal fs-6">- Data Upload</span>
-                    {% elif stp == 3 %}
-                        <span class="text-muted fw-normal fs-6">- Completion</span>
-                    {% endif %}
-                </h5>
-                {% if submission.is_detail_info_complete() %}
-                <span class="badge bg-success">✓</span>
-                {% else %}
-                <span class="badge bg-warning text-dark" data-bs-toggle="tooltip" title="Missing information! Please declare one or more Studies and Data.">!</span>
-                {% endif %}
-            </div>
-
-            <!-- Context-Aware Add Buttons (shown/hidden based on active tab) -->
-            {% if can_edit %}
-            <div class="d-flex gap-2">
-                <a id="add-study-btn"
-                   class="btn btn-primary btn-sm d-flex align-items-center gap-2"
-                   href="{{ url_for('add_submission_study', sub_id=submission.id) }}"
-                   data-bs-toggle="tooltip"
-                   title="Add New Study">
-                    <i class="bi bi-plus-lg"></i>
-                    <span class="d-none d-lg-inline">Add Study</span>
-                </a>
-                <a id="add-data-btn"
-                   class="btn btn-primary btn-sm d-none align-items-center gap-2"
-                   href="{{ url_for('add_submission_dataset', sub_id=submission.id) }}"
-                   data-bs-toggle="tooltip"
-                   title="Add New Dataset">
-                    <i class="bi bi-plus-lg"></i>
-                    <span class="d-none d-lg-inline">Add Data</span>
-                </a>
-                <a id="add-attachment-btn"
-                   class="btn btn-primary btn-sm d-none align-items-center gap-2"
-                   href="{{ url_for('add_submission_attachment', sub_id=submission.id) }}"
-                   data-bs-toggle="tooltip"
-                   title="Add New Attachment">
-                    <i class="bi bi-plus-lg"></i>
-                    <span class="d-none d-lg-inline">Add Attachment</span>
-                </a>
-                <a id="add-message-btn"
-                   class="btn btn-primary btn-sm d-none align-items-center gap-2"
-                   href="{{ url_for('add_submission_message', sub_id=submission.id) }}"
-                   data-bs-toggle="tooltip"
-                   title="Add New Message">
-                    <i class="bi bi-plus-lg"></i>
-                    <span class="d-none d-lg-inline">Add Message</span>
-                </a>
-            </div>
             {% endif %}
-        </div>
-    </div>
 
-    <!-- Stage-Aware Contextual Banner (Persistent) -->
-    {% if stp == 1 %}
-    <div class="bg-primary-subtle border-bottom border-primary p-3 d-flex align-items-center gap-2">
-        <i class="bi bi-info-circle fs-5 text-primary"></i>
-        <div class="text-dark">
-            <strong>Study Registration Stage:</strong> Add at least one Study and one Dataset to proceed to Data Upload.
-            {% if studies_count == 0 or data_count == 0 %}
-                <span class="badge bg-warning text-dark ms-2">Incomplete</span>
+            <!-- STEP 2: METADATA REVIEW - Approval Takes Over -->
+            {% if stp == 2 %}
+
+                <!-- Review Action Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white p-4">
+                        <h5 class="fw-semibold mb-1">
+                            <i class="bi bi-clipboard-check me-2"></i>
+                            Metadata Review
+                        </h5>
+                        <p class="mb-0 text-white-50 small">
+                            {% if current_user.is_data_steward() %}
+                                Review the study details and data declarations
+                            {% else %}
+                                Your submission is being reviewed by the data steward
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if current_user.is_data_steward() %}
+                            <!-- Summary Stats -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <div class="card border-0 bg-primary bg-opacity-10 h-100">
+                                        <div class="card-body text-center py-3">
+                                            <div class="display-6 fw-bold text-primary mb-1">{{ studies_count }}</div>
+                                            <div class="small text-muted">Studies Submitted</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card border-0 bg-primary bg-opacity-10 h-100">
+                                        <div class="card-body text-center py-3">
+                                            <div class="display-6 fw-bold text-primary mb-1">{{ data_count }}</div>
+                                            <div class="small text-muted">Datasets Declared</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-muted mb-4 small">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Review all metadata for completeness and compliance. Expand the sections below for detailed review.
+                            </p>
+
+                            <div class="d-flex justify-content-end gap-3 mt-4 mb-2">
+                                <button type="button" class="btn btn-outline-danger btn-lg shadow-sm px-4"
+                                        data-bs-toggle="modal" data-bs-target="#reviewRejectModal">
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Request Changes
+                                </button>
+
+                                <button type="button" class="btn btn-primary btn-lg shadow-sm px-4"
+                                        data-bs-toggle="modal" data-bs-target="#reviewApproveModal">
+                                    Approve Metadata and Proceed
+                                    <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-3">
+                                    <i class="bi bi-hourglass-split text-primary" style="font-size: 2.25rem;"></i>
+                                </div>
+                                <h6 class="text-dark mb-2">Review In Progress</h6>
+                                <p class="text-muted mb-0 small">
+                                    The data steward is reviewing your metadata. You will receive an email notification when the review is complete.
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Reference Sections -->
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3 small text-uppercase">Submitted Metadata</h6>
+                    <div class="accordion" id="metadataAccordion">
+                        <div class="accordion-item border shadow-sm mb-2">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#studiesCollapse">
+                                    <i class="bi bi-journal-text me-2 text-muted"></i>
+                                    Studies
+                                    <span class="badge bg-secondary ms-2">{{ studies_count }}</span>
+                                </button>
+                            </h2>
+                            <div id="studiesCollapse" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    {% include 'submission/_study_columns.html' %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border shadow-sm">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#datasetsCollapse">
+                                    <i class="bi bi-database me-2 text-muted"></i>
+                                    Datasets
+                                    <span class="badge bg-secondary ms-2">{{ data_count }}</span>
+                                </button>
+                            </h2>
+                            <div id="datasetsCollapse" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    {% include 'submission/_dataset_columns.html' %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endif %}
-        </div>
-    </div>
-    {% elif stp == 2 %}
-    <div class="bg-info-subtle border-bottom border-info p-3 d-flex align-items-center gap-2">
-        <i class="bi bi-cloud-upload fs-5 text-info"></i>
-        <div class="text-dark">
-            <strong>Data Upload Stage:</strong> Upload required attachments and consent forms to complete the submission.
-            {% if attachments_count == 0 %}
-                <span class="badge bg-warning text-dark ms-2">No attachments</span>
+
+            <!-- STEP 3: DATA UPLOAD -->
+            {% if stp == 3 %}
+
+                <!-- Upload Instructions -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white p-4">
+                        <h5 class="fw-semibold mb-1">
+                            <i class="bi bi-cloud-upload me-2"></i>
+                            Data Upload
+                        </h5>
+                        <p class="mb-0 text-white-50 small">Upload links have been generated for each of your datasets</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Instructions Box -->
+                        <div class="bg-light border-start border-primary border-4 rounded p-4 mb-4">
+                            <h6 class="fw-semibold mb-3 d-flex align-items-center">
+                                <span class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; font-size: 0.75rem;">
+                                    <i class="bi bi-info"></i>
+                                </span>
+                                Upload Instructions
+                            </h6>
+                            <div class="small">
+                                <p class="mb-2">Individual upload links have been generated for each dataset below. Follow these steps:</p>
+                                <ol class="mb-0 ps-3">
+                                    <li class="mb-2">Click <strong>"Get Upload Link"</strong> for each dataset</li>
+                                    <li class="mb-2">Use the provided link to upload files via LFT for that specific dataset</li>
+                                    <li class="mb-2">Repeat for all datasets until all files are uploaded</li>
+                                    <li>Once complete, click <strong>"Proceed to Review"</strong> below</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- Datasets List with Upload Buttons -->
+                        <div class="mb-4">
+                            <h6 class="fw-semibold mb-3 text-dark">
+                                <i class="bi bi-database me-2 text-primary"></i>
+                                Your Datasets
+                                <span class="badge bg-primary ms-2">{{ data_count }}</span>
+                            </h6>
+
+                            {% if data_count > 0 %}
+                                <div class="d-flex flex-column gap-3">
+                                    {% for dataset in submission.datasets %}
+                                        <div class="card border">
+                                            <div class="card-body p-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-8">
+                                                        <h6 class="mb-1 fw-semibold text-dark">
+                                                            <i class="bi bi-database me-2 text-primary"></i>
+                                                            {{ dataset.title }}
+                                                        </h6>
+                                                        <div class="small text-muted">
+                                                            {% if dataset.study %}
+                                                                <i class="bi bi-journal-text me-1"></i>
+                                                                <span>{{ dataset.study.name }}</span>
+                                                            {% endif %}
+                                                            {% if dataset.sci_data_type_names() %}
+                                                                <span class="mx-2">•</span>
+                                                                <span>{{ dataset.sci_data_type_names() | join(', ') }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                                                        <button type="button"
+                                                                class="btn btn-primary"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#lftLinkModal"
+                                                                hx-get="{{ url_for('dataset_link', dataset_id=dataset.id) }}"
+                                                                hx-trigger="click"
+                                                                hx-target="#lftLinkModalBody"
+                                                                hx-swap="innerHTML">
+                                                            <i class="bi bi-link-45deg me-2"></i>
+                                                            Get Upload Link
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning d-flex align-items-center gap-2 mb-0">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <span>No datasets have been declared yet. Please add datasets before proceeding to upload.</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Proceed Button -->
+                        <div class="d-flex justify-content-end mt-4 mb-2">
+                            <a name="button_submission_editor_steer"
+                               data-url="{{ url_for('steer_submission', sub_id=submission.id) }}"
+                               class="btn btn-primary btn-lg shadow-sm px-4">
+                                Proceed to Data Review
+                                <i class="bi bi-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Reference Sections -->
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3 small text-uppercase">Your Metadata</h6>
+                    <div class="accordion" id="uploadAccordion">
+                        <div class="accordion-item border shadow-sm mb-2">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#studiesRefCollapse">
+                                    <i class="bi bi-journal-text me-2 text-muted"></i>
+                                    Your Studies
+                                    <span class="badge bg-secondary ms-2">{{ studies_count }}</span>
+                                </button>
+                            </h2>
+                            <div id="studiesRefCollapse" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    {% include 'submission/_study_columns.html' %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border shadow-sm">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#datasetsRefCollapse">
+                                    <i class="bi bi-database me-2 text-muted"></i>
+                                    Your Datasets
+                                    <span class="badge bg-secondary ms-2">{{ data_count }}</span>
+                                </button>
+                            </h2>
+                            <div id="datasetsRefCollapse" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    {% include 'submission/_dataset_columns.html' %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endif %}
-        </div>
-    </div>
-    {% elif stp == 3 %}
-    <div class="bg-success-subtle border-bottom border-success p-3 d-flex align-items-center gap-2">
-        <i class="bi bi-check-circle fs-5 text-success"></i>
-        <div class="text-dark">
-            <strong>Completion:</strong> Submission complete. All data can be reviewed but not edited. Ready for export.
-        </div>
-    </div>
-    {% elif stp == 0 %}
-    <div class="bg-secondary-subtle border-bottom border-secondary p-3 d-flex align-items-center gap-2">
-        <i class="bi bi-pencil fs-5 text-secondary"></i>
-        <div class="text-dark">
-            <strong>Draft Stage:</strong> Complete the Submission Overview above, then proceed to Study Registration when ready.
-        </div>
-    </div>
-    {% endif %}
 
-    <!-- Card Body with Tabs and Content -->
-    <div class="card-body p-4">
-        <ul class="nav nav-pills mb-4 gap-2" role="tablist">
-            <!-- Studies Tab - Stage 1 Focus -->
-            <li class="nav-item" role="presentation">
-                <a class="nav-link {% if stp == 1 %}active{% endif %} {% if stp == 1 %}border border-primary{% endif %} {% if stp != 1 %}opacity-50{% endif %} d-flex align-items-center gap-2"
-                   data-bs-toggle="pill"
-                   href="#studies"
-                   role="tab"
-                   aria-controls="studies"
-                   aria-selected="{% if stp == 1 %}true{% else %}false{% endif %}"
-                   data-add-btn="add-study-btn">
-                    <i class="bi bi-journal-text"></i>
-                    <span>Studies</span>
-                    <span class="badge {% if studies_count > 0 %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
-                        {{ studies_count }}
-                        {% if studies_count > 0 %}<i class="bi bi-check ms-1"></i>{% endif %}
-                    </span>
-                    {% if stp == 1 and studies_count == 0 %}
-                        <span class="badge bg-danger badge-sm">Required</span>
+            <!-- STEP 4: DATA REVIEW -->
+            {% if stp == 4 %}
+
+                <!-- Data Verification Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white p-4">
+                        <h5 class="fw-semibold mb-1">
+                            <i class="bi bi-shield-check me-2"></i>
+                            Dataset Verification
+                        </h5>
+                        <p class="mb-0 text-white-50 small">
+                            {% if current_user.is_data_steward() %}
+                                Verify the uploaded dataset in LFT application
+                            {% else %}
+                                Your dataset is being verified by the data steward
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if current_user.is_data_steward() %}
+                            <!-- Verification Instructions -->
+                            <div class="bg-light border-start border-primary border-4 rounded p-4 mb-4">
+                                <h6 class="fw-semibold mb-3 d-flex align-items-center">
+                                    <span class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; font-size: 0.75rem;">
+                                        <i class="bi bi-list-check"></i>
+                                    </span>
+                                    Verification Steps
+                                </h6>
+                                <ol class="mb-0 ps-3 small">
+                                    <li class="mb-2">Open LFT application below to access the transferred file(s) or use "Get Upload Link" below</li>
+                                    <li class="mb-2">Verify data integrity, completeness, and file formats</li>
+                                    <li>Return here to approve or request changes</li>
+                                </ol>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-3 mt-4 mb-2">
+                                <button type="button" class="btn btn-outline-danger btn-lg shadow-sm px-4"
+                                        data-bs-toggle="modal" data-bs-target="#reviewRejectModal">
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    Request Changes
+                                </button>
+
+                                <button type="button" class="btn btn-primary btn-lg shadow-sm px-4"
+                                        data-bs-toggle="modal" data-bs-target="#reviewApproveModal">
+                                    Approve Dataset and Close Submission
+                                    <i class="bi bi-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="mb-3">
+                                    <i class="bi bi-hourglass-split text-primary" style="font-size: 2.25rem;"></i>
+                                </div>
+                                <h6 class="text-dark mb-2">Verification In Progress</h6>
+                                <p class="text-muted mb-0 small">
+                                    The data steward is verifying your dataset in the LFT application. You will be notified when the verification is complete.
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Reference Sections -->
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3 small text-uppercase">Submission Details</h6>
+                    <div class="accordion" id="verificationAccordion">
+                        <div class="accordion-item border shadow-sm mb-2">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#studiesVerCollapse">
+                                    <i class="bi bi-journal-text me-2 text-muted"></i>
+                                    Studies
+                                    <span class="badge bg-secondary ms-2">{{ studies_count }}</span>
+                                </button>
+                            </h2>
+                            <div id="studiesVerCollapse" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    {% include 'submission/_study_columns.html' %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border shadow-sm">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#datasetsVerCollapse">
+                                    <i class="bi bi-database me-2 text-muted"></i>
+                                    Datasets
+                                    <span class="badge bg-secondary ms-2">{{ data_count }}</span>
+                                </button>
+                            </h2>
+                            <div id="datasetsVerCollapse" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    {% include 'submission/_dataset_columns.html' %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- STEP 5: COMPLETION -->
+            {% if stp == 5 %}
+
+                <!-- Success Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-success text-white p-4">
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-check-circle-fill" style="font-size: 4rem;"></i>
+                            </div>
+                            <h4 class="fw-bold mb-2">Submission Complete!</h4>
+                            <p class="mb-0 opacity-90">Your data has been successfully submitted to the repository</p>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="bg-success bg-opacity-10 border-start border-success border-4 rounded p-4">
+                            <h6 class="fw-semibold mb-3 text-success">What's Next?</h6>
+                            <ul class="mb-0 ps-3 small">
+                                <li class="mb-2">Your submission is now available in the ELIXIR Luxembourg Repository</li>
+                                <li class="mb-2">All data is read-only and ready for export or analysis</li>
+                                <li class="mb-2">You can review all submission details below</li>
+                                <li>Contact the data steward if you need to make any changes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complete Submission Details -->
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3 small text-uppercase">Complete Submission</h6>
+
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white border-bottom p-3">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="bi bi-info-circle me-2 text-muted"></i>
+                                Submission Overview
+                            </h6>
+                        </div>
+                        <div class="card-body p-4">
+                            {% with %}
+                                {% set details = True %}
+                                {% include 'submission/_submission_header.html' %}
+                            {% endwith %}
+                        </div>
+                    </div>
+
+                    <div class="accordion" id="completionAccordion">
+                        <div class="accordion-item border shadow-sm mb-2">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#studiesCompleteCollapse">
+                                    <i class="bi bi-journal-text me-2 text-muted"></i>
+                                    Studies
+                                    <span class="badge bg-secondary ms-2">{{ studies_count }}</span>
+                                </button>
+                            </h2>
+                            <div id="studiesCompleteCollapse" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    {% include 'submission/_study_columns.html' %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border shadow-sm">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button bg-light fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#datasetsCompleteCollapse">
+                                    <i class="bi bi-database me-2 text-muted"></i>
+                                    Datasets
+                                    <span class="badge bg-secondary ms-2">{{ data_count }}</span>
+                                </button>
+                            </h2>
+                            <div id="datasetsCompleteCollapse" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    {% include 'submission/_dataset_columns.html' %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="col-lg-4">
+
+
+
+            <!-- Attachments -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary border-bottom p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 fw-semibold text-light">
+                            <i class="bi bi-paperclip me-2"></i>
+                            Attachments
+                            <span class="badge bg-secondary rounded-pill ms-1">{{ attachments_count }}</span>
+                        </h6>
+                        <small class="text-light opacity-50 fw-normal" style="font-size: .72rem;">
+                            You can add attachments at any point of the process.
+                        </small>
+                    </div>
+                        {% if can_edit_other %}
+                            <a href="{{ url_for('add_submission_attachment', sub_id=submission.id) }}"
+                               class="btn btn-sm btn-outline-light"
+                               data-bs-toggle="tooltip"
+                               title="Add attachment">
+                                <i class="bi bi-plus-lg"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body p-2">
+                    <div class="position-relative p-1"
+                         style="max-height: 300px; overflow-y: auto; border:1px solid #dee2e6; border-radius: .25rem;">
+                        {% if attachments_count == 0 %}
+                            <div class="text-center text-muted py-3">
+                                <i class="bi bi-paperclip fs-1 mb-2 d-block opacity-25"></i>
+                                <small>No attachments</small>
+                            </div>
+                        {% else %}
+                            {% include 'submission/_attachment_columns.html' %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary border-bottom p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0 fw-semibold text-light">
+                                <i class="bi bi-chat-dots me-2"></i>
+                                Messages
+                                <span class="badge bg-secondary rounded-pill ms-1">{{ messages_count }}</span>
+                            </h6>
+                            <small class="text-light opacity-50 fw-normal" style="font-size: .72rem;">
+                                You can add messages at any point of the process.
+                            </small>
+                        </div>
+                        {% if can_edit_other %}
+                            <a href="{{ url_for('add_submission_message', sub_id=submission.id) }}"
+                               class="btn btn-sm btn-outline-light"
+                               data-bs-toggle="tooltip"
+                               title="Add message">
+                                <i class="bi bi-plus-lg"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body p-2">
+                 <div  class="position-relative p-1" style="max-height: 380px; overflow-y: auto; border:1px solid #dee2e6; border-radius: .25rem;">
+                    {% if messages_count == 0 %}
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-chat-dots fs-1 mb-2 d-block opacity-25"></i>
+                            <small>No messages</small>
+                        </div>
+                    {% else %}
+                        {% include 'submission/_message_columns.html' %}
                     {% endif %}
-                </a>
-            </li>
+                </div>
+                </div>
+            </div>
 
-            <!-- Data Tab - Stage 1 Focus -->
-            <li class="nav-item" role="presentation">
-                <a class="nav-link {% if stp == 1 %}border border-primary{% endif %} {% if stp != 1 %}opacity-50{% endif %} d-flex align-items-center gap-2"
-                   data-bs-toggle="pill"
-                   href="#datasets"
-                   role="tab"
-                   aria-controls="datasets"
-                   aria-selected="false"
-                   data-add-btn="add-data-btn">
-                    <i class="bi bi-database"></i>
-                    <span>Data</span>
-                    <span class="badge {% if data_count > 0 %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
-                        {{ data_count }}
-                        {% if data_count > 0 %}<i class="bi bi-check ms-1"></i>{% endif %}
-                    </span>
-                    {% if stp == 1 and data_count == 0 %}
-                        <span class="badge bg-danger badge-sm">Required</span>
+            <!-- Rejection Alert -->
+            {% set ns = namespace(has_rejection=False) %}
+            {% if submission.messages|length > 0 and not current_user.is_data_steward() and (stp == 1 or stp == 3) %}
+                {% for msg in submission.messages|sort(attribute='created_on', reverse=True) %}
+                    {% if msg.message_type and 'rejection' in msg.message_type %}
+                        {% set ns.has_rejection = True %}
                     {% endif %}
-                </a>
-            </li>
+                {% endfor %}
+            {% endif %}
 
-            <!-- Attachments Tab - Stage 2 Focus -->
-            <li class="nav-item" role="presentation">
-                <a class="nav-link {% if stp == 2 %}border border-info{% endif %} {% if stp != 2 %}opacity-50{% endif %} d-flex align-items-center gap-2"
-                   data-bs-toggle="pill"
-                   href="#attachments"
-                   role="tab"
-                   aria-controls="attachments"
-                   aria-selected="false"
-                   data-add-btn="add-attachment-btn">
-                    <i class="bi bi-paperclip"></i>
-                    <span>Attachments</span>
-                    <span class="badge {% if attachments_count > 0 %}bg-success{% else %}bg-secondary{% endif %} rounded-pill">
-                        {{ attachments_count }}
-                        {% if attachments_count > 0 %}<i class="bi bi-check ms-1"></i>{% endif %}
-                    </span>
-                    {% if stp == 2 and attachments_count == 0 %}
-                        <span class="badge bg-warning text-dark badge-sm">Recommended</span>
-                    {% endif %}
-                </a>
-            </li>
-
-            <!-- Messages Tab - All Stages -->
-            <li class="nav-item" role="presentation">
-                <a class="nav-link {% if stp == 3 %}opacity-50{% endif %} d-flex align-items-center gap-2"
-                   data-bs-toggle="pill"
-                   href="#messages"
-                   role="tab"
-                   aria-controls="messages"
-                   aria-selected="false"
-                   data-add-btn="add-message-btn">
-                    <i class="bi bi-chat-dots"></i>
-                    <span>Messages</span>
-                    <span class="badge bg-secondary rounded-pill">{{ messages_count }}</span>
-                </a>
-            </li>
-        </ul>
-
-        <div class="tab-content">
-            <!-- Studies Tab Content -->
-            <div class="tab-pane fade {% if stp == 1 %}show active{% endif %}" id="studies" role="tabpanel">
-                {% if studies_count == 0 and can_edit %}
-                <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
-                    <i class="bi bi-info-circle fs-4 text-primary"></i>
-                    <div>
-                        <strong>No studies added yet.</strong> Click "Add Study" above to describe your research study, including ethics approval and study details.
-                    </div>
+            {% if ns.has_rejection %}
+                <div class="alert alert-danger border-0 shadow-sm">
+                    <h6 class="alert-heading fw-semibold d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Changes Required
+                    </h6>
+                    <p class="small mb-0">Check the Messages section above for details on what needs to be updated.</p>
                 </div>
-                {% endif %}
-                {% include 'submission/_study_columns.html' %}
-            </div>
+            {% endif %}
 
-            <!-- Data Tab Content -->
-            <div class="tab-pane fade" id="datasets" role="tabpanel">
-                {% if data_count == 0 and can_edit %}
-                <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
-                    <i class="bi bi-info-circle fs-4 text-primary"></i>
-                    <div>
-                        <strong>No datasets added yet.</strong> Click "Add Data" above to declare what data you're submitting, including GDPR categories and de-identification info.
-                    </div>
-                </div>
-                {% endif %}
-                {% include 'submission/_dataset_columns.html' %}
-            </div>
+        </div>
 
-            <!-- Attachments Tab Content -->
-            <div class="tab-pane fade" id="attachments" role="tabpanel">
-                {% if attachments_count == 0 and can_edit %}
-                <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
-                    <i class="bi bi-info-circle fs-4 text-info"></i>
-                    <div>
-                        <strong>No attachments uploaded yet.</strong> Click "Add Attachment" above to upload consent forms, checksums, and other supporting documents.
-                    </div>
-                </div>
-                {% endif %}
-                {% include 'submission/_attachment_columns.html' %}
-            </div>
+    </div>
 
-            <!-- Messages Tab Content -->
-            <div class="tab-pane fade" id="messages" role="tabpanel">
-                {% if messages_count == 0 %}
-                <div class="bg-light border rounded p-3 d-flex align-items-center gap-3 mb-3">
-                    <i class="bi bi-info-circle fs-4 text-muted"></i>
-                    <div>
-                        <strong>No messages yet.</strong> Use messages to communicate with data stewards or providers about this submission.
-                    </div>
+    <!-- Modals -->
+    <div class="modal fade" id="bean_edit_modal" tabindex="-1" aria-labelledby="beanEditModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div id="modal_form_container" class="modal-body">
                 </div>
-                {% endif %}
-                {% include 'submission/_message_columns.html' %}
             </div>
         </div>
     </div>
-</div>
 
-<!-- JavaScript to toggle Add buttons based on active tab -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get all tab links and add buttons
-    const tabLinks = document.querySelectorAll('[data-add-btn]');
-    const addButtons = {
-        'add-message-btn': document.getElementById('add-message-btn'),
-        'add-study-btn': document.getElementById('add-study-btn'),
-        'add-data-btn': document.getElementById('add-data-btn'),
-        'add-attachment-btn': document.getElementById('add-attachment-btn')
-    };
-
-    // Function to show appropriate button
-    function switchAddButton(targetBtnId) {
-        // Hide all buttons
-        Object.values(addButtons).forEach(btn => {
-            if (btn) {
-                btn.classList.add('d-none');
-                btn.classList.remove('d-flex');
-            }
-        });
-
-        // Show target button
-        if (addButtons[targetBtnId]) {
-            addButtons[targetBtnId].classList.remove('d-none');
-            addButtons[targetBtnId].classList.add('d-flex');
-        }
-    }
-
-    // Add click listeners to tabs
-    tabLinks.forEach(link => {
-        link.addEventListener('shown.bs.tab', function(e) {
-            const btnId = e.target.getAttribute('data-add-btn');
-            switchAddButton(btnId);
-        });
-    });
-});
-</script>
-
-<div class="modal fade" id="bean_edit_modal" tabindex="-1" aria-labelledby="beanEditModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div id="modal_form_container" class="modal-body">
+    <!-- Review Approve Modal -->
+    <div class="modal fade" id="reviewApproveModal" tabindex="-1" aria-labelledby="reviewApproveModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form method="POST" action="{% if stp == 2 %}{{ url_for('approve_metadata_endpoint', sub_id=submission.id) }}{% else %}{{ url_for('approve_data_endpoint', sub_id=submission.id) }}{% endif %}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="modal-header border-bottom">
+                        <h5 class="modal-title fw-semibold" id="reviewApproveModalLabel">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Approve {% if stp == 2 %}Metadata{% else %}Dataset{% endif %}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label for="approveFeedback" class="form-label fw-medium">Feedback (Optional)</label>
+                            <textarea class="form-control" id="approveFeedback" name="feedback" rows="4"
+                                      placeholder="Add optional feedback for the provider..." maxlength="2000"></textarea>
+                            <small class="text-muted">Feedback will be sent to the data provider via email.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-2"></i>Approve
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Review Reject Modal -->
+    <div class="modal fade" id="reviewRejectModal" tabindex="-1" aria-labelledby="reviewRejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form method="POST" action="{% if stp == 2 %}{{ url_for('reject_metadata_endpoint', sub_id=submission.id) }}{% else %}{{ url_for('reject_data_endpoint', sub_id=submission.id) }}{% endif %}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="modal-header border-bottom">
+                        <h5 class="modal-title fw-semibold" id="reviewRejectModalLabel">
+                            <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                            Request Changes
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="alert alert-danger border-0 mb-3">
+                            <small><i class="bi bi-exclamation-triangle me-2"></i>Feedback is required when requesting changes.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rejectFeedback" class="form-label fw-medium">
+                                Feedback <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" id="rejectFeedback" name="feedback" rows="4"
+                                      required placeholder="Explain what needs to be changed..." maxlength="2000"></textarea>
+                            <small class="text-muted">Be specific about what needs to be corrected.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-x-circle me-2"></i>Request Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}

@@ -197,6 +197,14 @@ class MessageForm(FlaskForm):
             self.submission_id.data = kwargs["sub_id"]
 
 
+class ReviewFeedbackForm(FlaskForm):
+    feedback = TextAreaField(
+        "Feedback",
+        description="Provide feedback about this review (required when rejecting)",
+        render_kw={"rows": 5, "maxlength": 2000},
+    )
+
+
 class SubmissionForm(FlaskForm):
     """
     Form for updating a submission's title and

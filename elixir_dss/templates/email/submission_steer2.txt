@@ -1,6 +1,6 @@
 Dear Data Steward,
 
-The following Submission  has been steered to the Data Upload stage. The next step for you is to provide Upload Instructions.
+The following submission has been steered to the Dataset Upload stage. The data provider has been instructed to upload their dataset in the LFT application using the submission reference below.
 
 
 Ref Name: {{ submission.ref_name }}

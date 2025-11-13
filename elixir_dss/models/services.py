@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from threading import Thread
 
 from flask import flash, render_template
@@ -49,7 +49,7 @@ def steer_sub(submission_id: str):
             "Submission cannot be steered to the next state!"
         )
     elif (
-        target_state == SubmissionStatusEnum.in_progress_metadata
+        submission.current_status == SubmissionStatusEnum.draft
         and not submission.has_providers()
     ):
         flash(
@@ -59,16 +59,30 @@ def steer_sub(submission_id: str):
         raise RecordLifecycleException(
             "Submission cannot be steered to the next state!"
         )
+    elif submission.current_status == SubmissionStatusEnum.metadata_submission and (
+        not submission.has_study() or not submission.has_dataset()
+    ):
+        flash(
+            "You need to add at least one study and one dataset before proceeding to the next step.",
+            "error",
+        )
+        raise RecordLifecycleException(
+            "Submission cannot be steered to the next state!"
+        )
     else:
-        if target_state == SubmissionStatusEnum.in_progress_metadata:
+        if target_state == SubmissionStatusEnum.metadata_submission:
             send_submission_steer_step1_notification(submission)
-        elif target_state == SubmissionStatusEnum.in_progress_data:
+        elif target_state == SubmissionStatusEnum.metadata_approval:
+            send_metadata_approval_request_notification(submission)
+        elif target_state == SubmissionStatusEnum.data_upload:
             submission.finalised_on = datetime.today()
             send_submission_steer_step2_notification(submission)
             flash(
                 "An upload link will be created once all information provided is checked and where required signatures are received.",
                 "success",
             )
+        elif target_state == SubmissionStatusEnum.data_approval:
+            send_data_approval_request_notification(submission)
         elif target_state == SubmissionStatusEnum.completed:
             send_submission_steer_step3_notification(submission)
         submission.current_status = target_state
@@ -197,6 +211,208 @@ def send_new_message_notification(submission_message: SubmissionMessage):
             submission=submission_message.submission,
         ),
     )
+
+
+def send_metadata_approval_request_notification(submission: Submission):
+    persist_and_send_notification(
+        "Submission [%s] ready for metadata approval" % submission.ref_name,
+        "noreply@uni.lu",
+        app.config.get("DATA_STEWARDS_MAILS"),
+        render_template(
+            "email/submission_metadata_approval_request.txt", submission=submission
+        ),
+        render_template(
+            "email/submission_metadata_approval_request.html", submission=submission
+        ),
+    )
+
+
+def send_metadata_approved_notification(submission: Submission, feedback=None):
+    recipients = []
+    for access in submission.submission_accesses:
+        recipients.append(access.user.email)
+    persist_and_send_notification(
+        "Submission [%s] metadata approved" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template(
+            "email/submission_metadata_approved.txt",
+            submission=submission,
+            feedback=feedback,
+        ),
+        render_template(
+            "email/submission_metadata_approved.html",
+            submission=submission,
+            feedback=feedback,
+        ),
+    )
+
+
+def send_metadata_rejected_notification(submission: Submission, feedback):
+    recipients = []
+    for access in submission.submission_accesses:
+        recipients.append(access.user.email)
+    persist_and_send_notification(
+        "Submission [%s] metadata requires changes" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template(
+            "email/submission_metadata_rejected.txt",
+            submission=submission,
+            feedback=feedback,
+        ),
+        render_template(
+            "email/submission_metadata_rejected.html",
+            submission=submission,
+            feedback=feedback,
+        ),
+    )
+
+
+def send_data_approval_request_notification(submission: Submission):
+    persist_and_send_notification(
+        "Submission [%s] ready for data approval" % submission.ref_name,
+        "noreply@uni.lu",
+        app.config.get("DATA_STEWARDS_MAILS"),
+        render_template(
+            "email/submission_data_approval_request.txt", submission=submission
+        ),
+        render_template(
+            "email/submission_data_approval_request.html", submission=submission
+        ),
+    )
+
+
+def send_data_approved_notification(submission: Submission, feedback=None):
+    recipients = []
+    for access in submission.submission_accesses:
+        recipients.append(access.user.email)
+    persist_and_send_notification(
+        "Submission [%s] data upload approved" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template(
+            "email/submission_data_approved.txt",
+            submission=submission,
+            feedback=feedback,
+        ),
+        render_template(
+            "email/submission_data_approved.html",
+            submission=submission,
+            feedback=feedback,
+        ),
+    )
+
+
+def send_data_rejected_notification(submission: Submission, feedback):
+    recipients = []
+    for access in submission.submission_accesses:
+        recipients.append(access.user.email)
+    persist_and_send_notification(
+        "Submission [%s] data upload requires changes" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template(
+            "email/submission_data_rejected.txt",
+            submission=submission,
+            feedback=feedback,
+        ),
+        render_template(
+            "email/submission_data_rejected.html",
+            submission=submission,
+            feedback=feedback,
+        ),
+    )
+
+
+def approve_metadata(submission_id, reviewer_id, feedback=None):
+    submission = Submission.query.get_or_404(submission_id)
+    submission.current_status = SubmissionStatusEnum.data_upload
+    db.session.add(submission)
+
+    if feedback:
+        message_text = f"Metadata approved.<br>{feedback.strip()}"
+    else:
+        message_text = "Metadata approved."
+
+    message = SubmissionMessage(
+        submission_id=submission_id,
+        sender_user_id=reviewer_id,
+        message_text=message_text,
+        message_type="metadata_approval",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
+    db.session.commit()
+
+    send_metadata_approved_notification(submission, feedback)
+    return submission
+
+
+def reject_metadata(submission_id, reviewer_id, feedback):
+    submission = Submission.query.get_or_404(submission_id)
+    submission.current_status = SubmissionStatusEnum.metadata_submission
+    db.session.add(submission)
+
+    message_text = f"Metadata rejected.<br>{feedback.strip()}"
+
+    message = SubmissionMessage(
+        submission_id=submission_id,
+        sender_user_id=reviewer_id,
+        message_text=message_text,
+        message_type="metadata_rejection",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
+    db.session.commit()
+
+    send_metadata_rejected_notification(submission, feedback)
+    return submission
+
+
+def approve_data(submission_id, reviewer_id, feedback=None):
+    submission = Submission.query.get_or_404(submission_id)
+    submission.current_status = SubmissionStatusEnum.completed
+    db.session.add(submission)
+
+    if feedback:
+        message_text = f"Data approved.<br>{feedback.strip()}"
+    else:
+        message_text = "Data approved."
+
+    message = SubmissionMessage(
+        submission_id=submission_id,
+        sender_user_id=reviewer_id,
+        message_text=message_text,
+        message_type="data_approval",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
+    db.session.commit()
+
+    send_data_approved_notification(submission, feedback)
+    return submission
+
+
+def reject_data(submission_id, reviewer_id, feedback):
+    submission = Submission.query.get_or_404(submission_id)
+    submission.current_status = SubmissionStatusEnum.data_upload
+    db.session.add(submission)
+
+    message_text = f"Data rejected.<br>{feedback.strip()}"
+
+    message = SubmissionMessage(
+        submission_id=submission_id,
+        sender_user_id=reviewer_id,
+        message_text=message_text,
+        message_type="data_rejection",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
+    db.session.commit()
+
+    send_data_rejected_notification(submission, feedback)
+    return submission
 
 
 def persist_and_send_notification(subject, sender, recipients, text_body, html_body):
@@ -348,7 +564,7 @@ def clone_sub(
             submission_scope_code=old_sub.submission_scope_code,
             local_custodians_json=old_sub.local_custodians_json,
             local_project_name=old_sub.local_project_name,
-            current_status=SubmissionStatusEnum.in_progress_metadata,
+            current_status=SubmissionStatusEnum.metadata_submission,
         )
         db.session.add(new_sub)
         db.session.flush()

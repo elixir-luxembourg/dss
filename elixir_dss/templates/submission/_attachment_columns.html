@@ -1,51 +1,30 @@
-
 {% if submission.attachments %}
-<div class="container">
-    <div class="col-md-12">
-        <table class="table table-hover table-borderless align-middle">
-            <thead class="table-light border-bottom border-secondary border-opacity-25">
-            <tr>
-                <th width="40%">Note</th>
-                <th width="50%">File(s)</th>
-                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <th width="15%">Actions</th>
-                {% endif %}
-            </tr>
-            </thead>
-            <tbody>
-            {% for attachment in submission.attachments %}
-            <tr class="border-bottom border-secondary border-opacity-10">
-                <td>{{ attachment.note }}</td>
-                <td>{% if attachment.files_urls() %}
-                    <ul>
+    <ul class="list-group list-group-flush">
+        {% for attachment in submission.attachments %}
+            <li class="list-group-item d-flex flex-column gap-1">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="fw-semibold">{{ attachment.note }}</div>
+                    {% if can_edit_other %}
+                        <a href="{{ url_for('delete_submission_attachment', attach_id=attachment.id) }}"
+                           class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"
+                           role="button" title="Delete attachment">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                    {% endif %}
+                </div>
+                {% if attachment.files_urls() %}
+                    <ul class="mb-0 ps-3 small">
                         {% for file_url, file_name in attachment.files_urls() %}
-                        <li><a href="{{ file_url }}">{{ file_name }}</a></li>
+                            <li><a href="{{ file_url }}">{{ file_name }}</a></li>
                         {% endfor %}
                     </ul>
-                    {% endif %}
-                </td>
-                {% if current_user.is_data_steward() or submission.current_status.step_num() ==1 or
-                submission.current_status.step_num() ==2 %}
-                <td>
-                    <div class="d-flex align-items-center justify-content-end gap-2">
-                        <a href="{{ url_for('delete_submission_attachment',attach_id=attachment.id) }}"
-                           class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"
-                           role="button">
-                            <i class="bi bi-trash"></i>
-                            <span>Delete</span>
-                        </a>
-                    </div>
-                </td>
                 {% endif %}
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+            </li>
+        {% endfor %}
+    </ul>
 {% else %}
-<div class="text-center py-5">
-    <h5 class="text-secondary">No attachments provided</h5>
-</div>
+    <div class="text-center text-muted py-3">
+        <i class="bi bi-paperclip fs-1 mb-2 d-block opacity-25"></i>
+        <small>No attachments</small>
+    </div>
 {% endif %}

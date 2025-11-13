@@ -3,11 +3,15 @@ from datetime import date
 from factory.alchemy import SQLAlchemyModelFactory
 
 from elixir_dss import db
+from elixir_dss.models.security import User
+from elixir_dss.models.services import register_new_user
 from elixir_dss.models.submission import (
     Submission,
     SubmissionDataset,
     SubmissionStatusEnum,
     SubmissionStudy,
+    Contact,
+    ContactType,
 )
 
 
@@ -70,3 +74,35 @@ class SubmissionStudyFactory(factory.alchemy.SQLAlchemyModelFactory):
     ethics_approval_exists = True
     ethics_approval_no = factory.Sequence(lambda n: f"ETH-{n + 1:04d}")
     study_types_json = '["observational", "interventional"]'
+
+
+class UserFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = User
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = "commit"
+
+    first_name = factory.Faker("first_name")
+    last_name = factory.Faker("last_name")
+    elixir_sub_id = factory.Sequence(lambda n: f"ELX_ID_{n}")
+    email = factory.Faker("email")
+    institution_accession = "ELU_I_77"
+    active_user = True
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        user_instance = super()._create(model_class, *args, **kwargs)
+        return register_new_user(user_instance)
+
+
+class ContactFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = Contact
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = "commit"
+
+    firstname = factory.Faker("first_name")
+    lastname = factory.Faker("last_name")
+    email = factory.Faker("email")
+    address = factory.Faker("address")
+    contact_category = factory.LazyFunction(lambda: ContactType.query.get_or_404(1))
