@@ -7,12 +7,11 @@ from elixir_dss.models.security import User
 from elixir_dss.models.services import register_new_user
 from elixir_dss.models.submission import (
     Contact,
+    ContactType,
     Submission,
     SubmissionDataset,
     SubmissionStatusEnum,
     SubmissionStudy,
-    Contact,
-    ContactType,
 )
 
 
@@ -95,7 +94,6 @@ class UserFactory(SQLAlchemyModelFactory):
     def _create(cls, model_class, *args, **kwargs):
         user_instance = super()._create(model_class, *args, **kwargs)
         return register_new_user(user_instance)
-    
 
 
 class ContactFactory(SQLAlchemyModelFactory):

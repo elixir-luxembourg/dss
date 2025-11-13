@@ -29,10 +29,6 @@ from elixir_dss.models.submission import (
     SubmissionStudy,
 )
 from tests import BaseTest
-from tests.factories import UserFactory, ContactFactory
-
-__author__ = "Pinar Alper"
-
 from tests.factories import (
     SubmissionStudyFactory,
     SubmissionDatasetFactory,
@@ -40,6 +36,8 @@ from tests.factories import (
     SubmissionFactory,
     ContactFactory,
 )
+
+__author__ = "Pinar Alper"
 
 
 class ModelPersistenceTest(BaseTest):
