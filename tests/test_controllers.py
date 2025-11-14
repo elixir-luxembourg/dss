@@ -278,12 +278,13 @@ class ControllersTest(BaseIntegrationTest):
             mock_client = MagicMock()
 
             link1 = MagicMock()
-            link1.id = "link_ds1"
-            link2 = MagicMock()
-            link2.id = "link_ds2"
+            link1.hashid = "link_ds1"
             link1.link_url = "/link_ds1"
-            link2.link_url = "/link_ds2"
             link1.page_password = "pass1"
+
+            link2 = MagicMock()
+            link2.hashid = "link_ds2"
+            link2.link_url = "/link_ds2"
             link2.page_password = "pass2"
 
             mock_client.links_list.side_effect = [
@@ -306,17 +307,10 @@ class ControllersTest(BaseIntegrationTest):
             self.assert200(resp)
 
             expected_calls = [
-                {
-                    "link_id": "link_ds1",
-                    "absolute_url": f"{lft.links_url}{link1.link_url}",
-                    "password": link1.page_password,
-                },
-                {
-                    "link_id": "link_ds2",
-                    "absolute_url": f"{lft.links_url}{link2.link_url}",
-                    "password": link2.page_password,
-                },
+                {"namespace_id": "ns", "share_name": "ds1", "link": "link_ds1"},
+                {"namespace_id": "ns", "share_name": "ds2", "link": "link_ds2"},
             ]
+
             actual_calls = [
                 call.kwargs for call in mock_client.delete_link.call_args_list
             ]

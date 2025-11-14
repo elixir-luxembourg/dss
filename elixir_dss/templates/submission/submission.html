@@ -402,10 +402,10 @@
                                                         <button type="button"
                                                                 class="btn btn-primary"
                                                                 data-bs-toggle="modal"
-                                                                data-bs-target="#lftLinkModal"
+                                                                data-bs-target="#lftLinkModal-{{ dataset.id }}"
                                                                 hx-get="{{ url_for('dataset_link', dataset_id=dataset.id) }}"
-                                                                hx-trigger="click"
-                                                                hx-target="#lftLinkModalBody"
+                                                                hx-trigger="click from:body"
+                                                                hx-target="#lftLinkModalBody-{{ dataset.id }}"
                                                                 hx-swap="innerHTML">
                                                             <i class="bi bi-link-45deg me-2"></i>
                                                             Get Upload Link
@@ -414,6 +414,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        {% include 'submission/_lft_link_modal.html' %}
                                     {% endfor %}
                                 </div>
                             {% else %}

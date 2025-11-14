@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime as dt, timedelta as td
 
-from flask import Flask, app
+from flask import Flask
 
 try:
     from lftclient import LFTClient, LFTClientException
@@ -22,10 +22,19 @@ class LFTHandler:
     def __init__(self, app: Flask | None = None):
         self.client: LFTClient | None = None
         self.namespace_id: str | None = None
+        self._logger = None
         if app:
             self.init_app(app)
 
     def init_app(self, app: Flask) -> None:
+        if not hasattr(app, "logger"):
+            import logging
+
+            self._logger = logging.getLogger("LFTHandler")
+            self._logger.warning("Provided app has no logger; using fallback logger")
+        else:
+            self._logger = app.logger
+
         if LFTClient is None:
             self.client = None
             app.logger.warning("lftclient not installed")
@@ -110,7 +119,7 @@ class LFTHandler:
         from elixir_dss.models.submission import SubmissionDataset
 
         if not self.client:
-            app.logger.warning("LFT not configured")
+            self._logger.warning("LFT not configured")
             return
 
         datasets = SubmissionDataset.query.filter_by(submission_id=submission_id).all()
@@ -118,7 +127,7 @@ class LFTHandler:
         try:
             self.client.login(self.username, self.password)
         except Exception as e:
-            app.logger.error(f"LFT login failed: {e}")
+            self._logger.error(f"LFT login failed: {e}")
             return
 
         for ds in datasets:
@@ -136,12 +145,12 @@ class LFTHandler:
                 )
                 for lk in links:
                     self.client.delete_link(
-                        link_id=lk.id,
-                        absolute_url=self.links_url + lk.link_url,
-                        password=lk.page_password,
+                        namespace_id=self.namespace_id,
+                        share_name=ds.external_id,
+                        link=lk.hashid,
                     )
             except Exception as e:
-                app.logger.error(f"LFT invalidate failed for ds {ds.id}: {e}")
+                self._logger.error(f"LFT invalidate failed for ds {ds.id}: {e}")
 
 
 __all__ = ["LFTHandler"]
