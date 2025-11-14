@@ -144,6 +144,40 @@ $(document).ready(function () {
 
     bind_widgets();
 
+    // Dataset form: Handle conditional display of Art 9.2 fields
+    const gdprDatatypesField = document.getElementById('gdpr_datatypes');
+    const art92Section = document.getElementById('art92-section');
+    if (gdprDatatypesField && art92Section) {
+        function checkSpecialCategoryData() {
+            const selectedOptions = Array.from(gdprDatatypesField.selectedOptions);
+            const specialCategories = ['ethnic', 'genetic', 'biometric', 'health', 'sex', 'criminal', 'other'];
+            const hasSpecialCategory = selectedOptions.some(option => 
+                specialCategories.some(cat => option.value.toLowerCase().includes(cat))
+            );
+            art92Section.style.display = hasSpecialCategory ? 'block' : 'none';
+        }
+        checkSpecialCategoryData();  // Check on page load
+        $(gdprDatatypesField).on('change', checkSpecialCategoryData);
+    }
+
+    // Dataset form: Handle use case switching
+    const datasetTypeField = document.getElementById('dataset_type_code');
+    if (datasetTypeField) {
+        function toggleUseCaseFields() {
+            const selectedUseCase = datasetTypeField.value;
+            const useCaseTwoFields = document.querySelectorAll('.use-case-2-only');
+            useCaseTwoFields.forEach(field => {
+                if (selectedUseCase === 'use_case_2') {
+                    field.style.display = 'block';
+                } else {
+                    field.style.display = 'none';
+                }
+            });
+        }
+        toggleUseCaseFields();  // Check on page load
+        $(datasetTypeField).on('change', toggleUseCaseFields);
+    }
+
     $('#submission_create_modal').on('shown.bs.modal', function () {
         $(this).find('.elx-select').select2({
             theme: 'bootstrap-5',

@@ -1,10 +1,12 @@
 from flask_wtf import FlaskForm
 from wtforms import (
     BooleanField,
+    DateField,
     EmailField,
     FieldList,
     FormField,
     HiddenField,
+    IntegerField,
     StringField,
     TextAreaField,
 )
@@ -323,6 +325,69 @@ class DatasetForm(FlaskForm):
     submission_id = HiddenField("Submission_Id")
     external_id = StringField("External ID", render_kw={"readonly": True})
 
+    dataset_type_code = SelectField(
+        "Use Case",
+        description="Please select the use case for this dataset submission. Use case 1: Data received at LCSB but not hosted. Use case 2: Data received and hosted at LCSB for reuse (requires additional fields).",
+        validators=[DataRequired()],
+    )
+    creator_name = StringField(
+        "Creator(s) - Full Name",
+        description="Please provide the full name(s) of the dataset creator(s).",
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            ),
+        ],
+    )
+    creator_email = EmailField(
+        "Creator(s) - Email",
+        description="Please provide the email address(es) of the dataset creator(s).",
+        validators=[
+            DataRequired(),
+            Email("This field requires a valid email address."),
+        ],
+    )
+    creator_institution = StringField(
+        "Creator(s) - Institution",
+        description="Please provide the institution(s) of the dataset creator(s).",
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            ),
+        ],
+    )
+    creator_role = StringField(
+        "Creator(s) - Role",
+        description="Please specify the role(s) of the dataset creator(s) (e.g., Principal Investigator, Researcher).",
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^[\w\s,\-_]+$",
+                message="Can only contain letters, digits, dash, underscore and spaces.",
+            ),
+        ],
+    )
+    description = TextAreaField(
+        "Dataset Description",
+        description="Please provide a detailed description of the dataset.",
+        render_kw={"rows": 4},
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            ),
+        ],
+    )
+    external_identifiers = StringField(
+        "External Identifiers",
+        description="If applicable, provide external identifier(s) for this dataset (e.g., accession numbers). Separate multiple identifiers with |.",
+        render_kw={"placeholder": "EGAD00000000001"},
+    )
     title = StringField(
         "Title",
         description="Please provide a short descriptive title for the  dataset. ELIXIR LU data stewards  may refer this title when communicating with you.",
@@ -335,7 +400,6 @@ class DatasetForm(FlaskForm):
             Length(min=5, max=50, message="Title must be between 5 & 50 characters"),
         ],
     )
-
     study_id = SelectField(
         "Source study",
         coerce=int,
@@ -346,19 +410,34 @@ class DatasetForm(FlaskForm):
         ],
     )
 
-    # cohort_accession = SelectField('Cohort',
-    #                                description="This field denotes a Cohort from  LCSB's common cohorts list.")
-
     gdpr_datatypes = SelectMultipleField(
         "GDPR Personal data categories in the dataset",
         description="These are overarching categories of personal data as defined in GDPR Art. 9.1 and Art. 10. You may get assistance from your institute’s DPO or legal team in filling out this field. \
                                                     You can select multiple options.",
         validators=[DataRequired()],
     )
-
     gdpr_datatypes_notes = TextAreaField(
-        "Remarks on GDPR personal data categories in the dataset",
-        description="If your have remarks  - e.g. to explain 'other personal data' - please provide it here.",
+        "Personal data - Remarks",
+        description="In case of 'other special categories of data', please specify.",
+        render_kw={"rows": 3},
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+
+    # GDPR Art 9.2 - Only shown when special category data is selected
+    has_art92_derogation = BooleanField(
+        "For the processing of special category (sensitive) personal data, do you have a legitimation under Art. 9.2 GDPR that provides specific derogation from the general prohibition to process such data?",
+        description="This question only applies if you have selected special category data above. You may get assistance from your institute's DPO or legal team.",
+        default=False,
+    )
+
+    art92_derogation_notes = TextAreaField(
+        "Art. 9.2 Legitimation - Remarks",
+        description="If applicable, please provide details about the Art. 9.2 legitimation.",
         render_kw={"rows": 3},
         validators=[
             OptionalFieldValidator(
@@ -369,14 +448,14 @@ class DatasetForm(FlaskForm):
     )
 
     sci_datatypes = SelectMultipleField(
-        "Scientific datatypes in the dataset",
+        "Data types",
         description="Please select the categories that would best characterise the types of data within this dataset. You can select multiple options.",
         validators=[DataRequired()],
     )
 
     sci_datatypes_notes = TextAreaField(
-        "Remarks on scientific datatypes in the dataset",
-        description="If your have other remarks about the data types - e.g. to explain 'Other' data - please provide it here.",
+        "Data types - Remarks",
+        description="In case of 'Other' types of data, please specify.",
         render_kw={"rows": 3},
         validators=[
             OptionalFieldValidator(
@@ -411,7 +490,7 @@ class DatasetForm(FlaskForm):
         validators=[DataRequired()],
     )
     legal_basis_sharing_std_code = SelectField(
-        "What is the legal basis according to Art. 6.1 GDPR for the  sharing and subsequent processing of standard (non-sensitive) personal data?",
+        "What is the legal basis according to Art. 6.1 GDPR for the sharing and, where applicable, the subsequent processing of standard (non-sensitive) personal data?",
         description="You may get assistance from your institute’s DPO or legal team in filling out this field.",
         validators=[DataRequired()],
     )
@@ -640,6 +719,64 @@ class DatasetForm(FlaskForm):
             )
         ],
     )
+    use_restriction_project = BooleanField(
+        "Use of DATA is limited to the RESEARCH PROJECT. Is the use of data limited to the project named in the Submission sheet?",
+        default=False,
+    )
+    use_restriction_research_use = BooleanField(
+        "Does the limitation to the RESEARCH PROJECT include the RESEARCH USE (as defined in the Consortium Agreement)?",
+        default=False,
+    )
+    data_type_bg_or_result = SelectMultipleField(
+        "Is the data Background or Results as defined in the Consortium Agreement?",
+        description="Select all that apply.",
+        choices=[],
+    )
+
+    # Technical Metadata Section
+    number_of_records = IntegerField(
+        "Number of records",
+        description="Please specify the approximate number of records/subjects in the dataset.",
+    )
+
+    dataset_version = StringField(
+        "Dataset version",
+        description="Please specify the version of the dataset (e.g., v1.0, v2.1).",
+        render_kw={"placeholder": "v1.0"},
+    )
+
+    creation_date = DateField(
+        "Creation date",
+        description="Please specify when the dataset was created.",
+        format="%Y-%m-%d",
+    )
+
+    last_update_date = DateField(
+        "Last update date",
+        description="Please specify when the dataset was last updated.",
+        format="%Y-%m-%d",
+    )
+
+    data_standards = SelectMultipleField(
+        "Data standards",
+        description="Please select the data standards used in this dataset (e.g., CDISC, MINSEQE, NCIt, EDAM).",
+    )
+
+    file_types = SelectMultipleField(
+        "File types",
+        description="Please select the file types/formats included in this dataset.",
+    )
+
+    byte_size = StringField(
+        "Byte size",
+        description="Please provide an estimate of the total dataset size (e.g., '10 GB', '500 MB', '2 TB').",
+        render_kw={"placeholder": "e.g., 10 GB"},
+    )
+
+    sample_types = SelectMultipleField(
+        "Types of samples collected",
+        description="If biological samples are included, please specify the types (e.g., blood, tissue, DNA).",
+    )
 
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
@@ -648,6 +785,21 @@ class DatasetForm(FlaskForm):
 
         if self.submission_id.data is None:
             self.submission_id.data = -1
+        self.dataset_type_code.choices = [
+            (c[0], c[1]) for c in app.config.get("DATA_INIT")["dataset_types"]
+        ]
+        self.data_standards.choices = [
+            (c, c) for c in app.config.get("DATA_INIT")["data_standards"]
+        ]
+        self.file_types.choices = [
+            (c, c) for c in app.config.get("DATA_INIT")["file_types"]
+        ]
+        self.sample_types.choices = [
+            (c, c) for c in app.config.get("DATA_INIT")["sample_types"]
+        ]
+        self.data_type_bg_or_result.choices = [
+            (c, c) for c in app.config.get("DATA_INIT")["data_bg_or_result_types"]
+        ]
         lb_lookup = [(c.code, c.label) for c in LegalBasisType.query.all()]
         self.legal_basis_sharing_std_code.choices = lb_lookup
         self.legal_basis_collection_std_code.choices = lb_lookup
@@ -670,3 +822,14 @@ class DatasetForm(FlaskForm):
                 submission_id=self.submission_id.data
             )
         ]
+
+    def validate(self, extra_validators=None):
+        if not super().validate(extra_validators=extra_validators):
+            return False
+        if self.creation_date.data and self.last_update_date.data:
+            if self.last_update_date.data < self.creation_date.data:
+                self.last_update_date.errors.append(
+                    "Last update date cannot be before creation date."
+                )
+                return False
+        return True

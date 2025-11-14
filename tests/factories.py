@@ -55,6 +55,12 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     title = factory.Faker("sentence", nb_words=3)
+    dataset_type_code = "use_case_1"
+    creator_name = factory.Faker("name")
+    creator_email = factory.Faker("email")
+    creator_institution = factory.Faker("company")
+    creator_role = "Principal Investigator"
+    description = factory.Faker("text", max_nb_chars=200)
     gdpr_datatypes_json = '["genetic"]'
     sci_datatypes_json = '["genomics"]'
     de_identification_type_code = "p"
