@@ -882,7 +882,6 @@ def edit_submission_dataset(dataset_id):
                 dataset.file_types_json = json.dumps(posted_form.file_types.data)
             if posted_form.sample_types.data:
                 dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
-            # Handle data_type_bg_or_result - set to None if empty
             if posted_form.data_type_bg_or_result.data:
                 dataset.data_type_bg_or_result = json.dumps(
                     posted_form.data_type_bg_or_result.data

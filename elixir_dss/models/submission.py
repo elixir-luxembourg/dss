@@ -406,7 +406,6 @@ class SubmissionDataset(db.Model):
     # Dataset type - Use case 1 or 2
     dataset_type_code = db.Column(db.String, nullable=False, default="use_case_1")
 
-    # Creator information
     creator_name = db.Column(db.String, nullable=True)
     creator_email = db.Column(db.String, nullable=True)
     creator_institution = db.Column(db.String, nullable=True)
