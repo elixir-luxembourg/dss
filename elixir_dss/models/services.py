@@ -690,6 +690,7 @@ def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
     submission.current_status = SubmissionStatusEnum.cancelled
     submission.cancellation_reason = reason
     submission.cancelled_by_user_id = cancelled_by_user.id
+    submission.finalised_on = datetime.now(timezone.utc)
 
     # invalidate lft
     if lft.client:

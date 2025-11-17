@@ -193,7 +193,7 @@ class Submission(db.Model):
         return self.current_status == SubmissionStatusEnum.cancelled
 
     def is_cancellable(self):
-        return self.current_status not in ["Completion", "Cancelled", "Draft"]
+        return self.current_status.value not in ["Completion", "Cancelled", "Draft"]
 
     def provider_user_ids(self):
         result = []

@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, call
 from datetime import datetime, timedelta
 
 from flask import url_for
@@ -276,45 +276,43 @@ class ControllersTest(BaseIntegrationTest):
         original_client = lft.client
         try:
             mock_client = MagicMock()
+            lft.client = mock_client
+            lft.namespace_id = "ns"
+            lft.username = "user"
+            lft.password = "pass"
 
-            link1 = MagicMock()
-            link1.hashid = "link_ds1"
-            link1.link_url = "/link_ds1"
-            link1.page_password = "pass1"
-
-            link2 = MagicMock()
-            link2.hashid = "link_ds2"
-            link2.link_url = "/link_ds2"
-            link2.page_password = "pass2"
+            link1 = MagicMock(hashid="link_ds1")
+            link2 = MagicMock(hashid="link_ds2")
 
             mock_client.links_list.side_effect = [
                 [link1],
                 [link2],
             ]
 
-            lft.client = mock_client
-            lft.namespace_id = "ns"
-            lft.links_url = "https://lft.lcsb.uni.lu"
-            lft.username = "user"
-            lft.password = "pass"
-
             resp = self.client.post(
                 url_for("cancel_submission", sub_id=sub.id),
                 data={"cancellation_reason": "testing LFT cleanup"},
                 follow_redirects=True,
             )
-
             self.assert200(resp)
 
-            expected_calls = [
-                {"namespace_id": "ns", "share_name": "ds1", "link": "link_ds1"},
-                {"namespace_id": "ns", "share_name": "ds2", "link": "link_ds2"},
+            expected_calls_links_list = [
+                call(namespace_id="ns", share_name="ds1", sub=None),
+                call(namespace_id="ns", share_name="ds2", sub=None),
             ]
+            mock_client.links_list.assert_has_calls(
+                expected_calls_links_list, any_order=True
+            )
+            self.assertEqual(mock_client.links_list.call_count, 2)
 
-            actual_calls = [
-                call.kwargs for call in mock_client.delete_link.call_args_list
+            expected_calls_delete = [
+                call(namespace_id="ns", share_name="ds1", link="link_ds1"),
+                call(namespace_id="ns", share_name="ds2", link="link_ds2"),
             ]
-            self.assertEqual(expected_calls, actual_calls)
+            mock_client.delete_link.assert_has_calls(
+                expected_calls_delete, any_order=True
+            )
+            self.assertEqual(mock_client.delete_link.call_count, 2)
 
         finally:
             lft.client = original_client

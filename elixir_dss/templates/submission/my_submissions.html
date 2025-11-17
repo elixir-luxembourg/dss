@@ -89,9 +89,9 @@
                             <td>
                                 {% if submission.current_status.value == 'Pending' %}
                                     <span class="badge bg-warning text-dark">{{ submission.current_status.value }}</span>
-                                {% elif submission.current_status.value == 'Approved' %}
+                                {% elif submission.current_status.value == 'Completed' %}
                                     <span class="badge bg-success">{{ submission.current_status.value }}</span>
-                                {% elif submission.current_status.value == 'Rejected' %}
+                                {% elif submission.current_status.value == 'Cancelled' %}
                                     <span class="badge bg-danger">{{ submission.current_status.value }}</span>
                                 {% else %}
                                     <span class="badge bg-secondary">{{ submission.current_status.value }}</span>
