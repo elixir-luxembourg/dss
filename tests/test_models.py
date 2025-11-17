@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 from elixir_dss import db
 from elixir_dss.exceptions import RecordLifecycleException
@@ -14,6 +15,7 @@ from elixir_dss.models.services import (
     clone_sub,
     revert_sub,
     steer_sub,
+    invite_submitters,
 )
 from elixir_dss.models.submission import (
     Contact,
@@ -27,9 +29,6 @@ from elixir_dss.models.submission import (
     SubmissionStudy,
 )
 from tests import BaseTest
-
-__author__ = "Pinar Alper"
-
 from tests.factories import (
     SubmissionStudyFactory,
     SubmissionDatasetFactory,
@@ -37,6 +36,8 @@ from tests.factories import (
     SubmissionFactory,
     ContactFactory,
 )
+
+__author__ = "Pinar Alper"
 
 
 class ModelPersistenceTest(BaseTest):
@@ -421,8 +422,8 @@ class ModelPersistenceTest(BaseTest):
         )
 
         original = SubmissionFactory()
-        SubmissionStudyFactory(submission_id=original.id)
-        SubmissionDatasetFactory(submission_id=original.id)
+        study = SubmissionStudyFactory(submission_id=original.id)
+        SubmissionDatasetFactory(submission_id=original.id, study_id=study.id)
 
         submissions_before = Submission.query.count()
 
@@ -432,3 +433,47 @@ class ModelPersistenceTest(BaseTest):
 
         self.assertEqual(submissions_before, Submission.query.count())
         self.assertIsNotNone(Submission.query.get(original.id))
+
+    @patch("elixir_dss.models.services.send_invitations")
+    def test_invite_submitters(self, mock_send_invitations):
+        submission = create_sub("Test Submission", "ELU_I_77")
+
+        existing_user = UserFactory()
+        register_new_user(existing_user)
+
+        contact_existing = ContactFactory(
+            firstname=existing_user.first_name,
+            lastname=existing_user.last_name,
+            email=existing_user.email,
+            category_id=1,
+            submission_id=submission.id,
+        )
+        contact_new = ContactFactory(submission_id=submission.id)
+        db.session.add_all([contact_existing, contact_new])
+        db.session.commit()
+
+        invite_submitters(submission, [contact_existing, contact_new])
+
+        self.assertEqual(User.query.count(), 2)
+        self.assertEqual(SubmissionAccess.query.count(), 1)
+
+        eve = User.query.filter_by(email=contact_existing.email).first()
+        self.assertIsNotNone(eve)
+
+        mock_send_invitations.assert_called_once()
+        invited_users = mock_send_invitations.call_args[0][1]
+        self.assertEqual(len(invited_users), 1)
+        self.assertEqual(invited_users[0].email, contact_new.email)
+
+    @patch("elixir_dss.models.services.send_invitations")
+    def test_invite_submitters_empty_list(self, mock_send_invitations):
+        submission = create_sub("Test Submission", "ELU_I_77")
+        db.session.add(submission)
+        db.session.commit()
+
+        invite_submitters(submission, [])
+
+        self.assertEqual(User.query.count(), 0)
+        self.assertEqual(SubmissionAccess.query.count(), 0)
+
+        mock_send_invitations.assert_not_called()

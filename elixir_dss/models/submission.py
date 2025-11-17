@@ -386,7 +386,7 @@ class SubmissionDataset(db.Model):
         db.Integer, db.ForeignKey("submissions.id"), nullable=False
     )
     study_id = db.Column(
-        db.Integer, db.ForeignKey("submission_study.id"), nullable=True
+        db.Integer, db.ForeignKey("submission_study.id"), nullable=False
     )
     study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
 

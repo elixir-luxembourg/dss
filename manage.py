@@ -201,5 +201,18 @@ Use tab for autocompletion
     )
 
 
+@cli.command()
+@click.argument("email")
+def grant_data_steward_access(email):
+    click.echo(f"Granting data steward access to: {email}")
+
+    user = User.query.filter_by(email=email).first()
+    if user:
+        assign_role_to_user(user, "data_steward")
+        click.echo(f"Granted data steward access to: {email}")
+    else:
+        click.echo(f"User not found: {email}")
+
+
 if __name__ == "__main__":
     cli()

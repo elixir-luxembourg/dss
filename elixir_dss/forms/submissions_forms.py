@@ -8,7 +8,7 @@ from wtforms import (
     StringField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired, Email, Length, Regexp
+from wtforms.validators import DataRequired, Email, Length, Regexp, NumberRange
 from wtforms_components import SelectField, SelectMultipleField
 
 from elixir_dss import app
@@ -340,7 +340,10 @@ class DatasetForm(FlaskForm):
         "Source study",
         coerce=int,
         description="Please specify the study/cohort that is the source of the dataset. To make a selection here, you must first define an entry in the Study tab on the Submission page.",
-        validators=[DataRequired()],
+        validators=[
+            DataRequired(),
+            NumberRange(min=1, message="You must select a valid study"),
+        ],
     )
 
     # cohort_accession = SelectField('Cohort',

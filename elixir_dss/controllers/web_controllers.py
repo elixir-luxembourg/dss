@@ -41,6 +41,7 @@ from elixir_dss.models.services import (
     update_submission_basic_info,
     update_user_info,
     clone_sub,
+    invite_submitters,
 )
 from elixir_dss.models.submission import (
     Contact,
@@ -147,6 +148,18 @@ def auth_callback():
     user = User.query.filter_by(elixir_sub_id=sub).first()
     if not user and email:
         user = User.query.filter_by(email=email).first()
+        if user:
+            user.elixir_sub_id = sub
+            db.session.add(user)
+            db.session.commit()
+            app.logger.info(f"User {user.email} connected")
+            sub_ids = user.get_accessible_submission_ids()
+            if sub_ids:
+                login_user(user)
+                flash("Logged in successfully!", "success")
+                if len(sub_ids) > 1:
+                    return redirect(url_for("list_my_submissions"))
+                return redirect(url_for("view_submission", sub_id=sub_ids[0]))
 
     if not user:
         user = User(
@@ -538,6 +551,8 @@ def edit_submission(sub_id):
                 else None,
             )
 
+            if current_user.is_data_steward():
+                invite_submitters(submission_rec, submission_rec.submission_contacts)
             flash("Submission updated", "success")
             return redirect(url_for("view_submission", sub_id=submission_rec.id))
         else:

@@ -1,0 +1,16 @@
+<p>You’ve been invited to collaborate on submission <strong>{{ submission.ref_name }}</strong> ({{ submission.title }}).</p>
+
+<p>Open the submission:</p>
+<p>
+  <a href="{{ url_for('view_submission', sub_id=submission.id, _external=True) }}">
+    {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+  </a>
+  <br/>
+  <small>You’ll be asked to sign in via Keycloak.</small>
+  
+</p>
+
+<p>Regards,<br/>
+ELIXIR-LU Data Stewards</p>
+<p>(This is an auto-generated e-mail, please do not reply)</p>
+
