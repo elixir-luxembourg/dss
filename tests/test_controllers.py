@@ -266,11 +266,19 @@ class ControllersTest(BaseIntegrationTest):
         db.session.add(sub)
         db.session.flush()
 
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        db.session.add(study)
+        db.session.flush()
+
         user = User.query.filter_by(email="submitter1@some.edu").first()
         update_submission_basic_info(sub, provider_user_ids=[user.id])
 
-        SubmissionDatasetFactory(submission_id=sub.id, external_id="ds1")
-        SubmissionDatasetFactory(submission_id=sub.id, external_id="ds2")
+        SubmissionDatasetFactory(
+            submission_id=sub.id, external_id="ds1", study_id=study.id
+        )
+        SubmissionDatasetFactory(
+            submission_id=sub.id, external_id="ds2", study_id=study.id
+        )
         db.session.flush()
 
         original_client = lft.client
