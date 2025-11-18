@@ -20,9 +20,10 @@
 <div class="card border shadow-sm mb-4">
     <div class="card-header bg-white border-bottom">
         <h5 class="mb-0 fw-semibold">
-            {% if dataset_form.id.data %}Update {% else %}Add New {% endif %}Dataset
             {% if dataset_form.internal_id.data %}
                 <span class="badge bg-secondary ms-2">{{ dataset_form.internal_id.data }}</span>
+            {% else %}
+            Add New Dataset
             {% endif %}
         </h5>
     </div>
