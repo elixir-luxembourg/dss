@@ -46,9 +46,10 @@
                     <tr>
                         <th class="fw-semibold">Reference No</th>
                         <th class="fw-semibold">Title</th>
+                        <th class="fw-semibold">Recipient Project</th>
                         <th class="fw-semibold">Created On</th>
                         <th class="fw-semibold">Status</th>
-                        <th class="fw-semibold">Data Provider</th>
+                        <th class="fw-semibold">Data Provider(s)</th>
                         <th class="fw-semibold text-end">Actions</th>
                     </tr>
                     </thead>
@@ -65,6 +66,7 @@
                                     {{ submission.title }}
                                 </a>
                             </td>
+                            <td>{{ submission.local_project_name | default('-', true) }}</td>
                             <td>{{ submission.created_on }}</td>
                             <td>
                                 {% if submission.current_status.value == 'Pending' %}
@@ -78,11 +80,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if submission.has_providers %}
-                                    {{ submission.provider_user_names() | join(', ') }}
-                                {% else %}
-                                    <span class="text-muted">---</span>
-                                {% endif %}
+                                    {{ submission.provider_user_names() | join(', ') | default('-', true) }}
                             </td>
                             <td>
                                 <div class="d-flex align-items-center justify-content-end gap-2">
