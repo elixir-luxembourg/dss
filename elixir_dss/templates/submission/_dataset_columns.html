@@ -1,5 +1,5 @@
 {% if submission.datasets %}
-    {% set can_edit = (current_user.is_data_steward() and submission.current_status.step_num() < 5) or submission.current_status.step_num() == 1 %}
+    {% set can_edit = ((current_user.is_data_steward() and submission.current_status.step_num() < 5) or submission.current_status.step_num() == 1) and not submission.is_cancelled() %}
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
@@ -34,6 +34,7 @@
             </thead>
             <tbody>
             {% for dataset in submission.datasets %}
+                {% include 'submission/_lft_link_modal.html' %}
                 <tr class="border-bottom">
                     <td class="py-2">
                         {% if can_edit %}
@@ -107,10 +108,10 @@
                     <button type="button"
                             class="btn btn-primary btn-sm"
                             data-bs-toggle="modal"
-                            data-bs-target="#lftLinkModal"
+                            data-bs-target="#lftLinkModal-{{ dataset.id }}"
                             hx-get="{{ url_for('dataset_link', dataset_id=dataset.id) }}"
                             hx-trigger="click"
-                            hx-target="#lftLinkModalBody"
+                            hx-target="#lftLinkModalBody-{{ dataset.id }}"
                             hx-swap="innerHTML">
                     <i class="bi bi-link-45deg"></i> Get Upload Link
                     </button>
@@ -147,6 +148,4 @@
     </div>
 {% endif %}
 
-<!-- LFT Link Modal - placed outside the loop to avoid duplicate IDs -->
-{% include 'submission/_lft_link_modal.html' %}
 

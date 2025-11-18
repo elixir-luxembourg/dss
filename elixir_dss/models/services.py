@@ -6,7 +6,7 @@ from flask import flash, render_template
 from flask_mail import Message
 from sqlalchemy import and_, select
 
-from elixir_dss import app, db, mail
+from elixir_dss import app, db, mail, lft
 from elixir_dss.exceptions import RecordLifecycleException, RecordNotExistsException
 from elixir_dss.models.security import Role, User, UsersRoles
 from elixir_dss.models.submission import (
@@ -657,6 +657,64 @@ def clone_sub(
             f"Failed to clone submission {original_submission_id}: {str(e)}"
         )
         raise
+
+
+def send_submission_cancellation_notification(
+    submission: Submission, cancelled_by_user: User
+):
+    recipients = []
+
+    for access in submission.submission_accesses:
+        recipients.append(access.user.email)
+
+    recipients = recipients + app.config.get("DATA_STEWARDS_MAILS", [])
+
+    persist_and_send_notification(
+        "Submission [%s] has been CANCELLED" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template(
+            "email/submission_cancelled.txt",
+            submission=submission,
+            cancelled_by_user=cancelled_by_user,
+        ),
+        render_template(
+            "email/submission_cancelled.html",
+            submission=submission,
+            cancelled_by_user=cancelled_by_user,
+        ),
+    )
+
+
+def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
+    submission.current_status = SubmissionStatusEnum.cancelled
+    submission.cancellation_reason = reason
+    submission.cancelled_by_user_id = cancelled_by_user.id
+    submission.finalised_on = datetime.now(timezone.utc)
+
+    # invalidate lft
+    if lft.client:
+        try:
+            lft.invalidate_links_for_submission(submission.id)
+        except Exception as e:
+            app.logger.error(f"LFT invalidate failed for ds {submission.id}: {e}")
+
+    db.session.add(submission)
+
+    message_text = f"Submission Cancelled.<br>This submission was cancelled by {cancelled_by_user.display_name()}.<br>Cancellation comment: {reason}."
+    message = SubmissionMessage(
+        submission_id=submission.id,
+        sender_user_id=cancelled_by_user.id,
+        message_text=message_text,
+        message_type="submission_cancellation",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
+    db.session.commit()
+
+    send_submission_cancellation_notification(submission, cancelled_by_user)
+
+    return submission
 
 
 def invite_submitters(submission: Submission, contacts: list[Contact]):

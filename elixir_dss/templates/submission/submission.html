@@ -16,8 +16,8 @@
     {% set data_count = submission.datasets|length %}
     {% set attachments_count = submission.attachments|length %}
     {% set messages_count = submission.messages|length %}
-    {% set can_edit = current_user.is_data_steward() or stp == 1 or stp == 3 %}
-    {% set can_edit_other = current_user.is_data_steward() or stp != 5 %}
+    {% set can_edit = (current_user.is_data_steward() or stp == 1 or stp == 3) and not submission.is_cancelled()%}
+    {% set can_edit_other = (current_user.is_data_steward() or stp != 5) and not submission.is_cancelled() %}
 
 
     <!-- Progress Bar - Always at Top -->
@@ -402,10 +402,10 @@
                                                         <button type="button"
                                                                 class="btn btn-primary"
                                                                 data-bs-toggle="modal"
-                                                                data-bs-target="#lftLinkModal"
+                                                                data-bs-target="#lftLinkModal-{{ dataset.id }}"
                                                                 hx-get="{{ url_for('dataset_link', dataset_id=dataset.id) }}"
                                                                 hx-trigger="click"
-                                                                hx-target="#lftLinkModalBody"
+                                                                hx-target="#lftLinkModalBody-{{ dataset.id }}"
                                                                 hx-swap="innerHTML">
                                                             <i class="bi bi-link-45deg me-2"></i>
                                                             Get Upload Link
@@ -414,6 +414,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        {% include 'submission/_lft_link_modal.html' %}
                                     {% endfor %}
                                 </div>
                             {% else %}
@@ -652,6 +653,46 @@
                         </div>
                     </div>
                 </div>
+            {% endif %}
+
+
+            {% if stp == -1 %}
+            <!-- STEP -1: CANCELLED -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white p-4">
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="bi bi-slash-circle-fill" style="font-size: 4rem;"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2">Submission Cancelled</h4>
+                        <p class="mb-0 opacity-90">This submission has been cancelled and is no longer active.</p>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <div class="bg-light border-start border-secondary border-4 rounded p-4 mb-4">
+                        <h6 class="fw-semibold mb-3 text-secondary">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Details
+                        </h6>
+                        <ul class="mb-0 ps-3 small">
+                            <li class="mb-2">
+                                The submission <code>{{ submission.ref_name }}</code> was cancelled by
+                                <strong>{{ submission.cancelled_by.display_name() if submission.cancelled_by else 'unknown' }}</strong>.
+                            </li>
+                            <li class="mb-2">
+                                No further edits or uploads can be made.
+                            </li>
+                            <li class="mb-2">
+                                Cancellation comment: {{ submission.cancellation_reason if submission.cancellation_reason else '-' }}.
+                            </li>
+                            <li>
+                                If you think this is an error please contact the data steward.
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
             {% endif %}
 
         </div>

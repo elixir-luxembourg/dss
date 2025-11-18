@@ -59,4 +59,18 @@ $(document).ready(function () {
         });
     });
 
+    $("#submission_cancel_modal").on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const cancelUrl = button.data('cancel-url');
+        const form = $("#form_submission_cancel");
+
+        form.attr('action', cancelUrl);
+
+        const row = button.closest('tr');
+        const refName = row.find('td:first-child a').text().trim();
+        $("#cancel_sub_ref").text(refName);
+
+        $("#cancellation_reason").val('');
+    });
+
 });

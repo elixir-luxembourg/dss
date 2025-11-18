@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% import "forms_macros.html" as fmacros %}
 {% set active_page = 'my_submissions' %}
 {% block title %} My Submissions{% endblock %}
 {% block js %}
@@ -38,6 +39,20 @@
 
             window.location.href = `/submission/clone/${submissionId}?${query}`;
         });
+
+        $("#submission_cancel_modal").on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const cancelUrl = button.data('cancel-url');
+            const form = $("#form_submission_cancel");
+
+            form.attr('action', cancelUrl);
+
+            const row = button.closest('tr');
+            const refName = row.find('td:first-child a').text().trim();
+            $("#cancel_sub_ref").text(refName);
+
+            $("#cancellation_reason").val('');
+        });
     </script>
 
 {% endblock %}
@@ -74,9 +89,9 @@
                             <td>
                                 {% if submission.current_status.value == 'Pending' %}
                                     <span class="badge bg-warning text-dark">{{ submission.current_status.value }}</span>
-                                {% elif submission.current_status.value == 'Approved' %}
+                                {% elif submission.current_status.value == 'Completed' %}
                                     <span class="badge bg-success">{{ submission.current_status.value }}</span>
-                                {% elif submission.current_status.value == 'Rejected' %}
+                                {% elif submission.current_status.value == 'Cancelled' %}
                                     <span class="badge bg-danger">{{ submission.current_status.value }}</span>
                                 {% else %}
                                     <span class="badge bg-secondary">{{ submission.current_status.value }}</span>
@@ -84,6 +99,18 @@
                             </td>
                             <td>
                                 <div class="d-flex align-items-center justify-content-end gap-2">
+                                    {% if submission.is_cancellable() %}
+                                        <button type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#submission_cancel_modal"
+                                                data-submission-id="{{ submission.id }}"
+                                                data-cancel-url="{{ url_for('cancel_submission', sub_id=submission.id) }}"
+                                                class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1">
+                                            <i class="bi bi-x-octagon"></i>
+                                            <span>Cancel</span>
+                                        </button>
+                                    {% endif %}
+
                                     <div class="dropdown position-static">
                                         <button class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button"
                                                 id="dropdownMenu{{ submission.id }}" data-bs-toggle="dropdown" aria-expanded="false">
@@ -151,6 +178,51 @@
                     <button type="button" class="btn bg-transparent text-primary border-primary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="confirmCloneBtn">Confirm Clone</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel submission Confirmation Modal -->
+    <div class="modal fade" id="submission_cancel_modal" tabindex="-1" aria-labelledby="submission_cancel_modal_label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom bg-warning-subtle">
+                    <h5 class="modal-title fw-semibold text-dark" id="submission_cancel_modal_label">
+                        Confirm Cancellation
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="form_submission_cancel" method="POST" action="">
+                    <div class="modal-body p-4">
+                        {{ cancel_submission_form.hidden_tag() }}
+                        <p>
+                            Are you sure you want to <strong>cancel</strong> submission
+                            <span id="cancel_sub_ref"></span>? <br> This action cannot be undone.
+                        </p>
+                        <div class="bg-danger-subtle p-3 border border-danger rounded mb-3 text-dark">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            CRITICAL WARNING:
+                            <ul>
+                                <li>This submission <strong>cannot be restored</strong>.</li>
+                                <li>You will <strong>no longer be able to modify</strong> this submission.</li>
+                                <li>All uploaded data will be <strong>permanently deleted</strong>.</li>
+                            </ul>
+                            Please be certain before proceeding.
+                        </div>
+                        <div class="mb-3">
+                            {{ fmacros.render_field_with_errors(
+                            cancel_submission_form.cancellation_reason,
+                            clazz="form-control",
+                            rows=3,
+                            id="cancellation_reason"
+                        ) }}
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Go Back</button>
+                        <button type="submit" class="btn btn-warning">Cancel Submission</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

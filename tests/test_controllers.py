@@ -1,11 +1,14 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, call
 from datetime import datetime, timedelta
 
 from flask import url_for
-from elixir_dss import db
+from elixir_dss import db, lft
 
 from elixir_dss.models.security import User
-from elixir_dss.models.services import create_sub
+from elixir_dss.models.services import (
+    create_sub,
+    update_submission_basic_info,
+)
 from elixir_dss.models.submission import (
     SubmissionDataset,
     SubmissionStatusEnum,
@@ -235,3 +238,126 @@ class ControllersTest(BaseIntegrationTest):
 
         response_bad_request = self.client.delete(non_deletable_url)
         self.assertEqual(response_bad_request.status_code, 400)
+
+    def test_provider_can_cancel_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = create_sub("To Cancel", "ELU_I_77")
+        db.session.add(sub)
+        db.session.commit()
+
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        resp = self.client.post(
+            url_for("cancel_submission", sub_id=sub.id),
+            data={"cancellation_reason": "integration test"},
+            follow_redirects=True,
+        )
+
+        self.assert200(resp)
+        sub = Submission.query.get(sub.id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.cancelled)
+
+    def test_lft_links_deleted_on_submission_cancel(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = create_sub("LFT Cancel Test", "ELU_I_100")
+        db.session.add(sub)
+        db.session.flush()
+
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        db.session.add(study)
+        db.session.flush()
+
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        SubmissionDatasetFactory(
+            submission_id=sub.id, external_id="ds1", study_id=study.id
+        )
+        SubmissionDatasetFactory(
+            submission_id=sub.id, external_id="ds2", study_id=study.id
+        )
+        db.session.flush()
+
+        original_client = lft.client
+        try:
+            mock_client = MagicMock()
+            lft.client = mock_client
+            lft.namespace_id = "ns"
+            lft.username = "user"
+            lft.password = "pass"
+
+            link1 = MagicMock(hashid="link_ds1")
+            link2 = MagicMock(hashid="link_ds2")
+
+            mock_client.links_list.side_effect = [
+                [link1],
+                [link2],
+            ]
+
+            resp = self.client.post(
+                url_for("cancel_submission", sub_id=sub.id),
+                data={"cancellation_reason": "testing LFT cleanup"},
+                follow_redirects=True,
+            )
+            self.assert200(resp)
+
+            expected_calls_links_list = [
+                call(namespace_id="ns", share_name="ds1", sub=None),
+                call(namespace_id="ns", share_name="ds2", sub=None),
+            ]
+            mock_client.links_list.assert_has_calls(
+                expected_calls_links_list, any_order=True
+            )
+            self.assertEqual(mock_client.links_list.call_count, 2)
+
+            expected_calls_delete = [
+                call(namespace_id="ns", share_name="ds1", link="link_ds1"),
+                call(namespace_id="ns", share_name="ds2", link="link_ds2"),
+            ]
+            mock_client.delete_link.assert_has_calls(
+                expected_calls_delete, any_order=True
+            )
+            self.assertEqual(mock_client.delete_link.call_count, 2)
+
+        finally:
+            lft.client = original_client
+
+    def test_cannot_modify_cancelled_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = create_sub("Unmodifiable Submission", "ELU_I_200")
+        db.session.add(sub)
+        db.session.commit()
+
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        cancel_resp = self.client.post(
+            url_for("cancel_submission", sub_id=sub.id),
+            data={"cancellation_reason": "Testing modification block"},
+            follow_redirects=True,
+        )
+        self.assert200(cancel_resp)
+
+        sub = Submission.query.get(sub.id)
+        self.assertEqual(sub.current_status, SubmissionStatusEnum.cancelled)
+
+        response = self.client.post(
+            url_for("add_submission_dataset", sub_id=sub.id),
+            data={
+                "submission_id": sub.id,
+                "title": "Should_Not_Work",
+                "gdpr_datatypes": ["genetic"],
+                "sci_datatypes": ["Whole_genome_sequencing"],
+            },
+            follow_redirects=False,
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("cancelled", response.data.decode("utf-8"))
+
+        dataset_count = SubmissionDataset.query.filter_by(submission_id=sub.id).count()
+        self.assertEqual(dataset_count, 0)
