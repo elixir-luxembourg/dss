@@ -79,9 +79,9 @@ class LFTHandler:
         except LFTClientException as e:
             raise RuntimeError("LFT login failed") from e
 
-        share_name = dataset.external_id
+        share_name = dataset.internal_id
         if not share_name:
-            raise RuntimeError("Dataset external_id is required for LFT link")
+            raise RuntimeError("Dataset internal_id is required for LFT link")
 
         try:
             links = self.client.links_list(

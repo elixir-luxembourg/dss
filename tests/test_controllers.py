@@ -198,7 +198,6 @@ class ControllersTest(BaseIntegrationTest):
                 "submission_id": submission.id,
                 "title": "Test_Dataset",
                 "study_id": study.id,
-                "dataset_type_code": "use_case_1",
                 "creator_name": "John Doe",
                 "creator_email": "john.doe@example.com",
                 "creator_institution": "Test University",
@@ -220,7 +219,7 @@ class ControllersTest(BaseIntegrationTest):
 
         dataset = SubmissionDataset.query.filter_by(submission_id=submission.id).first()
         self.assertIsNotNone(dataset)
-        self.assertIsNotNone(dataset.external_id)
+        self.assertIsNotNone(dataset.internal_id)
         self.assertEqual("Test_Dataset", dataset.title)
 
     def test_delete_submission(self):

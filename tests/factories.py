@@ -46,6 +46,7 @@ class SubmissionFactory(SQLAlchemyModelFactory):
     submission_scope_code = "e"
     current_status = SubmissionStatusEnum.draft
     created_on = factory.LazyFunction(date.today)
+    dataset_type = "use_case_1"
 
 
 class SubmissionDatasetFactory(SQLAlchemyModelFactory):
@@ -55,7 +56,6 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     title = factory.Faker("sentence", nb_words=3)
-    dataset_type_code = "use_case_1"
     creator_name = factory.Faker("name")
     creator_email = factory.Faker("email")
     creator_institution = factory.Faker("company")

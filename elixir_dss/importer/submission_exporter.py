@@ -4,8 +4,8 @@ import re
 from io import StringIO
 
 from elixir_dss import app, db
-from elixir_dss.forms.submissions_forms import Contact, DatasetForm
-from elixir_dss.models.submission import Submission, SubmissionDataset
+from elixir_dss.forms import DatasetForm
+from elixir_dss.models.submission import Contact, Submission, SubmissionDataset
 
 
 class SubmissionExporter:

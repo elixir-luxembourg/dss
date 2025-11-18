@@ -8,16 +8,16 @@ START_UP_DATA = {
         "Other",
     ],
     "names_roles": ["data_steward", "admin", "user"],
-    "deidentification_type": [["p", "Pseudonymized"], ["a", "Anonymized"]],
+    "deidentification_type": [["p", "Pseudonymised"], ["a", "Anonymised"]],
     "subject_category": [
         ["ca", "Cases"],
         ["co", "Controls"],
         ["ca_co", "Cases_and_Controls"],
     ],
-    "consent_status": [["hm", "Homogeneous"], ["ht", "Heterogeneous"]],
+    "consent_status": [["hm", "Homogeneous"], ["ht", "Heterogeneous"], ["dk", "Don't know"]],
     "legal_basis": [
         ["61a", "Consent (6.1(a))"],
-        ["61b", "Performance of a contract to which the data subject is party(6.1(b))"],
+        ["61b", "Performance of a contract to which the data subject is party (6.1(b))"],
         [
             "61c",
             "Compliance with a legal obligation to which the controller is subject (6.1(c))",
@@ -47,66 +47,71 @@ START_UP_DATA = {
         ["l_sc", "LCSB/Systems Control"],
     ],
     "gdpr_datatypes": (
+        ("non_human", "Non-human data"),
         ("standard", "Standard personal data"),
         (
-            "Special category (sensitive) personal data",
+            "Special_category_sensitive_personal_data",
             (
                 ("ethnic", "Racial or ethnic origin"),
                 ("genetic", "Genetic data"),
                 (
                     "biometric",
-                    "Biometric data for the purpose of uniquely identifying a person",
+                    "Biometric data for the purpose of uniquely identifying a natural person",
                 ),
                 ("health", "Data concerning health"),
-                ("sex", "Data concerning a person's sex life or sexual orientation"),
+                ("sex", "Data concerning a natural person's sex life or sexual orientation"),
                 ("criminal", "Data relating to criminal convictions and offences"),
                 (
                     "other",
-                    "Other special categories of data (e.g. molecular data that can give indication on a person's health)",
+                    "Other special categories of data (e.g., molecular data that can give indication of a person's health)",
                 ),
             ),
         ),
     ),
     "sci_datatypes": (
-        ("Samples", "Samples"),
         (
             "Genotype_data",
             (
-                ("Whole_genome_sequencing", "Whole_genome_sequencing"),
-                ("Exome_sequencing", "Exome_sequencing"),
-                ("Genomics_variant_array", "Genomics_variant_array"),
+                ("Whole_genome_sequencing", "Whole genome sequencing"),
+                ("Exome_sequencing", "Exome sequencing"),
+                ("Genomics_variant_array", "Genomics variant array"),
                 ("RNASeq", "RNASeq"),
+                ("Single_Cell_RNAseq", "Single Cell RNAseq"),
             ),
         ),
         (
             "Genetic_and_derived_genetic_data",
             (
-                ("Transcriptome_array", "Transcriptome_array"),
-                ("Methylation_array", "Methylation_array"),
-                ("MicroRNA_array", "MicroRNA_array"),
+                ("Transcriptome_array", "Transcriptome array"),
+                ("Methylation_array", "Methylation array"),
+                ("MicroRNA_array", "MicroRNA array"),
+                ("ChIP_seq", "ChIP-seq"),
                 ("Metabolomics", "Metabolomics"),
+                ("Metagenomics", "Metagenomics"),
+                ("Metaproteomics", "Metaproteomics"),
+                ("Metatranscriptomics", "Metatranscriptomics"),
                 ("Proteomics", "Proteomics"),
-                ("Other_omics_data", "Other_omics_data"),
             ),
         ),
+        ("Other_omics_data", "Other omics data"),
         (
-            "Imaging",
+            "Imaging_data",
             (
-                ("Clinical_Imaging", "Clinical_Imaging"),
-                ("Cell_Imaging", "Cell_Imaging"),
-                ("Other_Imaging", "Other_Imaging"),
+                ("Clinical_imaging", "Clinical imaging"),
+                ("Cell_imaging", "Cell imaging"),
+                ("Other_imaging_data", "Other imaging data"),
             ),
         ),
         (
             "Human_subject_data",
             (
-                ("Clinical_data", "Clinical_data"),
-                ("Lifestyle_data", "Lifestyle_data"),
-                ("Socio_Economic_Data", "Socio_Economic_Data"),
-                ("Ethnic_origin", "Ethnic_origin"),
-                ("Biometric_data", "Biometric_data"),
-                ("Disease_status", "Disease_status"),
-                ("Other_Phenotype_data", "Other_Phenotype_data"),
+                ("Clinical_data", "Clinical data"),
+                ("Lifestyle_data", "Lifestyle data"),
+                ("Socio_Economic_data", "Socio Economic data"),
+                ("Environmental_data", "Environmental data"),
+                ("Ethnic_origin", "Ethnic origin"),
+                ("Biometric_data", "Biometric data"),
+                ("Other_Phenotype_data", "Other phenotype data"),
             ),
         ),
         ("Other", "Other"),
@@ -144,6 +149,58 @@ START_UP_DATA = {
         "Open",
         "Single_Blind",
         "Double_Blind",
+    ],
+    # Contact roles (optional preset values, though can also be free text)
+    "contact_roles": [
+        "Principal_Investigator",
+        "Researcher",
+        "Data_Manager",
+        "Data_Protection_Officer",
+        "Legal_Representative",
+        "Other",
+    ],
+    # Yes/No/Don't know options (for fields with uncertain states)
+    "yes_no_na": [
+        "Yes",
+        "No",
+        "Don't know",
+    ],
+    "foreground_background": [
+        "Background",
+        "Results",
+    ],
+    "request_form": [
+        "Additional form needed",
+        "No additional form needed",
+    ],
+    "dac": [
+        "DAC approval needed",
+        "DAC approval not needed",
+    ],
+    # Species (NCBITaxon ontology) - starter values
+    "species": [
+        "Homo sapiens (NCBITaxon:9606)",
+        "Mus musculus (NCBITaxon:10090)",
+        "Rattus norvegicus (NCBITaxon:10116)",
+        "Danio rerio (NCBITaxon:7955)",
+        "Drosophila melanogaster (NCBITaxon:7227)",
+    ],
+    # Diseases (MONDO ontology) - starter values
+    "diseases": [
+        "Parkinson's disease (MONDO:0005180)",
+        "Type II diabetes mellitus (MONDO:0005148)",
+        "Alzheimer's disease (MONDO:0004975)",
+        "Crohn's disease (MONDO:0005011)",
+        "Breast cancer (MONDO:0007254)",
+    ],
+    # Sample sources (NCIt, EFO, UBERON ontologies) - starter values
+    "sample_sources": [
+        "Tissue sample",
+        "Cell line",
+        "Blood (UBERON:0000178)",
+        "Brain (UBERON:0000955)",
+        "Liver (UBERON:0002107)",
+        "Saliva (UBERON:0001836)",
     ],
     "cohorts": [
         {

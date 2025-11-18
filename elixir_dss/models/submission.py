@@ -168,6 +168,9 @@ class Submission(db.Model):
     )
     notes = db.Column(db.String(250))
 
+    # Dataset type - Use case 1 or 2
+    dataset_type = db.Column(db.String, nullable=False, default="use_case_1")
+
     studies = db.relationship("SubmissionStudy", cascade="all, delete-orphan")
     attachments = db.relationship("SubmissionAttachment", cascade="all, delete-orphan")
     datasets = db.relationship("SubmissionDataset", cascade="all, delete-orphan")
@@ -270,6 +273,7 @@ class Submission(db.Model):
             "local_custodians_json": self.local_custodians_json,
             "local_project_name": self.local_project_name,
             "studies": self.studies,
+            "dataset_type": self.dataset_type,
         }
         return base_dict
 
@@ -393,7 +397,7 @@ class SubmissionDataset(db.Model):
     __tablename__ = "submission_dataset"
 
     id = db.Column(db.Integer, primary_key=True)
-    external_id = db.Column(db.String(20), unique=True, nullable=True)
+    internal_id = db.Column(db.String(20), unique=True, nullable=True)
     title = db.Column(db.String, nullable=False)
     submission_id = db.Column(
         db.Integer, db.ForeignKey("submissions.id"), nullable=False
@@ -402,9 +406,6 @@ class SubmissionDataset(db.Model):
         db.Integer, db.ForeignKey("submission_study.id"), nullable=False
     )
     study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
-
-    # Dataset type - Use case 1 or 2
-    dataset_type_code = db.Column(db.String, nullable=False, default="use_case_1")
 
     creator_name = db.Column(db.String, nullable=True)
     creator_email = db.Column(db.String, nullable=True)
@@ -576,7 +577,6 @@ class SubmissionDataset(db.Model):
     def to_dict(self):
         base_dict = {
             "title": self.title,
-            "dataset_type_code": self.dataset_type_code,
             "creator_name": self.creator_name,
             "creator_email": self.creator_email,
             "creator_institution": self.creator_institution,

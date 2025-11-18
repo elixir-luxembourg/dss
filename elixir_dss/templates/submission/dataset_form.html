@@ -19,28 +19,25 @@
 {% block content %}
 <div class="card border shadow-sm mb-4">
     <div class="card-header bg-white border-bottom">
-        <h5 class="mb-0 fw-semibold">{% if dataset_form.id.data %}Update {% else %}Add New {% endif %}Dataset</h5>
+        <h5 class="mb-0 fw-semibold">
+            {% if dataset_form.id.data %}Update {% else %}Add New {% endif %}Dataset
+            {% if dataset_form.internal_id.data %}
+                <span class="badge bg-secondary ms-2">{{ dataset_form.internal_id.data }}</span>
+            {% endif %}
+        </h5>
     </div>
     <div class="card-body p-4">
         <form method="POST" {% if dataset_form.id.data %}
               data-url="{{ url_for('edit_submission_dataset', dataset_id = dataset_form.id.data)}}" {% else %}
-              data-url="{{ url_for('add_submission_dataset', sub_id=dataset_form.submission_id.data)}}" {% endif %}>
+              data-url="{{ url_for('add_submission_dataset', sub_id=dataset_form.submission_id.data)}}" {% endif %}
+              data-dataset-type="{{ dataset_type }}">
             {{ dataset_form.hidden_tag() }}
-
-            <!-- Use Case Selection -->
-            <div class="mb-4">
-                <h6 class="fw-semibold mb-3">Use Case</h6>
-                {{ fmacros.render_field_with_errors(dataset_form.dataset_type_code, clazz="elx-select") }}
-            </div>
 
             <!-- Overview Section -->
             <div class="mb-4">
                 <h6 class="fw-semibold mb-3">Overview</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.title) }}
                 {{ fmacros.render_field_with_errors(dataset_form.study_id, clazz="elx-select")}}
-                {% if dataset_form.external_id.data %}
-                    {{ fmacros.render_field_with_errors(dataset_form.external_id) }}
-                {% endif %}
                 {{ fmacros.render_field_with_errors(dataset_form.creator_name) }}
                 {{ fmacros.render_field_with_errors(dataset_form.creator_email) }}
                 {{ fmacros.render_field_with_errors(dataset_form.creator_institution) }}
@@ -102,7 +99,8 @@
             </div>
 
             <!-- Consent Section - Use Case 2 Only -->
-            <div class="mb-4 use-case-2-only">
+            {% if dataset_type == "use_case_2" %}
+            <div class="mb-4">
                 <h6 class="fw-semibold mb-3">Consent and ethics</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs_notes) }}
@@ -116,9 +114,11 @@
                 clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.consent_notes) }}
             </div>
+            {% endif %}
 
             <!-- Specific Use Restrictions Section - Use Case 2 Only -->
-            <div class="mb-4 use-case-2-only">
+            {% if dataset_type == "use_case_2" %}
+            <div class="mb-4">
                 <h6 class="fw-semibold mb-3">Specific data use conditions</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_project) }}
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_research_use) }}
@@ -145,6 +145,7 @@
                 {{ fmacros.render_field_with_errors(dataset_form.dac_approval_required) }}
                 {{ fmacros.render_field_with_errors(dataset_form.dac_approval_notes) }}
             </div>
+            {% endif %}
 
             <!-- Technical Metadata Section -->
             <div class="mb-4">

@@ -18,11 +18,11 @@ from elixir_dss.controllers.api_controllers import get_elu_partners
 from elixir_dss.forms.submissions_forms import (
     AttachmentForm,
     ContactForm,
-    DatasetForm,
     MessageForm,
     StudyForm,
     SubmissionForm,
 )
+from elixir_dss.forms.submission_datasets_forms import DatasetForm, DatasetHostedForm
 from elixir_dss.models.security import Role
 
 from .validators import OptionalFieldValidator
@@ -207,6 +207,7 @@ __all__ = [
     ContactForm,
     AttachmentForm,
     DatasetForm,
+    DatasetHostedForm,
     StudyForm,
     UserForm,
     MyProfileForm,

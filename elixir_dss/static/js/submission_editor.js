@@ -160,24 +160,6 @@ $(document).ready(function () {
         $(gdprDatatypesField).on('change', checkSpecialCategoryData);
     }
 
-    // Dataset form: Handle use case switching
-    const datasetTypeField = document.getElementById('dataset_type_code');
-    if (datasetTypeField) {
-        function toggleUseCaseFields() {
-            const selectedUseCase = datasetTypeField.value;
-            const useCaseTwoFields = document.querySelectorAll('.use-case-2-only');
-            useCaseTwoFields.forEach(field => {
-                if (selectedUseCase === 'use_case_2') {
-                    field.style.display = 'block';
-                } else {
-                    field.style.display = 'none';
-                }
-            });
-        }
-        toggleUseCaseFields();  // Check on page load
-        $(datasetTypeField).on('change', toggleUseCaseFields);
-    }
-
     $('#submission_create_modal').on('shown.bs.modal', function () {
         $(this).find('.elx-select').select2({
             theme: 'bootstrap-5',
