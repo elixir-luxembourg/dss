@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import uuid
-from datetime import datetime, UTC, timezone
+from datetime import date, datetime, UTC, timezone
 
 from flask import (
     flash,
@@ -839,6 +839,8 @@ def add_submission_dataset(sub_id):
             else:
                 dataset.data_type_bg_or_result = None
             dataset.internal_id = generate_id(dataset.title)
+            dataset.creation_date = date.today()
+            dataset.last_update_date = date.today()
             db.session.add(dataset)
             db.session.commit()
             flash("Dataset added", "success")
@@ -929,7 +931,7 @@ def edit_submission_dataset(dataset_id):
                 dataset.data_type_bg_or_result = None
             if not dataset.internal_id:
                 dataset.internal_id = generate_id(dataset.title)
-
+            dataset.last_update_date = date.today()
             db.session.add(dataset)
             db.session.commit()
             flash("Dataset updated", "success")

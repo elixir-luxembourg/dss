@@ -243,14 +243,16 @@ class DatasetForm(FlaskForm):
 
     creation_date = DateField(
         "Creation date",
-        description="Please specify when the dataset was created.",
+        description="This date is set automatically when the dataset is created.",
         format="%Y-%m-%d",
+        render_kw={"readonly": True},
     )
 
     last_update_date = DateField(
         "Last update date",
-        description="Please specify when the dataset was last updated.",
+        description="This date is updated automatically when the dataset is saved.",
         format="%Y-%m-%d",
+        render_kw={"readonly": True},
     )
 
     data_standards = SelectMultipleField(
@@ -310,22 +312,8 @@ class DatasetForm(FlaskForm):
             )
         ]
 
-    def validate(self, extra_validators=None):
-        if not super().validate(extra_validators=extra_validators):
-            return False
-        if self.creation_date.data and self.last_update_date.data:
-            if self.last_update_date.data < self.creation_date.data:
-                self.last_update_date.errors.append(
-                    "Last update date cannot be before creation date."
-                )
-                return False
-        return True
-
 
 class DatasetHostedForm(DatasetForm):
-    """Extended form for Use Case 2 (hosted datasets) with additional consent and restriction fields"""
-
-    # Use restrictions originating from consent or elsewhere.
     consent_status_code = SelectField(
         "Are the consents heterogeneous or homogeneous?",
         description="If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous.\
@@ -528,7 +516,6 @@ class DatasetHostedForm(DatasetForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Initialize use-case-2 specific choices
         self.consent_status_code.choices = [
             (c.code, c.label) for c in ConsentStatus.query.all()
         ]

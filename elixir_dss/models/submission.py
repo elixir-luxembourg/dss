@@ -168,7 +168,6 @@ class Submission(db.Model):
     )
     notes = db.Column(db.String(250))
 
-    # Dataset type - Use case 1 or 2
     dataset_type = db.Column(db.String, nullable=False, default="use_case_1")
 
     studies = db.relationship("SubmissionStudy", cascade="all, delete-orphan")
