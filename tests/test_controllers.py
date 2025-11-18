@@ -279,10 +279,10 @@ class ControllersTest(BaseIntegrationTest):
         update_submission_basic_info(sub, provider_user_ids=[user.id])
 
         SubmissionDatasetFactory(
-            submission_id=sub.id, external_id="ds1", study_id=study.id
+            submission_id=sub.id, internal_id="ds1", study_id=study.id
         )
         SubmissionDatasetFactory(
-            submission_id=sub.id, external_id="ds2", study_id=study.id
+            submission_id=sub.id, internal_id="ds2", study_id=study.id
         )
         db.session.flush()
 

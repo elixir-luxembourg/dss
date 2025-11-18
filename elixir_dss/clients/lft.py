@@ -131,14 +131,14 @@ class LFTHandler:
             return
 
         for ds in datasets:
-            if not ds.external_id:
+            if not ds.internal_id:
                 continue
 
             try:
                 links = (
                     self.client.links_list(
                         namespace_id=self.namespace_id,
-                        share_name=ds.external_id,
+                        share_name=ds.internal_id,
                         sub=None,
                     )
                     or []
@@ -146,7 +146,7 @@ class LFTHandler:
                 for lk in links:
                     self.client.delete_link(
                         namespace_id=self.namespace_id,
-                        share_name=ds.external_id,
+                        share_name=ds.internal_id,
                         link=lk.hashid,
                     )
             except Exception as e:
