@@ -197,8 +197,18 @@
                         {{ cancel_submission_form.hidden_tag() }}
                         <p>
                             Are you sure you want to <strong>cancel</strong> submission
-                            <span id="cancel_sub_ref"></span>? This action cannot be undone.
+                            <span id="cancel_sub_ref"></span>? <br> This action cannot be undone.
                         </p>
+                        <div class="bg-danger-subtle p-3 border border-danger rounded mb-3 text-dark">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            CRITICAL WARNING:
+                            <ul>
+                                <li>This submission <strong>cannot be restored</strong>.</li>
+                                <li>You will <strong>no longer be able to modify</strong> this submission.</li>
+                                <li>All uploaded data will be <strong>permanently deleted</strong>.</li>
+                            </ul>
+                            Please be certain before proceeding.
+                        </div>
                         <div class="mb-3">
                             {{ fmacros.render_field_with_errors(
                             cancel_submission_form.cancellation_reason,
