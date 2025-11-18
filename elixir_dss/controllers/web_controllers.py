@@ -829,7 +829,6 @@ def add_submission_dataset(sub_id):
                 dataset.file_types_json = json.dumps(posted_form.file_types.data)
             if posted_form.sample_types.data:
                 dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
-            # data_type_bg_or_result only exists in DatasetHostedForm (use_case_2)
             if (
                 hasattr(posted_form, "data_type_bg_or_result")
                 and posted_form.data_type_bg_or_result.data
@@ -865,7 +864,6 @@ def edit_submission_dataset(dataset_id):
     if request.method == "GET":
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
         submission = Submission.query.get_or_404(dataset.submission_id)
-        # Use DatasetHostedForm for use_case_2, DatasetForm for use_case_1
         form_class = (
             forms.DatasetHostedForm
             if submission.dataset_type == "use_case_2"
@@ -882,7 +880,6 @@ def edit_submission_dataset(dataset_id):
             result_form.file_types.data = json.loads(dataset.file_types_json)
         if dataset.sample_types_json:
             result_form.sample_types.data = json.loads(dataset.sample_types_json)
-        # data_type_bg_or_result only exists in DatasetHostedForm (use_case_2)
         if (
             hasattr(result_form, "data_type_bg_or_result")
             and dataset.data_type_bg_or_result
@@ -898,7 +895,6 @@ def edit_submission_dataset(dataset_id):
     elif request.method == "POST":
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
         submission = Submission.query.get_or_404(dataset.submission_id)
-        # Use DatasetHostedForm for use_case_2, DatasetForm for use_case_1
         form_class = (
             forms.DatasetHostedForm
             if submission.dataset_type == "use_case_2"
@@ -922,7 +918,6 @@ def edit_submission_dataset(dataset_id):
                 dataset.file_types_json = json.dumps(posted_form.file_types.data)
             if posted_form.sample_types.data:
                 dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
-            # data_type_bg_or_result only exists in DatasetHostedForm (use_case_2)
             if (
                 hasattr(posted_form, "data_type_bg_or_result")
                 and posted_form.data_type_bg_or_result.data

@@ -281,6 +281,7 @@ class ModelPersistenceTest(BaseTest):
             provider_user_ids=[usr.id],
             local_project_name="Submitting to NCER PD Diagnosis project",
             local_custodians_json=json.dumps(["Enrico Glaab", "Rudi Balling"]),
+            dataset_type="use_case_2",
         )
 
         study_rec = SubmissionStudy()
@@ -308,8 +309,8 @@ class ModelPersistenceTest(BaseTest):
             ["Genomics_variant_array", "RNASeq"]
         )
         dataset_rec.gdpr_datatypes_json = json.dumps(["standard", "ethnic"])
-        dataset_rec.subjects_minors = True
-        dataset_rec.subjects_notes = "mothers and babies"
+        dataset_rec.has_special_subjects = True
+        dataset_rec.special_subjects_notes = "mothers and babies"
         dataset_rec.consent_notes = "Consent is consistent among all subjects"
 
         db.session.add(dataset_rec)
@@ -350,6 +351,34 @@ class ModelPersistenceTest(BaseTest):
         exporter = SubmissionExporter()
         exp = exporter.export_submission(submission_rec)
         print(json.dumps(exp, indent=4))
+
+    def test_export_submission_use_case_1(self):
+        """Test export for use_case_1 submissions (data received, not hosted)"""
+        submission_rec = create_sub("Test Use Case 1 Submission", "ELU_I_5")
+        usr = UserFactory()
+        update_submission_basic_info(
+            submission_rec,
+            provider_user_ids=[usr.id],
+            dataset_type="use_case_1",
+        )
+        study_rec = SubmissionStudyFactory(
+            submission_id=submission_rec.id, study_contacts=[ContactFactory()]
+        )
+        SubmissionDatasetFactory(
+            submission_id=submission_rec.id,
+            study_id=study_rec.id,
+            sci_datatypes_json=json.dumps(["Clinical_data"]),
+            gdpr_datatypes_json=json.dumps(["standard"]),
+            has_special_subjects=False,
+            special_subjects_notes="Adult participants only",
+        )
+
+        submission_rec = Submission.query.get_or_404(submission_rec.id)
+        exporter = SubmissionExporter()
+        exp = exporter.export_submission(submission_rec)
+
+        self.assertEqual(exp["title"], "Test Use Case 1 Submission")
+        self.assertEqual(len(exp["data_declarations"]), 1)
 
     def test_clone_submission_basic(self):
         original = create_sub("Brain Study", "ELU_I_11")

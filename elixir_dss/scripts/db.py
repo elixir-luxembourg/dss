@@ -14,10 +14,17 @@ START_UP_DATA = {
         ["co", "Controls"],
         ["ca_co", "Cases_and_Controls"],
     ],
-    "consent_status": [["hm", "Homogeneous"], ["ht", "Heterogeneous"], ["dk", "Don't know"]],
+    "consent_status": [
+        ["hm", "Homogeneous"],
+        ["ht", "Heterogeneous"],
+        ["dk", "Don't know"],
+    ],
     "legal_basis": [
         ["61a", "Consent (6.1(a))"],
-        ["61b", "Performance of a contract to which the data subject is party (6.1(b))"],
+        [
+            "61b",
+            "Performance of a contract to which the data subject is party (6.1(b))",
+        ],
         [
             "61c",
             "Compliance with a legal obligation to which the controller is subject (6.1(c))",
@@ -59,7 +66,10 @@ START_UP_DATA = {
                     "Biometric data for the purpose of uniquely identifying a natural person",
                 ),
                 ("health", "Data concerning health"),
-                ("sex", "Data concerning a natural person's sex life or sexual orientation"),
+                (
+                    "sex",
+                    "Data concerning a natural person's sex life or sexual orientation",
+                ),
                 ("criminal", "Data relating to criminal convictions and offences"),
                 (
                     "other",

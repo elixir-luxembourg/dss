@@ -4,7 +4,7 @@ import re
 from io import StringIO
 
 from elixir_dss import app, db
-from elixir_dss.forms import DatasetForm
+from elixir_dss.forms import DatasetForm, DatasetHostedForm
 from elixir_dss.models.submission import Contact, Submission, SubmissionDataset
 
 
@@ -20,9 +20,6 @@ class SubmissionExporter:
             self.objects = objects
         else:
             self.objects = None
-
-    # def set_objects(objects):
-    #     self.objects = objects
 
     def export_to_file(self, file_handle, stop_on_error=False, verbose=False):
         result = True
@@ -45,11 +42,6 @@ class SubmissionExporter:
             except Exception as e:
                 app.logger.error(f"Export failed for submission {submission_ref_name}")
                 app.logger.error(str(e))
-                # if verbose:
-                #     import traceback
-                #     ex = traceback.format_exception(*sys.exc_info())
-                #     logger.error('\n'.join([e for e in ex]))
-                # if stop_on_error:
                 raise e
             json.dump(
                 {
@@ -62,22 +54,6 @@ class SubmissionExporter:
             submission.exported = True
             db.session.add(submission)
             db.session.commit()
-            # submission_attachments = SubmissionAttachment.query.filter_by(submission_id=submission.id).all()
-            # for attachment in submission_attachments:
-            #
-            #     try:
-            #         path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachment.folder_name)
-            #         attachment_folder_name = os.path.join(export_directory, attachment.folder_name)
-            #         if not os.path.exists(attachment_folder_name):
-            #             os.makedirs(attachment_folder_name)
-            #         attachment_file = os.path.join(path_on_server, attachment.file_names)
-            #         os.popen('cp ' + attachment_file + ' ' + attachment_folder_name)
-            #
-            #     except OSError as err:
-            #         err.extend(err.args[0])
-
-            # shutil.make_archive(export_directory, 'zip', export_directory)
-            # app.logger.info("Created zip file")
         return buffer
 
     def export_submission(self, sub: Submission) -> dict:
@@ -146,11 +122,6 @@ class SubmissionExporter:
 
             dataset_info["title"] = dataset.title
 
-            dataset_info["use_restrictions"] = self.export_dataset_restrictions(dataset)
-
-            if dataset.restriction_ts_lcsb:
-                dataset_info["storage_end_date"] = dataset.restriction_ts_lcsb_notes
-
             dataset_info["source_study"] = dataset.study.name
             dataset_info["legal_basis_data_collection_std"] = (
                 dataset.legal_basis_collection_std.label
@@ -165,21 +136,6 @@ class SubmissionExporter:
                 dataset.legal_basis_sharing_std.label
             )
             dataset_info["legal_basis_notes"] = dataset.legal_basis_notes
-
-            if dataset.dac_approval_required:
-                if dataset.access_form_required:
-                    dataset_info["access_category"] = "open-access"
-                    dataset_info["access_procedure"] = (
-                        "No additional form is needed to request access."
-                    )
-                else:
-                    dataset_info["access_category"] = "registered-access"
-                    dataset_info["access_procedure"] = (
-                        "Additional form is needed to request access."
-                    )
-            else:
-                dataset_info["access_category"] = "controlled-access"
-                dataset_info["access_procedure"] = dataset.dac_approval_notes
 
             dataset_info["data_types"] = dataset.sci_data_type_names()
             dataset_info["gdpr_datatypes"] = dataset.gdpr_data_type_names()
@@ -200,19 +156,35 @@ class SubmissionExporter:
                         + dataset.sci_datatypes_notes
                     )
 
-            dataset_info["consent_status"] = dataset.consent_status.label.lower()
-            if dataset.consent_notes:
-                dataset_info["consent_notes"] = dataset.consent_notes
             dataset_info["de_identification"] = (
                 dataset.de_identification_type.label.lower()
             )
             dataset_info["subject_categories"] = dataset.subject_category.label.lower()
-            # use_restrictions = []
-            # for duc_instance in dataset.duc_codes:
-            #     use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
-            #                              'note': duc_instance.note})
-            # if use_restrictions:
-            #     dataset_info['use_restrictions'] = use_restrictions
+
+            if sub.dataset_type == "use_case_2":
+                dataset_info["use_restrictions"] = self.export_dataset_restrictions(
+                    dataset, sub
+                )
+                if dataset.restriction_ts_lcsb:
+                    dataset_info["storage_end_date"] = dataset.restriction_ts_lcsb_notes
+                if dataset.dac_approval_required:
+                    if dataset.access_form_required:
+                        dataset_info["access_category"] = "open-access"
+                        dataset_info["access_procedure"] = (
+                            "No additional form is needed to request access."
+                        )
+                    else:
+                        dataset_info["access_category"] = "registered-access"
+                        dataset_info["access_procedure"] = (
+                            "Additional form is needed to request access."
+                        )
+                else:
+                    dataset_info["access_category"] = "controlled-access"
+                    dataset_info["access_procedure"] = dataset.dac_approval_notes
+
+                dataset_info["consent_status"] = dataset.consent_status.label.lower()
+                if dataset.consent_notes:
+                    dataset_info["consent_notes"] = dataset.consent_notes
             dataset_list.append(dataset_info)
         return dataset_list
 
@@ -223,7 +195,10 @@ class SubmissionExporter:
 
         legal_bases = []
 
-        dataset_form = DatasetForm()
+        form_class = (
+            DatasetHostedForm if sub.dataset_type == "use_case_2" else DatasetForm
+        )
+        dataset_form = form_class()
 
         for dataset in sub.datasets:
             legal_base_info_collection_std = {}
@@ -277,7 +252,9 @@ class SubmissionExporter:
         return legal_bases
 
     @staticmethod
-    def export_dataset_restrictions(dataset: SubmissionDataset) -> list[dict]:
+    def export_dataset_restrictions(
+        dataset: SubmissionDataset, submission: Submission
+    ) -> list[dict]:
         restriction_list = []
 
         restriction_codes = {
@@ -291,7 +268,12 @@ class SubmissionExporter:
             "ts_lcsb": "TS-[XX]",
             "ts": "TS-[XX]",
         }
-        dataset_form = DatasetForm()
+        form_class = (
+            DatasetHostedForm
+            if submission.dataset_type == "use_case_2"
+            else DatasetForm
+        )
+        dataset_form = form_class()
         for field_prefix, restriction_code in restriction_codes.items():
             restriction_dict = {}
             restriction_dict["use_class"] = restriction_code
