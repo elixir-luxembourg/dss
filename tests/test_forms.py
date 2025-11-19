@@ -80,78 +80,93 @@ class FormValidatorsTest(BaseTest):
 
 
 class StudyFormTest(BaseTest):
-
     @staticmethod
     def _contact(idx=0, main=True):
         base = [
-            (f'study_contacts-{idx}-first_name', 'John'),
-            (f'study_contacts-{idx}-last_name', 'Doe'),
-            (f'study_contacts-{idx}-email', f'contact{idx}@example.com'),
-            (f'study_contacts-{idx}-institution', 'Test University'),
-            (f'study_contacts-{idx}-category_id', '1'),
+            (f"study_contacts-{idx}-first_name", "John"),
+            (f"study_contacts-{idx}-last_name", "Doe"),
+            (f"study_contacts-{idx}-email", f"contact{idx}@example.com"),
+            (f"study_contacts-{idx}-institution", "Test University"),
+            (f"study_contacts-{idx}-category_id", "1"),
         ]
-        return base + [(f'study_contacts-{idx}-is_main_contact', 'y')] if main else base
+        return base + [(f"study_contacts-{idx}-is_main_contact", "y")] if main else base
 
     def test_valid_minimal_study(self):
-
         with self.app.app_context():
-            form = StudyForm(ImmutableMultiDict([
-                ('name', 'Test Study'),
-                ('description', 'Study description'),
-                ('study_types', 'Observational'),
-                *self._contact(0, main=True)
-            ]))
+            form = StudyForm(
+                ImmutableMultiDict(
+                    [
+                        ("name", "Test Study"),
+                        ("description", "Study description"),
+                        ("study_types", "Observational"),
+                        *self._contact(0, main=True),
+                    ]
+                )
+            )
             self.assertTrue(form.validate(), f"Errors: {form.errors}")
 
     def test_requires_main_contact(self):
-
         with self.app.app_context():
-            form = StudyForm(ImmutableMultiDict([
-                ('name', 'Test Study'),
-                ('description', 'Description'),
-                ('study_types', 'Observational'),
-                *self._contact(0, main=False)
-            ]))
+            form = StudyForm(
+                ImmutableMultiDict(
+                    [
+                        ("name", "Test Study"),
+                        ("description", "Description"),
+                        ("study_types", "Observational"),
+                        *self._contact(0, main=False),
+                    ]
+                )
+            )
             self.assertFalse(form.validate())
-            self.assertIn('study_contacts', form.errors)
+            self.assertIn("study_contacts", form.errors)
 
     def test_negative_number_of_subjects_rejected(self):
-
         with self.app.app_context():
-            form = StudyForm(ImmutableMultiDict([
-                ('name', 'Test Study'),
-                ('description', 'Description'),
-                ('study_types', 'Observational'),
-                ('number_of_subjects', '-10'),
-                *self._contact(0, main=True)
-            ]))
+            form = StudyForm(
+                ImmutableMultiDict(
+                    [
+                        ("name", "Test Study"),
+                        ("description", "Description"),
+                        ("study_types", "Observational"),
+                        ("number_of_subjects", "-10"),
+                        *self._contact(0, main=True),
+                    ]
+                )
+            )
             self.assertFalse(form.validate())
-            self.assertIn('number_of_subjects', form.errors)
+            self.assertIn("number_of_subjects", form.errors)
 
 
 class ContactFormTest(BaseTest):
-    
     def test_main_contact_requires_institution(self):
         """main contact must have institution"""
         with self.app.app_context():
-            form = ContactForm(ImmutableMultiDict([
-                ('first_name', 'John'),
-                ('last_name', 'Doe'),
-                ('email', 'john@example.com'),
-                ('category_id', '1'),
-                ('is_main_contact', 'y'),
-            ]))
+            form = ContactForm(
+                ImmutableMultiDict(
+                    [
+                        ("first_name", "John"),
+                        ("last_name", "Doe"),
+                        ("email", "john@example.com"),
+                        ("category_id", "1"),
+                        ("is_main_contact", "y"),
+                    ]
+                )
+            )
             self.assertFalse(form.validate())
-            self.assertIn('institution', form.errors)
+            self.assertIn("institution", form.errors)
 
     def test_invalid_email_rejected(self):
         """invalid format rejected"""
         with self.app.app_context():
-            form = ContactForm(ImmutableMultiDict([
-                ('first_name', 'Test'),
-                ('last_name', 'User'),
-                ('email', 'not-an-email'),
-                ('category_id', '1'),
-            ]))
+            form = ContactForm(
+                ImmutableMultiDict(
+                    [
+                        ("first_name", "Test"),
+                        ("last_name", "User"),
+                        ("email", "not-an-email"),
+                        ("category_id", "1"),
+                    ]
+                )
+            )
             self.assertFalse(form.validate())
-            self.assertIn('email', form.errors)
+            self.assertIn("email", form.errors)

@@ -9,7 +9,14 @@ from wtforms import (
     StringField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired, Email, Length, NumberRange, Optional, Regexp
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    Length,
+    NumberRange,
+    Optional,
+    Regexp,
+)
 from wtforms_components import SelectField, SelectMultipleField
 
 from elixir_dss import app
@@ -104,8 +111,12 @@ class ContactForm(FlaskForm):
         # If main contact, institution is required
         if self.is_main_contact.data:
             if not self.institution.data or not self.institution.data.strip():
-                self.institution.errors = list(self.institution.errors) if self.institution.errors else []
-                self.institution.errors.append("Institution is required for main contact")
+                self.institution.errors = (
+                    list(self.institution.errors) if self.institution.errors else []
+                )
+                self.institution.errors.append(
+                    "Institution is required for main contact"
+                )
                 return False
 
         return True
@@ -259,7 +270,10 @@ class StudyForm(FlaskForm):
         )
 
         if not has_main_contact:
-            if not hasattr(self.study_contacts, "errors") or self.study_contacts.errors is None:
+            if (
+                not hasattr(self.study_contacts, "errors")
+                or self.study_contacts.errors is None
+            ):
                 self.study_contacts.errors = []
             self.study_contacts.errors.append(
                 "At least one contact must be designated as the main contact (typically the Study PI)"

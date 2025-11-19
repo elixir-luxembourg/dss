@@ -965,9 +965,15 @@ def add_submission_study(sub_id):
         ):
             study_rec = SubmissionStudy()
             # Exclude fields that are manually handled as JSON
-            exclude_fields = {'external_identifiers', 'species', 'diseases', 
-                            'sample_sources', 'other_subject_characteristics', 
-                            'study_types', 'study_contacts'}
+            exclude_fields = {
+                "external_identifiers",
+                "species",
+                "diseases",
+                "sample_sources",
+                "other_subject_characteristics",
+                "study_types",
+                "study_contacts",
+            }
             for field_name, field in posted_form._fields.items():
                 if field_name not in exclude_fields:
                     field.populate_obj(study_rec, field_name)
@@ -993,7 +999,9 @@ def add_submission_study(sub_id):
                 json.dumps(disease_values) if disease_values else None
             )
 
-            sample_source_values = _split_semicolon_values(posted_form.sample_sources.data)
+            sample_source_values = _split_semicolon_values(
+                posted_form.sample_sources.data
+            )
             study_rec.sample_sources_json = (
                 json.dumps(sample_source_values) if sample_source_values else None
             )
@@ -1011,7 +1019,9 @@ def add_submission_study(sub_id):
             study_rec.study_characteristics = posted_form.study_characteristics.data
             study_rec.number_of_subjects = posted_form.number_of_subjects.data
             study_rec.age_range_of_subjects = posted_form.age_range_of_subjects.data
-            study_rec.description_of_data_subjects = posted_form.description_of_data_subjects.data
+            study_rec.description_of_data_subjects = (
+                posted_form.description_of_data_subjects.data
+            )
             study_rec.description_of_cohorts = posted_form.description_of_cohorts.data
             study_rec.contact_remarks = posted_form.contact_remarks.data
 
@@ -1055,15 +1065,21 @@ def edit_submission_study(study_id):
         if study_rec.study_types_json:
             result_form.study_types.data = json.loads(study_rec.study_types_json)
         if study_rec.external_identifiers_json:
-            result_form.external_identifiers.data = '; '.join(json.loads(study_rec.external_identifiers_json))
+            result_form.external_identifiers.data = "; ".join(
+                json.loads(study_rec.external_identifiers_json)
+            )
         if study_rec.species_json:
             result_form.species.data = "; ".join(json.loads(study_rec.species_json))
         if study_rec.diseases_json:
             result_form.diseases.data = "; ".join(json.loads(study_rec.diseases_json))
         if study_rec.sample_sources_json:
-            result_form.sample_sources.data = "; ".join(json.loads(study_rec.sample_sources_json))
+            result_form.sample_sources.data = "; ".join(
+                json.loads(study_rec.sample_sources_json)
+            )
         if study_rec.other_subject_characteristics_json:
-            result_form.other_subject_characteristics.data = '; '.join(json.loads(study_rec.other_subject_characteristics_json))
+            result_form.other_subject_characteristics.data = "; ".join(
+                json.loads(study_rec.other_subject_characteristics_json)
+            )
 
         return render_template(
             "submission/study_form.html", study_form=result_form
@@ -1073,9 +1089,15 @@ def edit_submission_study(study_id):
         if posted_form.validate_on_submit():
             study_rec = SubmissionStudy.query.get_or_404(study_id)
             # Exclude fields that are manually handled as JSON
-            exclude_fields = {'external_identifiers', 'species', 'diseases', 
-                            'sample_sources', 'other_subject_characteristics', 
-                            'study_types', 'study_contacts'}
+            exclude_fields = {
+                "external_identifiers",
+                "species",
+                "diseases",
+                "sample_sources",
+                "other_subject_characteristics",
+                "study_types",
+                "study_contacts",
+            }
             for field_name, field in posted_form._fields.items():
                 if field_name not in exclude_fields:
                     field.populate_obj(study_rec, field_name)
@@ -1100,7 +1122,9 @@ def edit_submission_study(study_id):
                 json.dumps(disease_values) if disease_values else None
             )
 
-            sample_source_values = _split_semicolon_values(posted_form.sample_sources.data)
+            sample_source_values = _split_semicolon_values(
+                posted_form.sample_sources.data
+            )
             study_rec.sample_sources_json = (
                 json.dumps(sample_source_values) if sample_source_values else None
             )
@@ -1118,7 +1142,9 @@ def edit_submission_study(study_id):
             study_rec.study_characteristics = posted_form.study_characteristics.data
             study_rec.number_of_subjects = posted_form.number_of_subjects.data
             study_rec.age_range_of_subjects = posted_form.age_range_of_subjects.data
-            study_rec.description_of_data_subjects = posted_form.description_of_data_subjects.data
+            study_rec.description_of_data_subjects = (
+                posted_form.description_of_data_subjects.data
+            )
             study_rec.description_of_cohorts = posted_form.description_of_cohorts.data
             study_rec.contact_remarks = posted_form.contact_remarks.data
 

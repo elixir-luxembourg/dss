@@ -65,7 +65,7 @@ START_UP_DATA = {
                     "biometric",
                     "Biometric data for the purpose of uniquely identifying a natural person",
                 ),
-                (\"health\", \"Data concerning health\"),
+                ("health", "Data concerning health"),
                 (
                     "sex",
                     "Data concerning a natural person's sex life or sexual orientation",

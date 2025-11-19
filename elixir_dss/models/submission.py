@@ -413,8 +413,6 @@ class SubmissionStudy(db.Model):
         """Return other subject characteristics as a list."""
         return self._json_list("other_subject_characteristics_json")
 
-
-
     def clone(self, **overrides):
         mapper = object_mapper(self)
         exclude = {"id", "submission_id"}
