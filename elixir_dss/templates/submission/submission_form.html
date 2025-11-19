@@ -47,21 +47,19 @@
                                         <th class="fw-semibold" width="10%">Name</th>
                                         <th class="fw-semibold" width="10%">Surname</th>
                                         <th class="fw-semibold" width="15%">Email</th>
-                                        <th class="fw-semibold" width="10%">Role</th>
-                                        <th class="fw-semibold" width="40%">Affiliation (if different from submitting institute)</th>
-                                        <th class="fw-semibold" width="10%">Send invite</th>
+                                        <th class="fw-semibold" width="15%">Role</th>
+                                        <th class="fw-semibold" width="45%">Institution (if different from submitting institute)</th>
                                         <th class="fw-semibold" width="5%"></th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {% for contact_form in submsn_form.submission_contacts %}
                                     <tr data-toggle="fieldset-entry">
-                                        <td>{{ fmacros.render_field(contact_form.firstname, clazz='form-control-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.lastname, clazz='form-control-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.first_name, clazz='form-control-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.last_name, clazz='form-control-sm') }}</td>
                                         <td>{{ fmacros.render_field(contact_form.email, clazz='form-control-sm') }}</td>
                                         <td>{{ fmacros.render_field(contact_form.category_id, clazz='form-select-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.address, rows='2', clazz='form-control-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.send_invite, clazz='form-control-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.institution, clazz='form-control-sm') }}</td>
                                         <td>
                                             <button type="button" class="btn btn-danger btn-sm" data-toggle="fieldset-remove-row"
                                                     id="submsn-contacts-{{ loop.index0 }}-remove">
