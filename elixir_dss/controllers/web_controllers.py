@@ -58,6 +58,12 @@ from elixir_dss.models.submission import (
 from . import app_authorization
 
 
+def _split_semicolon_values(raw_value):
+    if not raw_value:
+        return []
+    return [value.strip() for value in raw_value.split(";") if value and value.strip()]
+
+
 @app.route("/", methods=["GET"])
 def home():
     return render_template("home.html")
@@ -958,11 +964,71 @@ def add_submission_study(sub_id):
             int(posted_form.submission_id.data) == sub_id
         ):
             study_rec = SubmissionStudy()
-            posted_form.populate_obj(study_rec)
+            # Exclude fields that are manually handled as JSON
+            exclude_fields = {'external_identifiers', 'species', 'diseases', 
+                            'sample_sources', 'other_subject_characteristics', 
+                            'study_types', 'study_contacts'}
+            for field_name, field in posted_form._fields.items():
+                if field_name not in exclude_fields:
+                    field.populate_obj(study_rec, field_name)
             study_rec.id = None
+
             if posted_form.study_types.data:
                 study_rec.study_types_json = json.dumps(posted_form.study_types.data)
+            else:
+                study_rec.study_types_json = json.dumps([])
+
+            ext_ids = _split_semicolon_values(posted_form.external_identifiers.data)
+            study_rec.external_identifiers_json = (
+                json.dumps(ext_ids) if ext_ids else None
+            )
+
+            species_values = _split_semicolon_values(posted_form.species.data)
+            study_rec.species_json = (
+                json.dumps(species_values) if species_values else None
+            )
+
+            disease_values = _split_semicolon_values(posted_form.diseases.data)
+            study_rec.diseases_json = (
+                json.dumps(disease_values) if disease_values else None
+            )
+
+            sample_source_values = _split_semicolon_values(posted_form.sample_sources.data)
+            study_rec.sample_sources_json = (
+                json.dumps(sample_source_values) if sample_source_values else None
+            )
+
+            other_characteristics = _split_semicolon_values(
+                posted_form.other_subject_characteristics.data
+            )
+            study_rec.other_subject_characteristics_json = (
+                json.dumps(other_characteristics) if other_characteristics else None
+            )
+
+            study_rec.multi_center_study = posted_form.multi_center_study.data or False
+            study_rec.informed_consent_given = posted_form.informed_consent_given.data
+
+            study_rec.study_characteristics = posted_form.study_characteristics.data
+            study_rec.number_of_subjects = posted_form.number_of_subjects.data
+            study_rec.age_range_of_subjects = posted_form.age_range_of_subjects.data
+            study_rec.description_of_data_subjects = posted_form.description_of_data_subjects.data
+            study_rec.description_of_cohorts = posted_form.description_of_cohorts.data
+            study_rec.contact_remarks = posted_form.contact_remarks.data
+
             db.session.add(study_rec)
+            db.session.flush()
+
+            for contact_form in posted_form.study_contacts:
+                contact = Contact()
+                contact.first_name = contact_form.first_name.data
+                contact.last_name = contact_form.last_name.data
+                contact.email = contact_form.email.data
+                contact.institution = contact_form.institution.data
+                contact.category_id = contact_form.category_id.data
+                contact.is_main_contact = contact_form.is_main_contact.data
+                contact.study_id = study_rec.id
+                db.session.add(contact)
+
             db.session.commit()
             flash("Study added", "success")
             return redirect(url_for("view_submission", sub_id=study_rec.submission_id))
@@ -985,8 +1051,20 @@ def edit_submission_study(study_id):
     if request.method == "GET":
         study_rec = SubmissionStudy.query.get_or_404(study_id)
         result_form = forms.StudyForm(obj=study_rec)
+
         if study_rec.study_types_json:
             result_form.study_types.data = json.loads(study_rec.study_types_json)
+        if study_rec.external_identifiers_json:
+            result_form.external_identifiers.data = '; '.join(json.loads(study_rec.external_identifiers_json))
+        if study_rec.species_json:
+            result_form.species.data = "; ".join(json.loads(study_rec.species_json))
+        if study_rec.diseases_json:
+            result_form.diseases.data = "; ".join(json.loads(study_rec.diseases_json))
+        if study_rec.sample_sources_json:
+            result_form.sample_sources.data = "; ".join(json.loads(study_rec.sample_sources_json))
+        if study_rec.other_subject_characteristics_json:
+            result_form.other_subject_characteristics.data = '; '.join(json.loads(study_rec.other_subject_characteristics_json))
+
         return render_template(
             "submission/study_form.html", study_form=result_form
         ), 200
@@ -994,9 +1072,69 @@ def edit_submission_study(study_id):
         posted_form = forms.StudyForm(request.form)
         if posted_form.validate_on_submit():
             study_rec = SubmissionStudy.query.get_or_404(study_id)
-            posted_form.populate_obj(study_rec)
+            # Exclude fields that are manually handled as JSON
+            exclude_fields = {'external_identifiers', 'species', 'diseases', 
+                            'sample_sources', 'other_subject_characteristics', 
+                            'study_types', 'study_contacts'}
+            for field_name, field in posted_form._fields.items():
+                if field_name not in exclude_fields:
+                    field.populate_obj(study_rec, field_name)
+
             if posted_form.study_types.data:
                 study_rec.study_types_json = json.dumps(posted_form.study_types.data)
+            else:
+                study_rec.study_types_json = json.dumps([])
+
+            ext_ids = _split_semicolon_values(posted_form.external_identifiers.data)
+            study_rec.external_identifiers_json = (
+                json.dumps(ext_ids) if ext_ids else None
+            )
+
+            species_values = _split_semicolon_values(posted_form.species.data)
+            study_rec.species_json = (
+                json.dumps(species_values) if species_values else None
+            )
+
+            disease_values = _split_semicolon_values(posted_form.diseases.data)
+            study_rec.diseases_json = (
+                json.dumps(disease_values) if disease_values else None
+            )
+
+            sample_source_values = _split_semicolon_values(posted_form.sample_sources.data)
+            study_rec.sample_sources_json = (
+                json.dumps(sample_source_values) if sample_source_values else None
+            )
+
+            other_characteristics = _split_semicolon_values(
+                posted_form.other_subject_characteristics.data
+            )
+            study_rec.other_subject_characteristics_json = (
+                json.dumps(other_characteristics) if other_characteristics else None
+            )
+
+            study_rec.multi_center_study = posted_form.multi_center_study.data or False
+            study_rec.informed_consent_given = posted_form.informed_consent_given.data
+
+            study_rec.study_characteristics = posted_form.study_characteristics.data
+            study_rec.number_of_subjects = posted_form.number_of_subjects.data
+            study_rec.age_range_of_subjects = posted_form.age_range_of_subjects.data
+            study_rec.description_of_data_subjects = posted_form.description_of_data_subjects.data
+            study_rec.description_of_cohorts = posted_form.description_of_cohorts.data
+            study_rec.contact_remarks = posted_form.contact_remarks.data
+
+            Contact.query.filter_by(study_id=study_rec.id).delete()
+
+            for contact_form in posted_form.study_contacts:
+                contact = Contact()
+                contact.first_name = contact_form.first_name.data
+                contact.last_name = contact_form.last_name.data
+                contact.email = contact_form.email.data
+                contact.institution = contact_form.institution.data
+                contact.category_id = contact_form.category_id.data
+                contact.is_main_contact = contact_form.is_main_contact.data
+                contact.study_id = study_rec.id
+                db.session.add(contact)
+
             db.session.add(study_rec)
             db.session.commit()
             flash("Study updated", "success")
