@@ -208,9 +208,11 @@
                     </div>
                 {% else %}
                     <div class="d-flex justify-content-end mt-4 mb-2">
-                        <a name="button_submission_editor_steer"
+                        <a class="btn btn-primary btn-lg shadow-sm px-4"
+                           data-bs-toggle="modal"
+                           data-bs-target="#responsibilityModal"
                            data-url="{{ url_for('steer_submission', sub_id=submission.id) }}"
-                           class="btn btn-primary btn-lg shadow-sm px-4">
+                           onclick="document.getElementById('responsibilityConfirmBtn').dataset.url = this.dataset.url;">
                             Proceed to Metadata Review
                             <i class="bi bi-arrow-right ms-2"></i>
                         </a>
@@ -823,5 +825,55 @@
             </div>
         </div>
     </div>
+
+
+    <!-- Responsibility Confirmation Modal -->
+    <div class="modal fade" id="responsibilityModal" tabindex="-1" aria-labelledby="responsibilityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="responsibilityModalLabel">
+                        <i class="bi bi-shield-exclamation text-danger me-2"></i>
+                        Responsibility Confirmation
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="small mb-3">
+                        Before continuing, please acknowledge the responsibilities associated with providing study metadata and dataset descriptions.
+                    </p>
+
+                    <div class="bg-danger-subtle p-3 border border-danger rounded mb-3 text-dark small">
+                        <p class="mb-2 fw-semibold">
+                            By proceeding, you formally confirm that:
+                        </p>
+                        <ul class="mb-0 ps-3">
+                            <li class="mb-1">All information you provide is truthful, accurate, and complete to the best of your knowledge.</li>
+                            <li class="mb-1">You assume <strong>full accountability</strong> for the correctness and integrity of the submitted metadata and dataset details.</li>
+                            <li class="mb-1">Any incorrect, misleading, or incomplete information may lead to submission rejection, compliance review, or audit actions.</li>
+                            <li class="mb-1">Your confirmation may be recorded for traceability and institutional audit requirements.</li>
+                        </ul>
+                    </div>
+
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="responsibilityCheck">
+                        <label class="small form-check-label" for="responsibilityCheck">
+                            I acknowledge and accept these responsibilities.
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="responsibilityConfirmBtn" class="btn btn-primary" disabled>
+                        Proceed
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 {% endblock %}

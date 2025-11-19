@@ -207,4 +207,39 @@ $(document).ready(function () {
     $('#submission_create_modal').on('hidden.bs.modal', function () {
         $(this).find('.elx-select').select2('destroy');
     });
+
+
+
+    const checkbox = document.getElementById("responsibilityCheck");
+    const confirmBtn = document.getElementById("responsibilityConfirmBtn");
+    const modalEl = document.getElementById("responsibilityModal");
+
+    if (checkbox && confirmBtn && modalEl) {
+        checkbox.addEventListener("change", function () {
+            confirmBtn.disabled = !checkbox.checked;
+        });
+
+        confirmBtn.addEventListener("click", function () {
+            const endpoint = confirmBtn.dataset.url;
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.hide();
+            $.ajax({
+                url: endpoint,
+                type: "get",
+                success: function () {
+                    location.reload();
+                },
+                error: function () {
+                    location.reload();
+                }
+            });
+        });
+
+        modalEl.addEventListener('show.bs.modal', function () {
+            checkbox.checked = false;
+            confirmBtn.disabled = true;
+        });
+    }
+
+
 });
