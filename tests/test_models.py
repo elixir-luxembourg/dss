@@ -408,8 +408,11 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(User.query.count(), 2)
         self.assertEqual(SubmissionAccess.query.count(), 1)
 
-        eve = User.query.filter_by(email=contact_existing.email).first()
-        self.assertIsNotNone(eve)
+        self.assertIsNone(SubmissionAccess.query.filter_by(user=existing_user).first())
+
+        self.assertIsNone(
+            User.query.filter_by(email=contact_without_invite.email).first()
+        )
 
         mock_send_invitations.assert_called_once()
         invited_users = mock_send_invitations.call_args[0][1]
