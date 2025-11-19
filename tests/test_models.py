@@ -390,8 +390,8 @@ class ModelPersistenceTest(BaseTest):
 
         existing_user = UserFactory()
         contact_existing = ContactFactory(
-            firstname=existing_user.first_name,
-            lastname=existing_user.last_name,
+            first_name=existing_user.first_name,
+            last_name=existing_user.last_name,
             email=existing_user.email,
             category_id=1,
             submission_id=submission.id,
@@ -450,3 +450,24 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(cancelled.current_status, SubmissionStatusEnum.cancelled)
         self.assertEqual(cancelled.cancellation_reason, "test reason")
         self.assertEqual(cancelled.cancelled_by_user_id, usr.id)
+
+    def test_study_json_helper_methods(self):
+        """Test _json_list helper handles JSON parsing and None/invalid values"""
+        submission = SubmissionFactory()
+
+        # Test JSON parsing logic
+        study = SubmissionStudyFactory(
+            submission_id=submission.id,
+            external_identifiers_json='["EGA123", "GEO456"]',
+            species_json='["Homo sapiens"]',
+            diseases_json='["Diabetes"]',
+        )
+        self.assertEqual(study.external_identifiers, ["EGA123", "GEO456"])
+        self.assertEqual(study.species_names, ["Homo sapiens"])
+
+        # Test None handling (edge case)
+        study_null = SubmissionStudyFactory(
+            submission_id=submission.id,
+            species_json=None,
+        )
+        self.assertEqual(study_null.species_names, [])
