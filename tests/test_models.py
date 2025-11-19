@@ -313,7 +313,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertNotEqual(original.id, clone.id)
         self.assertTrue(clone.ref_name.startswith("ELX_LU_SUB-"))
 
-        self.assertEqual(clone.current_status, SubmissionStatusEnum.metadata_submission)
+        self.assertEqual(clone.current_status, SubmissionStatusEnum.draft)
 
         self.assertEqual(len(clone.submission_contacts), 0)
         self.assertEqual(len(clone.datasets), 0)

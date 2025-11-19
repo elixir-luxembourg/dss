@@ -15,6 +15,33 @@
     {% assets "select2_js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
+    <script>
+        let cloneSubmissionId = null;
+
+        document.getElementById('cloneModal').addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            cloneSubmissionId = button.getAttribute('data-submission-id');
+
+            const studiesCheckbox = document.getElementById('clone_studies');
+            const datasetsCheckbox = document.getElementById('clone_datasets');
+
+            studiesCheckbox.checked = true;
+            datasetsCheckbox.checked = true;
+        });
+
+        document.getElementById('confirmCloneBtn').addEventListener('click', () => {
+            const cloneStudies = document.getElementById('clone_studies').checked;
+            const cloneDatasets = document.getElementById('clone_datasets').checked;
+
+            const query = new URLSearchParams({
+                clone_studies: cloneStudies,
+                clone_datasets: cloneDatasets
+            }).toString();
+
+            window.location.href = `/submission/clone/${cloneSubmissionId}?${query}`;
+        });
+    </script>
+
 {% endblock %}
 
 {% block css %}
@@ -116,6 +143,12 @@
                                             </li>
                                         </ul>
                                     </div>
+                                    <a href="#" class="btn btn-outline-primary btn-sm"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#cloneModal"
+                                       data-submission-id="{{ submission.id }}">
+                                        <i class="bi bi-files"></i> Clone
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -197,6 +230,35 @@
                             <button type="submit" class="btn btn-warning">Cancel Submission</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clone Confirmation Modal -->
+        <div class="modal fade" id="cloneModal" tabindex="-1" aria-labelledby="cloneModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="cloneModalLabel">Clone Submission</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>Do you want to also clone:</p>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="clone_studies" checked>
+                            <label class="form-check-label" for="clone_studies">Studies</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="clone_datasets" checked>
+                            <label class="form-check-label" for="clone_datasets">Datasets</label>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn bg-transparent text-primary border-primary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmCloneBtn">Confirm Clone</button>
+                    </div>
                 </div>
             </div>
         </div>
