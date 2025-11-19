@@ -471,3 +471,27 @@ class ModelPersistenceTest(BaseTest):
             species_json=None,
         )
         self.assertEqual(study_null.species_names, [])
+
+    def test_cancel_submission(self):
+        sub = create_sub("To Cancel", "ELU_I_77")
+        db.session.add(sub)
+        db.session.commit()
+
+        u = User(
+            first_name="AA",
+            last_name="BB",
+            elixir_sub_id="X",
+            email="aa@bb.cc",
+            institution_accession="ELU_I_77",
+            phone_no="+352 11",
+        )
+        usr = register_new_user(u)
+        update_submission_basic_info(sub, provider_user_ids=[usr.id])
+
+        cancelled = cancel_sub(
+            submission=sub, reason="test reason", cancelled_by_user=usr
+        )
+
+        self.assertEqual(cancelled.current_status, SubmissionStatusEnum.cancelled)
+        self.assertEqual(cancelled.cancellation_reason, "test reason")
+        self.assertEqual(cancelled.cancelled_by_user_id, usr.id)
