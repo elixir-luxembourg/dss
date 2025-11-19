@@ -140,6 +140,9 @@ class SubmissionAttachmentFactory(SQLAlchemyModelFactory):
     folder_name = factory.Faker("uuid4")
     file_names = factory.LazyAttribute(
         lambda obj: " ".join(
-            [factory.Faker("file_name").evaluate(None, None, {"locale": None}) for _ in range(2)]
+            [
+                factory.Faker("file_name").evaluate(None, None, {"locale": None})
+                for _ in range(2)
+            ]
         )
     )
