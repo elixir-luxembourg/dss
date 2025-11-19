@@ -483,9 +483,6 @@ def update_submission_basic_info(submission: Submission, **kwargs):
     if "local_project_name" in kwargs:
         submission.local_project_name = kwargs.pop("local_project_name")
 
-    if "dataset_type" in kwargs:
-        submission.dataset_type = kwargs.pop("dataset_type")
-
     db.session.add(submission)
     db.session.commit()
 
@@ -724,6 +721,8 @@ def invite_submitters(submission: Submission, contacts: list[Contact]):
     users_for_invitation = []
 
     for contact in contacts:
+        if contact.send_invite is False:
+            continue
         user = User.query.filter_by(email=contact.email).first()
         if not user:
             user = User(

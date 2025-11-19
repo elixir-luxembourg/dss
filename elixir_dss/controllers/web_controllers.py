@@ -550,7 +550,6 @@ def edit_submission(sub_id):
                 local_custodians_json=json.dumps(form.local_custodians.data),
                 local_project_name=form.local_project_name.data,
                 institution_accession=form.institution_accession.data,
-                dataset_type=form.dataset_type.data,
                 provider_user_ids=form.provider_user_ids.data
                 if request.form.get("provider_user_ids")
                 else None,
@@ -789,25 +788,12 @@ def download_submission_attachment(attach_id, filename):
 )
 def add_submission_dataset(sub_id):
     if request.method == "GET":
-        submission = Submission.query.get_or_404(sub_id)
-        form_class = (
-            forms.DatasetHostedForm
-            if submission.dataset_type == "use_case_2"
-            else forms.DatasetForm
-        )
         return render_template(
             "submission/dataset_form.html",
-            dataset_form=form_class(formdata=None, obj=None, sub_id=sub_id),
-            dataset_type=submission.dataset_type,
+            dataset_form=forms.DatasetForm(formdata=None, obj=None, sub_id=sub_id),
         ), 200
     elif request.method == "POST":
-        submission = Submission.query.get_or_404(sub_id)
-        form_class = (
-            forms.DatasetHostedForm
-            if submission.dataset_type == "use_case_2"
-            else forms.DatasetForm
-        )
-        posted_form = form_class(request.form)
+        posted_form = forms.DatasetForm(request.form)
         if (
             posted_form.validate_on_submit()
             and int(posted_form.submission_id.data) == sub_id
@@ -849,7 +835,6 @@ def add_submission_dataset(sub_id):
             return render_template(
                 "submission/dataset_form.html",
                 dataset_form=posted_form,
-                dataset_type=submission.dataset_type,
             ), 400
 
 
@@ -865,13 +850,7 @@ def add_submission_dataset(sub_id):
 def edit_submission_dataset(dataset_id):
     if request.method == "GET":
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
-        submission = Submission.query.get_or_404(dataset.submission_id)
-        form_class = (
-            forms.DatasetHostedForm
-            if submission.dataset_type == "use_case_2"
-            else forms.DatasetForm
-        )
-        result_form = form_class(obj=dataset)
+        result_form = forms.DatasetForm(obj=dataset)
         if dataset.sci_datatypes_json:
             result_form.sci_datatypes.data = json.loads(dataset.sci_datatypes_json)
         if dataset.gdpr_datatypes_json:
@@ -892,17 +871,10 @@ def edit_submission_dataset(dataset_id):
         return render_template(
             "submission/dataset_form.html",
             dataset_form=result_form,
-            dataset_type=submission.dataset_type,
         ), 200
     elif request.method == "POST":
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
-        submission = Submission.query.get_or_404(dataset.submission_id)
-        form_class = (
-            forms.DatasetHostedForm
-            if submission.dataset_type == "use_case_2"
-            else forms.DatasetForm
-        )
-        posted_form = form_class(request.form)
+        posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
             posted_form.populate_obj(dataset)
 
@@ -940,7 +912,6 @@ def edit_submission_dataset(dataset_id):
             return render_template(
                 "submission/dataset_form.html",
                 dataset_form=posted_form,
-                dataset_type=submission.dataset_type,
             ), 400
 
 

@@ -30,108 +30,81 @@
     <div class="card-body p-4">
         <form method="POST" {% if dataset_form.id.data %}
               data-url="{{ url_for('edit_submission_dataset', dataset_id = dataset_form.id.data)}}" {% else %}
-              data-url="{{ url_for('add_submission_dataset', sub_id=dataset_form.submission_id.data)}}" {% endif %}
-              data-dataset-type="{{ dataset_type }}">
+              data-url="{{ url_for('add_submission_dataset', sub_id=dataset_form.submission_id.data)}}" {% endif %}>
             {{ dataset_form.hidden_tag() }}
 
             <!-- Overview Section -->
             <div class="mb-4">
-                <h6 class="fw-semibold mb-3">Overview</h6>
+                <h5 class="fw-semibold mb-3">Overview</h5>
                 {{ fmacros.render_field_with_errors(dataset_form.title) }}
-                {{ fmacros.render_field_with_errors(dataset_form.study_id, clazz="elx-select")}}
                 {{ fmacros.render_field_with_errors(dataset_form.creator_name) }}
                 {{ fmacros.render_field_with_errors(dataset_form.creator_email) }}
                 {{ fmacros.render_field_with_errors(dataset_form.creator_institution) }}
                 {{ fmacros.render_field_with_errors(dataset_form.creator_role) }}
+                {{ fmacros.render_field_with_errors(dataset_form.study_id, clazz="elx-select")}}
                 {{ fmacros.render_field_with_errors(dataset_form.description) }}
                 {{ fmacros.render_field_with_errors(dataset_form.external_identifiers) }}
-            </div>
-
-            <!-- Data Types Section -->
-            <div class="mb-4">
-                <h6 class="fw-semibold mb-3">Data Types</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.sci_datatypes, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.sci_datatypes_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.de_identification_type_code, clazz="elx-select") }}
             </div>
 
             <!-- Data Protection (GDPR) Section -->
             <div class="mb-4">
-                <h6 class="fw-semibold mb-3">Data Protection (GDPR)</h6>
+                <h5 class="fw-semibold mb-3">Data Protection (GDPR)</h5>
                 {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes_notes) }}
-                
-                <!-- Conditional Art 9.2 fields - only show when special category data selected -->
-                <div id="art92-section" style="display: none;">
-                    <hr class="my-3">
-                    {{ fmacros.render_field_with_errors(dataset_form.has_art92_derogation) }}
-                    {{ fmacros.render_field_with_errors(dataset_form.art92_derogation_notes) }}
-                </div>
+                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_collection_std_code, clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_std_code, clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.is_special_category_data) }}
+                {{ fmacros.render_field_with_errors(dataset_form.has_art92_derogation) }}
             </div>
 
-            <!-- De-identification and Samples Section -->
+            <!-- Scope of Data Subjects Section -->
             <div class="mb-4">
-                <h6 class="fw-semibold mb-3">De-identification and Samples</h6>
-                {{ fmacros.render_field_with_errors(dataset_form.de_identification_type_code, clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dataset_form.has_samples) }}
-                {{ fmacros.render_field_with_errors(dataset_form.samples_notes) }}
-            </div>
-
-            <!-- Lawful Bases Section -->
-            <div class="mb-4">
-                <h6 class="fw-semibold mb-3">Lawful Bases of Data Processing</h6>
-                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_collection_std_code,
-                clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_std_code,
-                clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_collection_spec_code,
-                clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_spec_code,
-                clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(dataset_form.legal_basis_notes) }}
-            </div>
-
-            <!-- Data Subjects Section -->
-            <div class="mb-4">
-                <h6 class="fw-semibold mb-3">Data Subjects</h6>
-                {{ fmacros.render_field_with_errors(dataset_form.subject_category_code,
-                clazz="elx-select") }}
+                <h5 class="fw-semibold mb-3">Scope of data subjects</h5>
                 {{ fmacros.render_field_with_errors(dataset_form.has_special_subjects) }}
                 {{ fmacros.render_field_with_errors(dataset_form.special_subjects_notes) }}
             </div>
 
-            <!-- Consent Section - Use Case 2 Only -->
-            {% if dataset_type == "use_case_2" %}
+            <!-- Consent and Ethics Section -->
             <div class="mb-4">
-                <h6 class="fw-semibold mb-3">Consent and ethics</h6>
+                <h5 class="fw-semibold mb-3">Consent and ethics</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_gs) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_gs_notes) }}
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_us) }}
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_us_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_user_specific) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_user_specific_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ts) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_notes) }}
-                {{ fmacros.render_field_with_errors(dataset_form.consent_status_code,
-                clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.consent_status_code, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.consent_notes) }}
             </div>
-            {% endif %}
 
-            <!-- Specific Use Restrictions Section - Use Case 2 Only -->
-            {% if dataset_type == "use_case_2" %}
+            <!-- Specific Data Use Conditions Section -->
             <div class="mb-4">
-                <h6 class="fw-semibold mb-3">Specific data use conditions</h6>
+                <h5 class="fw-semibold mb-3">Specific data use conditions</h6>
+                <h6 class="fw-semibold mb-3 mt-4">Use of DATA is limited to the RESEARCH PROJECT</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_project) }}
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_research_use) }}
                 {{ fmacros.render_field_with_errors(dataset_form.data_type_bg_or_result, clazz="elx-multi-select") }}
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_ps) }}
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_ps_notes) }}
+                <h6 class="fw-semibold mb-3 mt-4">Time limit of storage at LCSB</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb) }}
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb_date) }}
+                <h6 class="fw-semibold mb-3 mt-4">Publication requirements</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_pub) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_pub_notes) }}
+                <h6 class="fw-semibold mb-3 mt-4">Data return requirements</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn_notes) }}
+                <h6 class="fw-semibold mb-3 mt-4">User specific restrictions</h6>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_us) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_us_notes) }}
+                <h6 class="fw-semibold mb-3 mt-4">IP-related conditions/restrictions</h6>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip_notes) }}
+                <h6 class="fw-semibold mb-3 mt-4">Other restrictions</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_other_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.access_form_required) }}
 
@@ -140,17 +113,13 @@
                     <div>If an access request form is needed, please make sure you upload the form template as an attachment to this submission.</div>
                 </div>
 
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip) }}
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip_notes) }}
-
                 {{ fmacros.render_field_with_errors(dataset_form.dac_approval_required) }}
                 {{ fmacros.render_field_with_errors(dataset_form.dac_approval_notes) }}
             </div>
-            {% endif %}
 
             <!-- Technical Metadata Section -->
             <div class="mb-4">
-                <h6 class="fw-semibold mb-3">Technical metadata</h6>
+                <h5 class="fw-semibold mb-3">Technical metadata</h6>
                 <div class="row">
                     <div class="col-md-6">
                         {{ fmacros.render_field_with_errors(dataset_form.number_of_records) }}

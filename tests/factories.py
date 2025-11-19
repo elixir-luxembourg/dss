@@ -10,6 +10,7 @@ from elixir_dss.models.submission import (
     ContactType,
     Submission,
     SubmissionAccess,
+    SubmissionAttachment,
     SubmissionDataset,
     SubmissionStatusEnum,
     SubmissionStudy,
@@ -46,7 +47,6 @@ class SubmissionFactory(SQLAlchemyModelFactory):
     submission_scope_code = "e"
     current_status = SubmissionStatusEnum.draft
     created_on = factory.LazyFunction(date.today)
-    dataset_type = "use_case_1"
 
 
 class SubmissionDatasetFactory(SQLAlchemyModelFactory):
@@ -66,8 +66,8 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
     de_identification_type_code = "p"
     legal_basis_collection_std_code = "61a"
     legal_basis_sharing_std_code = "61a"
-    legal_basis_collection_spec_code = "61a"
-    legal_basis_sharing_spec_code = "61a"
+    is_special_category_data = False
+    consent_status_code = "hm"
 
 
 class SubmissionStudyFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -127,3 +127,19 @@ class SubmissionAccessFactory(SQLAlchemyModelFactory):
     submission_id = factory.SubFactory(SubmissionFactory)
     user_id = factory.SubFactory(UserFactory)
     access_granted_on = factory.LazyFunction(date.today)
+
+
+class SubmissionAttachmentFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = SubmissionAttachment
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = "commit"
+
+    submission_id = factory.SubFactory(SubmissionFactory)
+    note = factory.Faker("sentence", nb_words=6)
+    folder_name = factory.Faker("uuid4")
+    file_names = factory.LazyAttribute(
+        lambda obj: " ".join(
+            [factory.Faker("file_name").evaluate(None, None, {"locale": None}) for _ in range(2)]
+        )
+    )

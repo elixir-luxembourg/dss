@@ -8,7 +8,14 @@ from wtforms import (
     StringField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired, Email, Length, Regexp, NumberRange
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    Length,
+    Regexp,
+    NumberRange,
+    ValidationError,
+)
 from wtforms_components import SelectField, SelectMultipleField
 
 from elixir_dss import app
@@ -16,7 +23,6 @@ from elixir_dss.models.submission import (
     ConsentStatus,
     DeIdentificationType,
     LegalBasisType,
-    SubjectCategory,
     SubmissionStudy,
 )
 
@@ -70,8 +76,8 @@ class DatasetForm(FlaskForm):
         ],
     )
     description = TextAreaField(
-        "Dataset Description",
-        description="Please provide a detailed description of the dataset.",
+        "Dataset description",
+        description="",
         render_kw={"rows": 4},
         validators=[
             DataRequired(),
@@ -87,8 +93,8 @@ class DatasetForm(FlaskForm):
         render_kw={"placeholder": "EGAD00000000001"},
     )
     title = StringField(
-        "Title",
-        description="Please provide a short descriptive title for the  dataset. ELIXIR LU data stewards  may refer this title when communicating with you.",
+        "Dataset title",
+        description="Please provide a short descriptive title for the data.",
         validators=[
             DataRequired(),
             Regexp(
@@ -99,24 +105,25 @@ class DatasetForm(FlaskForm):
         ],
     )
     study_id = SelectField(
-        "Source study",
+        "Study identifier",
         coerce=int,
-        description="Please specify the study/cohort that is the source of the dataset. To make a selection here, you must first define an entry in the Study tab on the Submission page.",
+        description="Please specify the source Study/Cohort that is the source of the data. This should refer to a study/cohort you defined in a Study sheet e.g. Study1",
         validators=[
             DataRequired(),
             NumberRange(min=1, message="You must select a valid study"),
         ],
     )
 
+    # Data protection (GDPR)
+
     gdpr_datatypes = SelectMultipleField(
-        "GDPR Personal data categories in the dataset",
-        description="These are overarching categories of personal data as defined in GDPR Art. 9.1 and Art. 10. You may get assistance from your institute’s DPO or legal team in filling out this field. \
-                                                    You can select multiple options.",
+        "The data includes the following categories and types of personal data",
+        description='These are definitions from the GDPR. In biomedical projects with pseudonymised cohort data, the options  would likely fall under  "Special category, i.e. sensitive, personal data" e.g. "Genetic data", "Data concerning health" and ""Other special categories of data". \nYou may get assistance from your institute\'s DPO or legal team in filling out this section.',
         validators=[DataRequired()],
     )
     gdpr_datatypes_notes = TextAreaField(
-        "Personal data - Remarks",
-        description="In case of 'other special categories of data', please specify.",
+        "Personal data remarks",
+        description='In case of "other special categories of data", please specify.',
         render_kw={"rows": 3},
         validators=[
             OptionalFieldValidator(
@@ -124,26 +131,22 @@ class DatasetForm(FlaskForm):
                 message="Can only contain letters, digits, dash, comma and dot.",
             )
         ],
+    )
+
+    is_special_category_data = BooleanField(
+        "Is data classified as special category (sensitive) personal data according to Art 9.2 GDPR?",
+        description="",
+        default=False,
     )
 
     # GDPR Art 9.2 - Only shown when special category data is selected
     has_art92_derogation = BooleanField(
-        "For the processing of special category (sensitive) personal data, do you have a legitimation under Art. 9.2 GDPR that provides specific derogation from the general prohibition to process such data?",
-        description="This question only applies if you have selected special category data above. You may get assistance from your institute's DPO or legal team.",
+        "For the processing of special category (sensitive) personal data, do you have a  legitimation under Art. 9.2 GDPR that provides specific derogation from the general prohibition to process such data?",
+        description="",
         default=False,
     )
 
-    art92_derogation_notes = TextAreaField(
-        "Art. 9.2 Legitimation - Remarks",
-        description="If applicable, please provide details about the Art. 9.2 legitimation.",
-        render_kw={"rows": 3},
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
+    # Scope of data subjects
 
     sci_datatypes = SelectMultipleField(
         "Data types",
@@ -163,63 +166,33 @@ class DatasetForm(FlaskForm):
         ],
     )
     de_identification_type_code = SelectField(
-        "Is the DATA anonymised or pseudonymised?",
-        description="A dataset is considered anonymised if no stakeholder is holding a mapping from the Subject ID in the data to the \
-                                              identifying personal information e.g. name, surname, date of birth, address of the human subject supplying the data.\
-                                              A dataset is considered pseudonymised if there exists some cohort owner/coordinator holding the mapping from the \
-                                              Subject ID to the human subject identifying personal information.",
+        "Is the data anonymised or pseudonymised?",
+        description="A dataset is considered anonymised if no stakeholder is holding a mapping from the Subject ID in the data to the identifying personal information e.g. name, surname, date of birth, address of the human subject supplying the data.\nA dataset is considered pseudonymised if there exists some cohort owner/coordinator holding the mapping from the Subject ID to the human subject identifying personal information.",
         validators=[DataRequired()],
     )
-    has_samples = BooleanField(
-        "Includes Samples",
-        description="Will you be submitting bio-samples to ELIXIR-LU/LCSB or to any other partner in the research project?",
-        default=False,
-    )
-    samples_notes = StringField(
-        "Notes on samples",
-        description=" Please describe the nature of bio-samples (e.g. DNA, blood sample).",
-    )
 
-    # Lawful basis of processing
+    # Data protection (GDPR)
 
     legal_basis_collection_std_code = SelectField(
-        "What is the legal basis according to Art. 6.1 GDPR for the collection of standard (non-sensitive) personal data?",
-        description="You may get assistance from your institute’s DPO or legal team in filling out this field.",
+        "What is the legal basis according to Art. 6.1 GDPR for the collection of personal data?",
+        description="These options come from GDPR Article 6. \nYou may get assistance from your institute's DPO or legal team in filling out this section.",
         validators=[DataRequired()],
     )
     legal_basis_sharing_std_code = SelectField(
-        "What is the legal basis according to Art. 6.1 GDPR for the sharing and, where applicable, the subsequent processing of standard (non-sensitive) personal data?",
-        description="You may get assistance from your institute’s DPO or legal team in filling out this field.",
+        "What is the legal basis according to Art. 6.1 GDPR for the sharing and, where applicable, the subsequent processing of personal data?",
+        description="These options come from GDPR Article 6. \nYou may get assistance from your institute's DPO or legal team in filling out this section.",
         validators=[DataRequired()],
-    )
-    legal_basis_collection_spec_code = SelectField(
-        "What is the legal basis according to Art. 6.1 GDPR  for the collection of special category (sensitive) personal data?",
-        description="You may get assistance from your institute’s DPO or legal team in filling out this field.",
-        validators=[DataRequired()],
-    )
-    legal_basis_sharing_spec_code = SelectField(
-        "What is the legal basis according to Art. 6.1 GDPR  for the  sharing and subsequent processing of special category (sensitive) personal data?",
-        description="You may get assistance from your institute’s DPO or legal team in filling out this field.",
-        validators=[DataRequired()],
-    )
-    legal_basis_notes = StringField(
-        "Remarks on legal basis.",
-        description="If the legal basis for special categories of data affect only a subset of sensitive data, please specify these here e.g. refers only to genetic but not to health data.",
     )
 
-    subject_category_code = SelectField(
-        "The dataset is related to the following categories of data subjects",
-        description="Please denote the category of human subjects to which the data relates.",
-        validators=[DataRequired()],
-    )
+    # Scope of data subjects
     has_special_subjects = BooleanField(
-        "Does the dataset contain data of 'Special Subjects'?",
-        description="'Special Subjects' refers to minors or subjects unable to give consent e.g. mentally impaired subjects.",
+        'Does the dataset contain data from "Special subjects"?',
+        description='"Special subjects" refers to minors or subjects unable to give consent e.g. mentally impaired subjects.',
         default=False,
     )
     special_subjects_notes = TextAreaField(
-        "Notes on 'Special Subjects'",
-        description="Please provide a brief description of these 'Special Subjects'.",
+        "Please provide a brief description of these Special Data Subjects.",
+        description="",
         render_kw={"rows": 3},
         validators=[
             OptionalFieldValidator(
@@ -245,14 +218,12 @@ class DatasetForm(FlaskForm):
         "Creation date",
         description="This date is set automatically when the dataset is created.",
         format="%Y-%m-%d",
-        render_kw={"readonly": True},
     )
 
     last_update_date = DateField(
         "Last update date",
         description="This date is updated automatically when the dataset is saved.",
         format="%Y-%m-%d",
-        render_kw={"readonly": True},
     )
 
     data_standards = SelectMultipleField(
@@ -276,6 +247,221 @@ class DatasetForm(FlaskForm):
         description="If biological samples are included, please specify the types (e.g., blood, tissue, DNA).",
     )
 
+    # Fields from former DatasetHostedForm (use_case_2)
+    consent_status_code = SelectField(
+        "Are the consents heterogeneous or homogeneous?",
+        description="\nIf the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous.\nIf the consent form has stayed the same over the course of the study but it has options so that different subjects can create different restrictions on their data, then this case is also considered heterogeneous.",
+        validators=[DataRequired()],
+    )
+    consent_notes = TextAreaField(
+        "If the consent is heterogeneous, please specify the data dictionary item (column) that specifies consent groups in data.",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+
+    # Consent and ethics
+
+    restriction_rs = BooleanField(
+        "Limited scope of research. \nIs data consented to be used only in specific research/disease areas?",
+        description="",
+        default=False,
+    )
+    restriction_rs_notes = TextAreaField(
+        "Please describe research/disease areas restriction on data",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+
+    restriction_gs = BooleanField(
+        "Geographical restriction.\nDoes consent contain clauses that put geographical restrictions to the sharing of data?",
+        description="",
+        default=False,
+    )
+    restriction_gs_notes = TextAreaField(
+        "Please describe geographical restrictions on data",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+    restriction_user_specific = BooleanField(
+        "Restricted type of recipients.\nDoes the consent limit the type of recipients?",
+        description="",
+        default=False,
+    )
+    restriction_user_specific_notes = TextAreaField(
+        "Please describe the recipient restrictions on data.",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+
+    restriction_pub = BooleanField(
+        "Are there any requirements in case of publications based on the data?",
+        description="",
+        default=False,
+    )
+    restriction_pub_notes = TextAreaField(
+        "Please describe the publication requirements.",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+    restriction_ts = BooleanField(
+        "Retention time.\nDoes the consent contain clauses that put time-limits on the use of data?",
+        description="",
+        default=False,
+    )
+    restriction_ts_notes = TextAreaField(
+        "Please describe the time-limit restrictions on data.",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+    # Specific data use conditions
+
+    use_restriction_project = BooleanField(
+        "Is the use of data limited to the project named in the Submission sheet?",
+        description="",
+        default=False,
+    )
+    use_restriction_research_use = BooleanField(
+        "Does the limitation to the RESEARCH PROJECT include the RESEARCH USE (as defined in the Consortium Agreement)?",
+        description="",
+        default=False,
+    )
+    data_type_bg_or_result = SelectMultipleField(
+        "Is the data Background or Results as defined in the Consortium Agreement?",
+        description="Select all that apply.",
+        choices=[],
+    )
+
+    restriction_ts_lcsb = BooleanField(
+        "Is the data being sent to ELIXIR-LU/LCSB for a limited duration?",
+        description="",
+        default=False,
+    )
+    restriction_ts_lcsb_date = DateField(
+        "Please state the agreed end date for data's residence at ELIXIR-LU/LCSB",
+        description="",
+        format="%Y-%m-%d",
+    )
+
+    restriction_rtn = BooleanField(
+        "Is there a requirement to return data or documents to the database/resource?",
+        description="",
+        default=False,
+    )
+    restriction_rtn_notes = TextAreaField(
+        "Please describe the return requirements.",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+
+    restriction_us = BooleanField(
+        "Is the use limited to approved users/groups/institutions?",
+        description="",
+        default=False,
+    )
+    restriction_us_notes = TextAreaField(
+        "Please list the specific users/groups/institutions to which ELIXIR-LU/LCSB is instructed to give access to the data upon request.",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+
+    restriction_ip = BooleanField(
+        "Are there any conditions/restrictions regarding the Intellectual Property (IP) of the data?",
+        description="",
+        default=False,
+    )
+    restriction_ip_notes = TextAreaField(
+        "Please describe the IP conditions/restrictions",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+
+    restriction_other_notes = TextAreaField(
+        "If there are any other restrictions on data, please describe them here.",
+        render_kw={"rows": 3},
+        description="If applicable, in your description you may refer to GA4GH Data Use Category Codes, found at the below link.\nhttps://www.ga4gh.org/wp-content/uploads/DataUseBeacon_160209_tab_0.pdf",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+    access_form_required = BooleanField(
+        "Will all researchers accessing the data need to sign an access request form?",
+        description="If an access request form is needed, please make sure you provide the form template as a supporting document to the submission.",
+        default=False,
+    )
+    dac_approval_required = BooleanField(
+        "Will access require Data Access Committee (DAC) approval?",
+        description="",
+        default=False,
+    )
+    dac_approval_notes = TextAreaField(
+        "If a DAC Approval is needed please describe the required procedure.",
+        render_kw={"rows": 3},
+        description="",
+        validators=[
+            OptionalFieldValidator(
+                regex_str=r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            )
+        ],
+    )
+
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         if "sub_id" in kwargs:
@@ -295,11 +481,6 @@ class DatasetForm(FlaskForm):
         lb_lookup = [(c.code, c.label) for c in LegalBasisType.query.all()]
         self.legal_basis_sharing_std_code.choices = lb_lookup
         self.legal_basis_collection_std_code.choices = lb_lookup
-        self.legal_basis_sharing_spec_code.choices = lb_lookup
-        self.legal_basis_collection_spec_code.choices = lb_lookup
-        self.subject_category_code.choices = [
-            (c.code, c.label) for c in SubjectCategory.query.all()
-        ]
         self.de_identification_type_code.choices = [
             (c.code, c.label) for c in DeIdentificationType.query.all()
         ]
@@ -311,214 +492,14 @@ class DatasetForm(FlaskForm):
                 submission_id=self.submission_id.data
             )
         ]
-
-
-class DatasetHostedForm(DatasetForm):
-    consent_status_code = SelectField(
-        "Are the consents heterogeneous or homogeneous?",
-        description="If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous.\
-    If the consent form has stayed the same over the course of the study but it has options so that different subjects can create different restrictions on their data, then this case is also considered heterogeneous",
-        validators=[DataRequired()],
-    )
-    consent_notes = TextAreaField(
-        "Notes on consent",
-        render_kw={"rows": 3},
-        description="If the consent is Heterogeneous, please specify the data dictionary item (column) that specifies consent groups in data.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-
-    restriction_rs = BooleanField(
-        "Limited scope of research: is data consented to be used only in specific research/disease areas? E.g.  use only in Biomedical Research or Parkinson's Research etc.",
-        default=False,
-    )
-    restriction_rs_notes = TextAreaField(
-        "Notes on limited scope of research",
-        render_kw={"rows": 3},
-        description="Please describe research/disease areas restriction on data.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-
-    restriction_gs = BooleanField(
-        "Geographic restriction: Does consent contain clauses that put geographic restrictions to the sharing of data? E.g. not to be shared outside Country A, B, or EU.",
-        default=False,
-    )
-    restriction_gs_notes = TextAreaField(
-        "Notes on geographic restriction",
-        render_kw={"rows": 3},
-        description="Please describe geographic restrictions on data.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-    restriction_us = BooleanField(
-        "Restricted type of recipients: Does consent limit the type of recipient? E.g. data can be sent only to public institutions.",
-        default=False,
-    )
-    restriction_us_notes = TextAreaField(
-        "Notes on restricted type of recipients",
-        render_kw={"rows": 3},
-        description="Please describe the recipient restrictions on data.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-
-    restriction_pub = BooleanField(
-        "Publication requirements: Are there any requirements in case of publications based on the DATA? E.g. papers should cite the cohort study?",
-        default=False,
-    )
-    restriction_pub_notes = TextAreaField(
-        "Notes on publication requirements",
-        render_kw={"rows": 3},
-        description="Please describe the publication requirements.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-    restriction_ts = BooleanField(
-        "Retention time: Does consent contain clauses that put time-limits on the use of data?",
-        default=False,
-    )
-    restriction_ts_notes = TextAreaField(
-        "Notes on retention time.",
-        render_kw={"rows": 3},
-        description="Please describe the time-limit restrictions on data.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-    restriction_ps = BooleanField(
-        "Project restriction: Is the use of data limited to the recipient project?",
-        default=False,
-    )
-    restriction_ps_notes = TextAreaField(
-        "Notes on project restriction",
-        render_kw={"rows": 3},
-        description="Please describe data restrictions related to their use in different project.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-
-    restriction_ts_lcsb = BooleanField(
-        "Time limit of storage at LCSB: Is the data being sent to ELIXIR-LU/LCSB for a limited duration?",
-        default=False,
-    )
-    restriction_ts_lcsb_notes = TextAreaField(
-        "Notes on storage duration at ELIXIR-LU/LCSB",
-        render_kw={"rows": 3},
-        description="Please state the agreed end date for data's residence at ELIXIR-LU/LCSB.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-
-    restriction_rtn = BooleanField(
-        "Data return requirements: Is there a requirement to return data or documents to the database/resource?",
-        default=False,
-    )
-    restriction_rtn_notes = TextAreaField(
-        "Notes on data return requirements",
-        render_kw={"rows": 3},
-        description="Is there a requirement to return data or documents to the database/resource?",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-    restriction_other_notes = TextAreaField(
-        "Other restrictions",
-        render_kw={"rows": 3},
-        description="If there are any other restrictions on  DATA, please describe them here.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-    access_form_required = BooleanField(
-        "Will all researchers accessing the DATA need to sign an access request form?",
-        default=False,
-    )
-    dac_approval_required = BooleanField(
-        "Will access require Data Access Committee (DAC) approval?", default=False
-    )
-    dac_approval_notes = TextAreaField(
-        "Notes on DAC approval procedure",
-        render_kw={"rows": 3},
-        description="If a DAC Approval is needed please describe the required procedure.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-    restriction_ip = BooleanField(
-        "Are there any Intellectual Property (IP) retrictions/requirements when using the data?",
-        default=False,
-    )
-    restriction_ip_notes = TextAreaField(
-        "Notes on IP restrictions",
-        render_kw={"rows": 3},
-        description="If there are IP requirements please decribe them here.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
-    )
-    use_restriction_project = BooleanField(
-        "Use of DATA is limited to the RESEARCH PROJECT. Is the use of data limited to the project named in the Submission sheet?",
-        default=False,
-    )
-    use_restriction_research_use = BooleanField(
-        "Does the limitation to the RESEARCH PROJECT include the RESEARCH USE (as defined in the Consortium Agreement)?",
-        default=False,
-    )
-    data_type_bg_or_result = SelectMultipleField(
-        "Is the data Background or Results as defined in the Consortium Agreement?",
-        description="Select all that apply.",
-        choices=[],
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         self.consent_status_code.choices = [
             (c.code, c.label) for c in ConsentStatus.query.all()
         ]
         self.data_type_bg_or_result.choices = [
             (c, c) for c in app.config.get("DATA_INIT")["data_bg_or_result_types"]
         ]
+
+    def validate_last_update_date(self, field):
+        if self.creation_date.data and field.data:
+            if field.data <= self.creation_date.data:
+                raise ValidationError("Last update date must be after creation date.")

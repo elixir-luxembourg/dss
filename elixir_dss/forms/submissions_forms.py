@@ -85,7 +85,6 @@ class ContactForm(FlaskForm):
         [DataRequired(), Email("This field requires an email address.")],
         render_kw={"placeholder": "Institutional e-mail"},
     )
-
     address = TextAreaField(
         "Division/Address",
         validators=[
@@ -94,6 +93,10 @@ class ContactForm(FlaskForm):
                 message="Can only contain letters, digits, dash, comma and dot.",
             )
         ],
+    )
+    send_invite = BooleanField(
+        "Invite contact to become submitter for this submission",
+        default=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -266,12 +269,6 @@ class SubmissionForm(FlaskForm):
         ],
     )
 
-    dataset_type = SelectField(
-        "Use Case",
-        description="Please select the use case for dataset submissions. Use case 1: Data received at LCSB but not hosted. Use case 2: Data received and hosted at LCSB for reuse (requires additional fields).",
-        validators=[DataRequired()],
-    )
-
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.provider_user_ids.choices = [
@@ -308,7 +305,4 @@ class SubmissionForm(FlaskForm):
                 ),
             )
             for c in get_elu_projects()
-        ]
-        self.dataset_type.choices = [
-            (c[0], c[1]) for c in app.config.get("DATA_INIT")["dataset_types"]
         ]

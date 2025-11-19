@@ -22,7 +22,7 @@ from elixir_dss.forms.submissions_forms import (
     StudyForm,
     SubmissionForm,
 )
-from elixir_dss.forms.submission_datasets_forms import DatasetForm, DatasetHostedForm
+from elixir_dss.forms.submission_datasets_forms import DatasetForm
 from elixir_dss.models.security import Role
 
 from .validators import OptionalFieldValidator
@@ -207,7 +207,6 @@ __all__ = [
     ContactForm,
     AttachmentForm,
     DatasetForm,
-    DatasetHostedForm,
     StudyForm,
     UserForm,
     MyProfileForm,
