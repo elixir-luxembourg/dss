@@ -1,8 +1,8 @@
 {% if submission.studies %}
-    {% set can_edit = ((current_user.is_data_steward() and submission.current_status.step_num() < 5) or submission.current_status.step_num() == 1) and not submission.is_cancelled()  %}
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+{% set can_edit = ((current_user.is_data_steward() and submission.current_status.step_num() < 5) or
+    submission.current_status.step_num()==1) and not submission.is_cancelled() %} <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
             <tr>
                 <th class="fw-semibold text-dark py-3 align-middle border-end" style="background-color: #e9ecef;">
                     <i class="bi bi-journal-text me-2 text-primary"></i>Name
@@ -13,213 +13,80 @@
                 <th class="fw-semibold text-dark py-3 align-middle border-end" style="background-color: #e9ecef;">
                     <i class="bi bi-people me-2 text-primary"></i>Contacts
                 </th>
-                {% if (current_user.is_data_steward() and submission.current_status.step_num() < 5)  or submission.current_status.step_num() == 1 %}
-                    <th class="fw-semibold text-dark py-3 text-md-center align-middle" style="background-color: #e9ecef;">Actions</th>
+                {% if (current_user.is_data_steward() and submission.current_status.step_num() < 5) or
+                    submission.current_status.step_num()==1 %} <th
+                    class="fw-semibold text-dark py-3 text-md-center align-middle" style="background-color: #e9ecef;">
+                    Actions</th>
+                    {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for study in submission.studies %}
+            <tr class="border-bottom">
+                <td class="py-3">
+                    {% if can_edit %}
+                    <a href="{{ url_for('edit_submission_study', study_id=study.id) }}"
+                        class="text-dark text-decoration-none fw-semibold d-inline-flex align-items-center gap-2">
+                        <span>{{ study.name }}</span>
+                        {% if study.acronym %}<span class="text-muted small">({{ study.acronym }})</span>{% endif %}
+                    </a>
+                    {% else %}
+                    <span class="fw-semibold">{{ study.name }}</span>
+                    {% if study.acronym %}<span class="text-muted small">({{ study.acronym }})</span>{% endif %}
+                    {% endif %}
+                </td>
+                <td class="py-3">
+                    {% if study.study_feature_names %}
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for feature in study.study_feature_names %}
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary small">{{ feature
+                            }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <span class="text-muted small fst-italic">No features</span>
+                    {% endif %}
+                </td>
+                <td class="py-3">
+                    {% if study.study_contacts %}
+                    <div class="d-flex flex-column gap-1">
+                        {% for contact in study.study_contacts %}
+                        <div class="small d-flex align-items-center gap-2">
+                            <i
+                                class="bi bi-person{% if contact.is_main_contact %}-fill text-primary{% else %} text-muted{% endif %}"></i>
+                            <span>{{ contact.fullname() }}{% if contact.is_main_contact %} <span
+                                    class="badge bg-primary bg-opacity-10 text-primary border border-primary"
+                                    style="font-size: 0.65rem;">Main</span>{% endif %}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <span class="text-muted small fst-italic">No contacts</span>
+                    {% endif %}
+                </td>
+                {% if can_edit %}
+                <td class="py-3">
+                    <div class="d-flex align-items-center justify-content-end gap-2">
+                        <a href="{{ url_for('edit_submission_study', study_id=study.id) }}"
+                            class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit study">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{{ url_for('delete_submission_study', study_id=study.id) }}"
+                            class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete study"
+                            onclick="return confirm('Are you sure you want to delete this study?');">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </td>
                 {% endif %}
             </tr>
-            </thead>
-            <tbody>
-            {% for study in submission.studies %}
-                <tr class="border-bottom">
-                    <td class="py-3">
-                        {% if can_edit %}
-                            <a href="{{ url_for('edit_submission_study', study_id=study.id) }}"
-                               class="text-dark text-decoration-none fw-semibold d-inline-flex align-items-center gap-2">
-                                <span>{{ study.name }}</span>
-                                {% if study.acronym %}<span class="text-muted small">({{ study.acronym }})</span>{% endif %}
-                            </a>
-                        {% else %}
-                            <span class="fw-semibold">{{ study.name }}</span>
-                            {% if study.acronym %}<span class="text-muted small">({{ study.acronym }})</span>{% endif %}
-                        {% endif %}
-                        <button class="btn btn-sm btn-link text-muted p-0 ms-2" type="button"
-                                data-bs-toggle="collapse" data-bs-target="#studyDetails{{ study.id }}"
-                                aria-expanded="false" aria-controls="studyDetails{{ study.id }}"
-                                title="Show details">
-                            <i class="bi bi-chevron-down"></i>
-                        </button>
-                    </td>
-                    <td class="py-3">
-                        {% if study.study_feature_names %}
-                            <div class="d-flex flex-wrap gap-1">
-                                {% for feature in study.study_feature_names %}
-                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary small">{{ feature }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <span class="text-muted small fst-italic">No features</span>
-                        {% endif %}
-                    </td>
-                    <td class="py-3">
-                        {% if study.study_contacts %}
-                            <div class="d-flex flex-column gap-1">
-                                {% for contact in study.study_contacts %}
-                                    <div class="small d-flex align-items-center gap-2">
-                                        <i class="bi bi-person{% if contact.is_main_contact %}-fill text-primary{% else %} text-muted{% endif %}"></i>
-                                        <span>{{ contact.fullname() }}{% if contact.is_main_contact %} <span class="badge bg-primary bg-opacity-10 text-primary border border-primary" style="font-size: 0.65rem;">Main</span>{% endif %}</span>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <span class="text-muted small fst-italic">No contacts</span>
-                        {% endif %}
-                    </td>
-                    {% if can_edit %}
-                        <td class="py-3">
-                            <div class="d-flex align-items-center justify-content-end gap-2">
-                                <a href="{{ url_for('edit_submission_study', study_id=study.id) }}"
-                                   class="btn btn-sm btn-outline-primary"
-                                   data-bs-toggle="tooltip"
-                                   title="Edit study">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="{{ url_for('delete_submission_study', study_id=study.id) }}"
-                                   class="btn btn-sm btn-outline-danger"
-                                   data-bs-toggle="tooltip"
-                                   title="Delete study"
-                                   onclick="return confirm('Are you sure you want to delete this study?');">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    {% endif %}
-                </tr>
-                <tr class="collapse" id="studyDetails{{ study.id }}">
-                    <td colspan="{% if can_edit %}4{% else %}3{% endif %}" class="p-0">
-                        <div class="p-3 bg-light">
-                            <div class="row g-3">
-                                <div class="col-md-12">
-                                    <h6 class="fw-semibold mb-2"><i class="bi bi-info-circle me-2"></i>Overview</h6>
-                                    {% if study.description %}
-                                    <div class="mb-2"><strong>Description:</strong> {{ study.description }}</div>
-                                    {% endif %}
-                                    {% if study.website %}
-                                    <div class="mb-2"><strong>Website:</strong> <a href="{{ study.website }}" target="_blank">{{ study.website }}</a></div>
-                                    {% endif %}
-                                    {% if study.external_identifiers %}
-                                    <div class="mb-2"><strong>External IDs:</strong> {{ study.external_identifiers | join(', ') }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <h6 class="fw-semibold mb-2"><i class="bi bi-shield-check me-2"></i>Ethics & Classification</h6>
-                                    {% if study.ethics_approval_exists %}
-                                    <div class="mb-2"><i class="bi bi-check-circle text-success"></i> Ethics approval exists{% if study.ethics_approval_no %} ({{ study.ethics_approval_no }}){% endif %}</div>
-                                    {% endif %}
-                                    {% if study.multi_center_study %}
-                                    <div class="mb-2"><i class="bi bi-building"></i> Multi-center study</div>
-                                    {% endif %}
-                                    {% if study.study_characteristics %}
-                                    <div class="mb-2"><strong>Characteristics:</strong> {{ study.study_characteristics }}</div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-md-6">
-                                    <h6 class="fw-semibold mb-2"><i class="bi bi-graph-up me-2"></i>Scientific Metadata</h6>
-                                    {% if study.number_of_subjects %}
-                                    <div class="mb-2"><strong>Number of subjects:</strong> {{ study.number_of_subjects }}</div>
-                                    {% endif %}
-                                    {% if study.age_range_of_subjects %}
-                                    <div class="mb-2"><strong>Age range:</strong> {{ study.age_range_of_subjects }}</div>
-                                    {% endif %}
-                                    {% if study.informed_consent_given %}
-                                    <div class="mb-2"><i class="bi bi-file-text"></i> Informed consent given</div>
-                                    {% endif %}
-                                </div>
-
-                                {% if study.species_names or study.diseases_names or study.sample_sources_names %}
-                                <div class="col-md-12">
-                                    <h6 class="fw-semibold mb-2"><i class="bi bi-tags me-2"></i>Categories</h6>
-                                    {% if study.species_names %}
-                                    <div class="mb-2">
-                                        <strong>Species:</strong>
-                                        <div class="d-flex flex-wrap gap-1 mt-1">
-                                            {% for species in study.species_names %}
-                                                <span class="badge bg-info bg-opacity-10 text-info border border-info small">{{ species }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                    {% if study.diseases_names %}
-                                    <div class="mb-2">
-                                        <strong>Diseases/Conditions:</strong>
-                                        <div class="d-flex flex-wrap gap-1 mt-1">
-                                            {% for disease in study.diseases_names %}
-                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning small">{{ disease }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                    {% if study.sample_sources_names %}
-                                    <div class="mb-2">
-                                        <strong>Sample Sources:</strong>
-                                        <div class="d-flex flex-wrap gap-1 mt-1">
-                                            {% for source in study.sample_sources_names %}
-                                                <span class="badge bg-success bg-opacity-10 text-success border border-success small">{{ source }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                {% endif %}
-
-                                {% if study.description_of_data_subjects or study.description_of_cohorts or study.other_subject_characteristics_list %}
-                                <div class="col-md-12">
-                                    <h6 class="fw-semibold mb-2"><i class="bi bi-people me-2"></i>Cohort Details</h6>
-                                    {% if study.description_of_data_subjects %}
-                                    <div class="mb-2"><strong>Data subjects:</strong> {{ study.description_of_data_subjects }}</div>
-                                    {% endif %}
-                                    {% if study.description_of_cohorts %}
-                                    <div class="mb-2"><strong>Cohorts:</strong> {{ study.description_of_cohorts }}</div>
-                                    {% endif %}
-                                    {% if study.other_subject_characteristics_list %}
-                                    <div class="mb-2"><strong>Other characteristics:</strong> {{ study.other_subject_characteristics_list | join(', ') }}</div>
-                                    {% endif %}
-                                </div>
-                                {% endif %}
-
-                                {% if study.study_contacts %}
-                                <div class="col-md-12">
-                                    <h6 class="fw-semibold mb-2"><i class="bi bi-person-lines-fill me-2"></i>Contact Details</h6>
-                                    <div class="row g-3">
-                                        {% for contact in study.study_contacts %}
-                                        <div class="col-md-6">
-                                            <div class="p-3 border rounded bg-white h-100">
-                                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                                    <span class="fw-semibold text-dark">{{ contact.fullname() }}</span>
-                                                    {% if contact.is_main_contact %}
-                                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary">Main contact</span>
-                                                    {% endif %}
-                                                </div>
-                                                <ul class="list-unstyled mb-0 small text-muted">
-                                                    <li><i class="bi bi-envelope me-1"></i>{{ contact.email }}</li>
-                                                    {% if contact.institution %}
-                                                    <li><i class="bi bi-building me-1"></i>{{ contact.institution }}</li>
-                                                    {% endif %}
-                                                    {% if contact.contact_category %}
-                                                    <li><i class="bi bi-person-badge me-1"></i>{{ contact.contact_category.name }}</li>
-                                                    {% endif %}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    {% if study.contact_remarks %}
-                                    <div class="mt-2 small"><strong>Remarks:</strong> {{ study.contact_remarks }}</div>
-                                    {% endif %}
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </td>
-                </tr>
             {% endfor %}
-            </tbody>
-        </table>
+        </tbody>
+    </table>
     </div>
-{% else %}
+    {% else %}
     <div class="text-center py-5 text-muted">
         <i class="bi bi-journal-text fs-1 mb-3 d-block opacity-25"></i>
         <p class="mb-0">No studies declared</p>
     </div>
-{% endif %}
+    {% endif %}
