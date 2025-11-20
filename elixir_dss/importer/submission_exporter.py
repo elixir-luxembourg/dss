@@ -4,8 +4,8 @@ import re
 from io import StringIO
 
 from elixir_dss import app, db
-from elixir_dss.forms.submissions_forms import Contact, DatasetForm
-from elixir_dss.models.submission import Submission, SubmissionDataset
+from elixir_dss.forms import DatasetForm
+from elixir_dss.models.submission import Contact, Submission, SubmissionDataset
 
 
 class SubmissionExporter:
@@ -20,9 +20,6 @@ class SubmissionExporter:
             self.objects = objects
         else:
             self.objects = None
-
-    # def set_objects(objects):
-    #     self.objects = objects
 
     def export_to_file(self, file_handle, stop_on_error=False, verbose=False):
         result = True
@@ -45,11 +42,6 @@ class SubmissionExporter:
             except Exception as e:
                 app.logger.error(f"Export failed for submission {submission_ref_name}")
                 app.logger.error(str(e))
-                # if verbose:
-                #     import traceback
-                #     ex = traceback.format_exception(*sys.exc_info())
-                #     logger.error('\n'.join([e for e in ex]))
-                # if stop_on_error:
                 raise e
             json.dump(
                 {
@@ -62,22 +54,6 @@ class SubmissionExporter:
             submission.exported = True
             db.session.add(submission)
             db.session.commit()
-            # submission_attachments = SubmissionAttachment.query.filter_by(submission_id=submission.id).all()
-            # for attachment in submission_attachments:
-            #
-            #     try:
-            #         path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachment.folder_name)
-            #         attachment_folder_name = os.path.join(export_directory, attachment.folder_name)
-            #         if not os.path.exists(attachment_folder_name):
-            #             os.makedirs(attachment_folder_name)
-            #         attachment_file = os.path.join(path_on_server, attachment.file_names)
-            #         os.popen('cp ' + attachment_file + ' ' + attachment_folder_name)
-            #
-            #     except OSError as err:
-            #         err.extend(err.args[0])
-
-            # shutil.make_archive(export_directory, 'zip', export_directory)
-            # app.logger.info("Created zip file")
         return buffer
 
     def export_submission(self, sub: Submission) -> dict:
@@ -145,11 +121,12 @@ class SubmissionExporter:
             dataset_info = {}
 
             dataset_info["title"] = dataset.title
-
-            dataset_info["use_restrictions"] = self.export_dataset_restrictions(dataset)
-
-            if dataset.restriction_ts_lcsb:
-                dataset_info["storage_end_date"] = dataset.restriction_ts_lcsb_notes
+            dataset_info["creator_name"] = dataset.creator_name
+            dataset_info["creator_email"] = dataset.creator_email
+            dataset_info["creator_institution"] = dataset.creator_institution
+            dataset_info["creator_role"] = dataset.creator_role
+            dataset_info["description"] = dataset.description
+            dataset_info["external_identifiers"] = dataset.external_identifiers
 
             dataset_info["source_study"] = dataset.study.name
             dataset_info["legal_basis_data_collection_std"] = (
@@ -158,14 +135,28 @@ class SubmissionExporter:
             dataset_info["legal_basis_data_sharing_std"] = (
                 dataset.legal_basis_sharing_std.label
             )
-            dataset_info["legal_basis_data_collection_spec"] = (
-                dataset.legal_basis_collection_std.label
-            )
-            dataset_info["legal_basis_data_sharing_spec"] = (
-                dataset.legal_basis_sharing_std.label
-            )
-            dataset_info["legal_basis_notes"] = dataset.legal_basis_notes
 
+            dataset_info["data_types"] = dataset.sci_data_type_names()
+            dataset_info["gdpr_datatypes"] = dataset.gdpr_data_type_names()
+            dataset_info["gdpr_datatypes_notes"] = dataset.gdpr_datatypes_notes
+            dataset_info["is_special_category_data"] = dataset.is_special_category_data
+            dataset_info["has_art92_derogation"] = dataset.has_art92_derogation
+
+            if dataset.sci_datatypes_notes:
+                dataset_info["sci_datatypes_notes"] = dataset.sci_datatypes_notes
+
+            dataset_info["has_special_subjects"] = dataset.has_special_subjects
+            dataset_info["special_subject_notes"] = dataset.special_subjects_notes
+
+            dataset_info["de_identification"] = (
+                dataset.de_identification_type.label.lower()
+            )
+
+            dataset_info["use_restrictions"] = self.export_dataset_restrictions(
+                dataset, sub
+            )
+            if dataset.restriction_ts_lcsb:
+                dataset_info["storage_end_date"] = dataset.restriction_ts_lcsb_date
             if dataset.dac_approval_required:
                 if dataset.access_form_required:
                     dataset_info["access_category"] = "open-access"
@@ -181,38 +172,40 @@ class SubmissionExporter:
                 dataset_info["access_category"] = "controlled-access"
                 dataset_info["access_procedure"] = dataset.dac_approval_notes
 
-            dataset_info["data_types"] = dataset.sci_data_type_names()
-            dataset_info["gdpr_datatypes"] = dataset.gdpr_data_type_names()
-            dataset_info["gdpr_datatypes_notes"] = dataset.gdpr_datatypes_notes
-
-            if dataset.sci_datatypes_notes:
-                dataset_info["sci_datatypes_notes"] = dataset.sci_datatypes_notes
-
-            dataset_info["has_special_subjects"] = dataset.has_special_subjects
-            dataset_info["special_subject_notes"] = dataset.special_subjects_notes
-
-            if dataset.has_samples:
-                dataset_info["data_types"].append("Samples")
-                if dataset.sci_datatypes_notes:
-                    dataset_info["data_types_notes"] = (
-                        dataset_info.get("data_types_notes", "")
-                        + " Notes on samples: "
-                        + dataset.sci_datatypes_notes
-                    )
-
             dataset_info["consent_status"] = dataset.consent_status.label.lower()
             if dataset.consent_notes:
                 dataset_info["consent_notes"] = dataset.consent_notes
-            dataset_info["de_identification"] = (
-                dataset.de_identification_type.label.lower()
-            )
-            dataset_info["subject_categories"] = dataset.subject_category.label.lower()
-            # use_restrictions = []
-            # for duc_instance in dataset.duc_codes:
-            #     use_restrictions.append({'ga4gh_code': duc_instance.ga4gh_code,
-            #                              'note': duc_instance.note})
-            # if use_restrictions:
-            #     dataset_info['use_restrictions'] = use_restrictions
+
+            # Technical metadata
+            if dataset.number_of_records:
+                dataset_info["number_of_records"] = dataset.number_of_records
+            if dataset.dataset_version:
+                dataset_info["dataset_version"] = dataset.dataset_version
+            if dataset.creation_date:
+                dataset_info["creation_date"] = dataset.creation_date.isoformat()
+            if dataset.last_update_date:
+                dataset_info["last_update_date"] = dataset.last_update_date.isoformat()
+            if dataset.data_standards_json:
+                dataset_info["data_standards"] = dataset.data_standard_names()
+            if dataset.file_types_json:
+                dataset_info["file_types"] = dataset.file_type_names()
+            if dataset.byte_size:
+                dataset_info["byte_size"] = dataset.byte_size
+            if dataset.sample_types_json:
+                dataset_info["sample_types"] = dataset.sample_type_names()
+
+            # Specific data use conditions
+            if dataset.use_restriction_project:
+                dataset_info["use_restriction_project"] = (
+                    dataset.use_restriction_project
+                )
+            if dataset.use_restriction_research_use:
+                dataset_info["use_restriction_research_use"] = (
+                    dataset.use_restriction_research_use
+                )
+            if dataset.data_type_bg_or_result:
+                dataset_info["data_type_bg_or_result"] = dataset.data_type_bg_or_result
+
             dataset_list.append(dataset_info)
         return dataset_list
 
@@ -238,18 +231,6 @@ class SubmissionExporter:
 
             legal_bases.append(legal_base_info_collection_std)
 
-            legal_base_info_collection_spec = {}
-            legal_base_info_collection_spec["data_declarations"] = dataset.title
-            legal_base_info_collection_spec["legal_basis_codes"] = parse_label(
-                dataset.legal_basis_collection_spec.label
-            )
-            legal_base_info_collection_spec["personal_data_codes"] = "Special"
-            legal_base_info_collection_spec["legal_basis_notes"] = (
-                dataset_form.legal_basis_collection_spec_code.label.text
-            )
-
-            legal_bases.append(legal_base_info_collection_spec)
-
             legal_base_info_sharing_std = {}
             legal_base_info_sharing_std["data_declarations"] = dataset.title
             legal_base_info_sharing_std["legal_basis_codes"] = parse_label(
@@ -262,32 +243,22 @@ class SubmissionExporter:
 
             legal_bases.append(legal_base_info_sharing_std)
 
-            legal_base_info_sharing_spec = {}
-            legal_base_info_sharing_spec["data_declarations"] = dataset.title
-            legal_base_info_sharing_spec["legal_basis_codes"] = parse_label(
-                dataset.legal_basis_sharing_spec.label
-            )
-            legal_base_info_sharing_spec["personal_data_codes"] = "Special"
-            legal_base_info_sharing_spec["legal_basis_notes"] = (
-                dataset_form.legal_basis_sharing_spec_code.label.text
-            )
-
-            legal_bases.append(legal_base_info_sharing_spec)
-
         return legal_bases
 
     @staticmethod
-    def export_dataset_restrictions(dataset: SubmissionDataset) -> list[dict]:
+    def export_dataset_restrictions(
+        dataset: SubmissionDataset, submission: Submission
+    ) -> list[dict]:
         restriction_list = []
 
         restriction_codes = {
             "rs": "RS-[XX]",
             "gs": "GS-[XX]",
+            "user_specific": "US",
             "us": "US",
             "pub": "PUB",
             "rtn": "RTN",
             "ip": "IP",
-            "ps": "PS",
             "ts_lcsb": "TS-[XX]",
             "ts": "TS-[XX]",
         }
@@ -303,9 +274,15 @@ class SubmissionExporter:
             restriction_dict["use_class_note"] = getattr(
                 dataset_form, f"restriction_{field_prefix}"
             ).label.text
-            restriction_dict["use_restriction_note"] = getattr(
-                dataset, f"restriction_{field_prefix}_notes"
-            )
+
+            if field_prefix == "ts_lcsb":
+                restriction_dict["use_restriction_note"] = getattr(
+                    dataset, f"restriction_{field_prefix}_date"
+                )
+            else:
+                restriction_dict["use_restriction_note"] = getattr(
+                    dataset, f"restriction_{field_prefix}_notes"
+                )
 
             restriction_list.append(restriction_dict)
 

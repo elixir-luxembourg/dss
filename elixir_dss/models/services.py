@@ -721,6 +721,8 @@ def invite_submitters(submission: Submission, contacts: list[Contact]):
     users_for_invitation = []
 
     for contact in contacts:
+        if contact.send_invite is False:
+            continue
         user = User.query.filter_by(email=contact.email).first()
         if not user:
             user = User(

@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import uuid
-from datetime import datetime, UTC, timezone
+from datetime import date, datetime, UTC, timezone
 
 from flask import (
     flash,
@@ -807,14 +807,34 @@ def add_submission_dataset(sub_id):
                 dataset.gdpr_datatypes_json = json.dumps(
                     posted_form.gdpr_datatypes.data
                 )
-            dataset.external_id = generate_id(dataset.title)
+            if posted_form.data_standards.data:
+                dataset.data_standards_json = json.dumps(
+                    posted_form.data_standards.data
+                )
+            if posted_form.file_types.data:
+                dataset.file_types_json = json.dumps(posted_form.file_types.data)
+            if posted_form.sample_types.data:
+                dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
+            if (
+                hasattr(posted_form, "data_type_bg_or_result")
+                and posted_form.data_type_bg_or_result.data
+            ):
+                dataset.data_type_bg_or_result = json.dumps(
+                    posted_form.data_type_bg_or_result.data
+                )
+            else:
+                dataset.data_type_bg_or_result = None
+            dataset.internal_id = generate_id(dataset.title)
+            dataset.creation_date = date.today()
+            dataset.last_update_date = date.today()
             db.session.add(dataset)
             db.session.commit()
             flash("Dataset added", "success")
             return redirect(url_for("view_submission", sub_id=dataset.submission_id))
         else:
             return render_template(
-                "submission/dataset_form.html", dataset_form=posted_form
+                "submission/dataset_form.html",
+                dataset_form=posted_form,
             ), 400
 
 
@@ -835,33 +855,63 @@ def edit_submission_dataset(dataset_id):
             result_form.sci_datatypes.data = json.loads(dataset.sci_datatypes_json)
         if dataset.gdpr_datatypes_json:
             result_form.gdpr_datatypes.data = json.loads(dataset.gdpr_datatypes_json)
+        if dataset.data_standards_json:
+            result_form.data_standards.data = json.loads(dataset.data_standards_json)
+        if dataset.file_types_json:
+            result_form.file_types.data = json.loads(dataset.file_types_json)
+        if dataset.sample_types_json:
+            result_form.sample_types.data = json.loads(dataset.sample_types_json)
+        if (
+            hasattr(result_form, "data_type_bg_or_result")
+            and dataset.data_type_bg_or_result
+        ):
+            result_form.data_type_bg_or_result.data = json.loads(
+                dataset.data_type_bg_or_result
+            )
         return render_template(
-            "submission/dataset_form.html", dataset_form=result_form
+            "submission/dataset_form.html",
+            dataset_form=result_form,
         ), 200
     elif request.method == "POST":
+        dataset = SubmissionDataset.query.get_or_404(dataset_id)
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
-            dataset = SubmissionDataset.query.get_or_404(dataset_id)
             posted_form.populate_obj(dataset)
 
             if posted_form.sci_datatypes.data:
                 dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
-
             if posted_form.gdpr_datatypes.data:
                 dataset.gdpr_datatypes_json = json.dumps(
                     posted_form.gdpr_datatypes.data
                 )
-
-            if not dataset.external_id:
-                dataset.external_id = generate_id(dataset.title)
-
+            if posted_form.data_standards.data:
+                dataset.data_standards_json = json.dumps(
+                    posted_form.data_standards.data
+                )
+            if posted_form.file_types.data:
+                dataset.file_types_json = json.dumps(posted_form.file_types.data)
+            if posted_form.sample_types.data:
+                dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
+            if (
+                hasattr(posted_form, "data_type_bg_or_result")
+                and posted_form.data_type_bg_or_result.data
+            ):
+                dataset.data_type_bg_or_result = json.dumps(
+                    posted_form.data_type_bg_or_result.data
+                )
+            else:
+                dataset.data_type_bg_or_result = None
+            if not dataset.internal_id:
+                dataset.internal_id = generate_id(dataset.title)
+            dataset.last_update_date = date.today()
             db.session.add(dataset)
             db.session.commit()
             flash("Dataset updated", "success")
             return redirect(url_for("view_submission", sub_id=dataset.submission_id))
         else:
             return render_template(
-                "submission/dataset_form.html", dataset_form=posted_form
+                "submission/dataset_form.html",
+                dataset_form=posted_form,
             ), 400
 
 

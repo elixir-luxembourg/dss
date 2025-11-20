@@ -10,6 +10,7 @@ from elixir_dss.models.submission import (
     ContactType,
     Submission,
     SubmissionAccess,
+    SubmissionAttachment,
     SubmissionDataset,
     SubmissionStatusEnum,
     SubmissionStudy,
@@ -55,13 +56,18 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     title = factory.Faker("sentence", nb_words=3)
+    creator_name = factory.Faker("name")
+    creator_email = factory.Faker("email")
+    creator_institution = factory.Faker("company")
+    creator_role = "Principal Investigator"
+    description = factory.Faker("text", max_nb_chars=200)
     gdpr_datatypes_json = '["genetic"]'
     sci_datatypes_json = '["genomics"]'
     de_identification_type_code = "p"
     legal_basis_collection_std_code = "61a"
     legal_basis_sharing_std_code = "61a"
-    legal_basis_collection_spec_code = "61a"
-    legal_basis_sharing_spec_code = "61a"
+    is_special_category_data = False
+    consent_status_code = "hm"
 
 
 class SubmissionStudyFactory(factory.alchemy.SQLAlchemyModelFactory):
@@ -121,3 +127,22 @@ class SubmissionAccessFactory(SQLAlchemyModelFactory):
     submission_id = factory.SubFactory(SubmissionFactory)
     user_id = factory.SubFactory(UserFactory)
     access_granted_on = factory.LazyFunction(date.today)
+
+
+class SubmissionAttachmentFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = SubmissionAttachment
+        sqlalchemy_session = db.session
+        sqlalchemy_session_persistence = "commit"
+
+    submission_id = factory.SubFactory(SubmissionFactory)
+    note = factory.Faker("sentence", nb_words=6)
+    folder_name = factory.Faker("uuid4")
+    file_names = factory.LazyAttribute(
+        lambda obj: " ".join(
+            [
+                factory.Faker("file_name").evaluate(None, None, {"locale": None})
+                for _ in range(2)
+            ]
+        )
+    )

@@ -30,7 +30,7 @@ class TestLFTHandler(unittest.TestCase):
 
         handler = LFTHandler(self.app)
         with self.assertRaises(RuntimeError):
-            handler.get_or_create_link(Mock(id="ds3", external_id="EXT_003"), "SUB_003")
+            handler.get_or_create_link(Mock(id="ds3", internal_id="EXT_003"), "SUB_003")
 
     def test_init_missing_config(self):
         app = Flask(__name__)
@@ -53,7 +53,7 @@ class TestLFTHandler(unittest.TestCase):
 
         handler = LFTHandler(self.app)
         result = handler.get_or_create_link(
-            Mock(id="ds2", external_id="EXT_002"), "SUB_002"
+            Mock(id="ds2", internal_id="EXT_002"), "SUB_002"
         )
 
         self.assertEqual(result.id, "new_id")
@@ -74,7 +74,7 @@ class TestLFTHandler(unittest.TestCase):
 
         handler = LFTHandler(self.app)
         result = handler.get_or_create_link(
-            Mock(id="ds1", external_id="EXT_001"), "SUB_001"
+            Mock(id="ds1", internal_id="EXT_001"), "SUB_001"
         )
 
         self.assertEqual(result.id, "link_id")
@@ -98,7 +98,7 @@ class TestLFTHandler(unittest.TestCase):
 
         handler = LFTHandler(self.app)
         result = handler.get_or_create_link(
-            Mock(id="ds4", external_id="EXT_004"), "SUB_004"
+            Mock(id="ds4", internal_id="EXT_004"), "SUB_004"
         )
 
         self.assertEqual(result.id, "new_id")
@@ -111,12 +111,12 @@ class TestLFTHandler(unittest.TestCase):
         handler = LFTHandler(self.app)
 
         with self.assertRaises(RuntimeError) as context:
-            handler.get_or_create_link(Mock(id="ds5", external_id=None), "SUB_005")
-        self.assertIn("Dataset external_id is required", str(context.exception))
+            handler.get_or_create_link(Mock(id="ds5", internal_id=None), "SUB_005")
+        self.assertIn("Dataset internal_id is required", str(context.exception))
         mock_client.login.assert_called_once()
 
         mock_client.reset_mock()
         with self.assertRaises(RuntimeError) as context:
-            handler.get_or_create_link(Mock(id="ds6", external_id=""), "SUB_006")
-        self.assertIn("Dataset external_id is required", str(context.exception))
+            handler.get_or_create_link(Mock(id="ds6", internal_id=""), "SUB_006")
+        self.assertIn("Dataset internal_id is required", str(context.exception))
         mock_client.login.assert_called_once()

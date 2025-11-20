@@ -198,6 +198,11 @@ class ControllersTest(BaseIntegrationTest):
                 "submission_id": submission.id,
                 "title": "Test_Dataset",
                 "study_id": study.id,
+                "creator_name": "John Doe",
+                "creator_email": "john.doe@example.com",
+                "creator_institution": "Test University",
+                "creator_role": "Principal Investigator",
+                "description": "Test dataset description",
                 "gdpr_datatypes": ["genetic"],
                 "sci_datatypes": ["Whole_genome_sequencing"],
                 "de_identification_type_code": "p",
@@ -214,7 +219,7 @@ class ControllersTest(BaseIntegrationTest):
 
         dataset = SubmissionDataset.query.filter_by(submission_id=submission.id).first()
         self.assertIsNotNone(dataset)
-        self.assertIsNotNone(dataset.external_id)
+        self.assertIsNotNone(dataset.internal_id)
         self.assertEqual("Test_Dataset", dataset.title)
 
     def test_delete_submission(self):
@@ -274,10 +279,10 @@ class ControllersTest(BaseIntegrationTest):
         update_submission_basic_info(sub, provider_user_ids=[user.id])
 
         SubmissionDatasetFactory(
-            submission_id=sub.id, external_id="ds1", study_id=study.id
+            submission_id=sub.id, internal_id="ds1", study_id=study.id
         )
         SubmissionDatasetFactory(
-            submission_id=sub.id, external_id="ds2", study_id=study.id
+            submission_id=sub.id, internal_id="ds2", study_id=study.id
         )
         db.session.flush()
 

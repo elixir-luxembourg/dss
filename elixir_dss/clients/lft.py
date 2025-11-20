@@ -79,9 +79,9 @@ class LFTHandler:
         except LFTClientException as e:
             raise RuntimeError("LFT login failed") from e
 
-        share_name = dataset.external_id
+        share_name = dataset.internal_id
         if not share_name:
-            raise RuntimeError("Dataset external_id is required for LFT link")
+            raise RuntimeError("Dataset internal_id is required for LFT link")
 
         try:
             links = self.client.links_list(
@@ -131,14 +131,14 @@ class LFTHandler:
             return
 
         for ds in datasets:
-            if not ds.external_id:
+            if not ds.internal_id:
                 continue
 
             try:
                 links = (
                     self.client.links_list(
                         namespace_id=self.namespace_id,
-                        share_name=ds.external_id,
+                        share_name=ds.internal_id,
                         sub=None,
                     )
                     or []
@@ -146,7 +146,7 @@ class LFTHandler:
                 for lk in links:
                     self.client.delete_link(
                         namespace_id=self.namespace_id,
-                        share_name=ds.external_id,
+                        share_name=ds.internal_id,
                         link=lk.hashid,
                     )
             except Exception as e:

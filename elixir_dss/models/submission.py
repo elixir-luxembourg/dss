@@ -293,6 +293,8 @@ class Contact(db.Model):
     submission_id = db.Column(db.Integer, db.ForeignKey("submissions.id"))
     submission = db.relationship("Submission", back_populates="submission_contacts")
 
+    send_invite = db.Column(db.Boolean, nullable=False, default=False)
+
     def fullname(self):
         return self.firstname + " " + self.lastname.upper()
 
@@ -393,7 +395,7 @@ class SubmissionDataset(db.Model):
     __tablename__ = "submission_dataset"
 
     id = db.Column(db.Integer, primary_key=True)
-    external_id = db.Column(db.String(20), unique=True, nullable=True)
+    internal_id = db.Column(db.String(20), unique=True, nullable=True)
     title = db.Column(db.String, nullable=False)
     submission_id = db.Column(
         db.Integer, db.ForeignKey("submissions.id"), nullable=False
@@ -402,6 +404,14 @@ class SubmissionDataset(db.Model):
         db.Integer, db.ForeignKey("submission_study.id"), nullable=False
     )
     study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
+
+    creator_name = db.Column(db.String, nullable=False)
+    creator_email = db.Column(db.String, nullable=False)
+    creator_institution = db.Column(db.String, nullable=False)
+    creator_role = db.Column(db.String, nullable=False)
+
+    description = db.Column(db.String, nullable=False)
+    external_identifiers = db.Column(db.String, nullable=True)
 
     gdpr_datatypes_json = db.Column(db.String, nullable=False)
     gdpr_datatypes_notes = db.Column(db.String, nullable=True)
@@ -417,9 +427,6 @@ class SubmissionDataset(db.Model):
     )
     de_identification_type = db.relationship("DeIdentificationType")
 
-    has_samples = db.Column(db.Boolean, nullable=False, default=False)
-    samples_notes = db.Column(db.String, nullable=True)
-
     legal_basis_collection_std_code = db.Column(
         db.String, db.ForeignKey("legalbasis_type.code"), nullable=False, default="61a"
     )
@@ -434,28 +441,7 @@ class SubmissionDataset(db.Model):
         "LegalBasisType", foreign_keys=[legal_basis_sharing_std_code]
     )
 
-    legal_basis_collection_spec_code = db.Column(
-        db.String, db.ForeignKey("legalbasis_type.code"), nullable=False, default="61a"
-    )
-    legal_basis_collection_spec = db.relationship(
-        "LegalBasisType", foreign_keys=[legal_basis_collection_spec_code]
-    )
-
-    legal_basis_sharing_spec_code = db.Column(
-        db.String, db.ForeignKey("legalbasis_type.code"), nullable=False, default="61a"
-    )
-    legal_basis_sharing_spec = db.relationship(
-        "LegalBasisType", foreign_keys=[legal_basis_sharing_spec_code]
-    )
-
-    legal_basis_notes = db.Column(db.String, nullable=True)
-
-    subject_category_code = db.Column(
-        db.String, db.ForeignKey("subject_category.code"), nullable=False, default="ca"
-    )
-    subject_category = db.relationship(
-        "SubjectCategory", foreign_keys=[subject_category_code]
-    )
+    is_special_category_data = db.Column(db.Boolean, nullable=False, default=False)
 
     has_special_subjects = db.Column(db.Boolean, nullable=False, default=False)
     special_subjects_notes = db.Column(db.String, nullable=True)
@@ -468,10 +454,19 @@ class SubmissionDataset(db.Model):
     )
     consent_notes = db.Column(db.String, nullable=True)
 
+    # GDPR Art 9.2 legitimation
+    has_art92_derogation = db.Column(db.Boolean, nullable=False, default=False)
+
+    use_restriction_project = db.Column(db.Boolean, nullable=False, default=False)
+    use_restriction_research_use = db.Column(db.Boolean, nullable=False, default=False)
+    data_type_bg_or_result = db.Column(db.String, nullable=True)
+
     restriction_rs = db.Column(db.Boolean, nullable=False, default=False)
     restriction_rs_notes = db.Column(db.String, nullable=True)
     restriction_gs = db.Column(db.Boolean, nullable=False, default=False)
     restriction_gs_notes = db.Column(db.String, nullable=True)
+    restriction_user_specific = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_user_specific_notes = db.Column(db.String, nullable=True)
     restriction_us = db.Column(db.Boolean, nullable=False, default=False)
     restriction_us_notes = db.Column(db.String, nullable=True)
     restriction_pub = db.Column(db.Boolean, nullable=False, default=False)
@@ -479,10 +474,8 @@ class SubmissionDataset(db.Model):
     restriction_ts = db.Column(db.Boolean, nullable=False, default=False)
     restriction_ts_notes = db.Column(db.String, nullable=True)
 
-    restriction_ps = db.Column(db.Boolean, nullable=False, default=False)
-    restriction_ps_notes = db.Column(db.String, nullable=True)
     restriction_ts_lcsb = db.Column(db.Boolean, nullable=False, default=False)
-    restriction_ts_lcsb_notes = db.Column(db.String, nullable=True)
+    restriction_ts_lcsb_date = db.Column(db.Date, nullable=True)
 
     restriction_rtn = db.Column(db.Boolean, nullable=False, default=False)
     restriction_rtn_notes = db.Column(db.String, nullable=True)
@@ -492,6 +485,16 @@ class SubmissionDataset(db.Model):
     dac_approval_notes = db.Column(db.String, nullable=True)
     restriction_ip = db.Column(db.Boolean, nullable=False, default=False)
     restriction_ip_notes = db.Column(db.String, nullable=True)
+
+    # Technical metadata
+    number_of_records = db.Column(db.Integer, nullable=True)
+    dataset_version = db.Column(db.String, nullable=True)
+    creation_date = db.Column(db.Date, nullable=True)
+    last_update_date = db.Column(db.Date, nullable=True)
+    data_standards_json = db.Column(db.String, nullable=True)
+    file_types_json = db.Column(db.String, nullable=True)
+    byte_size = db.Column(db.String, nullable=True)
+    sample_types_json = db.Column(db.String, nullable=True)
 
     def sci_data_type_names(self):
         if self.sci_datatypes_json is not None:
@@ -505,6 +508,39 @@ class SubmissionDataset(db.Model):
         else:
             return []
 
+    def data_standard_names(self):
+        if self.data_standards_json is not None:
+            return json.loads(self.data_standards_json)
+        else:
+            return []
+
+    def file_type_names(self):
+        if self.file_types_json is not None:
+            return json.loads(self.file_types_json)
+        else:
+            return []
+
+    def sample_type_names(self):
+        if self.sample_types_json is not None:
+            return json.loads(self.sample_types_json)
+        else:
+            return []
+
+    def has_special_category_data(self):
+        if self.gdpr_datatypes_json is not None:
+            gdpr_types = json.loads(self.gdpr_datatypes_json)
+            special_categories = [
+                "ethnic",
+                "genetic",
+                "biometric",
+                "health",
+                "sex",
+                "criminal",
+                "other",
+            ]
+            return any(cat in str(gdpr_types).lower() for cat in special_categories)
+        return False
+
     def has_special_subjects_display(self):
         if self.has_special_subjects:
             return "Yes"
@@ -514,30 +550,44 @@ class SubmissionDataset(db.Model):
     def to_dict(self):
         base_dict = {
             "title": self.title,
+            "creator_name": self.creator_name,
+            "creator_email": self.creator_email,
+            "creator_institution": self.creator_institution,
+            "creator_role": self.creator_role,
+            "description": self.description,
+            "external_identifiers": self.external_identifiers,
             "gdpr_datatypes_json": self.gdpr_datatypes_json,
             "gdpr_datatypes_notes": self.gdpr_datatypes_notes,
             "sci_datatypes_json": self.sci_datatypes_json,
             "sci_datatypes_notes": self.sci_datatypes_notes,
             "de_identification_type_code": self.de_identification_type_code,
             "de_identification_type": self.de_identification_type,
-            "has_samples": self.has_samples,
-            "samples_notes": self.samples_notes,
             "legal_basis_collection_std_code": self.legal_basis_collection_std_code,
             "legal_basis_collection_std": self.legal_basis_collection_std,
             "legal_basis_sharing_std_code": self.legal_basis_sharing_std_code,
             "legal_basis_sharing_std": self.legal_basis_sharing_std,
-            "legal_basis_collection_spec_code": self.legal_basis_collection_spec_code,
-            "legal_basis_collection_spec": self.legal_basis_collection_spec,
-            "legal_basis_sharing_spec_code": self.legal_basis_sharing_spec_code,
-            "legal_basis_sharing_spec": self.legal_basis_sharing_spec,
-            "legal_basis_notes": self.legal_basis_notes,
-            "subject_category_code": self.subject_category_code,
-            "subject_category": self.subject_category,
+            "is_special_category_data": self.is_special_category_data,
             "has_special_subjects": self.has_special_subjects,
             "special_subjects_notes": self.special_subjects_notes,
             "consent_status_code": self.consent_status_code,
             "consent_status": self.consent_status,
             "consent_notes": self.consent_notes,
+            "has_art92_derogation": self.has_art92_derogation,
+            "use_restriction_project": self.use_restriction_project,
+            "use_restriction_research_use": self.use_restriction_research_use,
+            "data_type_bg_or_result": self.data_type_bg_or_result,
+            "number_of_records": self.number_of_records,
+            "dataset_version": self.dataset_version,
+            "creation_date": self.creation_date.isoformat()
+            if self.creation_date
+            else None,
+            "last_update_date": self.last_update_date.isoformat()
+            if self.last_update_date
+            else None,
+            "data_standards_json": self.data_standards_json,
+            "file_types_json": self.file_types_json,
+            "byte_size": self.byte_size,
+            "sample_types_json": self.sample_types_json,
         }
         return base_dict
 

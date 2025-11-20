@@ -144,6 +144,54 @@ $(document).ready(function () {
 
     bind_widgets();
 
+    function toggleNotesField(checkboxId, notesFieldId) {
+        const checkbox = $('#' + checkboxId);
+        const notesField = $('#' + notesFieldId);
+        if (checkbox.length && notesField.length) {
+            const notesWrapper = notesField.closest('.mb-3');
+            function updateVisibility() {
+                if (checkbox.is(':checked')) {
+                    notesWrapper.show();
+                } else {
+                    notesWrapper.hide();
+                }
+            }
+            updateVisibility();
+            checkbox.on('change', updateVisibility);
+        }
+    }
+    toggleNotesField('restriction_rs', 'restriction_rs_notes');
+    toggleNotesField('restriction_gs', 'restriction_gs_notes');
+    toggleNotesField('restriction_user_specific', 'restriction_user_specific_notes');
+    toggleNotesField('restriction_ts', 'restriction_ts_notes');
+    toggleNotesField('restriction_ts_lcsb', 'restriction_ts_lcsb_date');
+    toggleNotesField('restriction_pub', 'restriction_pub_notes');
+    toggleNotesField('restriction_rtn', 'restriction_rtn_notes');
+    toggleNotesField('restriction_us', 'restriction_us_notes');
+    toggleNotesField('restriction_ip', 'restriction_ip_notes');
+    toggleNotesField('dac_approval_required', 'dac_approval_notes');
+    toggleNotesField('has_special_subjects', 'special_subjects_notes');
+
+    function toggleNotesForMultiSelectFields(selectId, notesFieldId, triggerValue) {
+        const select = $('#' + selectId);
+        const notesField = $('#' + notesFieldId);
+        if (select.length && notesField.length) {
+            const notesWrapper = notesField.closest('.mb-3');
+            function updateVisibility() {
+                const selectedValues = select.val() || [];
+                if (selectedValues.includes(triggerValue)) {
+                    notesWrapper.show();
+                } else {
+                    notesWrapper.hide();
+                }
+            }
+            updateVisibility();
+            select.on('change', updateVisibility);
+        }
+    }
+    toggleNotesForMultiSelectFields('sci_datatypes', 'sci_datatypes_notes', 'Other');
+    toggleNotesForMultiSelectFields('gdpr_datatypes', 'gdpr_datatypes_notes', 'Other special categories of data');
+
     $('#submission_create_modal').on('shown.bs.modal', function () {
         $(this).find('.elx-select').select2({
             theme: 'bootstrap-5',
