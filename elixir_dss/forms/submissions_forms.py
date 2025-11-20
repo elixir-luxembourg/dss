@@ -352,7 +352,7 @@ class SubmissionForm(FlaskForm):
     local_project_name = SelectField(
         "Recipient project",
         description="If you are making this submission in the context of a  collaboration/project, please specif its name here.",
-        validators=[DataRequired()],
+        coerce=str,
     )
 
     institution_accession = SelectField(

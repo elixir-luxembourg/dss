@@ -556,9 +556,7 @@ def edit_submission(sub_id):
                 local_custodians_json=json.dumps(form.local_custodians.data),
                 local_project_name=form.local_project_name.data,
                 institution_accession=form.institution_accession.data,
-                provider_user_ids=form.provider_user_ids.data
-                if request.form.get("provider_user_ids")
-                else None,
+                provider_user_ids=form.provider_user_ids.data,
             )
 
             if current_user.is_data_steward():
