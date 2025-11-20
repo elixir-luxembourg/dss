@@ -278,10 +278,11 @@ class Contact(db.Model):
     __tablename__ = "contacts"
 
     id = db.Column(db.Integer, primary_key=True)
-    firstname = db.Column(db.String, nullable=False)
-    lastname = db.Column(db.String, nullable=False)
+    first_name = db.Column(db.String, nullable=False)
+    last_name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
-    address = db.Column(db.String)
+    institution = db.Column(db.String, nullable=True)
+    is_main_contact = db.Column(db.Boolean, nullable=False, default=False)
     category_id = db.Column(
         db.Integer, db.ForeignKey("contact_types.id"), nullable=False
     )
@@ -296,15 +297,16 @@ class Contact(db.Model):
     send_invite = db.Column(db.Boolean, nullable=False, default=False)
 
     def fullname(self):
-        return self.firstname + " " + self.lastname.upper()
+        return self.first_name + " " + self.last_name.upper()
 
     def to_dict(self):
         base_dict = {
-            "first_name": self.firstname,
-            "last_name": self.lastname,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
             "email": self.email,
-            "role": self.contact_category.name,
-            "address": self.address,
+            "institution": self.institution,
+            "is_main_contact": self.is_main_contact,
+            "category": self.contact_category.name if self.contact_category else None,
         }
         return base_dict
 
@@ -347,38 +349,69 @@ class SubmissionStudy(db.Model):
         db.Integer, db.ForeignKey("submissions.id"), nullable=False
     )
     name = db.Column(db.String, nullable=False)
+    acronym = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=False)
+    external_identifiers_json = db.Column(db.String, nullable=True)
     website = db.Column(db.String, nullable=True)
     ethics_approval_exists = db.Column(db.Boolean, nullable=False, default=False)
     ethics_approval_no = db.Column(db.String, nullable=True)
     study_types_json = db.Column(db.String, nullable=False)
-
+    multi_center_study = db.Column(db.Boolean, nullable=False, default=False)
+    study_characteristics = db.Column(db.Text, nullable=True)
+    species_json = db.Column(db.String, nullable=True)
+    diseases_json = db.Column(db.String, nullable=True)
+    number_of_subjects = db.Column(db.Integer, nullable=True)
+    sample_sources_json = db.Column(db.String, nullable=True)
+    description_of_data_subjects = db.Column(db.Text, nullable=True)
+    description_of_cohorts = db.Column(db.Text, nullable=True)
+    informed_consent_given = db.Column(db.Boolean, nullable=True)
+    age_range_of_subjects = db.Column(db.String, nullable=True)
+    other_subject_characteristics_json = db.Column(db.String, nullable=True)
+    contact_remarks = db.Column(db.Text, nullable=True)
     study_contacts = db.relationship(
         "Contact", back_populates="study", cascade="all, delete-orphan"
     )
 
-    def study_feature_names(self):
-        if self.study_types_json is not None:
-            return json.loads(self.study_types_json)
-
-        else:
+    def _json_list(self, attr_name):
+        """Safely decode a JSON list stored in the given attribute."""
+        raw_value = getattr(self, attr_name, None)
+        if not raw_value:
             return []
+        try:
+            parsed = json.loads(raw_value)
+        except (json.JSONDecodeError, ValueError):
+            return []
+        return parsed if isinstance(parsed, list) else []
 
-    def study_contacts_names(self):
-        contact_fullnames = []
-        for contact in self.study_contacts:
-            contact_fullnames.append(contact.fullname())
-        return contact_fullnames
+    @property
+    def study_feature_names(self):
+        """Return study types as a list."""
+        return self._json_list("study_types_json")
 
-    def to_dict(self):
-        base_dict = {
-            "name": self.name,
-            "description": self.description,
-            "website": self.website,
-            "ethics_approval_exists": self.ethics_approval_exists,
-            "ethics_approval_no": self.ethics_approval_no,
-        }
-        return base_dict
+    @property
+    def external_identifiers(self):
+        """Return external identifiers as a list."""
+        return self._json_list("external_identifiers_json")
+
+    @property
+    def species_names(self):
+        """Return species as a list (NCBITaxon ontology)."""
+        return self._json_list("species_json")
+
+    @property
+    def diseases_names(self):
+        """Return diseases as a list (MONDO ontology)."""
+        return self._json_list("diseases_json")
+
+    @property
+    def sample_sources_names(self):
+        """Return sample sources as a list (NCIt, EFO, UBERON ontologies)."""
+        return self._json_list("sample_sources_json")
+
+    @property
+    def other_subject_characteristics_list(self):
+        """Return other subject characteristics as a list."""
+        return self._json_list("other_subject_characteristics_json")
 
     def clone(self, **overrides):
         mapper = object_mapper(self)

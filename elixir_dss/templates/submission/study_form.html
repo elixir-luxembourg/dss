@@ -26,25 +26,45 @@
               data-url="{{ url_for('edit_submission_study', study_id = study_form.id.data)}}" {% else %}
               data-url="{{ url_for('add_submission_study', sub_id=study_form.submission_id.data)}}" {% endif %}>
 
-            <!-- Study Basic Information -->
-            <fieldset class="mb-4">
-                {{ study_form.hidden_tag() }}
-                {{ fmacros.render_field_with_errors(study_form.name) }}
+            {{ study_form.hidden_tag() }}
+
+            <fieldset class="mb-4 pb-3 border-bottom">
+                <h5 class="fw-semibold mb-3">Study Overview</h5>
+                {{ fmacros.render_field_with_errors(study_form.name, autofocus="autofocus") }}
+                {{ fmacros.render_field_with_errors(study_form.acronym) }}
                 {{ fmacros.render_field_with_errors(study_form.description) }}
+                {{ fmacros.render_field_with_errors(study_form.external_identifiers) }}
                 {{ fmacros.render_field_with_errors(study_form.website) }}
+            </fieldset>
+
+            <fieldset class="mb-4 pb-3 border-bottom">
+                <h5 class="fw-semibold mb-3">Ethics & Study Classification</h5>
                 {{ fmacros.render_field_with_errors(study_form.ethics_approval_exists) }}
                 {{ fmacros.render_field_with_errors(study_form.ethics_approval_no) }}
                 {{ fmacros.render_field_with_errors(study_form.study_types, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(study_form.multi_center_study) }}
+                {{ fmacros.render_field_with_errors(study_form.study_characteristics) }}
             </fieldset>
 
-            <!-- Study Contacts Section -->
+            <fieldset class="mb-4 pb-3 border-bottom">
+                <h5 class="fw-semibold mb-3">Scientific Metadata</h5>
+                {{ fmacros.render_field_with_errors(study_form.number_of_subjects) }}
+                {{ fmacros.render_field_with_errors(study_form.age_range_of_subjects) }}
+                {{ fmacros.render_field_with_errors(study_form.species) }}
+                {{ fmacros.render_field_with_errors(study_form.diseases) }}
+                {{ fmacros.render_field_with_errors(study_form.sample_sources) }}
+                {{ fmacros.render_field_with_errors(study_form.description_of_data_subjects) }}
+                {{ fmacros.render_field_with_errors(study_form.description_of_cohorts) }}
+                {{ fmacros.render_field_with_errors(study_form.informed_consent_given) }}
+                {{ fmacros.render_field_with_errors(study_form.other_subject_characteristics) }}
+            </fieldset>
+
             <fieldset id="contacts-fieldset" class="mb-4">
-                <div class="mb-3">
-                    <label for="contacts-fieldset" class="form-label fw-semibold">
-                        {{study_form.study_contacts.label.text}}<span class="text-danger">*</span>
-                    </label>
-                    <small class="d-block text-muted mb-3">{{study_form.study_contacts.description}}</small>
-                </div>
+                <h5 class="fw-semibold mb-3">Study Contacts</h5>
+                <p class="text-muted small mb-3">
+                    At least one study contact is required (typically the Study PI).
+                    Please designate one as the main contact.
+                </p>
 
                 <div class="{% if study_form.study_contacts.errors %}is-invalid{% endif %}">
                     <div data-toggle="fieldset" id="study-contacts-fieldset">
@@ -57,22 +77,24 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="bg-body-tertiary">
                                     <tr>
-                                        <th class="fw-semibold" style="min-width: 120px;">Name</th>
-                                        <th class="fw-semibold" style="min-width: 120px;">Surname</th>
-                                        <th class="fw-semibold" style="min-width: 180px;">Email</th>
+                                        <th class="fw-semibold" style="min-width: 100px;">Name</th>
+                                        <th class="fw-semibold" style="min-width: 100px;">Surname</th>
+                                        <th class="fw-semibold" style="min-width: 150px;">Email</th>
+                                        <th class="fw-semibold" style="min-width: 120px;">Institution</th>
                                         <th class="fw-semibold" style="min-width: 150px;">Role</th>
-                                        <th class="fw-semibold" style="min-width: 250px;">Address/Institution</th>
+                                        <th class="fw-semibold text-center" style="width: 80px;">Main</th>
                                         <th class="fw-semibold text-end" style="width: 80px;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for contact_form in study_form.study_contacts %}
                                     <tr data-toggle="fieldset-entry">
-                                        <td>{{ fmacros.render_field(contact_form.firstname, clazz='form-control-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.lastname, clazz='form-control-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.first_name, clazz='form-control-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.last_name, clazz='form-control-sm') }}</td>
                                         <td>{{ fmacros.render_field(contact_form.email, clazz='form-control-sm') }}</td>
+                                        <td>{{ fmacros.render_field(contact_form.institution, clazz='form-control-sm') }}</td>
                                         <td>{{ fmacros.render_field(contact_form.category_id, clazz='form-select-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.address, rows='2', clazz='form-control-sm') }}</td>
+                                        <td class="text-center">{{ fmacros.render_field(contact_form.is_main_contact, clazz='form-check-input') }}</td>
                                         <td class="text-end">
                                             <button type="button" class="btn btn-danger btn-sm"
                                                     data-toggle="fieldset-remove-row"
@@ -82,20 +104,35 @@
                                             </button>
                                         </td>
                                     </tr>
+                                    {% if contact_form.errors %}
+                                    <tr>
+                                        <td colspan="9" class="text-danger small">
+                                            {% for field_name, field_errors in contact_form.errors.items() %}
+                                                <strong>{{ field_name }}:</strong>
+                                                {% for error in field_errors %}
+                                                    {{ error }}{% if not loop.last %}, {% endif %}
+                                                {% endfor %}{% if not loop.last %} | {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    {% endif %}
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    {% if study_form.study_contacts.errors %}
+                    {% set general_contact_errors = study_form.study_contacts.errors | select('string') | list %}
+                    {% if general_contact_errors %}
                     <div class="mt-2">
-                        {% for error in study_form.study_contacts.errors %}
+                        {% for error in general_contact_errors %}
                         <p class="invalid-feedback d-block">{{ error }}</p>
                         {% endfor %}
                     </div>
                     {% endif %}
                 </div>
+
+                {{ fmacros.render_field_with_errors(study_form.contact_remarks) }}
             </fieldset>
 
             <!-- Form Actions -->

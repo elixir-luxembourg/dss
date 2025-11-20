@@ -593,11 +593,12 @@ def clone_sub(
         for c in old_sub.submission_contacts:
             db.session.add(
                 Contact(
-                    firstname=c.firstname,
-                    lastname=c.lastname,
+                    first_name=c.first_name,
+                    last_name=c.last_name,
                     email=c.email,
-                    address=c.address,
+                    institution=c.institution,
                     category_id=c.category_id,
+                    is_main_contact=c.is_main_contact,
                     submission_id=new_sub.id,
                 )
             )
@@ -726,8 +727,8 @@ def invite_submitters(submission: Submission, contacts: list[Contact]):
         user = User.query.filter_by(email=contact.email).first()
         if not user:
             user = User(
-                first_name=contact.firstname,
-                last_name=contact.lastname,
+                first_name=contact.first_name,
+                last_name=contact.last_name,
                 email=contact.email,
                 elixir_sub_id=contact.email,
                 active_user=True,

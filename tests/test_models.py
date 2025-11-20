@@ -390,8 +390,8 @@ class ModelPersistenceTest(BaseTest):
 
         existing_user = UserFactory()
         contact_existing = ContactFactory(
-            firstname=existing_user.first_name,
-            lastname=existing_user.last_name,
+            first_name=existing_user.first_name,
+            last_name=existing_user.last_name,
             email=existing_user.email,
             category_id=1,
             submission_id=submission.id,
@@ -430,10 +430,33 @@ class ModelPersistenceTest(BaseTest):
 
         mock_send_invitations.assert_not_called()
 
+    def test_study_json_helper_methods(self):
+        """Test _json_list helper handles JSON parsing and None/invalid values"""
+        submission = SubmissionFactory()
+
+        # Test JSON parsing logic
+        study = SubmissionStudyFactory(
+            submission_id=submission.id,
+            external_identifiers_json='["EGA123", "GEO456"]',
+            species_json='["Homo sapiens"]',
+            diseases_json='["Diabetes"]',
+        )
+        self.assertEqual(study.external_identifiers, ["EGA123", "GEO456"])
+        self.assertEqual(study.species_names, ["Homo sapiens"])
+
+        # Test None handling (edge case)
+        study_null = SubmissionStudyFactory(
+            submission_id=submission.id,
+            species_json=None,
+        )
+        self.assertEqual(study_null.species_names, [])
+
     def test_cancel_submission(self):
         sub = create_sub("To Cancel", "ELU_I_77")
+        db.session.add(sub)
+        db.session.commit()
 
-        usr = UserFactory(
+        u = User(
             first_name="AA",
             last_name="BB",
             elixir_sub_id="X",
@@ -441,6 +464,7 @@ class ModelPersistenceTest(BaseTest):
             institution_accession="ELU_I_77",
             phone_no="+352 11",
         )
+        usr = register_new_user(u)
         update_submission_basic_info(sub, provider_user_ids=[usr.id])
 
         cancelled = cancel_sub(

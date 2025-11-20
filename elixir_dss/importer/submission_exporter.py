@@ -322,7 +322,7 @@ class SubmissionExporter:
             study_info["description"] = stdy.description
             study_info["ethics_approval_no"] = stdy.ethics_approval_no
             study_info["ethics_approval_exists"] = stdy.ethics_approval_exists
-            study_info["study_types"] = stdy.study_feature_names()
+            study_info["study_types"] = stdy.study_feature_names
             contacts = []
             for contact in stdy.study_contacts:
                 contact_info = self.export_contact(sub, contact)

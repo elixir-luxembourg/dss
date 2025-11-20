@@ -5,10 +5,18 @@ from wtforms import (
     FieldList,
     FormField,
     HiddenField,
+    IntegerField,
     StringField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired, Email, Length, Regexp
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    Length,
+    NumberRange,
+    Optional,
+    Regexp,
+)
 from wtforms_components import SelectField, SelectMultipleField
 
 from elixir_dss import app
@@ -52,47 +60,39 @@ class ContactForm(FlaskForm):
     Form for creating or updating contacts
     """
 
-    firstname = StringField(
+    first_name = StringField(
         "Name",
-        validators=[
-            DataRequired(),
-            Regexp(
-                r"^[\w\s]+$", message="Can only contain letters, digits and underscore."
-            ),
-            Length(min=2, max=20, message="Must be 2 to 20 characters long."),
-        ],
+        validators=[DataRequired()],
         render_kw={"placeholder": "Name"},
     )
-    lastname = StringField(
+    last_name = StringField(
         "Surname",
-        validators=[
-            DataRequired(),
-            Regexp(
-                r"^[\w\s]+$", message="Can only contain letters, digits and underscore."
-            ),
-            Length(min=2, max=20, message="Must be 2 to 20 characters long."),
-        ],
-        render_kw={"placeholder": "SURNAME"},
-    )
-    category_id = SelectField(
-        "Type",
         validators=[DataRequired()],
-        description="Please specify the role of the contact person, which could be the source study's PI, the data manager, legal rep or DPO of data submitting institution.",
-        coerce=int,
+        render_kw={"placeholder": "SURNAME"},
     )
     email = EmailField(
         "Email",
         [DataRequired(), Email("This field requires an email address.")],
         render_kw={"placeholder": "Institutional e-mail"},
     )
-    address = TextAreaField(
-        "Division/Address",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
+
+    institution = StringField(
+        "Institution",
+        render_kw={"placeholder": "University/Institution"},
+        description="Main institutional affiliation (required for main contact)",
+    )
+
+    category_id = SelectField(
+        "Role",
+        validators=[DataRequired()],
+        description="Please specify the role of the contact person (e.g., Principal Investigator, Researcher, Data Manager)",
+        coerce=int,
+    )
+
+    is_main_contact = BooleanField(
+        "Main contact",
+        default=False,
+        description="Designate as main study contact",
     )
     send_invite = BooleanField(
         "Invite contact to become submitter for this submission",
@@ -102,6 +102,24 @@ class ContactForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         FlaskForm.__init__(self, *args, **kwargs)
         self.category_id.choices = [(c.id, c.name) for c in ContactType.query.all()]
+
+    def validate(self, extra_validators=None):
+        """institution required if is_main_contact is True."""
+        if not super(ContactForm, self).validate(extra_validators):
+            return False
+
+        # If main contact, institution is required
+        if self.is_main_contact.data:
+            if not self.institution.data or not self.institution.data.strip():
+                self.institution.errors = (
+                    list(self.institution.errors) if self.institution.errors else []
+                )
+                self.institution.errors.append(
+                    "Institution is required for main contact"
+                )
+                return False
+
+        return True
 
 
 class StudyForm(FlaskForm):
@@ -113,62 +131,156 @@ class StudyForm(FlaskForm):
     submission_id = HiddenField("Submission_Id")
 
     name = StringField(
-        "Title",
-        description="Please specify the shortname or acronym for the study.",
-        validators=[
-            DataRequired(),
-            Regexp(
-                r"^[\w\s\-]+$",
-                message="Name must contain only letters, digits, underscore or dash",
-            ),
-        ],
+        "Study name",
+        validators=[DataRequired()],
+        description="Study name or title",
     )
+
+    acronym = StringField(
+        "Study acronym",
+        description="Short name for the study",
+    )
+
     description = TextAreaField(
-        "Description",
-        description="Please provide a short textual summary of the study purpose, goals and method.",
+        "Study description",
+        validators=[DataRequired()],
+        description="Brief textual description of the study purpose (required for GDPR documentation)",
         render_kw={"rows": 3},
-        validators=[
-            DataRequired(),
-            Regexp(
-                r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            ),
-        ],
     )
+
+    external_identifiers = StringField(
+        "External identifiers",
+        description="External database identifiers (e.g., EGAS00000000009). Separate multiple values with semicolons.",
+    )
+
     website = StringField(
         "Website URL",
-        description="Please provide a short description of the study.",
     )
 
     ethics_approval_exists = BooleanField(
-        "Hereby it is confirmed that an ethics approval exists for the data collection as well as the data sharing for the purposes as foreseen in the agreement",
+        "Ethics approval confirmation",
+        description="Does ethics approval exist for this study?",
         default=False,
     )
+
     ethics_approval_no = StringField(
         "Ethics/IRB approval number",
-        description="If know, please specify the reference number for the Ethics/IRB  approval.",
     )
 
     study_types = SelectMultipleField(
-        "Study features(s)",
+        "Study type(s)",
         validators=[DataRequired()],
-        description="Please select the categories that best characterise the study within which the data has been collected. You can select multiple options.",
+        description="Please select the categories that best characterise the study",
+        render_kw={"class": "elx-multi-select"},
+    )
+
+    multi_center_study = BooleanField(
+        "Multi-center study?",
+        description="Is this a multi-center study?",
+        default=False,
+    )
+
+    study_characteristics = TextAreaField(
+        "Study characteristics",
+        description="Specify study characteristics using gene, disease, phenotype terms and study types",
+        render_kw={"rows": 3},
+    )
+
+    number_of_subjects = IntegerField(
+        "Number of subjects",
+        validators=[Optional(), NumberRange(min=0)],
+        description="Number of subjects recruited",
+    )
+
+    age_range_of_subjects = StringField(
+        "Age range of subjects",
+        description="Age range of subjects (e.g., 18-99 years)",
+    )
+
+    species = StringField(
+        "Species",
+        description="Species studied. Separate multiple values with semicolons. Ontology terms optional (e.g., Homo sapiens (NCBITaxon:9606))",
+    )
+
+    diseases = StringField(
+        "Diseases/conditions",
+        description="Diseases or conditions studied. Separate multiple values with semicolons. Ontology terms optional (e.g., Parkinson's disease (MONDO:0005180))",
+    )
+
+    sample_sources = StringField(
+        "Sample sources",
+        description="Sample sources studied. Separate multiple values with semicolons. Ontology terms optional (e.g., tissue sample; Blood (UBERON:0000178))",
+    )
+
+    description_of_data_subjects = TextAreaField(
+        "Description of data subjects",
+        description="Description of data subjects",
+        render_kw={"rows": 3},
+    )
+
+    description_of_cohorts = TextAreaField(
+        "Description of cohorts",
+        description="Detailed cohort description (e.g., 250 patients (132 male, 118 female) with type II diabetes)",
+        render_kw={"rows": 3},
+    )
+
+    informed_consent_given = BooleanField(
+        "Informed consent given?",
+        default=False,
+        description="Has informed consent been given?",
+    )
+
+    other_subject_characteristics = StringField(
+        "Other subject characteristics",
+        description="Other subject characteristics. Separate multiple values with semicolons (e.g., sex: 57 male, 85 female)",
     )
 
     study_contacts = FieldList(
         FormField(ContactForm, default=lambda: Contact()),
         min_entries=1,
-        description="Please provide contact person(s) for the study. You must provide at least one contact, which typically would be the study PI.",
-        label="Study contacts",
+        description="At least one study contact is required (typically the Study PI)",
+    )
+
+    contact_remarks = TextAreaField(
+        "Contact remarks",
+        description="General remarks or notes about study contacts",
+        render_kw={"rows": 2},
     )
 
     def __init__(self, *args, **kwargs):
-        FlaskForm.__init__(self, *args, **kwargs)
-        if "sub_id" in kwargs:
-            self.submission_id.data = kwargs["sub_id"]
+        sub_id = kwargs.pop("sub_id", None)
+        super(StudyForm, self).__init__(*args, **kwargs)
+
         self.study_types.choices = [
             (c, c) for c in app.config.get("DATA_INIT")["study_types"]
         ]
+
+        if sub_id is not None:
+            self.submission_id.data = sub_id
+
+    def validate(self, extra_validators=None):
+        """ensure at least one contact is designated as main contact."""
+        if not super(StudyForm, self).validate(extra_validators):
+            return False
+
+        has_main_contact = any(
+            contact.is_main_contact.data
+            for contact in self.study_contacts
+            if contact.is_main_contact.data
+        )
+
+        if not has_main_contact:
+            if (
+                not hasattr(self.study_contacts, "errors")
+                or self.study_contacts.errors is None
+            ):
+                self.study_contacts.errors = []
+            self.study_contacts.errors.append(
+                "At least one contact must be designated as the main contact (typically the Study PI)"
+            )
+            return False
+
+        return True
 
 
 class MessageForm(FlaskForm):

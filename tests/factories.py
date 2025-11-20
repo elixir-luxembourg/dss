@@ -77,11 +77,25 @@ class SubmissionStudyFactory(factory.alchemy.SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     name = factory.Faker("catch_phrase")
+    acronym = factory.Faker("word")
     description = factory.Faker("text", max_nb_chars=200)
+    external_identifiers_json = '["EGAS00000000009"]'
     website = factory.Faker("url")
     ethics_approval_exists = True
     ethics_approval_no = factory.Sequence(lambda n: f"ETH-{n + 1:04d}")
     study_types_json = '["observational", "interventional"]'
+    multi_center_study = False
+    study_characteristics = factory.Faker("sentence", nb_words=6)
+    number_of_subjects = factory.Faker("random_int", min=10, max=1000)
+    age_range_of_subjects = "18-65"
+    species_json = '["Homo sapiens (NCBITaxon:9606)"]'
+    diseases_json = '["Parkinson\'s disease (MONDO:0005180)"]'
+    sample_sources_json = '["Brain (UBERON:0000955)", "Blood (UBERON:0000178)"]'
+    description_of_data_subjects = factory.Faker("text", max_nb_chars=150)
+    description_of_cohorts = factory.Faker("text", max_nb_chars=150)
+    informed_consent_given = True
+    other_subject_characteristics_json = '["sex: 57 male, 85 female"]'
+    contact_remarks = factory.Faker("sentence", nb_words=10)
 
 
 class UserFactory(SQLAlchemyModelFactory):
@@ -110,10 +124,11 @@ class ContactFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
 
-    firstname = factory.Faker("first_name")
-    lastname = factory.Faker("last_name")
+    first_name = factory.Faker("first_name")
+    last_name = factory.Faker("last_name")
     email = factory.Faker("email")
-    address = factory.Faker("address")
+    institution = factory.Faker("company")
+    is_main_contact = False
     contact_category = factory.LazyFunction(lambda: ContactType.query.get_or_404(1))
     category_id = 1
 
