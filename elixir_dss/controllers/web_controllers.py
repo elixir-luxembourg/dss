@@ -1064,22 +1064,26 @@ def edit_submission_study(study_id):
 
         if study_rec.study_types_json:
             result_form.study_types.data = json.loads(study_rec.study_types_json)
-        if study_rec.external_identifiers_json:
-            result_form.external_identifiers.data = "; ".join(
-                json.loads(study_rec.external_identifiers_json)
-            )
-        if study_rec.species_json:
-            result_form.species.data = "; ".join(json.loads(study_rec.species_json))
-        if study_rec.diseases_json:
-            result_form.diseases.data = "; ".join(json.loads(study_rec.diseases_json))
-        if study_rec.sample_sources_json:
-            result_form.sample_sources.data = "; ".join(
-                json.loads(study_rec.sample_sources_json)
-            )
-        if study_rec.other_subject_characteristics_json:
-            result_form.other_subject_characteristics.data = "; ".join(
-                json.loads(study_rec.other_subject_characteristics_json)
-            )
+        
+        ext_ids = json.loads(study_rec.external_identifiers_json or "[]")
+        if ext_ids:
+            result_form.external_identifiers.data = "; ".join(ext_ids)
+        
+        species = json.loads(study_rec.species_json or "[]")
+        if species:
+            result_form.species.data = "; ".join(species)
+        
+        diseases = json.loads(study_rec.diseases_json or "[]")
+        if diseases:
+            result_form.diseases.data = "; ".join(diseases)
+        
+        sample_sources = json.loads(study_rec.sample_sources_json or "[]")
+        if sample_sources:
+            result_form.sample_sources.data = "; ".join(sample_sources)
+        
+        other_chars = json.loads(study_rec.other_subject_characteristics_json or "[]")
+        if other_chars:
+            result_form.other_subject_characteristics.data = "; ".join(other_chars)
 
         return render_template(
             "submission/study_form.html", study_form=result_form
