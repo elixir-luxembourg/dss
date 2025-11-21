@@ -852,6 +852,7 @@ def edit_submission_dataset(dataset_id):
     if request.method == "GET":
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
         result_form = forms.DatasetForm(obj=dataset)
+        result_form.title.render_kw = {"readonly": True}
         if dataset.sci_datatypes_json:
             result_form.sci_datatypes.data = json.loads(dataset.sci_datatypes_json)
         if dataset.gdpr_datatypes_json:
@@ -877,7 +878,9 @@ def edit_submission_dataset(dataset_id):
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
+            original_title = dataset.title
             posted_form.populate_obj(dataset)
+            dataset.title = original_title
 
             if posted_form.sci_datatypes.data:
                 dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
