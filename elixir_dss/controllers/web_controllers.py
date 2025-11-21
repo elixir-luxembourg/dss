@@ -346,6 +346,7 @@ def delete_submission(sub_id):
         "entity_id_key": "sub_id",
         "entity_ac_attribute": "id",
     },
+    submission_action="steer",
 )
 def steer_submission(sub_id):
     try:
@@ -494,7 +495,7 @@ def view_submission(sub_id):
 
 @app.route("/submission/edit/<int:sub_id>", methods=["GET", "POST"])
 @app_authorization(
-    allowed_roles=["user", "data_steward"],
+    allowed_roles=["data_steward"],
     record_authorization={
         "entity": "Submission",
         "entity_id_key": "sub_id",
@@ -568,6 +569,14 @@ def edit_submission(sub_id):
 
 @app.route("/submission/clone/<int:submission_id>")
 @login_required
+@app_authorization(
+    allowed_roles=["user", "data_steward"],
+    record_authorization={
+        "entity": "Submission",
+        "entity_id_key": "submission_id",
+        "entity_ac_attribute": "id",
+    },
+)
 def clone_submission(submission_id):
     clone_studies = request.args.get("clone_studies", "true").lower() == "true"
     clone_datasets = request.args.get("clone_datasets", "true").lower() == "true"
@@ -786,6 +795,7 @@ def download_submission_attachment(attach_id, filename):
         "entity_id_key": "sub_id",
         "entity_ac_attribute": "id",
     },
+    submission_action="edit_metadata",
 )
 def add_submission_dataset(sub_id):
     if request.method == "GET":
@@ -847,6 +857,7 @@ def add_submission_dataset(sub_id):
         "entity_id_key": "dataset_id",
         "entity_ac_attribute": "submission_id",
     },
+    submission_action="edit_metadata",
 )
 def edit_submission_dataset(dataset_id):
     if request.method == "GET":
@@ -927,6 +938,7 @@ def edit_submission_dataset(dataset_id):
         "entity_id_key": "dataset_id",
         "entity_ac_attribute": "submission_id",
     },
+    submission_action="edit_metadata",
 )
 def delete_submission_dataset(dataset_id):
     dataset = SubmissionDataset.query.get_or_404(dataset_id)
@@ -949,6 +961,7 @@ def delete_submission_dataset(dataset_id):
         "entity_id_key": "sub_id",
         "entity_ac_attribute": "id",
     },
+    submission_action="edit_metadata",
 )
 def add_submission_study(sub_id):
     if request.method == "GET":
@@ -1054,6 +1067,7 @@ def add_submission_study(sub_id):
         "entity_id_key": "study_id",
         "entity_ac_attribute": "submission_id",
     },
+    submission_action="edit_metadata",
 )
 def edit_submission_study(study_id):
     if request.method == "GET":
@@ -1181,6 +1195,7 @@ def edit_submission_study(study_id):
         "entity_id_key": "study_id",
         "entity_ac_attribute": "submission_id",
     },
+    submission_action="edit_metadata",
 )
 def delete_submission_study(study_id):
     study = SubmissionStudy.query.get_or_404(study_id)
