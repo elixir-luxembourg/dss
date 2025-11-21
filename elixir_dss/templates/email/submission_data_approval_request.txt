@@ -4,7 +4,6 @@ A data provider has completed the data upload in LFT for the following submissio
 
 
 Ref Name: {{ submission.ref_name }}
-Title: {{ submission.title }}
 Approval Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
 
 Please go to the LFT application to verify the uploaded data for submission reference {{ submission.ref_name }}. Once verified, return to the approval page above to approve or reject the submission.

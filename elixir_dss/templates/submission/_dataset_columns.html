@@ -34,10 +34,10 @@
                         {% if can_edit %}
                             <a href="{{ url_for('edit_submission_dataset', dataset_id=dataset.id) }}"
                                class="text-dark text-decoration-none fw-semibold d-inline-flex align-items-center gap-2">
-                                <span>{{ dataset.title }}  <span class="badge bg-primary bg-opacity-25 text-muted small"> {{ dataset.external_id }}</span></span>
+                                <span>{{ dataset.title }}  <span class="badge bg-primary bg-opacity-25 text-muted small"> {{ dataset.internal_id }}</span></span>
                             </a>
                         {% else %}
-                            <span class="fw-semibold">{{ dataset.title }}  <span class="badge bg-primary bg-opacity-25 text-muted small"> {{ dataset.external_id }}</span>v</span>
+                            <span class="fw-semibold">{{ dataset.title }}  <span class="badge bg-primary bg-opacity-25 text-muted small"> {{ dataset.internal_id }}</span>v</span>
                         {% endif %}
                     </td>
                     <td class="py-2">

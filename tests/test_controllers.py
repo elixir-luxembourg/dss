@@ -184,7 +184,7 @@ class ControllersTest(BaseIntegrationTest):
     def test_add_submission_dataset(self):
         self.login("steward1@uni.lu", "steward1")
 
-        submission = create_sub("Test Submission", "ELU_I_9")
+        submission = create_sub("ELU_I_9")
         study = SubmissionStudyFactory(submission_id=submission.id)
 
         get_response = self.client.get(
@@ -247,7 +247,7 @@ class ControllersTest(BaseIntegrationTest):
     def test_provider_can_cancel_submission(self):
         self.login("submitter1@some.edu", "submitter1")
 
-        sub = create_sub("To Cancel", "ELU_I_77")
+        sub = create_sub("ELU_I_77")
         db.session.add(sub)
         db.session.commit()
 
@@ -267,7 +267,7 @@ class ControllersTest(BaseIntegrationTest):
     def test_lft_links_deleted_on_submission_cancel(self):
         self.login("submitter1@some.edu", "submitter1")
 
-        sub = create_sub("LFT Cancel Test", "ELU_I_100")
+        sub = create_sub("ELU_I_100")
         db.session.add(sub)
         db.session.flush()
 
@@ -333,7 +333,7 @@ class ControllersTest(BaseIntegrationTest):
     def test_cannot_modify_cancelled_submission(self):
         self.login("submitter1@some.edu", "submitter1")
 
-        sub = create_sub("Unmodifiable Submission", "ELU_I_200")
+        sub = create_sub("ELU_I_200")
         db.session.add(sub)
         db.session.commit()
 

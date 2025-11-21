@@ -1,4 +1,4 @@
-You’ve been invited to collaborate on submission {{ submission.ref_name }} ({{ submission.title }}).
+You've been invited to collaborate on submission {{ submission.ref_name }}.
 
 Open the submission:
 {{ url_for('view_submission', sub_id=submission.id, _external=True) }}

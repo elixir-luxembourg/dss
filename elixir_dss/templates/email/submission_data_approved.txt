@@ -4,7 +4,6 @@ Congratulations! Your data upload has been approved by the data steward. Your su
 
 
 Ref Name: {{ submission.ref_name }}
-Title: {{ submission.title }}
 Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
 
 {% if feedback %}

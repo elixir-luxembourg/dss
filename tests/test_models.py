@@ -82,12 +82,11 @@ class ModelPersistenceTest(BaseTest):
     def test_create_submission(self):
         self.assertEqual(18, len(SubmissionScope.query.all()))
 
-        submission_rec = create_sub("Test Submission", "ELU_I_77")
+        submission_rec = create_sub("ELU_I_77")
 
         self.assertEqual(1, len(Submission.query.all()))
         sub = Submission.query.get_or_404(submission_rec.id)
         sub_id = sub.id
-        self.assertEqual(sub.title, "Test Submission")
         self.assertEqual(sub.ref_name, "ELX_LU_SUB-1")
         self.assertEqual(sub.current_status, SubmissionStatusEnum.draft)
         self.assertIsNotNone(sub.created_on)
@@ -243,7 +242,7 @@ class ModelPersistenceTest(BaseTest):
         )
 
         # Test is_in_progress includes approval states
-        submission = create_sub("Test Workflow Submission", "ELU_I_77")
+        submission = create_sub("ELU_I_77")
         submission.current_status = SubmissionStatusEnum.metadata_submission
         self.assertTrue(submission.is_in_progress())
         submission.current_status = SubmissionStatusEnum.metadata_approval
@@ -258,7 +257,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertFalse(submission.is_in_progress())
 
     def test_export_submission(self):
-        submission_rec = create_sub("Test Submission to be exported.", "ELU_I_5")
+        submission_rec = create_sub("ELU_I_5")
 
         u1 = UserFactory()
         usr = register_new_user(u1)
@@ -301,19 +300,18 @@ class ModelPersistenceTest(BaseTest):
         exporter = SubmissionExporter()
         exp = exporter.export_submission(submission_rec)
 
-        self.assertEqual(exp["title"], "Test Submission to be exported.")
+        self.assertEqual(exp["ref_name"], submission_rec.ref_name)
         self.assertEqual(len(exp["data_declarations"]), 2)
         print(json.dumps(exp, indent=4))
 
     def test_clone_submission_basic(self):
-        original = create_sub("Brain Study", "ELU_I_11")
+        original = create_sub("ELU_I_11")
 
         clone = clone_sub(original.id)
 
         # Assert new object is distinct
         self.assertNotEqual(original.id, clone.id)
-        self.assertTrue(clone.title.startswith("Brain Study"))
-        self.assertIn("(Clone", clone.title)
+        self.assertTrue(clone.ref_name.startswith("ELX_LU_SUB-"))
 
         self.assertEqual(clone.current_status, SubmissionStatusEnum.metadata_submission)
 
@@ -327,7 +325,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(2, len(subs))
 
     def test_clone_with_studies_and_datasets(self):
-        sub = create_sub("Genomics Study", "ELU_I_77")
+        sub = create_sub("ELU_I_77")
 
         # Add study + dataset
         study = SubmissionStudyFactory(
@@ -386,7 +384,7 @@ class ModelPersistenceTest(BaseTest):
 
     @patch("elixir_dss.models.services.send_invitations")
     def test_invite_submitters(self, mock_send_invitations):
-        submission = create_sub("Test Submission", "ELU_I_77")
+        submission = create_sub("ELU_I_77")
 
         existing_user = UserFactory()
         contact_existing = ContactFactory(
@@ -421,7 +419,7 @@ class ModelPersistenceTest(BaseTest):
 
     @patch("elixir_dss.models.services.send_invitations")
     def test_invite_submitters_empty_list(self, mock_send_invitations):
-        submission = create_sub("Test Submission", "ELU_I_77")
+        submission = create_sub("ELU_I_77")
 
         invite_submitters(submission, [])
 
@@ -452,7 +450,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(study_null.species_names, [])
 
     def test_cancel_submission(self):
-        sub = create_sub("To Cancel", "ELU_I_77")
+        sub = create_sub("ELU_I_77")
         db.session.add(sub)
         db.session.commit()
 

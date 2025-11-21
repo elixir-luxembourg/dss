@@ -191,6 +191,7 @@ $(document).ready(function () {
     }
     toggleNotesForMultiSelectFields('sci_datatypes', 'sci_datatypes_notes', 'Other');
     toggleNotesForMultiSelectFields('gdpr_datatypes', 'gdpr_datatypes_notes', 'Other special categories of data');
+    toggleNotesForMultiSelectFields('consent_status_code', 'consent_notes', 'ht');
 
     $('#submission_create_modal').on('shown.bs.modal', function () {
         $(this).find('.elx-select').select2({

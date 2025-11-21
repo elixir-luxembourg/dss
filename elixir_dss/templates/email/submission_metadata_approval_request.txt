@@ -4,7 +4,6 @@ A data provider has completed the metadata section for a submission and it is no
 
 
 Ref Name: {{ submission.ref_name }}
-Title: {{ submission.title }}
 Approval Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
 
 Please review the study details, data declarations, GDPR categories, ethics information, and contacts.

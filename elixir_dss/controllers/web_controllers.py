@@ -473,9 +473,7 @@ def get_submission(sub_id):
 @app_authorization(allowed_roles=["data_steward"])
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
-    submission_rec = create_sub(
-        creation_form.title.data, creation_form.institution_accession.data
-    )
+    submission_rec = create_sub(creation_form.institution_accession.data)
     flash(f"New submission {submission_rec.ref_name} created", "success")
     return redirect(url_for("list_submissions"))
 
@@ -551,14 +549,11 @@ def edit_submission(sub_id):
             form.populate_obj(submission_rec)
             update_submission_basic_info(
                 submission_rec,
-                title=form.title.data,
                 submission_scope_code=form.submission_scope_code.data,
                 local_custodians_json=json.dumps(form.local_custodians.data),
                 local_project_name=form.local_project_name.data,
                 institution_accession=form.institution_accession.data,
-                provider_user_ids=form.provider_user_ids.data
-                if request.form.get("provider_user_ids")
-                else None,
+                provider_user_ids=form.provider_user_ids.data,
             )
 
             if current_user.is_data_steward():
@@ -857,6 +852,7 @@ def edit_submission_dataset(dataset_id):
     if request.method == "GET":
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
         result_form = forms.DatasetForm(obj=dataset)
+        result_form.title.render_kw = {"readonly": True}
         if dataset.sci_datatypes_json:
             result_form.sci_datatypes.data = json.loads(dataset.sci_datatypes_json)
         if dataset.gdpr_datatypes_json:
@@ -882,7 +878,9 @@ def edit_submission_dataset(dataset_id):
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
+            original_title = dataset.title
             posted_form.populate_obj(dataset)
+            dataset.title = original_title
 
             if posted_form.sci_datatypes.data:
                 dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)

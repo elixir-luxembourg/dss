@@ -28,10 +28,6 @@
                 <td> {{ submission_rec.ref_name or '' }}</td>
             </tr>
             <tr>
-                <th scope="row">Title</th>
-                <td>{{ submission_rec.title or '' }}</td>
-            </tr>
-            <tr>
                 <th scope="row">Data Provider(s)</th>
                 <td>{{ submission_rec.provider_user_names()| join(', ') }}</td>
             </tr>
