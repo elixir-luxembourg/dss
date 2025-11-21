@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from elixir_dss.scripts.db import START_UP_DATA
+from elixir_dss.constants import CONFIG_DATA
 
 # Load environment variables at module import
 load_dotenv()
@@ -41,7 +41,7 @@ class Config(object):
         ("My Submissions", "list_my_submissions", [], "user"),
         ("Admin", None, [("Users", "list_users")], "admin"),
     ]
-    DATA_INIT = START_UP_DATA
+    DATA_INIT = CONFIG_DATA
 
     # Configuration from environment variables
     DATA_STEWARDS_MAILS = (

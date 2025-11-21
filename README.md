@@ -149,15 +149,15 @@ os.urandom(24)
 The `./setup_dev.sh` script handles this automatically. For manual setup:
 
 ```bash
-./manage.py init-db              # Initialize DB with default data
-./manage.py load-demo-users      # Create demo users
+./manage.py init-db                                # Initialize DB with default data
+./manage.py load-demo-users                        # Create demo users
+./manage.py grant-data-steward-access <user_email> # Grant data-steward access to existing user
 ```
 
 **Create additional admin users:**
 ```bash
 ./manage.py create-admin "First" "Last" "email@uni.lu" "elixir_id" "ELU_I_77"
 ```
-
 
 
 ## Running the Application
