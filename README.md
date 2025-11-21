@@ -159,6 +159,21 @@ The `./setup_dev.sh` script handles this automatically. For manual setup:
 ./manage.py create-admin "First" "Last" "email@uni.lu" "elixir_id" "ELU_I_77"
 ```
 
+### Database Migrations
+
+The application uses Flask-Migrate (Alembic) for database schema changes.
+
+```bash
+# Create a new migration after model changes
+flask db migrate -m "Description of changes"
+
+# Apply migrations to database
+flask db upgrade
+
+# Rollback last migration
+flask db downgrade
+```
+
 
 ## Running the Application
 
