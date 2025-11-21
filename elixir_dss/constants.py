@@ -1,58 +1,4 @@
-START_UP_DATA = {
-    "contact_types": [
-        "Principal_Investigator",
-        "Researcher",
-        "Data_Manager",
-        "Data_Protection_Officer",
-        "Legal_Representative",
-        "Other",
-    ],
-    "names_roles": ["data_steward", "admin", "user"],
-    "deidentification_type": [["p", "Pseudonymised"], ["a", "Anonymised"]],
-    "subject_category": [
-        ["ca", "Cases"],
-        ["co", "Controls"],
-        ["ca_co", "Cases_and_Controls"],
-    ],
-    "consent_status": [
-        ["hm", "Homogeneous"],
-        ["ht", "Heterogeneous"],
-        ["dk", "Don't know"],
-    ],
-    "legal_basis": [
-        ["61a", "Consent (6.1(a))"],
-        [
-            "61b",
-            "Performance of a contract to which the data subject is party (6.1(b))",
-        ],
-        [
-            "61c",
-            "Compliance with a legal obligation to which the controller is subject (6.1(c))",
-        ],
-        ["61d", "Protection the vital interests of the data subject (6.1(d))"],
-        ["61e", "Public interest (6.1(e))"],
-        ["61f", "Legitimate interest (6.1(f))"],
-    ],
-    "submission_scope": [
-        ["elu", "ELIXIR Luxembourg"],
-        ["l_bc", "LCSB/Bioinformatics Core"],
-        ["l_bmd", "LCSB/Biomedical Data Science"],
-        ["l_chb", "LCSB/Chemical Biology"],
-        ["l_cen", "LCSB/Clinical & Experimental Neuroscience"],
-        ["l_ccb", "LCSB/Computational Biology"],
-        ["l_dcb", "LCSB/Developmental & Cellular Biology"],
-        ["l_esb", "LCSB/Eco-Systems Biology"],
-        ["l_ec", "LCSB/Environmental Cheminformatics"],
-        ["l_em", "LCSB/Enzymology & Metabolism"],
-        ["l_en", "LCSB/Experimental Neurobiology"],
-        ["l_ics", "LCSB/Integrative Cell Signalling"],
-        ["l_in", "LCSB/Interventional Neuroscience"],
-        ["l_mtr", "LCSB/Medical Translational Research"],
-        ["l_mfn", "LCSB/Molecular & Functional Neurobiology"],
-        ["l_np", "LCSB/Neuropathology"],
-        ["l_sbc", "LCSB/Systems Biochemistry"],
-        ["l_sc", "LCSB/Systems Control"],
-    ],
+CONFIG_DATA = {
     "gdpr_datatypes": (
         ("non_human", "Non-human data"),
         ("standard", "Standard personal data"),
@@ -160,33 +106,6 @@ START_UP_DATA = {
         "Single_Blind",
         "Double_Blind",
     ],
-    # Contact roles (optional preset values, though can also be free text)
-    "contact_roles": [
-        "Principal_Investigator",
-        "Researcher",
-        "Data_Manager",
-        "Data_Protection_Officer",
-        "Legal_Representative",
-        "Other",
-    ],
-    # Yes/No/Don't know options (for fields with uncertain states)
-    "yes_no_na": [
-        "Yes",
-        "No",
-        "Don't know",
-    ],
-    "foreground_background": [
-        "Background",
-        "Results",
-    ],
-    "request_form": [
-        "Additional form needed",
-        "No additional form needed",
-    ],
-    "dac": [
-        "DAC approval needed",
-        "DAC approval not needed",
-    ],
     # Species (NCBITaxon ontology) - starter values
     "species": [
         "Homo sapiens (NCBITaxon:9606)",
@@ -211,15 +130,6 @@ START_UP_DATA = {
         "Brain (UBERON:0000955)",
         "Liver (UBERON:0002107)",
         "Saliva (UBERON:0001836)",
-    ],
-    "cohorts": [
-        {
-            "external_id": "ELU_C_1",
-            "title": "LuxPARK",
-            "ombudsman": ["Rejko Kr\u00fcger"],
-            "comments": "HELP-PD will establish a state-of-the-art cohort project of patients with parkinsonism in Luxembourg to identify predictive and progression markers of the disease.  Thereby this project provides a unique infrastructure and resource for innovative clinical research in Luxembourg. The cohort program integrates an informative design (patient cohorts as well as risk cohorts in Phase II), a detailed neurological examination and structured assessment of epidemiological, neuropsychological and other clinical features, a comprehensive collection of biosamples and an integrated, anonymized data repository with web-based access. Initially, a cross-sectional assessment aimed at all diagnosed PD cases in Luxembourg will be performed, establishing a foundation for the PD registry. Subsequently, patients with PD will be followed up longitudinally.",
-            "institutes": ["ELU_I_77", "ELU_I_9", "ELU_I_1", "ELU_I_79"],
-        }
     ],
     "partners": [
         {
@@ -278,10 +188,6 @@ START_UP_DATA = {
         "Alexander Skupin",
         "Frank Hertel",
         "Carole Linster",
-    ],
-    "dataset_types": [
-        ["use_case_1", "Use case 1: Data received at LCSB but not hosted"],
-        ["use_case_2", "Use case 2: Data received and hosted at LCSB for reuse"],
     ],
     "data_standards": [
         "CDISC",
