@@ -67,6 +67,7 @@
                     <tr>
                         <th>Reference No</th>
                         <th>Title</th>
+                        <th>Recipient Project</th>
                         <th>Created On</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -85,6 +86,7 @@
                                     {{ submission.title }}
                                 </a>
                             </td>
+                            <td>{{ submission.local_project_name | default('-', true) }}</td>
                             <td>{{ submission.created_on }}</td>
                             <td>
                                 {% if submission.current_status.value == 'Pending' %}
