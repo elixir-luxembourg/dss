@@ -12,6 +12,7 @@ from wtforms.validators import (
     DataRequired,
     Email,
     Length,
+    Optional,
     Regexp,
     NumberRange,
     ValidationError,
@@ -206,45 +207,53 @@ class DatasetForm(FlaskForm):
     number_of_records = IntegerField(
         "Number of records",
         description="Please specify the approximate number of records/subjects in the dataset.",
+        validators=[Optional()],
     )
 
     dataset_version = StringField(
         "Dataset version",
         description="Please specify the version of the dataset (e.g., v1.0, v2.1).",
         render_kw={"placeholder": "v1.0"},
+        validators=[Optional()],
     )
 
     creation_date = DateField(
         "Creation date",
         description="This date is set automatically when the dataset is created.",
         format="%Y-%m-%d",
+        validators=[Optional()],
     )
 
     last_update_date = DateField(
         "Last update date",
         description="This date is updated automatically when the dataset is saved.",
         format="%Y-%m-%d",
+        validators=[Optional()],
     )
 
     data_standards = SelectMultipleField(
         "Data standards",
         description="Please select the data standards used in this dataset (e.g., CDISC, MINSEQE, NCIt, EDAM).",
+        validators=[Optional()],
     )
 
     file_types = SelectMultipleField(
         "File types",
         description="Please select the file types/formats included in this dataset.",
+        validators=[Optional()],
     )
 
     byte_size = StringField(
         "Byte size",
         description="Please provide an estimate of the total dataset size (e.g., '10 GB', '500 MB', '2 TB').",
         render_kw={"placeholder": "e.g., 10 GB"},
+        validators=[Optional()],
     )
 
     sample_types = SelectMultipleField(
         "Types of samples collected",
         description="If biological samples are included, please specify the types (e.g., blood, tissue, DNA).",
+        validators=[Optional()],
     )
 
     # Fields from former DatasetHostedForm (use_case_2)
@@ -501,5 +510,5 @@ class DatasetForm(FlaskForm):
 
     def validate_last_update_date(self, field):
         if self.creation_date.data and field.data:
-            if field.data <= self.creation_date.data:
+            if field.data < self.creation_date.data:
                 raise ValidationError("Last update date must be after creation date.")
