@@ -229,14 +229,14 @@ This section describes the enumerations and custom data types that support the c
 **Note:** For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (*in italics*) and user-selectable items in the list. 
 
 **Values:**
-*Omics data*
-    *Genotype data*
+- *Omics data*
+    - *Genotype data*
         - Whole_genome_sequencing
         - Exome_sequencing
         - Genomics_variant_array
         - RNASeq
         - Single Cell RNAseq
-    *Genetic and derived genetic data*
+    - *Genetic and derived genetic data*
         - Transcriptome_array
         - Methylation_array
         - MicroRNA_array
@@ -246,12 +246,12 @@ This section describes the enumerations and custom data types that support the c
         - Metaproteomics
         - Metatranscriptomics
         - Proteomics
-    *Other omics data*
-*Imaging data*
+    - Other omics data
+- *Imaging data*
     - Clinical imaging
     - Cell imaging
     - Other imaging data
-*Human subject data*
+- *Human subject data*
     - Clinical data
     - Lifestyle data
     - Socio Economic data
@@ -259,7 +259,7 @@ This section describes the enumerations and custom data types that support the c
     - Ethnic origin
     - Biometric data
     - Other phenotype data
-Other
+- Other
 
 ### 4.5. Enumeration: 'De-identificationType'
 
@@ -289,16 +289,16 @@ Other
 **Note:** For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (*in italics*) and user-selectable items in the list. 
 
 **Values:**
-Non-human data
-Standard personal data
-*Special category, i.e. sensitive, personal data*
-- Racial or ethnic origin
-- Genetic data
-- Biometric data for the purpose of uniquely identifying a natural person
-- Data concerning health
-- Data concerning a natural person's sex life or sexual orientation
-- Data relating to criminal convictions and offences
-- Other special categories of data (e.g., molecular data that can give indication of a person's health)
+- Non-human data
+- Standard personal data
+- *Special category, i.e. sensitive, personal data*
+   - Racial or ethnic origin
+   - Genetic data
+   - Biometric data for the purpose of uniquely identifying a natural person
+   - Data concerning health
+   - Data concerning a natural person's sex life or sexual orientation
+   - Data relating to criminal convictions and offences
+   - Other special categories of data (e.g., molecular data that can give indication of a person's health)
 
 ### 4.8. Enumeration: 'ReceivingProject'
 
