@@ -4,17 +4,21 @@
 
 ## 1. Introduction
 
-The data submission system (DSS) aims at allowing the submission of data to be used in projects from LCSB or for data hosting and reuse purposes under ELIXIR-LU, depending on the use case. Data can be submitted by personnel from LCSB, as well as from other institutions.
+The data submission system (DSS) aims at allowing the submission of data to be used in projects from LCSB or for data hosting and reuse purposes under ELIXIR-Luxembourg (ELIXIR-LU), depending on the use case. Data can be submitted by personnel from LCSB, as well as from other institutions.
+
+When a submission is initiated in the system, the submitter is required to provide metadata describing the data intended for submission. In this context, the purpose of this document is to present and explain the metadata schema that underpins the forms the basis of the DSS form design. 
 
 **Kindly note that the metadata schema for the Data Submission System \(DSS\) is currently under active development and may be subject to further revisions and improvements.**
 
 ## 2. Overview
 
-A dataset should always be linked to a study. 
+Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes \(Dataset,Distribution, Person, Submission, and Study\), along with four subclassess derived from class 'Person' \(DatasetCreator and SubmissionContact, with subclasses SubmittingUser and AdditionalContact\). In addition, it includes eleven supporting entities: one custom data type \(Date\) and ten enumerations \(ConsentStatus, DACApproval, DataType, De-identificationType, LegalBasis, PersonalData, ReceivingProject, RequestForm, Role, and YesNoNA\).
 
-In some properties, controlled vocabularies are suggested. However, other vocabularies are also accepted. 
+According to the metadata schema, a submission must always be linked to at least one study and one dataset, and may be linked to multiple studies and multiple datasets. However, each study and dataset can only be linked to a single submission. Furthermore, a dataset must always be linked to a study, as the study represents the origin of the data. Conversely, a dataset may be associated with zero or more distributions, each representing a physical expression of the dataset in a specific format.
 
-Figure 1 illustrates the UML class diagram representing the metadata schema for the DSS form. 
+Section 3 provides an overview of the main entities in the diagram, including the core classes and their subclasses. For each class, details about its properties are presented, such as name, definition, range, cardinality, usage notes, suggested controlled vocabularies (where applicable), and examples. While specific controlled vocabularies are recommended for some properties, alternative vocabularies are also acceptable. Section 4 describes includes the supporting entities (i.e., data types and enumerations). 
+
+![UML class diagram representing the metadata schema for the DSS form](docs/form-metadata-model/2025-11_UML_DSS_metadata_schema.svg "Figure 1. UML class diagram of the DSS form metadata schema")
 
 ## 3. Main Entities
 
@@ -43,7 +47,7 @@ This section provides detailed descriptions of the core classes in the diagram, 
 |external identifier              |External identifers/links, such as DOIs, accession numbers, or registry IDs            |String       |  0..*           |            |                                      | EGAD00000000001        |
 |data types remarks               |Remarks on data types included in the dataset            |  String     |  0..1           |            |                                      |         |
 |sample types              |Types of samples analyzed            |   String    |     0..*        |            | UBERON, FMA                                      | blood, skin, tumor tissue         |
-|anonymized or pseudonymized               |Is the data anonymised or pseudonymised?            |       | 0..1            |            |                                      | Anonymized        |
+|anonymized or pseudonymized               |Is the data anonymised or pseudonymised?            |       | 0..1            |           |                                      | Anonymized        |
 |personal data               |Categories and types of personal data included in the dataset, if applicable            |       | 0..1            |            |                                      | Genetic data, Data concerning health        |
 |personal data remarks               | Remarks on categories of personal data           | String      | 0..1            |            |                                      |         |
 |collection legal basis               | Legal basis according to Art. 6.1 GDPR for the collection of personal data           |       |  0..1           |            |                                      |         |
@@ -84,11 +88,51 @@ This section provides detailed descriptions of the core classes in the diagram, 
 
 ### 3.2. Distribution
 
+"Distribution" refers to the physical representation of the Dataset in a particular format.
+
 Class 'Distribution' does not contain any mandatory property. 
 
 #### 3.2.1. Recommended Properties in Class 'Distribution'
 
+| Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
+|---------------|------------|-------|-------------|------------|--------------------------------------|---------|
+|file type           |Type of file(s) included in the dataset          | String      | 0..*           |Format identifiers should be included, when applicable. If not provided, it will be obtained from the submitted dataset.            |                   EDAM, NCIt                   |  CSV (format:3752), FASTQ (format:1930), JSON, XML, TXT, BAM, VCF, etc.       |
+|byte size           | Total size of the dataset          | String      | 0..1            |   Use appropriate units such as KB, MB, GB, or TB         |        NA                              | 2 GB       |
+
 ### 3.3. Person
+
+"Person" represents an individual involved in the data creation and/or submission process. This is a parent class for 'DatasetCreator' and 'SubmissionContact'. 'SubmissionContact' acts as a parent class for subclasses 'SubmittingUser' and 'AdditionalContact'.
+
+All properties belonging to class 'Person' are mandatory. 
+
+**Note:** All subclasses inherit the properties of their respective parent classes.
+
+#### 3.3.1. Mandatory Properties in Parent Class 'Study'
+
+| Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
+|---------------|------------|-------|-------------|------------|--------------------------------------|---------|
+|name           |Person's name            | String      | 1            |            |          NA                           |  John       |
+|surname           |Person's surname(s)            | String      | 1            |           |       NA                               |  Doe       |
+|email           |Person's email address          | String      | 1            |          |                NA                      | John.Doe@email.com      |
+|affiliation          |Institution to which the person is affiliated            | String      | 1            |           |        NA                              |  University of Luxembourg       |
+
+#### 3.3.2. Subclass: 'DatasetCreator'
+
+"DatasetCreator" represents the person(s) who contributed to the creation of the dataset. 
+
+This subclass inherits all properties from class 'Person', with no additional properties required. 
+
+#### 3.3.3. Subclass: 'SubmissionContact'
+
+"SubmissionContact" represents the contact point(s) associated with the submission. 
+
+This subclass inherits all properties from class 'Person', and has an additional mandatory property: 
+
+| Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
+|---------------|------------|-------|-------------|------------|--------------------------------------|---------|
+|role           |Contact's role            | Role (enumeration)      | 1            |            |          NA                           |  Principal Investigator       |
+
+'SubmissionContact' acts as a parent class for 'SubmittingUser' and 'AdditionalContact'. Both subclasses inherit all properties from class 'SubmissionContact', with no additional properties required.
 
 ### 3.4. Study
 
@@ -123,7 +167,7 @@ Class 'Distribution' does not contain any mandatory property.
 
 ### 3.5. Submission
 
-"Submission" is...
+"Submission" represents the process of submitting data to the system. It contains metadata describing that process. 
 
 #### 3.5.1. Mandatory Properties in Class 'Submission'
 
@@ -168,4 +212,127 @@ This section describes the enumerations and custom data types that support the c
 **Values:**
 - Heterogeneous: If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous.
 - Homogeneus: If the consent form has stayed the same over the course of the study but it has options so that different subjects can create different restrictions on their data, then this case is also considered heterogeneous.
-- Don't know
+- Don't_know
+
+### 4.3. Enumeration: 'DACApproval'
+
+**Description:** This enumeration contains the values to specify whether access to data will require DAC approval. It is used as a value range for property 'DAC approval' in class 'Dataset'.
+
+**Values:**
+- DAC_approval_needed
+- DAC_approval_not_needed
+
+### 4.4. Enumeration: 'DataType'
+
+**Description:** This enumeration includes the possible values to indicate the data types included in the dataset. It is used as a value range for property 'data types' in class 'Dataset'.
+
+**Note:** For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (*in italics*) and user-selectable items in the list. 
+
+**Values:**
+*Omics data*
+    *Genotype data*
+        - Whole_genome_sequencing
+        - Exome_sequencing
+        - Genomics_variant_array
+        - RNASeq
+        - Single Cell RNAseq
+    *Genetic and derived genetic data*
+        - Transcriptome_array
+        - Methylation_array
+        - MicroRNA_array
+        - ChIP-seq
+        - Metabolomics
+        - Metagenomics
+        - Metaproteomics
+        - Metatranscriptomics
+        - Proteomics
+    *Other omics data*
+*Imaging data*
+    - Clinical imaging
+    - Cell imaging
+    - Other imaging data
+*Human subject data*
+    - Clinical data
+    - Lifestyle data
+    - Socio Economic data
+    - Environmental data
+    - Ethnic origin
+    - Biometric data
+    - Other phenotype data
+Other
+
+### 4.5. Enumeration: 'De-identificationType'
+
+**Description:** This enumeration includes the possible values to indicate whether the data has been anonymized or pseudonymized, if applicable. It is used as a value range for property 'anonymized or pseudonimized' in class 'Dataset'.
+
+**Values:**
+- Anonymized: A dataset is considered anonymised if no stakeholder is holding a mapping from the Subject ID in the data to the identifying personal information e.g. name, surname, date of birth, address of the human subject supplying the data.
+- Pseudonimized: A dataset is considered pseudonymised if there exists some cohort owner/coordinator holding the mapping from the Subject ID to the human subject identifying personal information.
+- NA
+
+### 4.6. Enumeration: 'LegalBasis'
+
+**Description:** This enumeration includes the possible values to indicate to indicate the legal bases for the collection, sharing, and subsequent processing of personal data according to [Art.6.1 from the GDPR](https://gdpr-info.eu/art-6-gdpr/). It is used as a value range for property 'collection legal basis' and 'sharing legal basis' in class 'Dataset', respectively.
+
+**Values:**
+- Consent_(6.1(a))
+- Performance_contract_(6.1(b)): Performance of a contract to which the data subject is party (6.1(b))
+- Legal_obligation_(6.1(c)): Compliance with a legal obligation to which the controller is subject (6.1(c))
+- Vital_interests_(6.1(d)): Protection the vital interests of the data subject (6.1(d))
+- Public_interest_(6.1(e))
+- Legitimate_interest_(6.1(f))
+
+### 4.7. Enumeration: 'PersonalData'
+
+**Description:** This enumeration includes the possible values to indicate the personal data types included in the dataset according to [Art. 9.1](https://gdpr-info.eu/art-9-gdpr/) and [Art. 10](https://gdpr-info.eu/art-10-gdpr/) from the GDPR, if applicable. It is used as a value range for property 'personal data' in class 'Dataset'.
+
+**Note:** For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (*in italics*) and user-selectable items in the list. 
+
+**Values:**
+Non-human data
+Standard personal data
+*Special category, i.e. sensitive, personal data*
+- Racial or ethnic origin
+- Genetic data
+- Biometric data for the purpose of uniquely identifying a natural person
+- Data concerning health
+- Data concerning a natural person's sex life or sexual orientation
+- Data relating to criminal convictions and offences
+- Other special categories of data (e.g., molecular data that can give indication of a person's health)
+
+### 4.8. Enumeration: 'ReceivingProject'
+
+**Description:** This enumeration provides a list with the names of the projects of origin of both studies and datasets belonging to the studies. It is used as a value range for property 'receiving research project in class 'Submission'.
+
+**Values:**
+Values for projects are not shown in the diagram since the list of projects is retrieved from the [Data Information Syystem \(DAISY\)](https://github.com/elixir-luxembourg/daisy/) used at the LCSB and the ELIXIR-LU data hub. 
+
+### 4.9. Enumeration: 'RequestForm'
+
+**Description:** This enumeration includes the possible values to indicate whether all researchers accessing to data will need to sign an access request form. It is used as a value range for property 'access request form' in class 'Dataset'.
+
+**Values:**
+- Additional_form_needed 
+- No_additional_form_needed
+
+### 4.10. Enumeration: 'Role'
+
+**Description:** This enumeration contains the values to specify the job role of the submission contacts in the system.
+
+**Values:**
+- Principal_Investigator
+- Researcher
+- Data_Manager
+- Data_Protection_Officer
+- Legal_Representative
+- Other
+
+### 4.11. Enumeration: 'YesNoNA'
+
+**Description:** This enumeration includes the possible values for Yes/No questions. Additional values such as 'not applicable' and 'don't know' are also allowed. 
+
+**Values:**
+- Yes
+- No
+- NA: Not applicable
+- Don't_know
