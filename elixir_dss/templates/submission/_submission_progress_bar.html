@@ -7,7 +7,6 @@
         <div class="card-header bg-primary border-bottom p-3 d-flex justify-content-between align-items-center">
 
                 <h6 class="mb-0 fw-semibold text-light">
-                    <i class="bi bi-list me-2"></i>
                     {{ submission.ref_name }}
                 </h6>
                 {% if ((current_user.is_data_steward() and submission.current_status.step_num() < 5) or stp in [1,3]) and not submission.is_cancelled() %}

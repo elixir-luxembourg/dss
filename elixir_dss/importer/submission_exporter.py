@@ -59,8 +59,6 @@ class SubmissionExporter:
     def export_submission(self, sub: Submission) -> dict:
         # TODO: this method could be actually just Submission.to_dict() call
         sub_info = {}
-
-        # sub_info['external_id'] = sub.ref_name
         sub_info["source"] = "https://elixir-dcp.lcsb.uni.lu/"
         sub_info["contacts"] = []
         for contact in sub.submission_contacts:

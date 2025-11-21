@@ -385,6 +385,7 @@ class DatasetForm(FlaskForm):
         "Please state the agreed end date for data's residence at ELIXIR-LU/LCSB",
         description="",
         format="%Y-%m-%d",
+        validators=[Optional()],
     )
 
     restriction_rtn = BooleanField(
