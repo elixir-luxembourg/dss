@@ -3,7 +3,6 @@ Dear All,
 The following Submission has been CANCELLED.
 
 Ref Name: {{ submission.ref_name }}
-Title: {{ submission.title }}
 
 Cancelled By: {{ cancelled_by_user.display_name() if cancelled_by_user else "Unknown" }}
 Reason: {{ submission.cancellation_reason }}

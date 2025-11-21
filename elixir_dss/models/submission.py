@@ -144,7 +144,6 @@ class Submission(db.Model):
     ref_name = db.Column(
         db.String(45), index=True, unique=True, nullable=False, default=uniqid()
     )
-    title = db.Column(db.String(75), nullable=False)
     created_on = db.Column(db.Date, nullable=False)
     finalised_on = db.Column(db.Date)
     current_status = db.Column(
@@ -256,7 +255,7 @@ class Submission(db.Model):
             return True
 
     def is_overview_info_complete(self):
-        return self.title and self.submission_contacts
+        return self.submission_contacts
 
     def is_detail_info_complete(self):
         return self.studies and self.datasets
@@ -265,7 +264,6 @@ class Submission(db.Model):
         base_dict = {
             "id": self.id,
             "ref_name": self.ref_name,
-            "title": self.title,
             "submission_contacts": self.submission_contacts,
             "local_custodians_json": self.local_custodians_json,
             "local_project_name": self.local_project_name,

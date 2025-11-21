@@ -14,7 +14,7 @@ class SubmissionExporter:
         objects would be Submission objects
         i.e.:
         objects = Submission.query.all()
-        objects = Submission.query.filter(title='Submission title')
+        objects = Submission.query.filter(ref_name='ELX_LU_SUB-123')
         """
         if objects is not None:
             self.objects = objects
@@ -67,7 +67,7 @@ class SubmissionExporter:
             contact_info = self.export_contact(sub, contact)
             sub_info["contacts"].append(contact_info)
         sub_info["name"] = sub.ref_name
-        sub_info["title"] = sub.title
+        sub_info["ref_name"] = sub.ref_name
         sub_info["submission_scope_code"] = sub.submission_scope_code
         sub_info["submitting_institution_accession"] = sub.institution_accession
         sub_info["submitting_institution_name"] = sub.provider_institute_name()

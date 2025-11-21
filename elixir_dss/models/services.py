@@ -105,9 +105,8 @@ def revert_sub(submission_id: str):
         )
 
 
-def create_sub(title: str, institute_accession: str):
+def create_sub(institute_accession: str):
     new_submission = Submission()
-    new_submission.title = title
     new_submission.institution_accession = institute_accession
     new_submission.created_on = datetime.today()
     db.session.add(new_submission)
@@ -468,9 +467,6 @@ def send_async_email_target(app, msg):
 
 
 def update_submission_basic_info(submission: Submission, **kwargs):
-    if "title" in kwargs:
-        submission.title = kwargs.pop("title")
-
     if "submission_scope_code" in kwargs:
         submission.submission_scope_code = kwargs.pop("submission_scope_code")
 
@@ -552,7 +548,6 @@ def update_user_info(usr: User, **kwargs):
 
 def clone_sub(
     original_submission_id: int,
-    clone_title_suffix=" (Clone)",
     clone_studies=True,
     clone_datasets=True,
 ) -> Submission:
@@ -565,18 +560,7 @@ def clone_sub(
     """
     try:
         old_sub = Submission.query.get_or_404(original_submission_id)
-
-        # setting title
-        base_title = f"{old_sub.title}{clone_title_suffix}"
-        existing_clones = Submission.query.filter(
-            Submission.title.like(f"{base_title}%")
-        ).count()
-        title = (
-            f"{base_title} {existing_clones + 1}" if existing_clones > 0 else base_title
-        )
-
         new_sub = Submission(
-            title=title,
             institution_accession=old_sub.institution_accession,
             created_on=datetime.now(),
             submission_scope_code=old_sub.submission_scope_code,
@@ -747,53 +731,3 @@ def invite_submitters(submission: Submission, contacts: list[Contact]):
     db.session.commit()
     if users_for_invitation:
         send_invitations(submission, users_for_invitation)
-
-
-"""
-def export_submission(sub: Submission):
-    sub_info = {}
-
-    #sub_info['external_id'] = sub.ref_name
-    sub_info['source'] = 'https://elixir-dcp.lcsb.uni.lu/'
-    sub_info['name'] = sub.ref_name
-    sub_info['title'] = sub.title
-    sub_info['submission_scope_code'] = sub.submission_scope_code
-    sub_info['submitting_institution_accession'] = sub.institution_accession
-    sub_info['submitting_institution_name'] = sub.provider_institute_name()
-    sub_info['submitting_institution_address'] = sub.provider_institute_address()
-
-    sub_info['created_on'] = sub.created_on.strftime("%Y-%m-%d")
-    if sub.finalised_on:
-        sub_info['finalised_on'] = sub.finalised_on.strftime("%Y-%m-%d")
-    sub_info['submission_scope_code'] = sub.submission_scope.code
-    sub_info['submission_scope_label'] = sub.submission_scope.label
-    if sub.local_custodians_json:
-        sub_info['local_custodians'] = json.loads(sub.local_custodians_json)
-    if sub.local_project_name:
-        sub_info['local_project'] = sub.local_project_name
-
-    submitters = []
-    for access in sub.submission_accesses:
-        provider_info = {}
-        provider_info['institution'] = access.user.institution_accession
-        provider_info['email'] = access.user.email
-        provider_info['first_name'] = access.user.first_name
-        provider_info['last_name'] = access.user.last_name
-        provider_info['phone_no'] = access.user.phone_no
-
-        if access.user.addr_line1 or access.user.addr_line2:
-            provider_info['address'] = (access.user.addr_line1 or '') + ' ' + (access.user.addr_line2 or '')
-
-        provider_info['role'] = 'Data_Manager'
-        submitters.append(provider_info)
-
-    sub_info['data_providers'] = submitters
-
-    sub_info['studies'] = export_studies(sub)
-
-    sub_info['data_declarations'] = export_datasets(sub)
-
-    sub_info['attachments'] = export_attachment_info(sub)
-
-    return sub_info
-"""

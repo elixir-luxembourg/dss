@@ -66,7 +66,6 @@
                     <thead class="table-light border-bottom border-secondary border-opacity-25">
                     <tr>
                         <th>Reference No</th>
-                        <th>Title</th>
                         <th>Recipient Project</th>
                         <th>Created On</th>
                         <th>Status</th>
@@ -79,11 +78,6 @@
                             <td>
                                 <a href="{{ url_for('view_submission', sub_id=submission.id) }}" class="text-primary text-decoration-none fw-medium">
                                     {{ submission.ref_name }}
-                                </a>
-                            </td>
-                            <td>
-                                <a href="{{ url_for('view_submission', sub_id=submission.id) }}" class="text-dark text-decoration-none">
-                                    {{ submission.title }}
                                 </a>
                             </td>
                             <td>{{ submission.local_project_name | default('-', true) }}</td>

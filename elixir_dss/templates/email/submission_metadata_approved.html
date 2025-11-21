@@ -8,12 +8,6 @@
         </td>
     </tr>
     <tr valign="top">
-        <td>Title:</td>
-        <td>
-            {{ submission.title }}
-        </td>
-    </tr>
-    <tr valign="top">
         <td>Submission Page:</td>
         <td>
             <a href="{{ url_for('view_submission',sub_id=submission.id,  _external=True) }}">{{ url_for('view_submission',sub_id=submission.id,  _external=True) }}</a><br/>

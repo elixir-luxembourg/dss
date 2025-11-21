@@ -4,7 +4,6 @@ The following submission has been steered to the Dataset Upload stage. The data 
 
 
 Ref Name: {{ submission.ref_name }}
-Title: {{ submission.title }}
 Submission Page: {{ url_for('view_submission',sub_id=submission.id,  _external=True) }}
 
 

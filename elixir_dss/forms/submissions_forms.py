@@ -313,24 +313,10 @@ class ReviewFeedbackForm(FlaskForm):
 
 class SubmissionForm(FlaskForm):
     """
-    Form for updating a submission's title and
-     detail info found in related beans.
+    Form for creating or updating a Submission.
     """
 
     id = HiddenField("Submission_Id")
-
-    title = StringField(
-        "Title",
-        description="Please provide a short descriptive title for the submission. ELIXIR LU data stewards  may refer this title when communicating with you.",
-        validators=[
-            DataRequired(),
-            Regexp(
-                r"^[\w\s\-]+$",
-                message="Title must contain only letters, digits, underscore or dash",
-            ),
-            Length(min=5, max=75, message="Title must be between 5 & 75 characters"),
-        ],
-    )
 
     provider_user_ids = SelectMultipleField(
         "Submitting users",

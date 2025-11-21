@@ -8,10 +8,6 @@
         <td>{{ submission.ref_name }}</td>
     </tr>
     <tr valign="top">
-        <td>Title:</td>
-        <td>{{ submission.title }}</td>
-    </tr>
-    <tr valign="top">
         <td>Cancelled By:</td>
         <td>{{ cancelled_by_user.display_name() if cancelled_by_user else "Unknown" }}</td>
     </tr>

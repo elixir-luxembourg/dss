@@ -2,7 +2,6 @@
 The following Submission has a new message.
 
 Ref Name: {{ submission.ref_name }}
-Title: {{ submission.title }}
 Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
 
 

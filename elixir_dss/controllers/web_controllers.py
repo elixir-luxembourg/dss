@@ -473,9 +473,7 @@ def get_submission(sub_id):
 @app_authorization(allowed_roles=["data_steward"])
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
-    submission_rec = create_sub(
-        creation_form.title.data, creation_form.institution_accession.data
-    )
+    submission_rec = create_sub(creation_form.institution_accession.data)
     flash(f"New submission {submission_rec.ref_name} created", "success")
     return redirect(url_for("list_submissions"))
 
@@ -551,7 +549,6 @@ def edit_submission(sub_id):
             form.populate_obj(submission_rec)
             update_submission_basic_info(
                 submission_rec,
-                title=form.title.data,
                 submission_scope_code=form.submission_scope_code.data,
                 local_custodians_json=json.dumps(form.local_custodians.data),
                 local_project_name=form.local_project_name.data,

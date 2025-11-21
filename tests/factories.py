@@ -41,7 +41,6 @@ class SubmissionFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
 
-    title = factory.Faker("sentence", nb_words=4)
     ref_name = factory.Sequence(lambda n: f"submission-{n}")
     institution_accession = "ELU_I_77"
     submission_scope_code = "e"
