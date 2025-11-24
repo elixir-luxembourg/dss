@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import click
 from flask.cli import FlaskGroup
-from flask_migrate import Migrate
 
 from elixir_dss import app, db
 from elixir_dss.importer.importer_utils import schedule_submission_export
@@ -15,8 +14,6 @@ from elixir_dss.models.submission import (
     SubjectCategory,
     SubmissionScope,
 )
-
-migrate_instance = Migrate(app, db)
 
 cli = FlaskGroup(app)
 
