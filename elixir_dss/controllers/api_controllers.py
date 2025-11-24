@@ -28,7 +28,7 @@ def get_elu_entities(entity_name):
             f"{daisy_url}/api/{entity_name}",
             params={"API_KEY": api_key, "fields": "external_id,acronym,name"},
             timeout=10,
-            verify=False,
+            verify=app.config.get("DAISY_VERIFY_SSL"),
         )
         result.raise_for_status()
         data = result.json()
