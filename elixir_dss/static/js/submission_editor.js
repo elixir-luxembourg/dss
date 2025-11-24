@@ -212,30 +212,13 @@ $(document).ready(function () {
 
     const checkbox = document.getElementById("responsibilityCheck");
     const confirmBtn = document.getElementById("responsibilityConfirmBtn");
-    const modalEl = document.getElementById("responsibilityModal");
 
-    if (checkbox && confirmBtn && modalEl) {
-        checkbox.addEventListener("change", function () {
+    if (checkbox && confirmBtn) {
+        checkbox.addEventListener("change", () => {
             confirmBtn.disabled = !checkbox.checked;
         });
 
-        confirmBtn.addEventListener("click", function () {
-            const endpoint = confirmBtn.dataset.url;
-            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-            modal.hide();
-            $.ajax({
-                url: endpoint,
-                type: "get",
-                success: function () {
-                    location.reload();
-                },
-                error: function () {
-                    location.reload();
-                }
-            });
-        });
-
-        modalEl.addEventListener('show.bs.modal', function () {
+        document.getElementById("responsibilityModal").addEventListener("show.bs.modal", () => {
             checkbox.checked = false;
             confirmBtn.disabled = true;
         });

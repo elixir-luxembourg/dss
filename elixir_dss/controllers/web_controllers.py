@@ -410,6 +410,37 @@ def steer_submission(sub_id):
         return "", 400
 
 
+@app.route("/steer/submission/<int:sub_id>/confirmed", methods=["POST"])
+@app_authorization(
+    allowed_roles=["user", "data_steward"],
+    record_authorization={
+        "entity": "Submission",
+        "entity_id_key": "sub_id",
+        "entity_ac_attribute": "id",
+    },
+)
+def steer_submission_confirmed(sub_id):
+    responsibility_ack = request.form.get("responsibility_ack")
+    if not responsibility_ack:
+        flash("You must acknowledge the responsibilities before proceeding.", "error")
+        return redirect(url_for("view_submission", sub_id=sub_id))
+
+    if not request.form.get("csrf_token") or not current_user.is_authenticated:
+        flash("Unauthorized or invalid request", "error")
+        return redirect(url_for("view_submission", sub_id=sub_id))
+
+    try:
+        sub_with_new_state = steer_sub(sub_id)
+        flash(
+            f"Submission moved to next state {sub_with_new_state.current_status.value}!",
+            "success",
+        )
+    except exceptions.RecordLifecycleException as e:
+        app.logger.error("ERROR %s", e)
+        flash("Unable to transition submission to the next state", "error")
+    return redirect(url_for("view_submission", sub_id=sub_id))
+
+
 @app.route("/revert/submission/<int:sub_id>", methods=["GET"])
 @app_authorization(allowed_roles=["data_steward"])
 def revert_submission(sub_id):

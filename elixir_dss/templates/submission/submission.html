@@ -831,6 +831,8 @@
     <div class="modal fade" id="responsibilityModal" tabindex="-1" aria-labelledby="responsibilityModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
+                <form method="POST" action="{{ url_for('steer_submission_confirmed', sub_id=submission.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="responsibilityModalLabel">
@@ -857,8 +859,8 @@
                         </ul>
                     </div>
 
-                    <div class="form-check mt-3">
-                        <input class="form-check-input" type="checkbox" id="responsibilityCheck">
+                        <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="responsibilityCheck" name="responsibility_ack" required>
                         <label class="small form-check-label" for="responsibilityCheck">
                             I acknowledge and accept these responsibilities.
                         </label>
@@ -867,10 +869,11 @@
 
                 <div class="modal-footer border-top">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" id="responsibilityConfirmBtn" class="btn btn-primary" disabled>
+                    <button type="submit" id="responsibilityConfirmBtn" class="btn btn-primary" disabled>
                         Proceed
                     </button>
                 </div>
+                </form>
             </div>
         </div>
     </div>
