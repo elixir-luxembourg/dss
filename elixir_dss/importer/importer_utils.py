@@ -72,11 +72,11 @@ def get_submissions_to_export(
     if submissions_to_export:
         submissions_indexes = []
         for idx, submission in enumerate(submissions):
-            if submission.title in submissions_to_export:
+            if submission.ref_name in submissions_to_export:
                 submissions_indexes.append(idx)
             else:
                 app.logger.warnings(
-                    f"Submission {submission.title} not found. Skipping..."
+                    f"Submission {submission.ref_name} not found. Skipping..."
                 )
         submissions = submissions[submissions_indexes]  # check if this works
     return submissions

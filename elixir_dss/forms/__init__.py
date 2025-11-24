@@ -10,6 +10,7 @@ from wtforms import (
     SelectField,
     SelectMultipleField,
     StringField,
+    TextAreaField,
 )
 from wtforms.validators import DataRequired, Email, Length, Regexp
 
@@ -17,11 +18,11 @@ from elixir_dss.controllers.api_controllers import get_elu_partners
 from elixir_dss.forms.submissions_forms import (
     AttachmentForm,
     ContactForm,
-    DatasetForm,
     MessageForm,
     StudyForm,
     SubmissionForm,
 )
+from elixir_dss.forms.submission_datasets_forms import DatasetForm
 from elixir_dss.models.security import Role
 
 from .validators import OptionalFieldValidator
@@ -193,6 +194,12 @@ class UserForm(SignupForm):
         self.assigned_role_ids.choices = [
             (rol.id, rol.name) for rol in Role.query.all()
         ]
+
+
+class CancelSubmissionForm(FlaskForm):
+    cancellation_reason = TextAreaField(
+        "Reason for Cancellation", validators=[DataRequired()]
+    )
 
 
 __all__ = [

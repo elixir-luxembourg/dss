@@ -4,7 +4,6 @@ Your metadata submission has been reviewed and requires changes before it can be
 
 
 Ref Name: {{ submission.ref_name }}
-Title: {{ submission.title }}
 Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
 
 

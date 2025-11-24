@@ -20,6 +20,8 @@ class User(UserMixin, db.Model):
 
     active_user = db.Column(db.Boolean, nullable=False)
 
+    submission_accesses = db.relationship("SubmissionAccess", back_populates="user")
+
     @property
     def is_active(self):
         """Override UserMixin.is_active to use our active_user field."""
@@ -57,6 +59,9 @@ class User(UserMixin, db.Model):
 
     def is_data_steward(self):
         return self.has_role_from(["data_steward"])
+
+    def get_accessible_submission_ids(self) -> list[int]:
+        return [access.submission_id for access in self.submission_accesses]
 
 
 class Role(db.Model):

@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import uuid
-from datetime import datetime, UTC, timezone
+from datetime import date, datetime, UTC, timezone
 
 from flask import (
     flash,
@@ -41,6 +41,8 @@ from elixir_dss.models.services import (
     update_submission_basic_info,
     update_user_info,
     clone_sub,
+    cancel_sub,
+    invite_submitters,
 )
 from elixir_dss.models.submission import (
     Contact,
@@ -54,6 +56,12 @@ from elixir_dss.models.submission import (
 )
 
 from . import app_authorization
+
+
+def _split_semicolon_values(raw_value):
+    if not raw_value:
+        return []
+    return [value.strip() for value in raw_value.split(";") if value and value.strip()]
 
 
 @app.route("/", methods=["GET"])
@@ -147,6 +155,18 @@ def auth_callback():
     user = User.query.filter_by(elixir_sub_id=sub).first()
     if not user and email:
         user = User.query.filter_by(email=email).first()
+        if user:
+            user.elixir_sub_id = sub
+            db.session.add(user)
+            db.session.commit()
+            app.logger.info(f"User {user.email} connected")
+            sub_ids = user.get_accessible_submission_ids()
+            if sub_ids:
+                login_user(user)
+                flash("Logged in successfully!", "success")
+                if len(sub_ids) > 1:
+                    return redirect(url_for("list_my_submissions"))
+                return redirect(url_for("view_submission", sub_id=sub_ids[0]))
 
     if not user:
         user = User(
@@ -414,6 +434,7 @@ def list_submissions():
         "submission/submissions.html",
         submissions=submissions,
         submsn_create_form=forms.SubmissionForm(),
+        cancel_submission_form=forms.CancelSubmissionForm(),
     )
 
 
@@ -427,7 +448,9 @@ def list_my_submissions():
     my_submissions = get_in_progress_submissions_shared_with_user(current_user.id)
 
     return render_template(
-        "submission/my_submissions.html", my_submissions=my_submissions
+        "submission/my_submissions.html",
+        my_submissions=my_submissions,
+        cancel_submission_form=forms.CancelSubmissionForm(),
     )
 
 
@@ -450,9 +473,7 @@ def get_submission(sub_id):
 @app_authorization(allowed_roles=["data_steward"])
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
-    submission_rec = create_sub(
-        creation_form.title.data, creation_form.institution_accession.data
-    )
+    submission_rec = create_sub(creation_form.institution_accession.data)
     flash(f"New submission {submission_rec.ref_name} created", "success")
     return redirect(url_for("list_submissions"))
 
@@ -528,16 +549,15 @@ def edit_submission(sub_id):
             form.populate_obj(submission_rec)
             update_submission_basic_info(
                 submission_rec,
-                title=form.title.data,
                 submission_scope_code=form.submission_scope_code.data,
                 local_custodians_json=json.dumps(form.local_custodians.data),
                 local_project_name=form.local_project_name.data,
                 institution_accession=form.institution_accession.data,
-                provider_user_ids=form.provider_user_ids.data
-                if request.form.get("provider_user_ids")
-                else None,
+                provider_user_ids=form.provider_user_ids.data,
             )
 
+            if current_user.is_data_steward():
+                invite_submitters(submission_rec, submission_rec.submission_contacts)
             flash("Submission updated", "success")
             return redirect(url_for("view_submission", sub_id=submission_rec.id))
         else:
@@ -565,6 +585,67 @@ def clone_submission(submission_id):
 
     flash(f"Submission {new_sub.ref_name} cloned successfully.", "success")
     return redirect(url_for("view_submission", sub_id=new_sub.id))
+
+
+@app.route("/submission/cancel/<int:sub_id>", methods=["POST"])
+@app_authorization(
+    allowed_roles=["user", "data_steward"],
+    record_authorization={
+        "entity": "Submission",
+        "entity_id_key": "sub_id",
+        "entity_ac_attribute": "id",
+    },
+)
+def cancel_submission(sub_id):
+    submission = Submission.query.get_or_404(sub_id)
+
+    reason = request.form.get("cancellation_reason", "").strip()
+    if not reason:
+        flash("Cancellation failed: Reason is required.", "danger")
+        if current_user.is_data_steward():
+            dest = url_for("list_submissions")
+        else:
+            dest = url_for("list_my_submissions")
+
+        return redirect(dest)
+
+    # authorization - owners OR data stewards
+    is_owner = int(current_user.get_id()) in submission.provider_user_ids()
+    if not (current_user.is_data_steward() or is_owner):
+        return (
+            render_template(
+                "error.html",
+                message="Error 403 - You are not authorized to cancel this submission.",
+                show_home_link=True,
+            ),
+            403,
+        )
+
+    if submission.is_cancelled():
+        flash("Submission already cancelled.", "warning")
+        if current_user.is_data_steward():
+            dest = url_for("list_submissions")
+        else:
+            dest = url_for("list_my_submissions")
+
+        return redirect(dest)
+
+    try:
+        cancel_sub(submission=submission, reason=reason, cancelled_by_user=current_user)
+        db.session.commit()
+
+        flash(f"Submission {submission.ref_name} successfully cancelled.", "success")
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"cancel submission error: {e}")
+        flash("Internal error while cancelling submission.", "danger")
+
+    if current_user.is_data_steward():
+        dest = url_for("list_submissions")
+    else:
+        dest = url_for("list_my_submissions")
+
+    return redirect(dest)
 
 
 """-------------------------------------------------------"""
@@ -727,14 +808,34 @@ def add_submission_dataset(sub_id):
                 dataset.gdpr_datatypes_json = json.dumps(
                     posted_form.gdpr_datatypes.data
                 )
-            dataset.external_id = generate_id(dataset.title)
+            if posted_form.data_standards.data:
+                dataset.data_standards_json = json.dumps(
+                    posted_form.data_standards.data
+                )
+            if posted_form.file_types.data:
+                dataset.file_types_json = json.dumps(posted_form.file_types.data)
+            if posted_form.sample_types.data:
+                dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
+            if (
+                hasattr(posted_form, "data_type_bg_or_result")
+                and posted_form.data_type_bg_or_result.data
+            ):
+                dataset.data_type_bg_or_result = json.dumps(
+                    posted_form.data_type_bg_or_result.data
+                )
+            else:
+                dataset.data_type_bg_or_result = None
+            dataset.internal_id = generate_id(dataset.title)
+            dataset.creation_date = date.today()
+            dataset.last_update_date = date.today()
             db.session.add(dataset)
             db.session.commit()
             flash("Dataset added", "success")
             return redirect(url_for("view_submission", sub_id=dataset.submission_id))
         else:
             return render_template(
-                "submission/dataset_form.html", dataset_form=posted_form
+                "submission/dataset_form.html",
+                dataset_form=posted_form,
             ), 400
 
 
@@ -751,37 +852,70 @@ def edit_submission_dataset(dataset_id):
     if request.method == "GET":
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
         result_form = forms.DatasetForm(obj=dataset)
+        result_form.title.render_kw = {"readonly": True}
         if dataset.sci_datatypes_json:
             result_form.sci_datatypes.data = json.loads(dataset.sci_datatypes_json)
         if dataset.gdpr_datatypes_json:
             result_form.gdpr_datatypes.data = json.loads(dataset.gdpr_datatypes_json)
+        if dataset.data_standards_json:
+            result_form.data_standards.data = json.loads(dataset.data_standards_json)
+        if dataset.file_types_json:
+            result_form.file_types.data = json.loads(dataset.file_types_json)
+        if dataset.sample_types_json:
+            result_form.sample_types.data = json.loads(dataset.sample_types_json)
+        if (
+            hasattr(result_form, "data_type_bg_or_result")
+            and dataset.data_type_bg_or_result
+        ):
+            result_form.data_type_bg_or_result.data = json.loads(
+                dataset.data_type_bg_or_result
+            )
         return render_template(
-            "submission/dataset_form.html", dataset_form=result_form
+            "submission/dataset_form.html",
+            dataset_form=result_form,
         ), 200
     elif request.method == "POST":
+        dataset = SubmissionDataset.query.get_or_404(dataset_id)
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
-            dataset = SubmissionDataset.query.get_or_404(dataset_id)
+            original_title = dataset.title
             posted_form.populate_obj(dataset)
+            dataset.title = original_title
 
             if posted_form.sci_datatypes.data:
                 dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
-
             if posted_form.gdpr_datatypes.data:
                 dataset.gdpr_datatypes_json = json.dumps(
                     posted_form.gdpr_datatypes.data
                 )
-
-            if not dataset.external_id:
-                dataset.external_id = generate_id(dataset.title)
-
+            if posted_form.data_standards.data:
+                dataset.data_standards_json = json.dumps(
+                    posted_form.data_standards.data
+                )
+            if posted_form.file_types.data:
+                dataset.file_types_json = json.dumps(posted_form.file_types.data)
+            if posted_form.sample_types.data:
+                dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
+            if (
+                hasattr(posted_form, "data_type_bg_or_result")
+                and posted_form.data_type_bg_or_result.data
+            ):
+                dataset.data_type_bg_or_result = json.dumps(
+                    posted_form.data_type_bg_or_result.data
+                )
+            else:
+                dataset.data_type_bg_or_result = None
+            if not dataset.internal_id:
+                dataset.internal_id = generate_id(dataset.title)
+            dataset.last_update_date = date.today()
             db.session.add(dataset)
             db.session.commit()
             flash("Dataset updated", "success")
             return redirect(url_for("view_submission", sub_id=dataset.submission_id))
         else:
             return render_template(
-                "submission/dataset_form.html", dataset_form=posted_form
+                "submission/dataset_form.html",
+                dataset_form=posted_form,
             ), 400
 
 
@@ -828,11 +962,81 @@ def add_submission_study(sub_id):
             int(posted_form.submission_id.data) == sub_id
         ):
             study_rec = SubmissionStudy()
-            posted_form.populate_obj(study_rec)
+            # Exclude fields that are manually handled as JSON
+            exclude_fields = {
+                "external_identifiers",
+                "species",
+                "diseases",
+                "sample_sources",
+                "other_subject_characteristics",
+                "study_types",
+                "study_contacts",
+            }
+            for field_name, field in posted_form._fields.items():
+                if field_name not in exclude_fields:
+                    field.populate_obj(study_rec, field_name)
             study_rec.id = None
+
             if posted_form.study_types.data:
                 study_rec.study_types_json = json.dumps(posted_form.study_types.data)
+            else:
+                study_rec.study_types_json = json.dumps([])
+
+            ext_ids = _split_semicolon_values(posted_form.external_identifiers.data)
+            study_rec.external_identifiers_json = (
+                json.dumps(ext_ids) if ext_ids else None
+            )
+
+            species_values = _split_semicolon_values(posted_form.species.data)
+            study_rec.species_json = (
+                json.dumps(species_values) if species_values else None
+            )
+
+            disease_values = _split_semicolon_values(posted_form.diseases.data)
+            study_rec.diseases_json = (
+                json.dumps(disease_values) if disease_values else None
+            )
+
+            sample_source_values = _split_semicolon_values(
+                posted_form.sample_sources.data
+            )
+            study_rec.sample_sources_json = (
+                json.dumps(sample_source_values) if sample_source_values else None
+            )
+
+            other_characteristics = _split_semicolon_values(
+                posted_form.other_subject_characteristics.data
+            )
+            study_rec.other_subject_characteristics_json = (
+                json.dumps(other_characteristics) if other_characteristics else None
+            )
+
+            study_rec.multi_center_study = posted_form.multi_center_study.data or False
+            study_rec.informed_consent_given = posted_form.informed_consent_given.data
+
+            study_rec.study_characteristics = posted_form.study_characteristics.data
+            study_rec.number_of_subjects = posted_form.number_of_subjects.data
+            study_rec.age_range_of_subjects = posted_form.age_range_of_subjects.data
+            study_rec.description_of_data_subjects = (
+                posted_form.description_of_data_subjects.data
+            )
+            study_rec.description_of_cohorts = posted_form.description_of_cohorts.data
+            study_rec.contact_remarks = posted_form.contact_remarks.data
+
             db.session.add(study_rec)
+            db.session.flush()
+
+            for contact_form in posted_form.study_contacts:
+                contact = Contact()
+                contact.first_name = contact_form.first_name.data
+                contact.last_name = contact_form.last_name.data
+                contact.email = contact_form.email.data
+                contact.institution = contact_form.institution.data
+                contact.category_id = contact_form.category_id.data
+                contact.is_main_contact = contact_form.is_main_contact.data
+                contact.study_id = study_rec.id
+                db.session.add(contact)
+
             db.session.commit()
             flash("Study added", "success")
             return redirect(url_for("view_submission", sub_id=study_rec.submission_id))
@@ -855,8 +1059,30 @@ def edit_submission_study(study_id):
     if request.method == "GET":
         study_rec = SubmissionStudy.query.get_or_404(study_id)
         result_form = forms.StudyForm(obj=study_rec)
+
         if study_rec.study_types_json:
             result_form.study_types.data = json.loads(study_rec.study_types_json)
+
+        ext_ids = json.loads(study_rec.external_identifiers_json or "[]")
+        if ext_ids:
+            result_form.external_identifiers.data = "; ".join(ext_ids)
+
+        species = json.loads(study_rec.species_json or "[]")
+        if species:
+            result_form.species.data = "; ".join(species)
+
+        diseases = json.loads(study_rec.diseases_json or "[]")
+        if diseases:
+            result_form.diseases.data = "; ".join(diseases)
+
+        sample_sources = json.loads(study_rec.sample_sources_json or "[]")
+        if sample_sources:
+            result_form.sample_sources.data = "; ".join(sample_sources)
+
+        other_chars = json.loads(study_rec.other_subject_characteristics_json or "[]")
+        if other_chars:
+            result_form.other_subject_characteristics.data = "; ".join(other_chars)
+
         return render_template(
             "submission/study_form.html", study_form=result_form
         ), 200
@@ -864,9 +1090,79 @@ def edit_submission_study(study_id):
         posted_form = forms.StudyForm(request.form)
         if posted_form.validate_on_submit():
             study_rec = SubmissionStudy.query.get_or_404(study_id)
-            posted_form.populate_obj(study_rec)
+            # Exclude fields that are manually handled as JSON
+            exclude_fields = {
+                "external_identifiers",
+                "species",
+                "diseases",
+                "sample_sources",
+                "other_subject_characteristics",
+                "study_types",
+                "study_contacts",
+            }
+            for field_name, field in posted_form._fields.items():
+                if field_name not in exclude_fields:
+                    field.populate_obj(study_rec, field_name)
+
             if posted_form.study_types.data:
                 study_rec.study_types_json = json.dumps(posted_form.study_types.data)
+            else:
+                study_rec.study_types_json = json.dumps([])
+
+            ext_ids = _split_semicolon_values(posted_form.external_identifiers.data)
+            study_rec.external_identifiers_json = (
+                json.dumps(ext_ids) if ext_ids else None
+            )
+
+            species_values = _split_semicolon_values(posted_form.species.data)
+            study_rec.species_json = (
+                json.dumps(species_values) if species_values else None
+            )
+
+            disease_values = _split_semicolon_values(posted_form.diseases.data)
+            study_rec.diseases_json = (
+                json.dumps(disease_values) if disease_values else None
+            )
+
+            sample_source_values = _split_semicolon_values(
+                posted_form.sample_sources.data
+            )
+            study_rec.sample_sources_json = (
+                json.dumps(sample_source_values) if sample_source_values else None
+            )
+
+            other_characteristics = _split_semicolon_values(
+                posted_form.other_subject_characteristics.data
+            )
+            study_rec.other_subject_characteristics_json = (
+                json.dumps(other_characteristics) if other_characteristics else None
+            )
+
+            study_rec.multi_center_study = posted_form.multi_center_study.data or False
+            study_rec.informed_consent_given = posted_form.informed_consent_given.data
+
+            study_rec.study_characteristics = posted_form.study_characteristics.data
+            study_rec.number_of_subjects = posted_form.number_of_subjects.data
+            study_rec.age_range_of_subjects = posted_form.age_range_of_subjects.data
+            study_rec.description_of_data_subjects = (
+                posted_form.description_of_data_subjects.data
+            )
+            study_rec.description_of_cohorts = posted_form.description_of_cohorts.data
+            study_rec.contact_remarks = posted_form.contact_remarks.data
+
+            Contact.query.filter_by(study_id=study_rec.id).delete()
+
+            for contact_form in posted_form.study_contacts:
+                contact = Contact()
+                contact.first_name = contact_form.first_name.data
+                contact.last_name = contact_form.last_name.data
+                contact.email = contact_form.email.data
+                contact.institution = contact_form.institution.data
+                contact.category_id = contact_form.category_id.data
+                contact.is_main_contact = contact_form.is_main_contact.data
+                contact.study_id = study_rec.id
+                db.session.add(contact)
+
             db.session.add(study_rec)
             db.session.commit()
             flash("Study updated", "success")

@@ -12,12 +12,14 @@ fi
 echo "=== Updating Elixir DSS ==="
 
 cd "$APP_DIR"
-git checkout develop
 git pull
 
 # Update Python dependencies
 source project_venv/bin/activate
 pip install -e . --upgrade
+
+# Apply database migrations
+flask db upgrade
 
 # Build frontend assets
 cd elixir_dss/static/vendor

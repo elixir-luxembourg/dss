@@ -6,7 +6,7 @@ from flask import flash, render_template
 from flask_mail import Message
 from sqlalchemy import and_, select
 
-from elixir_dss import app, db, mail
+from elixir_dss import app, db, mail, lft
 from elixir_dss.exceptions import RecordLifecycleException, RecordNotExistsException
 from elixir_dss.models.security import Role, User, UsersRoles
 from elixir_dss.models.submission import (
@@ -105,9 +105,8 @@ def revert_sub(submission_id: str):
         )
 
 
-def create_sub(title: str, institute_accession: str):
+def create_sub(institute_accession: str):
     new_submission = Submission()
-    new_submission.title = title
     new_submission.institution_accession = institute_accession
     new_submission.created_on = datetime.today()
     db.session.add(new_submission)
@@ -325,6 +324,24 @@ def send_data_rejected_notification(submission: Submission, feedback):
     )
 
 
+def send_invitations(submission: Submission, users: list[User]):
+    recipients = []
+    for user in users:
+        recipients.append(user.email)
+    recipients = recipients + app.config.get("DATA_STEWARDS_MAILS")
+
+    persist_and_send_notification(
+        "Invitation to collaborate on Submission [%s]" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template("email/submission_invitation.txt", submission=submission),
+        render_template(
+            "email/submission_invitation.html",
+            submission=submission,
+        ),
+    )
+
+
 def approve_metadata(submission_id, reviewer_id, feedback=None):
     submission = Submission.query.get_or_404(submission_id)
     submission.current_status = SubmissionStatusEnum.data_upload
@@ -450,9 +467,6 @@ def send_async_email_target(app, msg):
 
 
 def update_submission_basic_info(submission: Submission, **kwargs):
-    if "title" in kwargs:
-        submission.title = kwargs.pop("title")
-
     if "submission_scope_code" in kwargs:
         submission.submission_scope_code = kwargs.pop("submission_scope_code")
 
@@ -534,7 +548,6 @@ def update_user_info(usr: User, **kwargs):
 
 def clone_sub(
     original_submission_id: int,
-    clone_title_suffix=" (Clone)",
     clone_studies=True,
     clone_datasets=True,
 ) -> Submission:
@@ -547,18 +560,7 @@ def clone_sub(
     """
     try:
         old_sub = Submission.query.get_or_404(original_submission_id)
-
-        # setting title
-        base_title = f"{old_sub.title}{clone_title_suffix}"
-        existing_clones = Submission.query.filter(
-            Submission.title.like(f"{base_title}%")
-        ).count()
-        title = (
-            f"{base_title} {existing_clones + 1}" if existing_clones > 0 else base_title
-        )
-
         new_sub = Submission(
-            title=title,
             institution_accession=old_sub.institution_accession,
             created_on=datetime.now(),
             submission_scope_code=old_sub.submission_scope_code,
@@ -575,11 +577,12 @@ def clone_sub(
         for c in old_sub.submission_contacts:
             db.session.add(
                 Contact(
-                    firstname=c.firstname,
-                    lastname=c.lastname,
+                    first_name=c.first_name,
+                    last_name=c.last_name,
                     email=c.email,
-                    address=c.address,
+                    institution=c.institution,
                     category_id=c.category_id,
+                    is_main_contact=c.is_main_contact,
                     submission_id=new_sub.id,
                 )
             )
@@ -641,51 +644,90 @@ def clone_sub(
         raise
 
 
-"""
-def export_submission(sub: Submission):
-    sub_info = {}
+def send_submission_cancellation_notification(
+    submission: Submission, cancelled_by_user: User
+):
+    recipients = []
 
-    #sub_info['external_id'] = sub.ref_name
-    sub_info['source'] = 'https://elixir-dcp.lcsb.uni.lu/'
-    sub_info['name'] = sub.ref_name
-    sub_info['title'] = sub.title
-    sub_info['submission_scope_code'] = sub.submission_scope_code
-    sub_info['submitting_institution_accession'] = sub.institution_accession
-    sub_info['submitting_institution_name'] = sub.provider_institute_name()
-    sub_info['submitting_institution_address'] = sub.provider_institute_address()
+    for access in submission.submission_accesses:
+        recipients.append(access.user.email)
 
-    sub_info['created_on'] = sub.created_on.strftime("%Y-%m-%d")
-    if sub.finalised_on:
-        sub_info['finalised_on'] = sub.finalised_on.strftime("%Y-%m-%d")
-    sub_info['submission_scope_code'] = sub.submission_scope.code
-    sub_info['submission_scope_label'] = sub.submission_scope.label
-    if sub.local_custodians_json:
-        sub_info['local_custodians'] = json.loads(sub.local_custodians_json)
-    if sub.local_project_name:
-        sub_info['local_project'] = sub.local_project_name
+    recipients = recipients + app.config.get("DATA_STEWARDS_MAILS", [])
 
-    submitters = []
-    for access in sub.submission_accesses:
-        provider_info = {}
-        provider_info['institution'] = access.user.institution_accession
-        provider_info['email'] = access.user.email
-        provider_info['first_name'] = access.user.first_name
-        provider_info['last_name'] = access.user.last_name
-        provider_info['phone_no'] = access.user.phone_no
+    persist_and_send_notification(
+        "Submission [%s] has been CANCELLED" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template(
+            "email/submission_cancelled.txt",
+            submission=submission,
+            cancelled_by_user=cancelled_by_user,
+        ),
+        render_template(
+            "email/submission_cancelled.html",
+            submission=submission,
+            cancelled_by_user=cancelled_by_user,
+        ),
+    )
 
-        if access.user.addr_line1 or access.user.addr_line2:
-            provider_info['address'] = (access.user.addr_line1 or '') + ' ' + (access.user.addr_line2 or '')
 
-        provider_info['role'] = 'Data_Manager'
-        submitters.append(provider_info)
+def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
+    submission.current_status = SubmissionStatusEnum.cancelled
+    submission.cancellation_reason = reason
+    submission.cancelled_by_user_id = cancelled_by_user.id
+    submission.finalised_on = datetime.now(timezone.utc)
 
-    sub_info['data_providers'] = submitters
+    # invalidate lft
+    if lft.client:
+        try:
+            lft.invalidate_links_for_submission(submission.id)
+        except Exception as e:
+            app.logger.error(f"LFT invalidate failed for ds {submission.id}: {e}")
 
-    sub_info['studies'] = export_studies(sub)
+    db.session.add(submission)
 
-    sub_info['data_declarations'] = export_datasets(sub)
+    message_text = f"Submission Cancelled.<br>This submission was cancelled by {cancelled_by_user.display_name()}.<br>Cancellation comment: {reason}."
+    message = SubmissionMessage(
+        submission_id=submission.id,
+        sender_user_id=cancelled_by_user.id,
+        message_text=message_text,
+        message_type="submission_cancellation",
+        created_on=datetime.now(timezone.utc),
+    )
+    db.session.add(message)
+    db.session.commit()
 
-    sub_info['attachments'] = export_attachment_info(sub)
+    send_submission_cancellation_notification(submission, cancelled_by_user)
 
-    return sub_info
-"""
+    return submission
+
+
+def invite_submitters(submission: Submission, contacts: list[Contact]):
+    users_for_invitation = []
+
+    for contact in contacts:
+        if contact.send_invite is False:
+            continue
+        user = User.query.filter_by(email=contact.email).first()
+        if not user:
+            user = User(
+                first_name=contact.first_name,
+                last_name=contact.last_name,
+                email=contact.email,
+                elixir_sub_id=contact.email,
+                active_user=True,
+            )
+            db.session.add(user)
+            db.session.flush()
+            assign_role_to_user(user, "user")
+            access = SubmissionAccess(
+                submission_id=submission.id,
+                user_id=user.id,
+                access_granted_on=datetime.now(),
+            )
+            db.session.add(access)
+            users_for_invitation.append(user)
+
+    db.session.commit()
+    if users_for_invitation:
+        send_invitations(submission, users_for_invitation)

@@ -149,8 +149,9 @@ os.urandom(24)
 The `./setup_dev.sh` script handles this automatically. For manual setup:
 
 ```bash
-./manage.py init-db              # Initialize DB with default data
-./manage.py load-demo-users      # Create demo users
+./manage.py init-db                                # Initialize DB with default data
+./manage.py load-demo-users                        # Create demo users
+./manage.py grant-data-steward-access <user_email> # Grant data-steward access to existing user
 ```
 
 **Create additional admin users:**
@@ -158,6 +159,20 @@ The `./setup_dev.sh` script handles this automatically. For manual setup:
 ./manage.py create-admin "First" "Last" "email@uni.lu" "elixir_id" "ELU_I_77"
 ```
 
+### Database Migrations
+
+The application uses Flask-Migrate (Alembic) for database schema changes.
+
+```bash
+# Create a new migration after model changes
+flask db migrate -m "Description of changes"
+
+# Apply migrations to database
+flask db upgrade
+
+# Rollback last migration
+flask db downgrade
+```
 
 
 ## Running the Application
@@ -229,7 +244,7 @@ Push the commit and tag to git after releasing.
 
 **Update Application on VM:**
 ```bash
-sudo bash /home/elixirdss/app-src/elixir-dss/deploy/update_app.sh
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh
 ```
 
 See `deploy/INSTRUCTIONS.md` for full deployment guide.

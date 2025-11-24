@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 from elixir_dss import db
 from elixir_dss.exceptions import RecordLifecycleException
@@ -14,29 +15,27 @@ from elixir_dss.models.services import (
     clone_sub,
     revert_sub,
     steer_sub,
+    cancel_sub,
+    invite_submitters,
 )
 from elixir_dss.models.submission import (
-    Contact,
     ContactType,
     Submission,
     SubmissionAccess,
-    SubmissionAttachment,
-    SubmissionDataset,
     SubmissionScope,
     SubmissionStatusEnum,
-    SubmissionStudy,
 )
 from tests import BaseTest
-
-__author__ = "Pinar Alper"
-
 from tests.factories import (
+    SubmissionAttachmentFactory,
     SubmissionStudyFactory,
     SubmissionDatasetFactory,
     UserFactory,
     SubmissionFactory,
     ContactFactory,
 )
+
+__author__ = "Pinar Alper"
 
 
 class ModelPersistenceTest(BaseTest):
@@ -83,12 +82,11 @@ class ModelPersistenceTest(BaseTest):
     def test_create_submission(self):
         self.assertEqual(18, len(SubmissionScope.query.all()))
 
-        submission_rec = create_sub("Test Submission", "ELU_I_77")
+        submission_rec = create_sub("ELU_I_77")
 
         self.assertEqual(1, len(Submission.query.all()))
         sub = Submission.query.get_or_404(submission_rec.id)
         sub_id = sub.id
-        self.assertEqual(sub.title, "Test Submission")
         self.assertEqual(sub.ref_name, "ELX_LU_SUB-1")
         self.assertEqual(sub.current_status, SubmissionStatusEnum.draft)
         self.assertIsNotNone(sub.created_on)
@@ -244,7 +242,7 @@ class ModelPersistenceTest(BaseTest):
         )
 
         # Test is_in_progress includes approval states
-        submission = create_sub("Test Workflow Submission", "ELU_I_77")
+        submission = create_sub("ELU_I_77")
         submission.current_status = SubmissionStatusEnum.metadata_submission
         self.assertTrue(submission.is_in_progress())
         submission.current_status = SubmissionStatusEnum.metadata_approval
@@ -259,18 +257,9 @@ class ModelPersistenceTest(BaseTest):
         self.assertFalse(submission.is_in_progress())
 
     def test_export_submission(self):
-        submission_rec = create_sub("Test Submission to be exported.", "ELU_I_5")
+        submission_rec = create_sub("ELU_I_5")
 
-        u1 = User(
-            first_name="Kavita",
-            last_name="Rege",
-            elixir_sub_id="SOME_ELX_ID",
-            email="kavita.rege@uni.lu",
-            addr_line1="Meyerhofstraße 1, 69117",
-            addr_line2="Heidelberg, Germany",
-            institution_accession="ELU_I_2",
-            phone_no="+352123456789",
-        )
+        u1 = UserFactory()
         usr = register_new_user(u1)
 
         update_submission_basic_info(
@@ -281,85 +270,48 @@ class ModelPersistenceTest(BaseTest):
             local_custodians_json=json.dumps(["Enrico Glaab", "Rudi Balling"]),
         )
 
-        study_rec = SubmissionStudy()
-        study_rec.submission_id = submission_rec.id
-        study_rec.name = "Test Study ABC"
-        study_rec.description = "This study does blah blah..."
-        study_rec.ethics_approval_exists = True
-        study_rec.study_types_json = json.dumps(["Interventional", "Observational"])
-        c1 = Contact()
-        c1.firstname = "John"
-        c1.lastname = "Doe"
-        c1.email = "john.doe@acme.edu"
-        c1.address = "Some Address"
+        study_rec = SubmissionStudyFactory(submission_id=submission_rec.id)
+        c1 = ContactFactory()
         c1.contact_category = ContactType.query.get_or_404(1)
         study_rec.study_contacts = [c1]
-        db.session.add(study_rec)
-        db.session.commit()
 
-        dataset_rec = SubmissionDataset()
-        dataset_rec.submission_id = submission_rec.id
-        dataset_rec.study_id = study_rec.id
-        dataset_rec.title = "Test dataset 1"
-
-        dataset_rec.sci_datatypes_json = json.dumps(
-            ["Genomics_variant_array", "RNASeq"]
+        SubmissionDatasetFactory(
+            submission_id=submission_rec.id,
+            study_id=study_rec.id,
+            sci_datatypes_json=json.dumps(["Genomics_variant_array", "RNASeq"]),
+            gdpr_datatypes_json=json.dumps(["standard", "ethnic"]),
+            has_special_subjects=True,
+            special_subjects_notes="mothers and babies",
+            consent_notes="Consent is consistent among all subjects",
         )
-        dataset_rec.gdpr_datatypes_json = json.dumps(["standard", "ethnic"])
-        dataset_rec.subjects_minors = True
-        dataset_rec.subjects_notes = "mothers and babies"
-        dataset_rec.consent_notes = "Consent is consistent among all subjects"
+        SubmissionDatasetFactory(
+            submission_id=submission_rec.id,
+            study_id=study_rec.id,
+            sci_datatypes_json=json.dumps(["Transcriptome_array", "RNASeq"]),
+            gdpr_datatypes_json=json.dumps(["standard", "ethnic"]),
+            consent_status_code="ht",
+            consent_notes="There are three primary consent groups",
+        )
 
-        db.session.add(dataset_rec)
-        db.session.commit()
-
-        dataset_rec2 = SubmissionDataset()
-        dataset_rec2.submission_id = submission_rec.id
-        dataset_rec2.study_id = study_rec.id
-        dataset_rec2.title = "Test dataset 2"
-
-        dataset_rec2.sci_datatypes_json = json.dumps(["Transcriptome_array", "RNASeq"])
-        dataset_rec2.gdpr_datatypes_json = json.dumps(["standard", "ethnic"])
-        dataset_rec2.consent_status_code = "ht"
-        dataset_rec2.consent_notes = "There are three primary consent groups"
-
-        db.session.add(dataset_rec2)
-        db.session.commit()
-
-        a_rec = SubmissionAttachment()
-        a_rec.submission_id = submission_rec.id
-        a_rec.note = "Ethics approval"
-        a_rec.folder_name = "1b523cd3-5953-4af2-a0e3-5bd2dde483b5"
-        a_rec.file_names = "CNER-AVIS20140713-Dr_RK-ND_COLLECTION.pdf"
-
-        db.session.add(a_rec)
-        db.session.commit()
-
-        a_rec = SubmissionAttachment()
-        a_rec.submission_id = submission_rec.id
-        a_rec.note = "Subject Consents and Info Sheet"
-        a_rec.folder_name = "7be19c77-8b8c-4a2c-845b-8764817641e2"
-        a_rec.file_names = "CA_UNI_SAAR_58_01.pdf 140174_ND_SIS_v8-0_EN_21JUN2017.pdf"
-
-        db.session.add(a_rec)
-        db.session.commit()
+        SubmissionAttachmentFactory(submission_id=submission_rec.id)
+        SubmissionAttachmentFactory(submission_id=submission_rec.id)
 
         submission_rec = Submission.query.get_or_404(submission_rec.id)
         exporter = SubmissionExporter()
         exp = exporter.export_submission(submission_rec)
+
+        self.assertEqual(exp["ref_name"], submission_rec.ref_name)
+        self.assertEqual(len(exp["data_declarations"]), 2)
         print(json.dumps(exp, indent=4))
 
     def test_clone_submission_basic(self):
-        original = create_sub("Brain Study", "ELU_I_11")
-        db.session.add(original)
-        db.session.commit()
+        original = create_sub("ELU_I_11")
 
         clone = clone_sub(original.id)
 
         # Assert new object is distinct
         self.assertNotEqual(original.id, clone.id)
-        self.assertTrue(clone.title.startswith("Brain Study"))
-        self.assertIn("(Clone", clone.title)
+        self.assertTrue(clone.ref_name.startswith("ELX_LU_SUB-"))
 
         self.assertEqual(clone.current_status, SubmissionStatusEnum.metadata_submission)
 
@@ -373,33 +325,30 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(2, len(subs))
 
     def test_clone_with_studies_and_datasets(self):
-        sub = create_sub("Genomics Study", "ELU_I_77")
-        db.session.add(sub)
-        db.session.commit()
+        sub = create_sub("ELU_I_77")
 
         # Add study + dataset
-        study = SubmissionStudy(
+        study = SubmissionStudyFactory(
             submission_id=sub.id,
             name="Study 1",
             description="Genomics cohort",
             ethics_approval_exists=True,
             study_types_json=json.dumps(["Observational"]),
         )
-        db.session.add(study)
-        db.session.commit()
-
-        dataset = SubmissionDataset(
+        dataset = SubmissionDatasetFactory(
             submission_id=sub.id,
             study_id=study.id,
             title="Dataset 1",
+            creator_name="John Doe",
+            creator_email="john.doe@example.com",
+            creator_institution="University of Example",
+            creator_role="Principal Investigator",
+            description="Sample dataset description",
             gdpr_datatypes_json=json.dumps(["personal"]),
             sci_datatypes_json=json.dumps(["RNASeq"]),
         )
-        db.session.add(dataset)
-        db.session.commit()
 
         clone = clone_sub(sub.id, clone_studies=True, clone_datasets=True)
-        db.session.commit()
 
         self.assertEqual(len(clone.studies), 1)
         self.assertEqual(len(clone.datasets), 1)
@@ -421,8 +370,8 @@ class ModelPersistenceTest(BaseTest):
         )
 
         original = SubmissionFactory()
-        SubmissionStudyFactory(submission_id=original.id)
-        SubmissionDatasetFactory(submission_id=original.id)
+        study = SubmissionStudyFactory(submission_id=original.id)
+        SubmissionDatasetFactory(submission_id=original.id, study_id=study.id)
 
         submissions_before = Submission.query.count()
 
@@ -432,3 +381,94 @@ class ModelPersistenceTest(BaseTest):
 
         self.assertEqual(submissions_before, Submission.query.count())
         self.assertIsNotNone(Submission.query.get(original.id))
+
+    @patch("elixir_dss.models.services.send_invitations")
+    def test_invite_submitters(self, mock_send_invitations):
+        submission = create_sub("ELU_I_77")
+
+        existing_user = UserFactory()
+        contact_existing = ContactFactory(
+            first_name=existing_user.first_name,
+            last_name=existing_user.last_name,
+            email=existing_user.email,
+            category_id=1,
+            submission_id=submission.id,
+        )
+
+        contact_new = ContactFactory(submission_id=submission.id, send_invite=True)
+
+        contact_without_invite = ContactFactory(
+            submission_id=submission.id, send_invite=False
+        )
+
+        invite_submitters(submission, [contact_existing, contact_new])
+
+        self.assertEqual(User.query.count(), 2)
+        self.assertEqual(SubmissionAccess.query.count(), 1)
+
+        self.assertIsNone(SubmissionAccess.query.filter_by(user=existing_user).first())
+
+        self.assertIsNone(
+            User.query.filter_by(email=contact_without_invite.email).first()
+        )
+
+        mock_send_invitations.assert_called_once()
+        invited_users = mock_send_invitations.call_args[0][1]
+        self.assertEqual(len(invited_users), 1)
+        self.assertEqual(invited_users[0].email, contact_new.email)
+
+    @patch("elixir_dss.models.services.send_invitations")
+    def test_invite_submitters_empty_list(self, mock_send_invitations):
+        submission = create_sub("ELU_I_77")
+
+        invite_submitters(submission, [])
+
+        self.assertEqual(User.query.count(), 0)
+        self.assertEqual(SubmissionAccess.query.count(), 0)
+
+        mock_send_invitations.assert_not_called()
+
+    def test_study_json_helper_methods(self):
+        """Test _json_list helper handles JSON parsing and None/invalid values"""
+        submission = SubmissionFactory()
+
+        # Test JSON parsing logic
+        study = SubmissionStudyFactory(
+            submission_id=submission.id,
+            external_identifiers_json='["EGA123", "GEO456"]',
+            species_json='["Homo sapiens"]',
+            diseases_json='["Diabetes"]',
+        )
+        self.assertEqual(study.external_identifiers, ["EGA123", "GEO456"])
+        self.assertEqual(study.species_names, ["Homo sapiens"])
+
+        # Test None handling (edge case)
+        study_null = SubmissionStudyFactory(
+            submission_id=submission.id,
+            species_json=None,
+        )
+        self.assertEqual(study_null.species_names, [])
+
+    def test_cancel_submission(self):
+        sub = create_sub("ELU_I_77")
+        db.session.add(sub)
+        db.session.commit()
+
+        u = User(
+            first_name="AA",
+            last_name="BB",
+            elixir_sub_id="X",
+            email="aa@bb.cc",
+            institution_accession="ELU_I_77",
+            phone_no="+352 11",
+        )
+        usr = register_new_user(u)
+        update_submission_basic_info(sub, provider_user_ids=[usr.id])
+
+        cancelled = cancel_sub(
+            submission=sub, reason="test reason", cancelled_by_user=usr
+        )
+
+        self.assertEqual(cancelled.current_status, SubmissionStatusEnum.cancelled)
+        self.assertEqual(cancelled.cancellation_reason, "test reason")
+        self.assertEqual(cancelled.cancelled_by_user_id, usr.id)

@@ -1,0 +1,10 @@
+You've been invited to collaborate on submission {{ submission.ref_name }}.
+
+Open the submission:
+{{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+
+You will be required to sign in via Keycloak.
+
+Regards,
+ELIXIR-LU Data Stewards
+(This is an auto-generated e-mail, please do not reply)

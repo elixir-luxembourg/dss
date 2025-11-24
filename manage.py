@@ -6,52 +6,33 @@ from elixir_dss import app, db
 from elixir_dss.importer.importer_utils import schedule_submission_export
 from elixir_dss.models.security import Role, User
 from elixir_dss.models.services import assign_role_to_user, register_new_user
-from elixir_dss.models.submission import (
-    ConsentStatus,
-    ContactType,
-    DeIdentificationType,
-    LegalBasisType,
-    SubjectCategory,
-    SubmissionScope,
-)
+from elixir_dss.models.seed_data import seed_init_data
 
 cli = FlaskGroup(app)
 
 
-@cli.command()
+@app.cli.command()
 def init_db():
-    """Initialize the database with default data."""
-    click.echo("Dropping all tables...")
-    db.drop_all()
-    click.echo("Creating all tables...")
-    db.create_all()
+    """Downgrade to base, upgrade to head, and seed data"""
+    click.echo("Downgrading to base...")
+    downgrade(revision="base")
 
-    initial_data = app.config.get("DATA_INIT")
+    click.echo("Upgrading to head...")
+    upgrade()
 
-    click.echo("Adding initial data...")
-    for contact_type in initial_data["contact_types"]:
-        db.session.add(ContactType(name=contact_type))
+    click.echo("Seeding initial data...")
+    seed_init_data()
 
-    for name_role in initial_data["names_roles"]:
-        db.session.add(Role(name=name_role))
+    click.echo("✓ Database reset complete!")
 
-    for sub_category in initial_data["subject_category"]:
-        db.session.add(SubjectCategory(code=sub_category[0], label=sub_category[1]))
 
-    for deid_type in initial_data["deidentification_type"]:
-        db.session.add(DeIdentificationType(code=deid_type[0], label=deid_type[1]))
-
-    for cons_status in initial_data["consent_status"]:
-        db.session.add(ConsentStatus(code=cons_status[0], label=cons_status[1]))
-
-    for lb_type in initial_data["legal_basis"]:
-        db.session.add(LegalBasisType(code=lb_type[0], label=lb_type[1]))
-
-    for sub_scope in initial_data["submission_scope"]:
-        db.session.add(SubmissionScope(code=sub_scope[0], label=sub_scope[1]))
-
-    db.session.commit()
-    click.echo("Database initialized successfully!")
+@cli.command()
+def seed_data():
+    """Seed initial data into the database."""
+    click.echo("Seeding initial data...")
+    with app.app_context():
+        seed_init_data()
+    click.echo("Initial data seeded successfully!")
 
 
 @cli.command()
@@ -196,6 +177,19 @@ Available objects: app, db, User, Role
 Use tab for autocompletion
 """,
     )
+
+
+@cli.command()
+@click.argument("email")
+def grant_data_steward_access(email):
+    click.echo(f"Granting data steward access to: {email}")
+
+    user = User.query.filter_by(email=email).first()
+    if user:
+        assign_role_to_user(user, "data_steward")
+        click.echo(f"Granted data steward access to: {email}")
+    else:
+        click.echo(f"User not found: {email}")
 
 
 if __name__ == "__main__":
