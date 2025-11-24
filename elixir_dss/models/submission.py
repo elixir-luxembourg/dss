@@ -53,7 +53,7 @@ class EmailNotification(db.Model):
     text_body = db.Column(db.String, nullable=False)
     html_body = db.Column(db.String, nullable=False)
 
-    created_on = db.Column(db.Date, nullable=False)
+    created_on = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
 
 class SubmissionAttachment(db.Model):
@@ -61,7 +61,7 @@ class SubmissionAttachment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(
-        db.Integer, db.ForeignKey("submissions.id"), nullable=False
+        db.Integer, db.ForeignKey("submissions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     note = db.Column(db.String, nullable=False)
     folder_name = db.Column(db.String, nullable=False)
@@ -143,8 +143,8 @@ class Submission(db.Model):
         db.String(45), index=True, unique=True, nullable=False, default=uniqid()
     )
     title = db.Column(db.String(75), nullable=False)
-    created_on = db.Column(db.Date, nullable=False)
-    finalised_on = db.Column(db.Date)
+    created_on = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    finalised_on = db.Column(db.DateTime)
     current_status = db.Column(
         db.Enum(SubmissionStatusEnum),
         nullable=False,
@@ -270,14 +270,14 @@ class Contact(db.Model):
     email = db.Column(db.String, nullable=False)
     address = db.Column(db.String)
     category_id = db.Column(
-        db.Integer, db.ForeignKey("contact_types.id"), nullable=False
+        db.Integer, db.ForeignKey("contact_types.id"), nullable=False, index=True
     )
     contact_category = db.relationship("ContactType")
 
-    study_id = db.Column(db.Integer, db.ForeignKey("submission_study.id"))
+    study_id = db.Column(db.Integer, db.ForeignKey("submission_study.id", ondelete="CASCADE"), index=True)
     study = db.relationship("SubmissionStudy", back_populates="study_contacts")
 
-    submission_id = db.Column(db.Integer, db.ForeignKey("submissions.id"))
+    submission_id = db.Column(db.Integer, db.ForeignKey("submissions.id", ondelete="CASCADE"), index=True)
     submission = db.relationship("Submission", back_populates="submission_contacts")
 
     def fullname(self):
@@ -309,7 +309,7 @@ class SubmissionMessage(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(
-        db.Integer, db.ForeignKey("submissions.id"), nullable=False
+        db.Integer, db.ForeignKey("submissions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     submission = db.relationship("Submission", back_populates="messages")
     created_on = db.Column(
@@ -317,7 +317,7 @@ class SubmissionMessage(db.Model):
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
-    sender_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    sender_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
     sender_user = db.relationship("User")
     message_text = db.Column(db.String, nullable=False)
     message_type = db.Column(db.String, nullable=True)
@@ -329,7 +329,7 @@ class SubmissionStudy(db.Model):
     # Study
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(
-        db.Integer, db.ForeignKey("submissions.id"), nullable=False
+        db.Integer, db.ForeignKey("submissions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
@@ -383,10 +383,10 @@ class SubmissionDataset(db.Model):
     external_id = db.Column(db.String(20), unique=True, nullable=True)
     title = db.Column(db.String, nullable=False)
     submission_id = db.Column(
-        db.Integer, db.ForeignKey("submissions.id"), nullable=False
+        db.Integer, db.ForeignKey("submissions.id", ondelete="CASCADE"), nullable=False, index=True
     )
     study_id = db.Column(
-        db.Integer, db.ForeignKey("submission_study.id"), nullable=True
+        db.Integer, db.ForeignKey("submission_study.id", ondelete="SET NULL"), nullable=True, index=True
     )
     study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
 
@@ -544,8 +544,8 @@ class SubmissionAccess(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(
-        db.Integer, db.ForeignKey("submissions.id"), nullable=False
+        db.Integer, db.ForeignKey("submissions.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    access_granted_on = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    access_granted_on = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     user = db.relationship("User")
