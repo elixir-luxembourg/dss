@@ -44,6 +44,11 @@ def app_authorization(**options):
                 entity_id = kwargs[params["entity_id_key"]]
 
                 entity = db.session.get(entity_cls, entity_id)
+                if not entity:
+                    return (
+                        render_template("error.html", message="Submission not found or inaccessible.", show_home_link=True),
+                        403,
+                    )
                 submission_id = getattr(entity, params["entity_ac_attribute"])
 
                 if not current_user.is_data_steward():
