@@ -150,3 +150,5 @@ elixir_dss/static/public/js/*.min.js
 cache/
 
 *.log.*
+
+.scannerwork/

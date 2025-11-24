@@ -201,7 +201,7 @@ Dependencies are installed by `./setup_dev.sh`. For manual testing:
 ```bash
 # Run tests
 uv run pytest
-uv run pytest --cov=elixir_dss --cov-report=term-missing  # With coverage
+uv run pytest --cov=elixir_dss --cov-report=term-missing --cov-report=xml
 
 # Lint and format
 uvx ruff check .
@@ -209,6 +209,18 @@ uvx ruff format .
 
 # Test across Python versions
 uv run tox
+```
+
+## Code Quality
+
+Run SonarQube analysis:
+
+```bash
+# Generate coverage report first
+uv run pytest --cov=elixir_dss --cov-report=xml
+
+# Run SonarQube scanner
+sonar-scanner -Dsonar.token=<user-token>
 ```
 
 
