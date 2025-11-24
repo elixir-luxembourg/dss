@@ -52,6 +52,7 @@ class Config(object):
     DAISY_USE = os.environ.get("DAISY_USE", "").lower() == "true"
     DAISY_URL = os.environ.get("DAISY_URL")
     DAISY_API_KEY = os.environ.get("DAISY_API_KEY")
+    DAISY_VERIFY_SSL = os.environ.get("DAISY_VERIFY_SSL", "true").lower() == "true"
 
     AUTHENTICATION_METHOD = os.environ.get("AUTHENTICATION_METHOD")
     # a dict containing user and password items for CONFIG based authentication
