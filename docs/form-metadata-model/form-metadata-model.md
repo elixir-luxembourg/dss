@@ -8,7 +8,7 @@ The data submission system (DSS) aims at allowing the submission of data to be u
 
 When a submission is initiated in the system, the submitter is required to provide metadata describing the data intended for submission. In this context, the purpose of this document is to present and explain the metadata schema that underpins the forms the basis of the DSS form design. 
 
-**Kindly note that the metadata schema for the Data Submission System \(DSS\) is currently under active development and may be subject to further revisions and improvements.**
+**Kindly note that the current version \(v0.1\) of the metadata schema for the Data Submission System \(DSS\) is currently under active development and may be subject to further revisions and improvements.**
 
 ## 2. Overview
 
@@ -51,41 +51,43 @@ This section provides detailed descriptions of the core classes in the diagram, 
 |personal data               |Categories and types of personal data included in the dataset, if applicable            |  PersonalData (enumeration)     | 0..*            | This property accepts one or more values from the enumeration 'PersonalData'. The definitions for these categories of data are sourced in the GDPR. In biomedical projects with pseudonymised cohort data, the options  would likely fall under  “Special category, i.e. sensitive, personal data” e.g. “Genetic data”, “Data concerning health” and "Other special categories of data”. 
 You may get assistance from your institute’s DPO or legal team in filling out this section.           |       NA                               | Genetic data, Data concerning health        |
 |personal data remarks               | Remarks on categories of personal data           | String      | 0..1            |  In case of selecting "other special categories of data", please provide a brief description.          |      NA                                |  *TBD*       |
-|collection legal basis               | Legal basis according to Art. 6.1 GDPR for the collection of personal data           |       |  0..1           |            |                                      |         |
-|sharing legal basis               |Legal basis according to Art. 6.1 GDPR for the sharing and, where applicable, the subsequent processing of personal data            |       |  0..1           |            |                                      |         |
-|legitimation sensitive data               |For the processing of special category (sensitive) personal data, do you have a  legitimation under Art. 9.2 GDPR that provides specific derogation from the general prohibition to process such data?            |       |   0..1          |            |                                      |         |
-|data subjects scope              |Scope of data subjects            | String      |   0..1          |            |                                      |         |
-|special data subjects               | Does the dataset contain data from special subjects?           |       | 0..1            |            |                                      |         |
-|special data subjects description              |Description of special data subjects            | String      | 0..1            |            |                                      | Children        |
-|research limited scope           |Limited scope of research \(i.e., research/disease area\)            |       |  0..1           |            |                                      |         |
-|research limited scope description           | Description of the research/disease areas restriction on data           | String      |  0..1           |            |                                      | Use only in Biomedical Research         |
-|geographical restrictions           | Does consent contain clauses that put geographical restrictions to the sharing of data?           |       |  0..1           |            |                                      |         |
-|geographical restrictions description           |Description of geographical restrictions on data            | String      |  0..1           |            |                                      | Not to be shared outside Country A, B, or EU/EEA        |
-|restricted recipients           |Does the consent limit the type of recipients?             |       |  0..1           |            |                                      |         |
-|restricted recipients description           |Description of the recipient restrictions on data            | String      |  0..1           |            |                                      | Data can be sent only to a specific type of institution such as private research institutions or public research institutions or to a named list of  institutions.        |
-|retention time           | Does the consent contain clauses that put time-limits on the use of data?             |       |  0..1           |            |                                      |         |
-|retention time description           |Description of the time-limit restrictions on data            | String      | 0..1            |            |                                      | 10 years from end of the project        |
-|consent form          |Are the consents heterogeneous or homogeneous?            |       |  0..1           |            |                                      |         |
-|consent form description         |If the consent is heterogeneous, please specify the data dictionary item (column) that specifies consent groups in data             | String      |   0..1          |            |                                      |         |
-|time limit storage          |Is the data being sent to ELIXIR-LU/LCSB for a limited duration?            |       |  0..1           |            |                                      |         |
-|time limit storage date          |Agreed end date or criteria for data's residence at ELIXIR-LU/LCSB            | Date      |   0..1          |            |                                      |  2030-04-25       |
-|publication requirements          |Are there any requirements in case of publications based on the data?            |       | 0..1            |            |                                      | Papers should cite the cohort study.        |
-|publication requirements description          |Description of publication requirements            | String       |  0..1           |            |                                      |         |
-|data return requirements          |Is there a requirement to return data or documents to the database/resource?            |       |   0..1          |            |                                      |         |
-|data return requirements description          |Description of the return requirements            | String      |   0..1          |            |                                      |         |
-|user specific restrictions          |Is the use limited to approved users/groups/institutions?            |       |   0..1          |            |                                      |         |
-|user specific restrictions description          |Specific users/groups/institutions to which ELIXIR-LU/LCSB is instructed to give access to the data upon request            |  String     |  0..1           |            |                                      |         |
-|IP conditions          | Are there any conditions/restrictions regarding the Intellectual Property (IP) of the data?           |       | 0..1            |            |                                      |         |
-|IP conditions description| Please describe the IP conditions/restrictions on the data, if any.           | String      | 0..1            |            |                                      |         |
-|other restrictions         |Description of other restrictions on data            | String       |   0..1          |            |                                      |         |
-|access request form          | Will all researchers accessing the data need to sign an access request form?           |       | 0..1            |            |                                      |         |
-|DAC approval          |Will access require Data Access Committee (DAC) approval?            |       |             |            |                                      |         |
-|DAC approval procedure          |Description the required procedure when a DAC approval is needed            | String      | 0..1           |            |                                      |         |
-|number of records          |Number of records in the dataset            |   UnlimitedNatural    |   0..1          |            |                                      | 45        |
-|version          | Dataset version            |  String     | 0..1            |            |                                      | v1.5        |
-|creation date          |Creation date of the dataset            |  Date     |  0..1           |            |                                      | 2019-11-17        |
-|last update date          | Last update date of the dataset           |  Date     |  0..1           |            |                                      | 2020-12-08        |
-|data standards          | Specify the standard or guideline used for structuring or annotating the dataset           | String      |   0..*          |            |  EDAM, NCIt                                    | CDISC, MINSEQE        |
+|collection legal basis               | Legal basis according to Art. 6.1 GDPR for the collection of personal data           |  LegalBasis (enumeration)     |  0..1           | This property accepts none or one value from the enumeration 'LegalBasis'. These values come from GDPR Article 6. You may get assistance from your institute’s DPO or legal team in filling out this section.           |   NA                                   | Consent (6.1(a))        |
+|sharing legal basis               |Legal basis according to Art. 6.1 GDPR for the sharing and, where applicable, the subsequent processing of personal data            |  LegalBasis (enumeration)     |  0..1           | This property accepts none or one value from the enumeration 'LegalBasis'. These values come from GDPR Article 6. You may get assistance from your institute’s DPO or legal team in filling out this section.           |      NA                                | Public interest (6.1(e))        |
+|legitimation sensitive data               |For the processing of special category (sensitive) personal data, do you have a  legitimation under Art. 9.2 GDPR that provides specific derogation from the general prohibition to process such data?            | YesNoNA (enumeration)      |   0..1          | This property accepts none or one value from the enumeration 'YesNoNA'.           |               NA                       |   Yes      |
+|data subjects scope              |Scope of data subjects            | String      |   0..1          | Describe the scope of data subjects.           |       NA                               | *TBD*        |
+|special data subjects               | Does the dataset contain data from special subjects?           | YesNoNA (enumeration)    | 0..1            |  "Special subjects" refers to minors or subjects unable to give consent e.g. mentally impaired subjects. This property accepts none or one value from the enumeration 'YesNoNA'.          |     NA                                 | Yes       |
+|special data subjects description              |Description of special data subjects            | String      | 0..1            |  Provide a brief description of special data subjects, if any.          |     NA                                 | Children        |
+|research limited scope           |Limited scope of research \(i.e., research/disease area\)            | YesNoNA (enumeration)        |  0..1           |  This field answers the question whether the data is consented to be used only in specific research/disease areas. This property accepts none or one value from the enumeration 'YesNoNA'.          |     NA                                 | Yes        |
+|research limited scope description           | Description of the research/disease areas restriction on data           | String      |  0..1           |  Describe the restrictions on data about specific research/disease areas, if any.           |    NA                                  | Use only in Biomedical Research         |
+|geographical restrictions           | Does consent contain clauses that put geographical restrictions to the sharing of data?           | YesNoNA (enumeration)      |  0..1           | This field answers the question whether the consent contain clauses that put geographical restrictions to the sharing of data. This property accepts none or one value from the enumeration 'YesNoNA'.           |     NA                                 |  Yes       |
+|geographical restrictions description           |Description of geographical restrictions on data            | String      |  0..1           | Describe the geographical restrictions on data, if any.          |   NA                                   | Not to be shared outside Country A, B, or EU/EEA        |
+|restricted recipients           |Does the consent limit the type of recipients?             | YesNoNA (enumeration)      |  0..1           | This field indicates whether the consent limits the type of recipient(s). This property accepts none or one value from the enumeration 'YesNoNA'.            |   NA                                   |   Yes      |
+|restricted recipients description           |Description of the recipient restrictions on data            | String      |  0..1           | Describe the recipient restrictions on data, if any.           |   NA                                   | Data can be sent only to a specific type of institution such as private research institutions or public research institutions or to a named list of  institutions.        |
+|retention time           | Does the consent contain clauses that put time-limits on the use of data?             | YesNoNA (enumeration)      |  0..1           | This field indicates whether the consent contains clauses that establish time limitations on the use of data. This property accepts none or one value from the enumeration 'YesNoNA'.          |             NA                         |   Yes      |
+|retention time description           |Description of the time-limit restrictions on data            | String      | 0..1            |  Describe the time-limit restrictions on data, if any.          |          NA                            | 10 years from end of the project        |
+|consent form          |Are the consents heterogeneous or homogeneous?            | ConsentStatus (enumeration)      |  0..1           | 
+If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous.
+If the consent form has stayed the same over the course of the study but it has options so that different subjects can create different restrictions on their data, then this case is also considered heterogeneous. <br> This property accepts none or one value from the enumeration 'ConsentStatus'.           |    NA                                  |  Heterogeneous       |
+|consent form description         | Data dictionary item (column) that specifies consent groups in data.             | String      |   0..1          |   This information should be provided in cases where the consent is heterogeneous.        |     NA                                 |  *TBD*       |
+|time limit storage          |Is the data being sent to ELIXIR-LU/LCSB for a limited duration?            | YesNoNA (enumeration)      |  0..1           |  This property accepts none or one value from the enumeration 'YesNoNA'.          |      NA                                |   Yes      |
+|time limit storage date          |Agreed end date or criteria for data's residence at ELIXIR-LU/LCSB            | Date (data type)     |   0..1          |  Indicate end date (YYYY-MM-DD) of permitted storage at ELIXIR-LU/LCSB.          |      NA                                |  2030-04-25       |
+|publication requirements          |Are there any requirements in case of publications based on the data?            |  YesNoNA (enumeration)     | 0..1            |   This property accepts none or one value from the enumeration 'YesNoNA'.          |    NA                                  | Yes       |
+|publication requirements description          |Publication requirements for the dataset.           | String       |  0..1           |  Describe the publication requirements, if any.          |         NA                            |  Papers should cite the cohort study.        |
+|data return requirements          |Is there a requirement to return data or documents to the database/resource?            | YesNoNA (enumeration)      |   0..1          |  This property accepts none or one value from the enumeration 'YesNoNA'.          |       NA                               | Yes        |
+|data return requirements description          |Return requirements for the dataset.            | String      |   0..1          | Describe the publication requirements, if any.          |    NA                                  |  *TBD*       |
+|user specific restrictions          |Is the use limited to approved users/groups/institutions?            | YesNoNA (enumeration)      |   0..1          |  This property accepts none or one value from the enumeration 'YesNoNA'.          |     NA                                 |   Yes      |
+|user specific restrictions description          |Specific users/groups/institutions to which ELIXIR-LU/LCSB is instructed to give access to the data upon request            |  String     |  0..1           |  List the specific users/groups/institutions.        |      NA                                |  *TBD*       |
+|IP conditions          | Are there any conditions/restrictions regarding the Intellectual Property (IP) of the data?           | YesNoNA (enumeration)      | 0..1            |  is property accepts none or one value from the enumeration 'YesNoNA'.           |        NA                              |   Yes      |
+|IP conditions description|  IP conditions/restrictions on the data.          | String      | 0..1            |  Describe the IP conditions/restrictions on the data, if any.          |            NA                          |   *TBD*      |
+|other restrictions         |Description of other restrictions on data            | String       |   0..1          | If applicable, in your description you may refer to [GA4GH Data Use Category Codes](https://www.ga4gh.org/document/archived-data-use-categories-and-requirements-consent-codes/)           |                                      |         |
+|access request form          | Will all researchers accessing the data need to sign an access request form?           | RequestForm (enumeration)      | 0..1            |  This property accepts none or one value from the enumeration 'RequestForm'.          |  NA                                    |   Additional form needed      |
+|DAC approval          |Will access require Data Access Committee (DAC) approval?            | DACApproval (enumeration)      |  0..1           | This property accepts none or one value from the enumeration 'DACApproval'.           |    NA                                  |  DAC approval needed       |
+|DAC approval procedure          |Required procedure when a DAC approval is needed.            | String      | 0..1           |  Describe the required procedure.          |       NA                               |   *TBD*      |
+|number of records          |Number of records in the dataset            |   UnlimitedNatural    |   0..1          | Value must be a non-negative integer.           |     NA                                 | 45        |
+|version          | Dataset version            |  String     | 0..1            |  Use semantic versioning (e.g., v1.0, v2.1) or a date-based versioning scheme, if applicable.          |       NA                               | v1.5        |
+|creation date          |Creation date of the dataset            |  Date (data type)    |  0..1           |  Indicate creation date (YYYY-MM-DD).          |  NA                                    | 2019-11-17        |
+|last update date          | Last update date of the dataset           |  Date     |  0..1           |   Indicate last update date (YYYY-MM-DD).         |     NA                                 | 2020-12-08        |
+|data standards          | Standard or guideline used for structuring or annotating the dataset.           | String      |   0..*          |  Controlled vocabularies are suggested in this property.          |  EDAM, NCIt                                    | CDISC, MINSEQE        |
 
 ### 3.2. Distribution
 
@@ -97,8 +99,8 @@ Class 'Distribution' does not contain any mandatory property.
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
-|file type           |Type of file(s) included in the dataset          | String      | 0..*           |Format identifiers should be included, when applicable. If not provided, it will be obtained from the submitted dataset.            |                   EDAM, NCIt                   |  CSV (format:3752), FASTQ (format:1930), JSON, XML, TXT, BAM, VCF, etc.       |
-|byte size           | Total size of the dataset          | String      | 0..1            |   Use appropriate units such as KB, MB, GB, or TB         |        NA                              | 2 GB       |
+|file type           |Type of file(s) included in the dataset          | String      | 0..*           |Format identifiers should be included, when applicable. If not provided, it will be obtained from the submitted dataset. Controlled vocabularies are suggested in this property.            |                   EDAM, NCIt                   |  CSV (format:3752), FASTQ (format:1930), JSON, XML, TXT, BAM, VCF, etc.       |
+|byte size           | Total size of the dataset          | String      | 0..1            |   Use appropriate units such as KB, MB, GB, or TB.         |        NA                              | 2 GB       |
 
 ### 3.3. Person
 
@@ -108,14 +110,14 @@ All properties belonging to class 'Person' are mandatory.
 
 **Note:** All subclasses inherit the properties of their respective parent classes.
 
-#### 3.3.1. Mandatory Properties in Parent Class 'Study'
+#### 3.3.1. Mandatory Properties in Parent Class 'Person'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
-|name           |Person's name            | String      | 1            |            |          NA                           |  John       |
-|surname           |Person's surname(s)            | String      | 1            |           |       NA                               |  Doe       |
-|email           |Person's email address          | String      | 1            |          |                NA                      | John.Doe@email.com      |
-|affiliation          |Institution to which the person is affiliated            | String      | 1            |           |        NA                              |  University of Luxembourg       |
+|name           |Person's name            | String      | 1            |  It is mandatory to provide the name of a person.           |          NA                           |  John       |
+|surname           |Person's surname(s)            | String      | 1            |  It is mandatory to provide the surname(s) of a person.         |       NA                               |  Doe       |
+|email           |Person's email address          | String      | 1            | It is mandatory to provide the email address of a person.         |                NA                      | John.Doe@email.com      |
+|affiliation          |Institution to which the person is affiliated            | String      | 1            | It is mandatory to provide the affiliation of a person.          |        NA                              |  University of Luxembourg       |
 
 #### 3.3.2. Subclass: 'DatasetCreator'
 
@@ -131,7 +133,7 @@ This subclass inherits all properties from class 'Person', and has an additional
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
-|role           |Contact's role            | Role (enumeration)      | 1            |            |          NA                           |  Principal Investigator       |
+|role           |Contact's role            | Role (enumeration)      | 1            | A value from the enumeration 'Role' must be selected for each person.           |          NA                           |  Principal Investigator       |
 
 'SubmissionContact' acts as a parent class for 'SubmittingUser' and 'AdditionalContact'. Both subclasses inherit all properties from class 'SubmissionContact', with no additional properties required.
 
@@ -143,28 +145,28 @@ This subclass inherits all properties from class 'Person', and has an additional
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
-|identifier           |Internal unique identifier            | String      | 1            |Generated by the system            |                                      |  NA       |
-|title              |Study title            |String       | 1            |            |                                      | Biomarker discovery and valdiation        |
-|description               |Dataset description            |String       | 1            |            |                                      | CoolStudy attempts to address some seriously awesome stuff that will be very helpful        |
+|identifier           |Internal unique study identifier            | String      | 1            |Unique study identifier generated by the system in each submission.            |       NA                               |  NA       |
+|title              |Study title            |String       | 1            | Every study must have a descriptive title.           |      NA                                | Biomarker discovery and valdiation        |
+|description               |Dataset description            |String       | 1            |   Provide a brief textual description about the study.         |   NA                                   | CoolStudy attempts to address some seriously awesome stuff that will be very helpful        |
 
 #### 3.4.2. Recommended Properties in Class 'Study'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
-|acronym           | Study acronym           | String      | 0..1            |            |                                      | CoolStudy       |
-|external identifier           | External identifer(s) for the study          | String      | 0..*            |            |                                      | EGAS00000000009       |
-|website's URL           | Study's website            | String      | 0..1            |            |                                      | https://www.coolstudy.cool       |
-|ethics approval           | Confirmation that an ethics approval exists for the data collection as well as the data sharing for the purposes as foreseen in the agreement         | String      | 0..1            |            |                                      |        |
-|ethics approval ID           | Identifier for the ethics/IRB approval document           | String      | 0..1            |            |                                      | X00.000       |
-|study type          | Study type\(s\)           | String      | 0..1            |            |  EDAM, EFO, NCIt                                    | observational study \(NCIT:C16084\), drug discovery \(NCIT:C15802\)       |
-|multi-center study           | Is it a multi-center study?            |       | 0..1            |            |                                      |       |
-|species           | Species of origin of the samples/data          | String      | 0..*            |            |   NCBITaxon                                   | Homo sapiens       |
-|diseases           | Disease of data subjects or the focus disease of the study           | String      | 0..*           |            |     MONDO | Crohn's disease, type II diabetes mellitus       |
-|number of subjects           | Number of subjects/specimen           | UnlimitedNatural      | 0..1            |            |                                      | 524       |
-|sample source          | Biological or material source\(s\) of the samples           | String      | 0..*            |            |     NCIt, EFO, UBERON                                 | tissue sample, cell line       |
-|cohort description           | Description of cohorts           | String      | 0..1            |            |                                      | 250 patients \(132 male, 118 female\) with type II diabetes, 400 healthy controls \(174 male, 226 female\)       |
-|age range           | Age range of subjects in the study           | String      | 0..1            |            |                                      | 18-99 years       |
-|other subject characteristics           | Other subject characteristics           | String      | 0..*            |            |                                      | sex: 57 male / 85 female, diabetes status: 103 type II diabetes / 39 non-diabetic       |
+|acronym           | Study acronym           | String      | 0..1            |  Provide an acronym for the study, if possible.          |      NA                                | CoolStudy       |
+|external identifier           | External identifer(s) for the study          | String      | 0..*            | Provide additional identifiers or links from external sources, if any.           |    NA                                  | EGAS00000000009       |
+|website's URL           | Study's website            | String      | 0..1            |  Provide the URL to the website of the study, if any.          |      NA                                | https://www.coolstudy.cool       |
+|ethics approval           | Confirmation that an ethics approval exists for the data collection as well as the data sharing for the purposes as foreseen in the agreement         | Boolean      | 0..1            |   This property accepts a 'Yes/No' value.         |       NA                               |    Yes    |
+|ethics approval ID           | Identifier for the ethics/IRB approval document           | String      | 0..1            |  In case of ethics approval, provide the identifier.          |     NA                                 | X00.000       |
+|study type          | Study type\(s\)           | String      | 0..1            |   Indicate the type of study. This property contains suggested controlled vocabularies.         |  EDAM, EFO, NCIt                                    | observational study \(NCIT:C16084\), drug discovery \(NCIT:C15802\)       |
+|multi-center study           | Is it a multi-center study?            | Boolean      | 0..1            |  This property accepts a 'Yes/No' value.          |          NA                            |  No     |
+|species           | Species of origin of the samples/data          | String      | 0..*            |  This property contains suggested controlled vocabularies.          |   NCBITaxon                                   | Homo sapiens       |
+|diseases           | Disease of data subjects or the focus disease of the study           | String      | 0..*           | This property contains suggested controlled vocabularies.            |     MONDO | Crohn's disease, type II diabetes mellitus       |
+|number of subjects           | Number of subjects/specimen           | UnlimitedNatural      | 0..1            |  Value must be a non-negative integer.            |        NA                              | 524       |
+|sample source          | Biological or material source\(s\) of the samples           | String      | 0..*            |   This property contains suggested controlled vocabularies.         |     NCIt, EFO, UBERON                                 | tissue sample, cell line       |
+|cohort description           | Description of cohorts           | String      | 0..1            |   Describe the data subjects in the study.         |   NA                                   | 250 patients \(132 male, 118 female\) with type II diabetes, 400 healthy controls \(174 male, 226 female\)       |
+|age range           | Age range of subjects in the study           | String      | 0..1            |  Provide an age range.          |   NA                                   | 18-99 years       |
+|other subject characteristics           | Other subject characteristics           | String      | 0..*            | Describe other subject characteristics, if any.           |      NA                                | sex: 57 male / 85 female, diabetes status: 103 type II diabetes / 39 non-diabetic       |
 
 ### 3.5. Submission
 
@@ -174,19 +176,19 @@ This subclass inherits all properties from class 'Person', and has an additional
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
-|date           |Submission date            | Date      | 1            |Generated by the system            |                                      |  NA       |
-|identifier              |Submission reference id            |String       | 1            |  Generated by the system           |                                      | NA        |
-|receiving research project              |Receiving research project/service            |String       | 1            |  Information from project will be taken from Daisy          |                                      |         |
-|submitting institution           | Submitting institution's name          |       | 1            |           |                                      |        |
-|submitting user           | Submitting user          |       |             |           |                                      |        |
-|study          |           |       |             |           |                                      |        |
-|dataset          |          |       |             |           |                                      |        |
+|date           |Submission date            | Date (data type)     | 1            | The submission date is generated by the system automatically.           |    NA                                  |  NA       |
+|identifier              |Submission reference id            |String       | 1            |  Every submission has a unique reference identifier, which is generated by the system.           |         NA                             | NA        |
+|receiving research project              |Research project/service receving the data.            |String       | 1            |  Information about the receiving project will be taken from Daisy.          |       NA                               | NA        |
+|submitting institution           | Submitting institution's name          |   String    | 1            |  The submitting institution must be indicated in each submission.         |              NA                        |  University of Luxembourg      |
+|submitting user           | Submitting user          |  SubmittingUser (class)     |   1          |  Values for this property are instances of class 'SubmittingUser', which is a subclass of 'SubmissionContact' (itself a subclass of 'Person').         |     NA                                 |     NA   |
+|study          | Study/Cohort that is the source of the data          |   Study (class)    |  1..*         | A submission must be linked to at least one study, with no upper limit for the number of studies linked. The value of this property is an instance of class 'Study'.            |            NA                          | NA       |
+|dataset          | Unit of data originated from a study.         |  Dataset (class)     |  1..*            |  A submission must contain at least one dataset, with no upper limit for the number of datasets submitted. The value of this property is an instance of class 'Dataset'.          |      NA                                |  NA      |
 
 #### 3.5.2. Recommended Properties in Class 'Submission'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
-|additional contact           |           |      |           |            |                                      |       |
+|additional contact           | Any additional contact point in the submission (different from the main contact point).          |  AdditionalContact (class)    |  0..*         | Provide additional contacts for the submission, if any. Values for this property are instances of class 'AdditionalContact', which is a subclass of 'SubmissionContact' (itself a subclass of 'Person').               |       NA                               |  NA     |
 
 ## 4. Supporting Entities
 
