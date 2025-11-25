@@ -64,6 +64,55 @@ def _split_semicolon_values(raw_value):
     return [value.strip() for value in raw_value.split(";") if value and value.strip()]
 
 
+def _populate_study_json_fields(study_rec, form):
+    """Populate JSON fields on study record from form data."""
+    study_rec.study_types_json = json.dumps(form.study_types.data or [])
+
+    json_field_mappings = [
+        ("external_identifiers", "external_identifiers_json"),
+        ("species", "species_json"),
+        ("diseases", "diseases_json"),
+        ("sample_sources", "sample_sources_json"),
+        ("other_subject_characteristics", "other_subject_characteristics_json"),
+    ]
+    for form_field, json_attr in json_field_mappings:
+        values = _split_semicolon_values(getattr(form, form_field).data)
+        setattr(study_rec, json_attr, json.dumps(values) if values else None)
+
+
+def _save_study_contacts(form, study_id):
+    """Save contact forms to database."""
+    for contact_form in form.study_contacts:
+        contact = Contact(
+            first_name=contact_form.first_name.data,
+            last_name=contact_form.last_name.data,
+            email=contact_form.email.data,
+            institution=contact_form.institution.data,
+            category_id=contact_form.category_id.data,
+            is_main_contact=contact_form.is_main_contact.data,
+            study_id=study_id,
+        )
+        db.session.add(contact)
+
+
+def _load_study_json_to_form(study_rec, form):
+    """Load JSON fields from study record to form for display."""
+    if study_rec.study_types_json:
+        form.study_types.data = json.loads(study_rec.study_types_json)
+
+    json_field_mappings = [
+        ("external_identifiers_json", "external_identifiers"),
+        ("species_json", "species"),
+        ("diseases_json", "diseases"),
+        ("sample_sources_json", "sample_sources"),
+        ("other_subject_characteristics_json", "other_subject_characteristics"),
+    ]
+    for json_attr, form_field in json_field_mappings:
+        values = json.loads(getattr(study_rec, json_attr) or "[]")
+        if values:
+            getattr(form, form_field).data = "; ".join(values)
+
+
 @app.route("/", methods=["GET"])
 def home():
     return render_template("home.html")
@@ -956,94 +1005,35 @@ def add_submission_study(sub_id):
             "submission/study_form.html",
             study_form=forms.StudyForm(formdata=None, obj=None, sub_id=sub_id),
         ), 200
-    elif request.method == "POST":
-        posted_form = forms.StudyForm(request.form)
-        if posted_form.validate_on_submit() and (
-            int(posted_form.submission_id.data) == sub_id
-        ):
-            study_rec = SubmissionStudy()
-            # Exclude fields that are manually handled as JSON
-            exclude_fields = {
-                "external_identifiers",
-                "species",
-                "diseases",
-                "sample_sources",
-                "other_subject_characteristics",
-                "study_types",
-                "study_contacts",
-            }
-            for field_name, field in posted_form._fields.items():
-                if field_name not in exclude_fields:
-                    field.populate_obj(study_rec, field_name)
-            study_rec.id = None
 
-            if posted_form.study_types.data:
-                study_rec.study_types_json = json.dumps(posted_form.study_types.data)
-            else:
-                study_rec.study_types_json = json.dumps([])
+    posted_form = forms.StudyForm(request.form)
+    if not (
+        posted_form.validate_on_submit()
+        and int(posted_form.submission_id.data) == sub_id
+    ):
+        return render_template(
+            "submission/study_form.html", study_form=posted_form
+        ), 400
 
-            ext_ids = _split_semicolon_values(posted_form.external_identifiers.data)
-            study_rec.external_identifiers_json = (
-                json.dumps(ext_ids) if ext_ids else None
-            )
+    study_rec = SubmissionStudy()
+    exclude_fields = {
+        "external_identifiers", "species", "diseases", "sample_sources",
+        "other_subject_characteristics", "study_types", "study_contacts",
+    }
+    for field_name, field in posted_form._fields.items():
+        if field_name not in exclude_fields:
+            field.populate_obj(study_rec, field_name)
+    study_rec.id = None
 
-            species_values = _split_semicolon_values(posted_form.species.data)
-            study_rec.species_json = (
-                json.dumps(species_values) if species_values else None
-            )
+    _populate_study_json_fields(study_rec, posted_form)
 
-            disease_values = _split_semicolon_values(posted_form.diseases.data)
-            study_rec.diseases_json = (
-                json.dumps(disease_values) if disease_values else None
-            )
+    db.session.add(study_rec)
+    db.session.flush()
+    _save_study_contacts(posted_form, study_rec.id)
+    db.session.commit()
 
-            sample_source_values = _split_semicolon_values(
-                posted_form.sample_sources.data
-            )
-            study_rec.sample_sources_json = (
-                json.dumps(sample_source_values) if sample_source_values else None
-            )
-
-            other_characteristics = _split_semicolon_values(
-                posted_form.other_subject_characteristics.data
-            )
-            study_rec.other_subject_characteristics_json = (
-                json.dumps(other_characteristics) if other_characteristics else None
-            )
-
-            study_rec.multi_center_study = posted_form.multi_center_study.data or False
-            study_rec.informed_consent_given = posted_form.informed_consent_given.data
-
-            study_rec.study_characteristics = posted_form.study_characteristics.data
-            study_rec.number_of_subjects = posted_form.number_of_subjects.data
-            study_rec.age_range_of_subjects = posted_form.age_range_of_subjects.data
-            study_rec.description_of_data_subjects = (
-                posted_form.description_of_data_subjects.data
-            )
-            study_rec.description_of_cohorts = posted_form.description_of_cohorts.data
-            study_rec.contact_remarks = posted_form.contact_remarks.data
-
-            db.session.add(study_rec)
-            db.session.flush()
-
-            for contact_form in posted_form.study_contacts:
-                contact = Contact()
-                contact.first_name = contact_form.first_name.data
-                contact.last_name = contact_form.last_name.data
-                contact.email = contact_form.email.data
-                contact.institution = contact_form.institution.data
-                contact.category_id = contact_form.category_id.data
-                contact.is_main_contact = contact_form.is_main_contact.data
-                contact.study_id = study_rec.id
-                db.session.add(contact)
-
-            db.session.commit()
-            flash("Study added", "success")
-            return redirect(url_for("view_submission", sub_id=study_rec.submission_id))
-        else:
-            return render_template(
-                "submission/study_form.html", study_form=posted_form
-            ), 400
+    flash("Study added", "success")
+    return redirect(url_for("view_submission", sub_id=study_rec.submission_id))
 
 
 @app.route("/submission_study/<int:study_id>", methods=["GET", "POST"])
@@ -1059,118 +1049,35 @@ def edit_submission_study(study_id):
     if request.method == "GET":
         study_rec = SubmissionStudy.query.get_or_404(study_id)
         result_form = forms.StudyForm(obj=study_rec)
-
-        if study_rec.study_types_json:
-            result_form.study_types.data = json.loads(study_rec.study_types_json)
-
-        ext_ids = json.loads(study_rec.external_identifiers_json or "[]")
-        if ext_ids:
-            result_form.external_identifiers.data = "; ".join(ext_ids)
-
-        species = json.loads(study_rec.species_json or "[]")
-        if species:
-            result_form.species.data = "; ".join(species)
-
-        diseases = json.loads(study_rec.diseases_json or "[]")
-        if diseases:
-            result_form.diseases.data = "; ".join(diseases)
-
-        sample_sources = json.loads(study_rec.sample_sources_json or "[]")
-        if sample_sources:
-            result_form.sample_sources.data = "; ".join(sample_sources)
-
-        other_chars = json.loads(study_rec.other_subject_characteristics_json or "[]")
-        if other_chars:
-            result_form.other_subject_characteristics.data = "; ".join(other_chars)
-
+        _load_study_json_to_form(study_rec, result_form)
         return render_template(
             "submission/study_form.html", study_form=result_form
         ), 200
-    elif request.method == "POST":
-        posted_form = forms.StudyForm(request.form)
-        if posted_form.validate_on_submit():
-            study_rec = SubmissionStudy.query.get_or_404(study_id)
-            # Exclude fields that are manually handled as JSON
-            exclude_fields = {
-                "external_identifiers",
-                "species",
-                "diseases",
-                "sample_sources",
-                "other_subject_characteristics",
-                "study_types",
-                "study_contacts",
-            }
-            for field_name, field in posted_form._fields.items():
-                if field_name not in exclude_fields:
-                    field.populate_obj(study_rec, field_name)
 
-            if posted_form.study_types.data:
-                study_rec.study_types_json = json.dumps(posted_form.study_types.data)
-            else:
-                study_rec.study_types_json = json.dumps([])
+    posted_form = forms.StudyForm(request.form)
+    if not posted_form.validate_on_submit():
+        return render_template(
+            "submission/study_form.html", study_form=posted_form
+        ), 400
 
-            ext_ids = _split_semicolon_values(posted_form.external_identifiers.data)
-            study_rec.external_identifiers_json = (
-                json.dumps(ext_ids) if ext_ids else None
-            )
+    study_rec = SubmissionStudy.query.get_or_404(study_id)
+    exclude_fields = {
+        "external_identifiers", "species", "diseases", "sample_sources",
+        "other_subject_characteristics", "study_types", "study_contacts",
+    }
+    for field_name, field in posted_form._fields.items():
+        if field_name not in exclude_fields:
+            field.populate_obj(study_rec, field_name)
 
-            species_values = _split_semicolon_values(posted_form.species.data)
-            study_rec.species_json = (
-                json.dumps(species_values) if species_values else None
-            )
+    _populate_study_json_fields(study_rec, posted_form)
 
-            disease_values = _split_semicolon_values(posted_form.diseases.data)
-            study_rec.diseases_json = (
-                json.dumps(disease_values) if disease_values else None
-            )
+    Contact.query.filter_by(study_id=study_rec.id).delete()
+    _save_study_contacts(posted_form, study_rec.id)
 
-            sample_source_values = _split_semicolon_values(
-                posted_form.sample_sources.data
-            )
-            study_rec.sample_sources_json = (
-                json.dumps(sample_source_values) if sample_source_values else None
-            )
-
-            other_characteristics = _split_semicolon_values(
-                posted_form.other_subject_characteristics.data
-            )
-            study_rec.other_subject_characteristics_json = (
-                json.dumps(other_characteristics) if other_characteristics else None
-            )
-
-            study_rec.multi_center_study = posted_form.multi_center_study.data or False
-            study_rec.informed_consent_given = posted_form.informed_consent_given.data
-
-            study_rec.study_characteristics = posted_form.study_characteristics.data
-            study_rec.number_of_subjects = posted_form.number_of_subjects.data
-            study_rec.age_range_of_subjects = posted_form.age_range_of_subjects.data
-            study_rec.description_of_data_subjects = (
-                posted_form.description_of_data_subjects.data
-            )
-            study_rec.description_of_cohorts = posted_form.description_of_cohorts.data
-            study_rec.contact_remarks = posted_form.contact_remarks.data
-
-            Contact.query.filter_by(study_id=study_rec.id).delete()
-
-            for contact_form in posted_form.study_contacts:
-                contact = Contact()
-                contact.first_name = contact_form.first_name.data
-                contact.last_name = contact_form.last_name.data
-                contact.email = contact_form.email.data
-                contact.institution = contact_form.institution.data
-                contact.category_id = contact_form.category_id.data
-                contact.is_main_contact = contact_form.is_main_contact.data
-                contact.study_id = study_rec.id
-                db.session.add(contact)
-
-            db.session.add(study_rec)
-            db.session.commit()
-            flash("Study updated", "success")
-            return redirect(url_for("view_submission", sub_id=study_rec.submission_id))
-        else:
-            return render_template(
-                "submission/study_form.html", study_form=posted_form
-            ), 400
+    db.session.add(study_rec)
+    db.session.commit()
+    flash("Study updated", "success")
+    return redirect(url_for("view_submission", sub_id=study_rec.submission_id))
 
 
 @app.route("/submission_study_delete/<int:study_id>", methods=["GET"])

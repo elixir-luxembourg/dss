@@ -22,6 +22,11 @@ function displayInlineSuccess(msg) {
     resetTimeOut();
 }
 
+function updateFieldsetInputIds(input, oldNum, newNum) {
+    let id = $(input).attr('id').replace('-' + oldNum + '-', '-' + newNum + '-');
+    $(input).attr('name', id).attr('id', id).val('').removeAttr("checked");
+}
+
 $(document).ajaxStart(function () {
     $('body').addClass('wait');
 }).ajaxComplete(function () {
@@ -69,9 +74,7 @@ $(document).ready(function () {
                 let elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1')) + 1;
                 row.attr('data-id', elem_num);
                 row.find(":input").each(function () {
-                    console.log('Processing input:', this);
-                    let id = $(this).attr('id').replace('-' + (elem_num - 1) + '-', '-' + (elem_num) + '-');
-                    $(this).attr('name', id).attr('id', id).val('').removeAttr("checked");
+                    updateFieldsetInputIds(this, elem_num - 1, elem_num);
                 });
 
                 oldrow.after(row);
