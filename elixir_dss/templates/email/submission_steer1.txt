@@ -1,12 +1,18 @@
+ELIXIR-LU / LCSB
+
 Dear Data Provider,
 
-ELIXIR Luxembourg has shared with the following Data Submission session. The next step for you is to register your studies.
+ELIXIR Luxembourg has shared a new data submission session with you. The next step is to complete the required forms in the Study and Dataset sections for this submission in the Data Submission System.
 
+Important: Please ensure that the metadata you provide is accurate and complete. You will take full responsibility for any incorrect, misleading, or incomplete information submitted.
 
-Ref Name: {{ submission.ref_name }}
-Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
+Submission Ref: {{ submission.ref_name }}
+Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
 
+If you have any questions or need assistance while completing the submission, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the Data Submission System at {{ url_for('home', _external=True) }} for guidance and further information.
 
-Regards
-ELIXIR LU
-(This is an auto-generated e-mail, please do not reply)
+Thank you for your collaboration,
+
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.

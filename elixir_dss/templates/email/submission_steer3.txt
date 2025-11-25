@@ -1,11 +1,16 @@
-Dear ELIXIR LU Data Steward,
+ELIXIR-LU / LCSB
 
-The following Submission has been steered to the Completion stage. Please verify the uploaded metadata from the Submission Page below and the data on the upload server.
+Dear Data Steward,
 
-Ref Name: {{ submission.ref_name }}
-Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
+The following submission has been successfully steered to the Completion stage in the Data Submission System. No further action is required.
 
+Submission Ref: {{ submission.ref_name }}
+Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
 
-Regards
-ELIXIR LU
-(This is an auto-generated e-mail, please do not reply)
+If you have any questions about the submission or the process, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the Data Submission System at {{ url_for('home', _external=True) }}.
+
+Thank you for your support throughout the submission process,
+
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.

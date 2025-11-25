@@ -1,11 +1,16 @@
+ELIXIR-LU / LCSB
 
-The following Submission has a new message.
+Dear User,
 
-Ref Name: {{ submission.ref_name }}
-Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
+The following submission has received a new message in the Data Submission System. You can view and respond to the message via the submission page.
 
+Submission Ref: {{ submission.ref_name }}
+Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
 
+If you have any questions regarding this submission or the messaging system, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu.
 
-Regards,
-ELIXIR-LU Data Stewards
-(This is an auto-generated e-mail, please do not reply)
+Thank you,
+
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.
