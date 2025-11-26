@@ -20,7 +20,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Ruff
-        run: uv tool install ruff
+        run: uv tool install ruff==0.14.6
 
       - name: Run Ruff linter
         run: uvx ruff check . --output-format=github
