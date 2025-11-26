@@ -801,7 +801,9 @@ def download_submission_attachment(attach_id, filename):
 
 
 @app.route("/submission_dataset_add/<int:sub_id>", methods=["GET", "POST"])
-@protect(roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission])
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
+)
 def add_submission_dataset(sub_id):
     if request.method == "GET":
         return render_template(
@@ -855,7 +857,9 @@ def add_submission_dataset(sub_id):
 
 
 @app.route("/submission_dataset/<int:dataset_id>", methods=["GET", "POST"])
-@protect(roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission])
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
+)
 def edit_submission_dataset(dataset_id):
     if request.method == "GET":
         dataset = SubmissionDataset.query.get_or_404(dataset_id)
@@ -928,7 +932,9 @@ def edit_submission_dataset(dataset_id):
 
 
 @app.route("/submission_dataset_delete/<int:dataset_id>", methods=["GET"])
-@protect(roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission])
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
+)
 def delete_submission_dataset(dataset_id):
     dataset = SubmissionDataset.query.get_or_404(dataset_id)
     db.session.delete(dataset)
@@ -943,7 +949,9 @@ def delete_submission_dataset(dataset_id):
 
 
 @app.route("/submission_study_add/<int:sub_id>", methods=["GET", "POST"])
-@protect(roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission])
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
+)
 def add_submission_study(sub_id):
     if request.method == "GET":
         return render_template(
@@ -987,7 +995,9 @@ def add_submission_study(sub_id):
 
 
 @app.route("/submission_study/<int:study_id>", methods=["GET", "POST"])
-@protect(roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission])
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
+)
 def edit_submission_study(study_id):
     if request.method == "GET":
         study_rec = SubmissionStudy.query.get_or_404(study_id)
@@ -1029,7 +1039,9 @@ def edit_submission_study(study_id):
 
 
 @app.route("/submission_study_delete/<int:study_id>", methods=["GET"])
-@protect(roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission])
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
+)
 def delete_submission_study(study_id):
     study = SubmissionStudy.query.get_or_404(study_id)
     db.session.delete(study)

@@ -62,7 +62,9 @@ def protect(roles=None, states=None, public=False):
             if submission:
                 is_steward = current_user.is_data_steward()
 
-                if not is_steward and not has_access(current_user.get_id(), submission.id):
+                if not is_steward and not has_access(
+                    current_user.get_id(), submission.id
+                ):
                     return _forbidden("Error 403 - Unauthorized")
 
                 if submission.is_cancelled() and request.method not in (

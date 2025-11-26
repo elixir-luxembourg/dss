@@ -525,7 +525,9 @@ class ControllersTest(BaseIntegrationTest):
         study = SubmissionStudyFactory(submission_id=sub.id)
         dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
 
-        resp = self.client.get(url_for("delete_submission_dataset", dataset_id=dataset.id))
+        resp = self.client.get(
+            url_for("delete_submission_dataset", dataset_id=dataset.id)
+        )
         self.assert403(resp)
 
     def test_delete_study_blocked_outside_metadata_submission(self):
