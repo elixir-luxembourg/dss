@@ -27,7 +27,7 @@
                     </a>
                 {% endif %}
             {% else %}
-                <a href="{{ url_for('login') }}"
+                <a href="{{ url_for(login_page) }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}"
                    class="btn btn-light btn-lg px-5 fw-semibold">
                     Sign In
                 </a>
