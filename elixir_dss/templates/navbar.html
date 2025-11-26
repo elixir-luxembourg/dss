@@ -21,44 +21,43 @@
 
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
-
-                {% if current_user.is_authenticated %}
-                    {% for name, link, sub_items, role in menu_bar_items %}
-                        {% if current_user.assigned_roles|selectattr("name", "equalto", role)|list|count > 0 %}
-                            {% if link %}
+                {% for name, link, sub_items, role in menu_bar_items %}
+                    {% if (current_user.is_authenticated and current_user.assigned_roles|selectattr("name", "equalto", role)|list|count > 0) or role == 'public' %}
+                        {% if link %}
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded
+                               {% if request.endpoint == link %}active bg-body-secondary text-dark fw-medium{% else %}text-secondary{% endif %}"
+                                   href="{{ url_for(link) }}"
+                                   {% if request.endpoint == link %}aria-current="page"{% endif %}>
+                                    <i class="bi bi-grid"></i>
+                                    {{ name|e }}
+                                </a>
+                            </li>
+                        {% else %}
+                            {% for sub_item_name, sub_item_link in sub_items %}
                                 <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded {% if request.endpoint == link %}active bg-body-secondary text-dark fw-medium{% else %}text-secondary{% endif %}"
-                                       href="{{ url_for(link) }}"
-                                       {% if request.endpoint == link %}aria-current="page"{% endif %}>
-                                        <i class="bi bi-grid"></i>
-                                        {{ name|e }}
+                                    <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded
+                                   {% if request.endpoint == sub_item_link %}active bg-body-secondary text-dark fw-medium{% else %}text-secondary{% endif %}"
+                                       href="{{ url_for(sub_item_link) }}"
+                                       {% if request.endpoint == sub_item_link %}aria-current="page"{% endif %}>
+                                        {% if 'Submission' in sub_item_name or 'submission' in sub_item_name %}
+                                            <i class="bi bi-file-earmark-text"></i>
+                                        {% elif 'User' in sub_item_name or 'user' in sub_item_name %}
+                                            <i class="bi bi-people"></i>
+                                        {% elif 'Export' in sub_item_name or 'export' in sub_item_name %}
+                                            <i class="bi bi-download"></i>
+                                        {% elif 'Settings' in sub_item_name or 'settings' in sub_item_name or 'Config' in sub_item_name %}
+                                            <i class="bi bi-gear"></i>
+                                        {% else %}
+                                            <i class="bi bi-list-ul"></i>
+                                        {% endif %}
+                                        {{ sub_item_name }}
                                     </a>
                                 </li>
-                            {% else %}
-                                {% for sub_item_name, sub_item_link in sub_items %}
-                                    <li class="nav-item">
-                                        <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded {% if request.endpoint == sub_item_link %}active bg-body-secondary text-dark fw-medium{% else %}text-secondary{% endif %}"
-                                           href="{{ url_for(sub_item_link) }}"
-                                           {% if request.endpoint == sub_item_link %}aria-current="page"{% endif %}>
-                                            {% if 'Submission' in sub_item_name or 'submission' in sub_item_name %}
-                                                <i class="bi bi-file-earmark-text"></i>
-                                            {% elif 'User' in sub_item_name or 'user' in sub_item_name %}
-                                                <i class="bi bi-people"></i>
-                                            {% elif 'Export' in sub_item_name or 'export' in sub_item_name %}
-                                                <i class="bi bi-download"></i>
-                                            {% elif 'Settings' in sub_item_name or 'settings' in sub_item_name or 'Config' in sub_item_name %}
-                                                <i class="bi bi-gear"></i>
-                                            {% else %}
-                                                <i class="bi bi-list-ul"></i>
-                                            {% endif %}
-                                            {{ sub_item_name }}
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            {% endif %}
+                            {% endfor %}
                         {% endif %}
-                    {% endfor %}
-                {% endif %}
+                    {% endif %}
+                {% endfor %}
             </ul>
 
             <div class="d-flex align-items-center gap-2">

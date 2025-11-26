@@ -118,6 +118,11 @@ def home():
     return render_template("home.html")
 
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+
 @app.route("/users", methods=["GET"])
 @app_authorization(allowed_roles=["admin"])
 def list_users():
@@ -1017,8 +1022,13 @@ def add_submission_study(sub_id):
 
     study_rec = SubmissionStudy()
     exclude_fields = {
-        "external_identifiers", "species", "diseases", "sample_sources",
-        "other_subject_characteristics", "study_types", "study_contacts",
+        "external_identifiers",
+        "species",
+        "diseases",
+        "sample_sources",
+        "other_subject_characteristics",
+        "study_types",
+        "study_contacts",
     }
     for field_name, field in posted_form._fields.items():
         if field_name not in exclude_fields:
@@ -1062,8 +1072,13 @@ def edit_submission_study(study_id):
 
     study_rec = SubmissionStudy.query.get_or_404(study_id)
     exclude_fields = {
-        "external_identifiers", "species", "diseases", "sample_sources",
-        "other_subject_characteristics", "study_types", "study_contacts",
+        "external_identifiers",
+        "species",
+        "diseases",
+        "sample_sources",
+        "other_subject_characteristics",
+        "study_types",
+        "study_contacts",
     }
     for field_name, field in posted_form._fields.items():
         if field_name not in exclude_fields:
