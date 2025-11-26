@@ -4,7 +4,7 @@ Dear Colleague,
 
 You have been invited to collaborate on submission {{ submission.ref_name }} in the Data Submission System.
 
-This means you can upload, add, and contribute to the submission’s metadata and associated data files. Please ensure that you verify the information carefully before proceeding or submitting.
+This means you can upload, add, and contribute to the submission’s metadata and associated data files. Please ensure that you verify the information carefully before proceeding or uploading the data.
 
 To access the submission, click the link below:
 {{ url_for('view_submission', sub_id=submission.id, _external=True) }}

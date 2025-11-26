@@ -2,7 +2,7 @@ ELIXIR-LU / LCSB
 
 Dear Data Provider,
 
-Your recent data upload has been reviewed by a data steward and requires some changes before it can be approved. Please review the feedback below carefully and make the necessary corrections.
+Your data upload under submission {{ submission.ref_name }}  has been reviewed by a data steward and requires some changes before it can be approved. Please review the feedback below carefully and make the necessary corrections.
 
 Submission Ref: {{ submission.ref_name }}
 Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
