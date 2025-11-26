@@ -8,16 +8,6 @@ Deployment using systemd and nginx on Rocky Linux 8
 sudo dnf update -y
 sudo dnf install -y python3.12 python3.12-pip nginx git nodejs npm
 sudo dnf groupinstall -y "Development Tools"
-
-# Install Java 21 (for webassets)
-sudo dnf install -y java-21-openjdk
-
-# Set Java 21 as default
-sudo alternatives --config java
-# Select the number corresponding to java-21-openjdk
-
-# Verify Java version
-java -version
 ```
 
 ## 2. Setup Application User
