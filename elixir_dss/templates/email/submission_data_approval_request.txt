@@ -12,6 +12,6 @@ Please log in the LFT application to verify the uploaded data for submission ref
 If you have any questions or need further assistance, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu or visit our website: {{ url_for('home', _external=True) }}
 
 Thank you,
-LCSB / ELIXIR-LU
+LCSB Data Stewards (ELIXIR-LU)
 
 This is an auto-generated e-mail, please do not reply.
