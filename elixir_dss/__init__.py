@@ -104,6 +104,25 @@ def inject_now():
     return {"version": __VERSION__}
 
 
+@app.before_request
+def enforce_auth_by_default():
+    from flask import request
+    from flask_login import current_user
+
+    if request.endpoint in ("static", None):
+        return
+
+    view_func = app.view_functions.get(request.endpoint)
+    if not view_func:
+        return
+
+    if getattr(view_func, "_public", False) or getattr(view_func, "_protected", False):
+        return
+
+    if not current_user.is_authenticated:
+        return login_manager.unauthorized()
+
+
 def run_export_submission():
     models.services.schedule_submission_export()
 

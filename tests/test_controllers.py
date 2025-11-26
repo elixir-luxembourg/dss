@@ -63,7 +63,7 @@ class ControllersTest(BaseIntegrationTest):
         self.assert403(response)
 
         response = self.client.get(url_for("revert_submission", sub_id=0))
-        self.assert403(response)
+        self.assert404(response)
 
         response = self.client.get(url_for("send_notification", notification_id=0))
         self.assert403(response)
@@ -385,7 +385,7 @@ class ControllersTest(BaseIntegrationTest):
 
             resp = self.client.get(url_for("steer_submission", sub_id=sub.id))
             self.assert403(resp)
-            self.assertIn("not allowed to steer", resp.data.decode())
+            self.assertIn("not allowed to perform this action", resp.data.decode())
 
     def test_require_can_steer_submission_user_allowed_in_other_phases(self):
         self.login("submitter1@some.edu", "submitter1")
@@ -447,7 +447,7 @@ class ControllersTest(BaseIntegrationTest):
             url_for("edit_submission_dataset", dataset_id=dataset.id)
         )
         self.assert403(resp)
-        self.assertIn("no longer edit", resp.data.decode())
+        self.assertIn("not allowed to perform this action", resp.data.decode())
 
         resp = self.client.get(url_for("add_submission_dataset", sub_id=sub.id))
         self.assert403(resp)
@@ -477,4 +477,63 @@ class ControllersTest(BaseIntegrationTest):
         study = SubmissionStudyFactory(submission_id=sub.id)
 
         resp = self.client.get(url_for("edit_submission_study", study_id=study.id))
+        self.assert403(resp)
+
+    def test_public_routes_accessible_without_auth(self):
+        resp = self.client.get(url_for("home"))
+        self.assert200(resp)
+
+        resp = self.client.get(url_for("login"))
+        self.assert200(resp)
+
+    def test_protected_routes_require_auth(self):
+        resp = self.client.get(url_for("list_submissions"))
+        self.assertIn(resp.status_code, (302, 401))
+
+    def test_user_without_access_blocked(self):
+        self.login("submitter2@some.edu", "submitter2")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        user1 = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user1.id])
+
+        resp = self.client.get(url_for("view_submission", sub_id=sub.id))
+        self.assert403(resp)
+
+    def test_steward_can_access_any_submission(self):
+        self.login("steward1@uni.lu", "steward1")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        resp = self.client.get(url_for("view_submission", sub_id=sub.id))
+        self.assert200(resp)
+
+    def test_nonexistent_entity_returns_404(self):
+        self.login("steward1@uni.lu", "steward1")
+
+        resp = self.client.get(url_for("view_submission", sub_id=99999))
+        self.assert404(resp)
+
+        resp = self.client.get(url_for("edit_submission_dataset", dataset_id=99999))
+        self.assert404(resp)
+
+    def test_delete_dataset_blocked_outside_metadata_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
+
+        resp = self.client.get(url_for("delete_submission_dataset", dataset_id=dataset.id))
+        self.assert403(resp)
+
+    def test_delete_study_blocked_outside_metadata_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+        study = SubmissionStudyFactory(submission_id=sub.id)
+
+        resp = self.client.get(url_for("delete_submission_study", study_id=study.id))
         self.assert403(resp)

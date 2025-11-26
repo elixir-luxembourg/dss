@@ -12,20 +12,13 @@ from weasyprint import CSS, HTML
 from weasyprint.text.fonts import FontConfiguration
 
 from elixir_dss import app
-from elixir_dss.controllers import app_authorization
+from elixir_dss.controllers import protect
 from elixir_dss.importer.submission_exporter import SubmissionExporter
 from elixir_dss.models.submission import Submission
 
 
 @app.route("/submission/generate_submission_pdf/<int:sub_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def generate_submission_pdf(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     rendered = render_template(
@@ -67,14 +60,7 @@ def generate_submission_pdf(sub_id):
 
 
 @app.route("/submission/generate_submission_docx/<int:sub_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def generate_submission_docx(sub_id):
     sub = Submission.query.get_or_404(sub_id)
     template_path = os.path.join(

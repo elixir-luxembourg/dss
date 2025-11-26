@@ -1,7 +1,6 @@
-import importlib
 from functools import wraps
 
-from flask import current_app, render_template, request
+from flask import abort, current_app, render_template, request
 from flask_login import current_user
 from flask_login.config import EXEMPT_METHODS
 
@@ -9,105 +8,96 @@ from elixir_dss import db
 from ..models.services import has_access
 from ..models.submission import (
     Submission,
-    SubmissionStatusEnum,
+    SubmissionAttachment,
+    SubmissionDataset,
+    SubmissionStudy,
 )
 
-submission_models_module = importlib.import_module("elixir_dss.models.submission")
+ACCESS_RULES = {
+    "sub_id": (Submission, "id"),
+    "submission_id": (Submission, "id"),
+    "dataset_id": (SubmissionDataset, "submission_id"),
+    "study_id": (SubmissionStudy, "submission_id"),
+    "attach_id": (SubmissionAttachment, "submission_id"),
+}
 
 
-def app_authorization(**options):
-    def wrapper(func):
+def protect(roles=None, states=None, public=False):
+    def decorator(func):
         @wraps(func)
-        def decorated_view(*args, **kwargs):
+        def wrapper(*args, **kwargs):
             if request.method in EXEMPT_METHODS:
                 return func(*args, **kwargs)
 
             if current_app.config.get("LOGIN_DISABLED"):
                 return func(*args, **kwargs)
 
+            if public:
+                return func(*args, **kwargs)
+
             if not current_user.is_authenticated:
                 return current_app.login_manager.unauthorized()
 
-            # Role check
-            if not current_user.has_role_from(options.get("allowed_roles")):
-                return _deny("Error 403 - Unauthorized")
-
+            entity_cls, attr, entity_id = _resolve_access(kwargs)
             submission = None
 
-            # --------------------------
-            # Resolve submission from record_authorization
-            # --------------------------
-            record_auth = options.get("record_authorization")
-            if record_auth:
-                params = record_auth
-                entity_cls = getattr(submission_models_module, params["entity"])
-                entity_id = kwargs[params["entity_id_key"]]
+            if entity_cls:
+                record = db.session.get(entity_cls, entity_id)
+                if not record:
+                    abort(404)
 
-                entity = db.session.get(entity_cls, entity_id)
-                if not entity:
-                    return (
-                        render_template(
-                            "error.html",
-                            message="Submission not found or inaccessible.",
-                            show_home_link=True,
-                        ),
-                        403,
-                    )
-                submission_id = getattr(entity, params["entity_ac_attribute"])
+                submission_id = getattr(record, attr)
+                submission = (
+                    record
+                    if entity_cls == Submission
+                    else db.session.get(Submission, submission_id)
+                )
 
-                if not current_user.is_data_steward():
-                    if not has_access(current_user.get_id(), submission_id):
-                        return _deny("Error 403 - Unauthorized")
+                if not submission:
+                    abort(404)
 
-                if params["entity"] == "Submission":
-                    submission = entity
-                else:
-                    submission = db.session.get(Submission, submission_id)
+            if roles and not current_user.has_role_from(roles):
+                return _forbidden("Error 403 - Unauthorized")
 
-                if (
-                    submission
-                    and submission.is_cancelled()
-                    and request.method not in ("GET", "HEAD", "OPTIONS")
+            if submission:
+                is_steward = current_user.is_data_steward()
+
+                if not is_steward and not has_access(current_user.get_id(), submission.id):
+                    return _forbidden("Error 403 - Unauthorized")
+
+                if submission.is_cancelled() and request.method not in (
+                    "GET",
+                    "HEAD",
+                    "OPTIONS",
                 ):
-                    return _deny(
+                    return _forbidden(
                         "This submission has been cancelled. No further changes allowed."
                     )
 
-            # --------------------------
-            # submission_action logic
-            # --------------------------
-            action = options.get("submission_action")
-            if action and submission:
-                if not current_user.is_data_steward():
-                    if action == "edit_metadata":
-                        if (
-                            submission.current_status
-                            != SubmissionStatusEnum.metadata_submission
-                        ):
-                            return _deny(
-                                "You can no longer edit the submitted metadata!"
-                            )
-
-                    # 2. steer
-                    if action == "steer":
-                        forbidden = {
-                            SubmissionStatusEnum.draft,
-                            SubmissionStatusEnum.metadata_approval,
-                            SubmissionStatusEnum.data_approval,
-                        }
-                        if submission.current_status in forbidden:
-                            return _deny(
-                                "You are not allowed to steer this submission at this stage."
-                            )
+                if states and not is_steward:
+                    if submission.current_status not in states:
+                        return _forbidden(
+                            "You are not allowed to perform this action at this stage."
+                        )
 
             return func(*args, **kwargs)
 
-        return decorated_view
+        wrapper._protected = True
+        wrapper._public = public
+        return wrapper
 
-    return wrapper
+    return decorator
 
 
-def _deny(message):
+def _resolve_access(kwargs):
+    for param, value in kwargs.items():
+        if param in ACCESS_RULES:
+            entity_cls, attr = ACCESS_RULES[param]
+            return entity_cls, attr, value
+    return None, None, None
+
+
+def _forbidden(message):
     return (
         render_template("error.html", message=message, show_home_link=True),
         403,
