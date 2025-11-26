@@ -424,7 +424,6 @@ def steer_submission_confirmed(sub_id):
     if not responsibility_ack:
         flash("You must acknowledge the responsibilities before proceeding.", "error")
         return redirect(url_for("view_submission", sub_id=sub_id))
-
     try:
         sub_with_new_state = steer_sub(sub_id)
         flash(
