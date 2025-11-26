@@ -207,4 +207,22 @@ $(document).ready(function () {
     $('#submission_create_modal').on('hidden.bs.modal', function () {
         $(this).find('.elx-select').select2('destroy');
     });
+
+
+
+    const checkbox = document.getElementById("responsibilityCheck");
+    const confirmBtn = document.getElementById("responsibilityConfirmBtn");
+
+    if (checkbox && confirmBtn) {
+        checkbox.addEventListener("change", () => {
+            confirmBtn.disabled = !checkbox.checked;
+        });
+
+        document.getElementById("responsibilityModal").addEventListener("show.bs.modal", () => {
+            checkbox.checked = false;
+            confirmBtn.disabled = true;
+        });
+    }
+
+
 });

@@ -560,13 +560,17 @@ def clone_sub(
     """
     try:
         old_sub = Submission.query.get_or_404(original_submission_id)
+        new_status = SubmissionStatusEnum.metadata_submission
+        if old_sub.current_status == SubmissionStatusEnum.draft:
+            new_status = SubmissionStatusEnum.draft
+
         new_sub = Submission(
             institution_accession=old_sub.institution_accession,
             created_on=datetime.now(),
             submission_scope_code=old_sub.submission_scope_code,
             local_custodians_json=old_sub.local_custodians_json,
             local_project_name=old_sub.local_project_name,
-            current_status=SubmissionStatusEnum.metadata_submission,
+            current_status=new_status,
         )
         db.session.add(new_sub)
         db.session.flush()
