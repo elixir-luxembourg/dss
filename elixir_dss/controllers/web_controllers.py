@@ -411,14 +411,7 @@ def steer_submission(sub_id):
 
 
 @app.route("/steer/submission/<int:sub_id>/confirmed", methods=["POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def steer_submission_confirmed(sub_id):
     responsibility_ack = request.form.get("responsibility_ack")
     if not responsibility_ack:
