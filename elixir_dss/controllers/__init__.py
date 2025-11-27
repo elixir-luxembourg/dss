@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import abort, current_app, render_template, request
+from flask import abort, render_template, request
 from flask_login import current_user, login_required
 
 from elixir_dss import db
