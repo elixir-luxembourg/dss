@@ -120,6 +120,7 @@ def home():
 
 
 @app.route("/about")
+@protect(public=True)
 def about():
     return render_template("about.html")
 
