@@ -1,8 +1,7 @@
 from functools import wraps
 
 from flask import abort, current_app, render_template, request
-from flask_login import current_user
-from flask_login.config import EXEMPT_METHODS
+from flask_login import current_user, login_required
 
 from elixir_dss import db
 from ..models.services import has_access
@@ -26,17 +25,8 @@ def protect(roles=None, states=None, public=False):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            if request.method in EXEMPT_METHODS:
-                return func(*args, **kwargs)
-
-            if current_app.config.get("LOGIN_DISABLED"):
-                return func(*args, **kwargs)
-
             if public:
                 return func(*args, **kwargs)
-
-            if not current_user.is_authenticated:
-                return current_app.login_manager.unauthorized()
 
             entity_cls, attr, entity_id = _resolve_access(kwargs)
             submission = None
@@ -65,7 +55,7 @@ def protect(roles=None, states=None, public=False):
                 if not is_steward and not has_access(
                     current_user.get_id(), submission.id
                 ):
-                    return _forbidden("Error 403 - Unauthorized")
+                    abort(404)
 
                 if submission.is_cancelled() and request.method not in (
                     "GET",
@@ -83,6 +73,9 @@ def protect(roles=None, states=None, public=False):
                         )
 
             return func(*args, **kwargs)
+
+        if not public:
+            wrapper = login_required(wrapper)
 
         wrapper._protected = True
         wrapper._public = public

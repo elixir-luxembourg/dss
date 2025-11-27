@@ -497,7 +497,7 @@ class ControllersTest(BaseIntegrationTest):
         update_submission_basic_info(sub, provider_user_ids=[user1.id])
 
         resp = self.client.get(url_for("view_submission", sub_id=sub.id))
-        self.assert403(resp)
+        self.assert404(resp)
 
     def test_steward_can_access_any_submission(self):
         self.login("steward1@uni.lu", "steward1")
