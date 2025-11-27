@@ -1,18 +1,21 @@
+ELIXIR-LU / LCSB
+
 Dear Data Provider,
 
-Your data upload has been reviewed and requires changes before it can be approved. Please review the feedback below and make the necessary corrections.
+Your data upload under submission {{ submission.ref_name }}  has been reviewed by a data steward and requires some changes before it can be approved. Please review the feedback below carefully and make the necessary corrections.
 
-
-Ref Name: {{ submission.ref_name }}
-Submission Page: {{ url_for('view_submission',sub_id=submission.id, _external=True) }}
-
+Submission Ref: {{ submission.ref_name }}
+Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
 
 Required Changes:
 {{ feedback }}
 
-Once you have made the necessary corrections, please click "Proceed" to resubmit for review.
+Once you have made the necessary corrections, please click "Proceed" in the Data Submission System to resubmit your submission for review.
 
+If you have any questions or need assistance while making these corrections, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the Data Submission System at {{ url_for('home', _external=True) }} for guidance.
 
-Regards
-ELIXIR LU
-(This is an auto-generated e-mail, please do not reply)
+Thank you for your collaboration,
+
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.

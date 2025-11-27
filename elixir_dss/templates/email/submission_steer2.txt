@@ -1,13 +1,16 @@
+ELIXIR-LU / LCSB
+
 Dear Data Steward,
 
-The following submission has been steered to the Dataset Upload stage. The data provider has been instructed to upload their dataset in the LFT application using the submission reference below.
+The following submission has been steered to the Dataset Upload stage in the Data Submission System. The data provider has been instructed to upload their dataset using this submission reference.
 
+Submission Ref: {{ submission.ref_name }}
+Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
 
-Ref Name: {{ submission.ref_name }}
-Submission Page: {{ url_for('view_submission',sub_id=submission.id,  _external=True) }}
+If you have any questions or need assistance regarding this submission or the dataset upload process, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu.
 
+Thank you for your support,
 
+LCSB Data Stewards (ELIXIR-LU)
 
-Regards
-ELIXIR LU
-(This is an auto-generated e-mail, please do not reply)
+This is an auto-generated e-mail, please do not reply.
