@@ -14,7 +14,7 @@ from flask import (
     session,
     url_for,
 )
-from flask_login import current_user, login_required, login_user, logout_user
+from flask_login import current_user, login_user, logout_user
 from sqlalchemy.exc import OperationalError
 from werkzeug.utils import secure_filename
 from wtforms import FieldList, FormField
@@ -55,7 +55,7 @@ from elixir_dss.models.submission import (
     SubmissionStudy,
 )
 
-from . import app_authorization
+from . import protect
 
 
 def _split_semicolon_values(raw_value):
@@ -114,24 +114,26 @@ def _load_study_json_to_form(study_rec, form):
 
 
 @app.route("/", methods=["GET"])
+@protect(public=True)
 def home():
     return render_template("home.html")
 
 
 @app.route("/about")
+@protect(public=True)
 def about():
     return render_template("about.html")
 
 
 @app.route("/users", methods=["GET"])
-@app_authorization(allowed_roles=["admin"])
+@protect(roles=["admin"])
 def list_users():
     users = User.query.all()
     return render_template("security/users.html", users=users)
 
 
 @app.route("/user/edit/<int:user_id>", methods=["GET", "POST"])
-@app_authorization(allowed_roles=["admin"])
+@protect(roles=["admin"])
 def edit_user(user_id):
     if request.method == "GET":
         user_rec = User.query.get_or_404(int(user_id))
@@ -154,7 +156,7 @@ def edit_user(user_id):
 
 
 @app.route("/logout")
-@login_required
+@protect()
 def logout():
     method = app.config.get("AUTHENTICATION_METHOD", "CONFIG")
     id_token = session.get("oidc_id_token")
@@ -186,12 +188,14 @@ def disable_caching(response):
 
 
 @app.route("/oidc_login")
+@protect(public=True)
 def oidc_login():
     redirect_uri = url_for("auth_callback", _external=True)
     return oauth.keycloak.authorize_redirect(redirect_uri)
 
 
 @app.route("/auth/callback")
+@protect(public=True)
 def auth_callback():
     token = oauth.keycloak.authorize_access_token()
     _set_token_session(token)
@@ -313,7 +317,7 @@ def landing_page_for_user(usr):
 
 
 @app.route("/profile", methods=["GET", "POST"])
-@login_required
+@protect()
 def profile():
     """View and update user profile."""
     if request.method == "POST":
@@ -334,6 +338,7 @@ def profile():
 
 
 @app.route("/login", methods=["GET", "POST"])
+@protect(public=True)
 def login():
     """User login."""
     # Redirect to profile if already logged in
@@ -373,13 +378,8 @@ def load_user(user_id):
         return None
 
 
-"""------------------------------------"""
-"""Endpoints for managing  Submissions."""
-"""------------------------------------"""
-
-
-@app_authorization(allowed_roles=["data_steward"])
 @app.route("/submission/<int:sub_id>", methods=["DELETE"])
+@protect(roles=["data_steward"])
 def delete_submission(sub_id):
     try:
         delete_sub(sub_id)
@@ -393,13 +393,9 @@ def delete_submission(sub_id):
 
 
 @app.route("/steer/submission/<int:sub_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
+@protect(
+    roles=["user", "data_steward"],
+    states=[SubmissionStatusEnum.metadata_submission, SubmissionStatusEnum.data_upload],
 )
 def steer_submission(sub_id):
     try:
@@ -416,14 +412,7 @@ def steer_submission(sub_id):
 
 
 @app.route("/steer/submission/<int:sub_id>/confirmed", methods=["POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def steer_submission_confirmed(sub_id):
     responsibility_ack = request.form.get("responsibility_ack")
     if not responsibility_ack:
@@ -442,7 +431,7 @@ def steer_submission_confirmed(sub_id):
 
 
 @app.route("/revert/submission/<int:sub_id>", methods=["GET"])
-@app_authorization(allowed_roles=["data_steward"])
+@protect(roles=["data_steward"])
 def revert_submission(sub_id):
     try:
         sub_with_new_state = revert_sub(sub_id)
@@ -458,8 +447,7 @@ def revert_submission(sub_id):
 
 
 @app.route("/submission/<int:sub_id>/approve_metadata", methods=["POST"])
-@login_required
-@app_authorization(allowed_roles=["data_steward"])
+@protect(roles=["data_steward"])
 def approve_metadata_endpoint(sub_id):
     feedback = request.form.get("feedback", "").strip()
     approve_metadata(sub_id, current_user.id, feedback if feedback else None)
@@ -468,8 +456,7 @@ def approve_metadata_endpoint(sub_id):
 
 
 @app.route("/submission/<int:sub_id>/reject_metadata", methods=["POST"])
-@login_required
-@app_authorization(allowed_roles=["data_steward"])
+@protect(roles=["data_steward"])
 def reject_metadata_endpoint(sub_id):
     feedback = request.form.get("feedback", "").strip()
     if not feedback:
@@ -481,8 +468,7 @@ def reject_metadata_endpoint(sub_id):
 
 
 @app.route("/submission/<int:sub_id>/approve_data", methods=["POST"])
-@login_required
-@app_authorization(allowed_roles=["data_steward"])
+@protect(roles=["data_steward"])
 def approve_data_endpoint(sub_id):
     feedback = request.form.get("feedback", "").strip()
     approve_data(sub_id, current_user.id, feedback if feedback else None)
@@ -491,8 +477,7 @@ def approve_data_endpoint(sub_id):
 
 
 @app.route("/submission/<int:sub_id>/reject_data", methods=["POST"])
-@login_required
-@app_authorization(allowed_roles=["data_steward"])
+@protect(roles=["data_steward"])
 def reject_data_endpoint(sub_id):
     feedback = request.form.get("feedback", "").strip()
     if not feedback:
@@ -504,7 +489,7 @@ def reject_data_endpoint(sub_id):
 
 
 @app.route("/submissions", methods=["GET"])
-@app_authorization(allowed_roles=["data_steward"])
+@protect(roles=["data_steward"])
 def list_submissions():
     """
     List all submissions
@@ -519,7 +504,7 @@ def list_submissions():
 
 
 @app.route("/my_submissions", methods=["GET"])
-@app_authorization(allowed_roles=["user"])
+@protect(roles=["user"])
 def list_my_submissions():
     """
     List the submissions that have been shared with the LOGGED IN  user
@@ -535,14 +520,7 @@ def list_my_submissions():
 
 
 @app.route("/submission/<int:sub_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def get_submission(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     app.logger.info("INFO: Get submission SUB-ID: %s", sub_id)
@@ -550,7 +528,7 @@ def get_submission(sub_id):
 
 
 @app.route("/submission/create", methods=["POST"])
-@app_authorization(allowed_roles=["data_steward"])
+@protect(roles=["data_steward"])
 def create_submission():
     creation_form = forms.SubmissionForm(request.form)
     submission_rec = create_sub(creation_form.institution_accession.data)
@@ -559,28 +537,14 @@ def create_submission():
 
 
 @app.route("/submission/view/<int:sub_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def view_submission(sub_id):
     submission_rec = Submission.query.get_or_404(sub_id)
     return render_template("submission/submission.html", submission=submission_rec)
 
 
 @app.route("/submission/edit/<int:sub_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["data_steward"])
 def edit_submission(sub_id):
     app.logger.info("INFO: Edit submission SUB-ID: %s", sub_id)
     if request.method == "GET":
@@ -647,7 +611,7 @@ def edit_submission(sub_id):
 
 
 @app.route("/submission/clone/<int:submission_id>")
-@login_required
+@protect(roles=["user", "data_steward"])
 def clone_submission(submission_id):
     clone_studies = request.args.get("clone_studies", "true").lower() == "true"
     clone_datasets = request.args.get("clone_datasets", "true").lower() == "true"
@@ -668,14 +632,7 @@ def clone_submission(submission_id):
 
 
 @app.route("/submission/cancel/<int:sub_id>", methods=["POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def cancel_submission(sub_id):
     submission = Submission.query.get_or_404(sub_id)
 
@@ -739,14 +696,7 @@ def is_allowed_type(filename):
 
 
 @app.route("/submission_attachment_add/<int:sub_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def add_submission_attachment(sub_id):
     if request.method == "GET":
         return render_template(
@@ -804,14 +754,7 @@ def add_submission_attachment(sub_id):
 
 
 @app.route("/submission_attachment_delete/<int:attach_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "SubmissionAttachment",
-        "entity_id_key": "attach_id",
-        "entity_ac_attribute": "submission_id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def delete_submission_attachment(attach_id):
     submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
     path_on_server = os.path.join(
@@ -829,14 +772,7 @@ def delete_submission_attachment(attach_id):
 @app.route(
     "/submission_attachment_download/<int:attach_id>/<filename>", methods=["GET"]
 )
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "SubmissionAttachment",
-        "entity_id_key": "attach_id",
-        "entity_ac_attribute": "submission_id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def download_submission_attachment(attach_id, filename):
     submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
     file_names = submission_attachment.file_names.strip(" \t\n\r").split(" ")
@@ -859,13 +795,8 @@ def download_submission_attachment(attach_id, filename):
 
 
 @app.route("/submission_dataset_add/<int:sub_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
 )
 def add_submission_dataset(sub_id):
     if request.method == "GET":
@@ -920,13 +851,8 @@ def add_submission_dataset(sub_id):
 
 
 @app.route("/submission_dataset/<int:dataset_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "SubmissionDataset",
-        "entity_id_key": "dataset_id",
-        "entity_ac_attribute": "submission_id",
-    },
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
 )
 def edit_submission_dataset(dataset_id):
     if request.method == "GET":
@@ -1000,13 +926,8 @@ def edit_submission_dataset(dataset_id):
 
 
 @app.route("/submission_dataset_delete/<int:dataset_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "SubmissionDataset",
-        "entity_id_key": "dataset_id",
-        "entity_ac_attribute": "submission_id",
-    },
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
 )
 def delete_submission_dataset(dataset_id):
     dataset = SubmissionDataset.query.get_or_404(dataset_id)
@@ -1022,13 +943,8 @@ def delete_submission_dataset(dataset_id):
 
 
 @app.route("/submission_study_add/<int:sub_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
 )
 def add_submission_study(sub_id):
     if request.method == "GET":
@@ -1073,13 +989,8 @@ def add_submission_study(sub_id):
 
 
 @app.route("/submission_study/<int:study_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "SubmissionStudy",
-        "entity_id_key": "study_id",
-        "entity_ac_attribute": "submission_id",
-    },
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
 )
 def edit_submission_study(study_id):
     if request.method == "GET":
@@ -1122,13 +1033,8 @@ def edit_submission_study(study_id):
 
 
 @app.route("/submission_study_delete/<int:study_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "SubmissionStudy",
-        "entity_id_key": "study_id",
-        "entity_ac_attribute": "submission_id",
-    },
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
 )
 def delete_submission_study(study_id):
     study = SubmissionStudy.query.get_or_404(study_id)
@@ -1144,14 +1050,7 @@ def delete_submission_study(study_id):
 
 
 @app.route("/submission_message_add/<int:sub_id>", methods=["GET", "POST"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "Submission",
-        "entity_id_key": "sub_id",
-        "entity_ac_attribute": "id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def add_submission_message(sub_id):
     if request.method == "GET":
         return render_template(
@@ -1187,7 +1086,7 @@ def add_submission_message(sub_id):
 
 
 @app.route("/notification/<int:notification_id>", methods=["GET"])
-@app_authorization(allowed_roles=["data_steward"])
+@protect(roles=["data_steward"])
 def send_notification(notification_id):
     try:
         notification_rec = EmailNotification.query.get_or_404(int(notification_id))
@@ -1202,21 +1101,14 @@ def send_notification(notification_id):
 
 
 @app.route("/notifications", methods=["GET"])
-@app_authorization(allowed_roles=["data_steward"])
+@protect(roles=["data_steward"])
 def list_notifications():
     notifications = EmailNotification.query.all()
     return render_template("email/notifications.html", notifications=notifications)
 
 
 @app.route("/dataset_link/<int:dataset_id>", methods=["GET"])
-@app_authorization(
-    allowed_roles=["user", "data_steward"],
-    record_authorization={
-        "entity": "SubmissionDataset",
-        "entity_id_key": "dataset_id",
-        "entity_ac_attribute": "submission_id",
-    },
-)
+@protect(roles=["user", "data_steward"])
 def dataset_link(dataset_id):
     if not request.method == "GET":
         return "", 405

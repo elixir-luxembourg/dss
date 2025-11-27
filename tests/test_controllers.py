@@ -20,6 +20,7 @@ from tests.factories import (
     SubmissionDatasetFactory,
     SubmissionFactory,
     SubmissionStudyFactory,
+    ContactFactory,
 )
 
 __author__ = "Pinar Alper"
@@ -62,7 +63,7 @@ class ControllersTest(BaseIntegrationTest):
         self.assert403(response)
 
         response = self.client.get(url_for("revert_submission", sub_id=0))
-        self.assert403(response)
+        self.assert404(response)
 
         response = self.client.get(url_for("send_notification", notification_id=0))
         self.assert403(response)
@@ -366,3 +367,175 @@ class ControllersTest(BaseIntegrationTest):
 
         dataset_count = SubmissionDataset.query.filter_by(submission_id=sub.id).count()
         self.assertEqual(dataset_count, 0)
+
+    def test_require_can_steer_submission_user_blocked_in_forbidden_phases(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        forbidden_statuses = [
+            SubmissionStatusEnum.draft,
+            SubmissionStatusEnum.metadata_approval,
+            SubmissionStatusEnum.data_approval,
+        ]
+
+        for status in forbidden_statuses:
+            sub = SubmissionFactory(current_status=status)
+            user = User.query.filter_by(email="submitter1@some.edu").first()
+            update_submission_basic_info(sub, provider_user_ids=[user.id])
+            db.session.commit()
+
+            resp = self.client.get(url_for("steer_submission", sub_id=sub.id))
+            self.assert403(resp)
+            self.assertIn("not allowed to perform this action", resp.data.decode())
+
+    def test_require_can_steer_submission_user_allowed_in_other_phases(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        allowed_statuses = [
+            SubmissionStatusEnum.metadata_submission,
+            SubmissionStatusEnum.data_upload,
+        ]
+
+        for status in allowed_statuses:
+            sub = SubmissionFactory(current_status=status)
+            user = User.query.filter_by(email="submitter1@some.edu").first()
+            update_submission_basic_info(sub, provider_user_ids=[user.id])
+            study_rec = SubmissionStudyFactory(
+                submission_id=sub.id, study_contacts=[ContactFactory()]
+            )
+            SubmissionDatasetFactory(submission_id=sub.id, study_id=study_rec.id)
+            db.session.commit()
+
+            resp = self.client.get(url_for("steer_submission", sub_id=sub.id))
+            self.assertIn(resp.status_code, (200, 204))
+
+    def test_require_can_steer_submission_steward_always_allowed(self):
+        self.login("steward1@uni.lu", "steward1")
+        statuses = [
+            SubmissionStatusEnum.draft,
+            SubmissionStatusEnum.metadata_submission,
+            SubmissionStatusEnum.metadata_approval,
+            SubmissionStatusEnum.data_approval,
+            SubmissionStatusEnum.data_upload,
+        ]
+
+        for status in statuses:
+            sub = SubmissionFactory(current_status=status)
+            db.session.commit()
+            user = User.query.filter_by(email="steward1@uni.lu").first()
+            update_submission_basic_info(sub, provider_user_ids=[user.id])
+            study_rec = SubmissionStudyFactory(
+                submission_id=sub.id, study_contacts=[ContactFactory()]
+            )
+            SubmissionDatasetFactory(submission_id=sub.id, study_id=study_rec.id)
+            db.session.commit()
+
+            resp = self.client.get(url_for("steer_submission", sub_id=sub.id))
+            self.assertIn(resp.status_code, (200, 204))
+
+    def test_require_metadata_access_blocks_user_outside_metadata_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.completed)
+        study_rec = SubmissionStudyFactory(
+            submission_id=sub.id, study_contacts=[ContactFactory()]
+        )
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study_rec.id)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        resp = self.client.get(
+            url_for("edit_submission_dataset", dataset_id=dataset.id)
+        )
+        self.assert403(resp)
+        self.assertIn("not allowed to perform this action", resp.data.decode())
+
+        resp = self.client.get(url_for("add_submission_dataset", sub_id=sub.id))
+        self.assert403(resp)
+
+    def test_require_metadata_access_allows_user_during_metadata_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        study_rec = SubmissionStudyFactory(
+            submission_id=sub.id, study_contacts=[ContactFactory()]
+        )
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study_rec.id)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        resp = self.client.get(
+            url_for("edit_submission_dataset", dataset_id=dataset.id)
+        )
+        self.assert200(resp)
+
+    def test_require_metadata_access_for_study(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.completed)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+        study = SubmissionStudyFactory(submission_id=sub.id)
+
+        resp = self.client.get(url_for("edit_submission_study", study_id=study.id))
+        self.assert403(resp)
+
+    def test_public_routes_accessible_without_auth(self):
+        resp = self.client.get(url_for("home"))
+        self.assert200(resp)
+
+        resp = self.client.get(url_for("login"))
+        self.assert200(resp)
+
+    def test_protected_routes_require_auth(self):
+        resp = self.client.get(url_for("list_submissions"))
+        self.assertIn(resp.status_code, (302, 401))
+
+    def test_user_without_access_blocked(self):
+        self.login("submitter2@some.edu", "submitter2")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        user1 = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user1.id])
+
+        resp = self.client.get(url_for("view_submission", sub_id=sub.id))
+        self.assert404(resp)
+
+    def test_steward_can_access_any_submission(self):
+        self.login("steward1@uni.lu", "steward1")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+
+        resp = self.client.get(url_for("view_submission", sub_id=sub.id))
+        self.assert200(resp)
+
+    def test_nonexistent_entity_returns_404(self):
+        self.login("steward1@uni.lu", "steward1")
+
+        resp = self.client.get(url_for("view_submission", sub_id=99999))
+        self.assert404(resp)
+
+        resp = self.client.get(url_for("edit_submission_dataset", dataset_id=99999))
+        self.assert404(resp)
+
+    def test_delete_dataset_blocked_outside_metadata_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
+
+        resp = self.client.get(
+            url_for("delete_submission_dataset", dataset_id=dataset.id)
+        )
+        self.assert403(resp)
+
+    def test_delete_study_blocked_outside_metadata_submission(self):
+        self.login("submitter1@some.edu", "submitter1")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+        study = SubmissionStudyFactory(submission_id=sub.id)
+
+        resp = self.client.get(url_for("delete_submission_study", study_id=study.id))
+        self.assert403(resp)

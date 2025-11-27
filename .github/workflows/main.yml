@@ -20,7 +20,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install Ruff
-        run: uv tool install ruff
+        run: uv tool install ruff==0.14.6
 
       - name: Run Ruff linter
         run: uvx ruff check . --output-format=github
@@ -46,11 +46,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "18"
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: "temurin"
-          java-version: "21"
 
       - name: Install dependencies
         run: |
