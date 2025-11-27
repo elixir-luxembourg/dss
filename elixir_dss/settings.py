@@ -40,6 +40,7 @@ class Config(object):
         ),
         ("My Submissions", "list_my_submissions", [], "user"),
         ("Admin", None, [("Users", "list_users")], "admin"),
+        ("About", "about", [], "public"),
     ]
     DATA_INIT = CONFIG_DATA
 

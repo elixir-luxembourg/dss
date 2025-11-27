@@ -118,6 +118,11 @@ def home():
     return render_template("home.html")
 
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+
 @app.route("/users", methods=["GET"])
 @app_authorization(allowed_roles=["admin"])
 def list_users():
