@@ -255,7 +255,7 @@ This section describes the enumerations and custom data types that support the c
 
 ### 4.2. Enumeration: 'ConsentStatus'
 
-**Description:** This enumeration contains the values to specify whether the consent is heterogeneous or homogeneous. It is used as a value range for property 'consent status' in class 'Dataset'.
+**Description:** This enumeration contains the values to specify whether the consent is heterogeneous or homogeneous. It is used as a value range for property 'consent status' in class ['Dataset'](#31-dataset).
 
 **Values:**
 - Heterogeneous: If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous.
@@ -264,7 +264,7 @@ This section describes the enumerations and custom data types that support the c
 
 ### 4.3. Enumeration: 'DACApproval'
 
-**Description:** This enumeration contains the values to specify whether access to data will require DAC approval. It is used as a value range for property 'DAC approval' in class 'Dataset'.
+**Description:** This enumeration contains the values to specify whether access to data will require DAC approval. It is used as a value range for property 'DAC approval' in class ['Dataset'](#31-dataset).
 
 **Values:**
 - DAC_approval_needed
@@ -272,7 +272,7 @@ This section describes the enumerations and custom data types that support the c
 
 ### 4.4. Enumeration: 'DataType'
 
-**Description:** This enumeration includes the possible values to indicate the data types included in the dataset. It is used as a value range for property 'data types' in class 'Dataset'.
+**Description:** This enumeration includes the possible values to indicate the data types included in the dataset. It is used as a value range for property 'data types' in class ['Dataset'](#31-dataset).
 
 **Note:** For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (*in italics*) and user-selectable items in the list. 
 
@@ -311,7 +311,7 @@ This section describes the enumerations and custom data types that support the c
 
 ### 4.5. Enumeration: 'De-identificationType'
 
-**Description:** This enumeration includes the possible values to indicate whether the data has been anonymized or pseudonymized, if applicable. It is used as a value range for property 'anonymized or pseudonimized' in class 'Dataset'.
+**Description:** This enumeration includes the possible values to indicate whether the data has been anonymized or pseudonymized, if applicable. It is used as a value range for property 'anonymized or pseudonimized' in class ['Dataset'](#31-dataset).
 
 **Values:**
 - Anonymized: A dataset is considered anonymised if no stakeholder is holding a mapping from the Subject ID in the data to the identifying personal information e.g. name, surname, date of birth, address of the human subject supplying the data.
@@ -320,7 +320,7 @@ This section describes the enumerations and custom data types that support the c
 
 ### 4.6. Enumeration: 'LegalBasis'
 
-**Description:** This enumeration includes the possible values to indicate to indicate the legal bases for the collection, sharing, and subsequent processing of personal data according to [Art.6.1 from the GDPR](https://gdpr-info.eu/art-6-gdpr/). It is used as a value range for property 'collection legal basis' and 'sharing legal basis' in class 'Dataset', respectively.
+**Description:** This enumeration includes the possible values to indicate to indicate the legal bases for the collection, sharing, and subsequent processing of personal data according to [Art.6.1 from the GDPR](https://gdpr-info.eu/art-6-gdpr/). It is used as a value range for property 'collection legal basis' and 'sharing legal basis' in class ['Dataset'](#31-dataset), respectively.
 
 **Values:**
 - Consent_(6.1(a))
@@ -332,7 +332,7 @@ This section describes the enumerations and custom data types that support the c
 
 ### 4.7. Enumeration: 'PersonalData'
 
-**Description:** This enumeration includes the possible values to indicate the personal data types included in the dataset according to [Art. 9.1](https://gdpr-info.eu/art-9-gdpr/) and [Art. 10](https://gdpr-info.eu/art-10-gdpr/) from the GDPR, if applicable. It is used as a value range for property 'personal data' in class 'Dataset'.
+**Description:** This enumeration includes the possible values to indicate the personal data types included in the dataset according to [Art. 9.1](https://gdpr-info.eu/art-9-gdpr/) and [Art. 10](https://gdpr-info.eu/art-10-gdpr/) from the GDPR, if applicable. It is used as a value range for property 'personal data' in class ['Dataset'](#31-dataset).
 
 **Note:** For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (*in italics*) and user-selectable items in the list. 
 
@@ -350,14 +350,14 @@ This section describes the enumerations and custom data types that support the c
 
 ### 4.8. Enumeration: 'ReceivingProject'
 
-**Description:** This enumeration provides a list with the names of the projects of origin of both studies and datasets belonging to the studies. It is used as a value range for property 'receiving research project in class 'Submission'.
+**Description:** This enumeration provides a list with the names of the projects of origin of both studies and datasets belonging to the studies. It is used as a value range for property 'receiving research project in class ['Submission'](#35-submission).
 
 **Values:**
 Values for projects are not shown in the diagram since the list of projects is retrieved from the [Data Information Syystem \(DAISY\)](https://github.com/elixir-luxembourg/daisy/) used at the LCSB and the ELIXIR-LU data hub. 
 
 ### 4.9. Enumeration: 'RequestForm'
 
-**Description:** This enumeration includes the possible values to indicate whether all researchers accessing to data will need to sign an access request form. It is used as a value range for property 'access request form' in class 'Dataset'.
+**Description:** This enumeration includes the possible values to indicate whether all researchers accessing to data will need to sign an access request form. It is used as a value range for property 'access request form' in class ['Dataset'](#31-dataset).
 
 **Values:**
 - Additional_form_needed 
