@@ -2,6 +2,12 @@
 
 ## Contents
 
+1. [Introduction](#1-introduction)
+2. [Overview](#2-overview)
+3. [Main Entities](#3-main-entities) <br>
+    3.1. [Dataset](#31-dataset) <br>
+    3.2. [Distribution](#32-distribution)
+
 ## 1. Introduction
 
 The data submission system (DSS) aims at allowing the submission of data to be used in projects from LCSB or for data hosting and reuse purposes under ELIXIR-Luxembourg (ELIXIR-LU), depending on the use case. Data can be submitted by personnel from LCSB, as well as from other institutions.
