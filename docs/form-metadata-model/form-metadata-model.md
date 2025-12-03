@@ -2,12 +2,38 @@
 
 ## Contents
 
-1. [Introduction](#1-introduction)
-2. [Overview](#2-overview)
-3. [Main Entities](#3-main-entities) <br>
+1. [Introduction](#1-introduction)<br>
+2. [Overview](#2-overview)<br>
+3. [Main Entities](#3-main-entities)<br>
     3.1. [Dataset](#31-dataset) <br>
-    3.2. [Distribution](#32-distribution)
-
+        - 3.1.1. [Mandatory Properties in Class 'Dataset'](#311-mandatory-properties-in-class-dataset) <br>
+        - 3.1.2. [Recommended Properties in Class 'Dataset'](#312-recommended-properties-in-class-dataset)     
+    3.2. [Distribution](#32-distribution) <br>
+        - 3.2.1. [Recommended Properties in Class 'Distribution'](#321-recommended-properties-in-class-distribution) <br>
+    3.3. [Person](#33-person) <br>
+        - 3.3.1. [Mandatory Properties in Parent Class 'Person'](#331-mandatory-properties-in-parent-class-person) <br>
+        - 3.3.2. [Subclass: 'DatasetCreator'](#332-subclass-datasetcreator) <br>
+        - 3.3.3. [Subclass: 'StudyContact'](#333-subclass-studycontact) <br>
+        - 3.3.4. [Subclass: 'SubmissionContact'](#334-subclass-submissioncontact) <br>
+    3.4. [Study](#34-study)<br>
+        - 3.4.1. [Mandatory Properties in Class 'Study'](#341-mandatory-properties-in-class-study) <br>
+        - 3.4.2. [Recommended Properties in Class 'Study'](#342-recommended-properties-in-class-study)<br>
+    3.5. [Submission](#35-submission)<br>
+        - 3.5.1. [Mandatory Properties in Class 'Submission'](#351-mandatory-properties-in-class-submission) <br>
+        - 3.5.2. [Recommended Properties in Class 'Submission'](#352-recommended-properties-in-class-submission)<br>
+4. [Supporting Entities](#4-supporting-entities)<br>
+    4.1. [Data Type: 'Date'](#41-data-type-date)<br>
+    4.2. [Enumeration: 'ConsentStatus'](#42-enumeration-consentstatus)<br>
+    4.3. [Enumeration: 'DACApproval'](#43-enumeration-dacapproval)<br>
+    4.4. [Enumeration: 'DataType'](#44-enumeration-datatype)<br>
+    4.5. [Enumeration: 'De-identificationType'](#45-enumeration-de-identificationtype)<br>
+    4.6. [Enumeration: 'LegalBasis'](#46-enumeration-legalbasis)<br>
+    4.7. [Enumeration: 'PersonalData'](#47-enumeration-personaldata)<br>
+    4.8. [Enumeration: 'ReceivingProject'](#48-enumeration-receivingproject)<br>
+    4.9. [Enumeration: 'RequestForm'](#49-enumeration-requestform)<br>
+    4.10. [Enumeration: 'Role'](#410-enumeration-role)<br>
+    4.11. [Enumeration: 'YesNoNA'](#411-enumeration-yesnona)<br>
+        
 ## 1. Introduction
 
 The data submission system (DSS) aims at allowing the submission of data to be used in projects from LCSB or for data hosting and reuse purposes under ELIXIR-Luxembourg (ELIXIR-LU), depending on the use case. Data can be submitted by personnel from LCSB, as well as from other institutions.
@@ -18,13 +44,14 @@ When a submission is initiated in the system, the submitter is required to provi
 
 ## 2. Overview
 
-Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes \(Dataset,Distribution, Person, Submission, and Study\), along with four subclassess derived from class 'Person' \(DatasetCreator and SubmissionContact, with subclasses SubmittingUser and AdditionalContact\). In addition, it includes eleven supporting entities: one custom data type \(Date\) and ten enumerations \(ConsentStatus, DACApproval, DataType, De-identificationType, LegalBasis, PersonalData, ReceivingProject, RequestForm, Role, and YesNoNA\).
+Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes \([Dataset](#31-dataset), [Distribution](#32-distribution), [Person](#33-person), [Submission](#35-submission), and [Study](#34-study)\), along with four subclassess derived from class 'Person' \([DatasetCreator](#332-subclass-datasetcreator), [StudyContact](#333-subclass-studycontact) with subclasses MainStudyContact and StudyAdditionalContact, and [SubmissionContact]((#334-subclass-submissioncontact)) with subclasses SubmittingUser and AdditionalContact\). In addition, it includes eleven supporting entities: one custom [data type \(Date\)](#41-data-type-date) and ten enumerations \([ConsentStatus](#42-enumeration-consentstatus), [DACApproval](#43-enumeration-dacapproval), [DataType](#44-enumeration-datatype), [De-identificationType](#45-enumeration-de-identificationtype), [LegalBasis](#46-enumeration-legalbasis), [PersonalData](#47-enumeration-personaldata), [ReceivingProject](#48-enumeration-receivingproject), [RequestForm](#49-enumeration-requestform), [Role](#410-enumeration-role), and [YesNoNA](#411-enumeration-yesnona)\).
 
 According to the metadata schema, a submission must always be linked to at least one study and one dataset, and may be linked to multiple studies and multiple datasets. However, each study and dataset can only be linked to a single submission. Furthermore, a dataset must always be linked to a study, as the study represents the origin of the data. Conversely, a dataset may be associated with zero or more distributions, each representing a physical expression of the dataset in a specific format.
 
-Section 3 provides an overview of the main entities in the diagram, including the core classes and their subclasses. For each class, details about its properties are presented, such as name, definition, range, cardinality, usage notes, suggested controlled vocabularies (where applicable), and examples. While specific controlled vocabularies are recommended for some properties, alternative vocabularies are also acceptable. Section 4 describes includes the supporting entities (i.e., data types and enumerations). 
+[Section 3](#3-main-entities) provides an overview of the main entities in the diagram, including the core classes and their subclasses. For each class, details about its properties are presented, such as name, definition, range, cardinality, usage notes, suggested controlled vocabularies (where applicable), and examples. While specific controlled vocabularies are recommended for some properties, alternative vocabularies are also acceptable. [Section 4](#4-supporting-entities) describes includes the supporting entities (i.e., data types and enumerations). 
 
 ![UML class diagram representing the metadata schema for the DSS form](2025-11_UML_DSS_metadata_schema.drawio.svg "Figure 1. UML class diagram of the DSS form metadata schema")
+*Figure 1. UML class diagram of the DSS form metadata schema*
 
 ## 3. Main Entities
 
