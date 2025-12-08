@@ -1,8 +1,9 @@
-# Metadata Schema for the Data Submission System form
+# Metadata Schema for the Data Submission System form \(v0.1\)
 
 ## Contents
 
 1. [Introduction](#1-introduction)<br>
+2. [Methodology](#2-methodology)<br>
 2. [Overview](#2-overview)<br>
 3. [Main Entities](#3-main-entities)<br>
     3.1. [Dataset](#31-dataset) <br>
@@ -36,9 +37,18 @@
         
 ## 1. Introduction
 
-The data submission system (DSS) aims at allowing the submission of data to be used in projects from LCSB or for data hosting and reuse purposes under ELIXIR-Luxembourg (ELIXIR-LU), depending on the use case. Data can be submitted by personnel from LCSB, as well as from other institutions.
+The data submission system (DSS) aims at allowing the submission of data to be used in research projects from or for data hosting and reuse purposes, depending on the use case.
 
-When a submission is initiated in the system, the submitter is required to provide metadata describing the data intended for submission. In this context, the purpose of this document is to present and explain the metadata schema that underpins the forms the basis of the DSS form design. 
+When a submission is initiated in the system, the submitter is required to provide metadata describing the data intended for submission. In this context, the purpose of this document is to present and explain the metadata schema that forms the basis of the DSS form design. This metadata schema has been developed by the Luxembourg Centre for Systems Biomedicine \(LCSB\), which hosts [ELIXIR Luxembourg \(ELIXIR-LU\)](https://elixir-luxembourg.org/).
+
+## 2. Methodology
+
+Metadata items included in the metadata schema for the DSS form have been selected from two main sources: 
+
+- **Data information sheet [\(DISH\)](https://zenodo.org/records/7371006):** Tool for metadata collection developed by ELIXIR-LU. Information collected in DISH focuses on data use restrictions and documentation related to the General Data Protection Regulation \(GDPR\).
+- **DAta Tag Suite [\(DATS\)](https://doi.org/10.1038/sdata.2017.59):** Metadata model aiming at enhancing discoverability of datasets. Elements in DATS address the scientific dimension of metadata.
+
+To support future alignment with the European Health Data Space (EHDS), the selected items have been mapped to the [HealthDCAT Application Profile \(HealthDCAT-AP\)](https://healthdataeu.pages.code.europa.eu/healthdcat-ap/releases/release-5/#abstract), a metadata model designed to facilitate the reuse of health data for secondary purposes. Specifically, this mapping has been done using HealthDCAT-AP Release 5 (22 September 2025), considering the restricted access level model.
 
 **Kindly note that the current version \(v0.1\) of the metadata schema for the Data Submission System \(DSS\) is currently under active development and may be subject to further revisions and improvements.**
 
