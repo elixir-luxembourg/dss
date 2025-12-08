@@ -4,36 +4,36 @@
 
 1. [Introduction](#1-introduction)<br>
 2. [Methodology](#2-methodology)<br>
-2. [Overview](#2-overview)<br>
-3. [Main Entities](#3-main-entities)<br>
-    3.1. [Dataset](#31-dataset) <br>
-        - 3.1.1. [Mandatory Properties in Class 'Dataset'](#311-mandatory-properties-in-class-dataset) <br>
-        - 3.1.2. [Recommended Properties in Class 'Dataset'](#312-recommended-properties-in-class-dataset)     
-    3.2. [Distribution](#32-distribution) <br>
-        - 3.2.1. [Recommended Properties in Class 'Distribution'](#321-recommended-properties-in-class-distribution) <br>
-    3.3. [Person](#33-person) <br>
-        - 3.3.1. [Mandatory Properties in Parent Class 'Person'](#331-mandatory-properties-in-parent-class-person) <br>
-        - 3.3.2. [Subclass: 'DatasetCreator'](#332-subclass-datasetcreator) <br>
-        - 3.3.3. [Subclass: 'StudyContact'](#333-subclass-studycontact) <br>
-        - 3.3.4. [Subclass: 'SubmissionContact'](#334-subclass-submissioncontact) <br>
-    3.4. [Study](#34-study)<br>
-        - 3.4.1. [Mandatory Properties in Class 'Study'](#341-mandatory-properties-in-class-study) <br>
-        - 3.4.2. [Recommended Properties in Class 'Study'](#342-recommended-properties-in-class-study)<br>
-    3.5. [Submission](#35-submission)<br>
-        - 3.5.1. [Mandatory Properties in Class 'Submission'](#351-mandatory-properties-in-class-submission) <br>
-        - 3.5.2. [Recommended Properties in Class 'Submission'](#352-recommended-properties-in-class-submission)<br>
-4. [Supporting Entities](#4-supporting-entities)<br>
-    4.1. [Data Type: 'Date'](#41-data-type-date)<br>
-    4.2. [Enumeration: 'ConsentStatus'](#42-enumeration-consentstatus)<br>
-    4.3. [Enumeration: 'DACApproval'](#43-enumeration-dacapproval)<br>
-    4.4. [Enumeration: 'DataType'](#44-enumeration-datatype)<br>
-    4.5. [Enumeration: 'De-identificationType'](#45-enumeration-de-identificationtype)<br>
-    4.6. [Enumeration: 'LegalBasis'](#46-enumeration-legalbasis)<br>
-    4.7. [Enumeration: 'PersonalData'](#47-enumeration-personaldata)<br>
-    4.8. [Enumeration: 'ReceivingProject'](#48-enumeration-receivingproject)<br>
-    4.9. [Enumeration: 'RequestForm'](#49-enumeration-requestform)<br>
-    4.10. [Enumeration: 'Role'](#410-enumeration-role)<br>
-    4.11. [Enumeration: 'YesNoNA'](#411-enumeration-yesnona)<br>
+3. [Overview](#3-overview)<br>
+4. [Main Entities](#4-main-entities)<br>
+    4.1. [Dataset](#41-dataset) <br>
+        - 4.1.1. [Mandatory Properties in Class 'Dataset'](#411-mandatory-properties-in-class-dataset) <br>
+        - 4.1.2. [Recommended Properties in Class 'Dataset'](#412-recommended-properties-in-class-dataset)     
+    4.2. [Distribution](#42-distribution) <br>
+        - 4.2.1. [Recommended Properties in Class 'Distribution'](#421-recommended-properties-in-class-distribution) <br>
+    4.3. [Person](#43-person) <br>
+        - 4.3.1. [Mandatory Properties in Parent Class 'Person'](#431-mandatory-properties-in-parent-class-person) <br>
+        - 4.3.2. [Subclass: 'DatasetCreator'](#432-subclass-datasetcreator) <br>
+        - 4.3.3. [Subclass: 'StudyContact'](#433-subclass-studycontact) <br>
+        - 4.3.4. [Subclass: 'SubmissionContact'](#434-subclass-submissioncontact) <br>
+    4.4. [Study](#44-study)<br>
+        - 4.4.1. [Mandatory Properties in Class 'Study'](#441-mandatory-properties-in-class-study) <br>
+        - 4.4.2. [Recommended Properties in Class 'Study'](#442-recommended-properties-in-class-study)<br>
+    4.5. [Submission](#45-submission)<br>
+        - 4.5.1. [Mandatory Properties in Class 'Submission'](#451-mandatory-properties-in-class-submission) <br>
+        - 4.5.2. [Recommended Properties in Class 'Submission'](#452-recommended-properties-in-class-submission)<br>
+5. [Supporting Entities](#5-supporting-entities)<br>
+    5.1. [Data Type: 'Date'](#51-data-type-date)<br>
+    5.2. [Enumeration: 'ConsentStatus'](#52-enumeration-consentstatus)<br>
+    5.3. [Enumeration: 'DACApproval'](#53-enumeration-dacapproval)<br>
+    5.4. [Enumeration: 'DataType'](#54-enumeration-datatype)<br>
+    5.5. [Enumeration: 'De-identificationType'](#55-enumeration-de-identificationtype)<br>
+    5.6. [Enumeration: 'LegalBasis'](#56-enumeration-legalbasis)<br>
+    5.7. [Enumeration: 'PersonalData'](#57-enumeration-personaldata)<br>
+    5.8. [Enumeration: 'ReceivingProject'](#58-enumeration-receivingproject)<br>
+    5.9. [Enumeration: 'RequestForm'](#59-enumeration-requestform)<br>
+    5.10. [Enumeration: 'Role'](#510-enumeration-role)<br>
+    5.11. [Enumeration: 'YesNoNA'](#511-enumeration-yesnona)<br>
         
 ## 1. Introduction
 
@@ -52,26 +52,26 @@ To support future alignment with the European Health Data Space (EHDS), the sele
 
 **Kindly note that the current version \(v0.1\) of the metadata schema for the Data Submission System \(DSS\) is currently under active development and may be subject to further revisions and improvements.**
 
-## 2. Overview
+## 3. Overview
 
-Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes \([Dataset](#31-dataset), [Distribution](#32-distribution), [Person](#33-person), [Submission](#35-submission), and [Study](#34-study)\), along with four subclassess derived from class 'Person' \([DatasetCreator](#332-subclass-datasetcreator), [StudyContact](#333-subclass-studycontact) with subclasses MainStudyContact and StudyAdditionalContact, and [SubmissionContact]((#334-subclass-submissioncontact)) with subclasses SubmittingUser and AdditionalContact\). In addition, it includes eleven supporting entities: one custom [data type \(Date\)](#41-data-type-date) and ten enumerations \([ConsentStatus](#42-enumeration-consentstatus), [DACApproval](#43-enumeration-dacapproval), [DataType](#44-enumeration-datatype), [De-identificationType](#45-enumeration-de-identificationtype), [LegalBasis](#46-enumeration-legalbasis), [PersonalData](#47-enumeration-personaldata), [ReceivingProject](#48-enumeration-receivingproject), [RequestForm](#49-enumeration-requestform), [Role](#410-enumeration-role), and [YesNoNA](#411-enumeration-yesnona)\).
+Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes \([Dataset](#41-dataset), [Distribution](#42-distribution), [Person](#43-person), [Submission](#45-submission), and [Study](#44-study)\), along with four subclassess derived from class 'Person' \([DatasetCreator](#432-subclass-datasetcreator), [StudyContact](#433-subclass-studycontact) with subclasses MainStudyContact and StudyAdditionalContact, and [SubmissionContact]((#434-subclass-submissioncontact)) with subclasses SubmittingUser and AdditionalContact\). In addition, it includes eleven supporting entities: one custom [data type \(Date\)](#51-data-type-date) and ten enumerations \([ConsentStatus](#52-enumeration-consentstatus), [DACApproval](#53-enumeration-dacapproval), [DataType](#54-enumeration-datatype), [De-identificationType](#55-enumeration-de-identificationtype), [LegalBasis](#56-enumeration-legalbasis), [PersonalData](#57-enumeration-personaldata), [ReceivingProject](#58-enumeration-receivingproject), [RequestForm](#59-enumeration-requestform), [Role](#510-enumeration-role), and [YesNoNA](#511-enumeration-yesnona)\).
 
 According to the metadata schema, a submission must always be linked to at least one study and one dataset, and may be linked to multiple studies and multiple datasets. However, each study and dataset can only be linked to a single submission. Furthermore, a dataset must always be linked to a study, as the study represents the origin of the data. Conversely, a dataset may be associated with zero or more distributions, each representing a physical expression of the dataset in a specific format.
 
-[Section 3](#3-main-entities) provides an overview of the main entities in the diagram, including the core classes and their subclasses. For each class, details about its properties are presented, such as name, definition, range, cardinality, usage notes, suggested controlled vocabularies (where applicable), and examples. While specific controlled vocabularies are recommended for some properties, alternative vocabularies are also acceptable. [Section 4](#4-supporting-entities) describes includes the supporting entities (i.e., data types and enumerations). 
+[Section 4](#4-main-entities) provides an overview of the main entities in the diagram, including the core classes and their subclasses. For each class, details about its properties are presented, such as name, definition, range, cardinality, usage notes, suggested controlled vocabularies (where applicable), and examples. While specific controlled vocabularies are recommended for some properties, alternative vocabularies are also acceptable. [Section 5](#5-supporting-entities) describes includes the supporting entities (i.e., data types and enumerations). 
 
 ![UML class diagram representing the metadata schema for the DSS form](2025-11_UML_DSS_metadata_schema.drawio.svg "Figure 1. UML class diagram of the DSS form metadata schema")
 *Figure 1. UML class diagram of the DSS form metadata schema*
 
-## 3. Main Entities
+## 4. Main Entities
 
 This section provides detailed descriptions of the core classes in the diagram, along with their properties.
 
-### 3.1. Dataset
+### 4.1. Dataset
 
 "Dataset" is a unit of data that originates from one study and has distinct characteristics in terms of  licensing, use restrictions and legal grounds of processing. A dataset is a unit for which an access request can be made. One dataset can contain multiple datatypes. There is no need to declare a new dataset (sheet) for each datatype, unless these datatypes will have different use restrictions or will be subject to access request applications individually.
 
-#### 3.1.1. Mandatory Properties in Class 'Dataset'
+#### 4.1.1. Mandatory Properties in Class 'Dataset'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
@@ -82,7 +82,7 @@ This section provides detailed descriptions of the core classes in the diagram, 
 |creator               |Person(s) who contributed to the creation of the dataset            | DatasetCreator (class)     | 1..*            |  Values for this property are instances of class 'DatasetCreator' (a subcass of 'Person').          |            NA                          | NA        |
 |generated by               |Study/Cohort that is the source of the data            | Study (class)    | 1            |   It is mandatory to link a dataset with one study, as the study is the source of the data. Thus, the value of this property is an instance of class 'Study'.          |        NA                              |  NA       |
 
-#### 3.1.2. Recommended Properties in Class 'Dataset'
+#### 4.1.2. Recommended Properties in Class 'Dataset'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
@@ -129,20 +129,20 @@ This section provides detailed descriptions of the core classes in the diagram, 
 |last update date          | Last update date of the dataset           |  Date     |  0..1           |   Indicate last update date (YYYY-MM-DD).         |     NA                                 | 2020-12-08        |
 |data standards          | Standard or guideline used for structuring or annotating the dataset.           | String      |   0..*          |  Controlled vocabularies are suggested in this property.          |  EDAM, NCIt                                    | CDISC, MINSEQE        |
 
-### 3.2. Distribution
+### 4.2. Distribution
 
 "Distribution" refers to the physical representation of the Dataset in a particular format.
 
 Class 'Distribution' does not contain any mandatory property. 
 
-#### 3.2.1. Recommended Properties in Class 'Distribution'
+#### 4.2.1. Recommended Properties in Class 'Distribution'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
 |file type           |Type of file(s) included in the dataset          | String      | 0..*           |Format identifiers should be included, when applicable. If not provided, it will be obtained from the submitted dataset. Controlled vocabularies are suggested in this property.            |                   EDAM, NCIt                   |  CSV (format:3752), FASTQ (format:1930), JSON, XML, TXT, BAM, VCF, etc.       |
 |byte size           | Total size of the dataset          | String      | 0..1            |   Use appropriate units such as KB, MB, GB, or TB.         |        NA                              | 2 GB       |
 
-### 3.3. Person
+### 4.3. Person
 
 "Person" represents an individual involved in the data creation and/or submission process. This is a parent class for 'DatasetCreator' and 'SubmissionContact'. 'SubmissionContact' acts as a parent class for subclasses 'SubmittingUser' and 'AdditionalContact'.
 
@@ -150,7 +150,7 @@ All properties belonging to class 'Person' are mandatory.
 
 **Note:** All subclasses inherit the properties of their respective parent classes.
 
-#### 3.3.1. Mandatory Properties in Parent Class 'Person'
+#### 4.3.1. Mandatory Properties in Parent Class 'Person'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
@@ -159,13 +159,13 @@ All properties belonging to class 'Person' are mandatory.
 |email           |Person's email address          | String      | 1            | It is mandatory to provide the email address of a person.         |                NA                      | John.Doe@email.com      |
 |affiliation          |Institution to which the person is affiliated            | String      | 1            | It is mandatory to provide the affiliation of a person.          |        NA                              |  University of Luxembourg       |
 
-#### 3.3.2. Subclass: 'DatasetCreator'
+#### 4.3.2. Subclass: 'DatasetCreator'
 
 "DatasetCreator" represents the person(s) who contributed to the creation of the dataset. 
 
 This subclass inherits all properties from class 'Person', with no additional properties required. 
 
-#### 3.3.3. Subclass: 'StudyContact'
+#### 4.3.3. Subclass: 'StudyContact'
 
 "StudyContact" represents the contact point(s) associated with the study. 
 
@@ -177,7 +177,7 @@ This subclass inherits all properties from class 'Person', and has an additional
 
 'StudyContact' acts as a parent class for 'MainStudyContact' and 'StudyAdditionalContact'. Both subclasses inherit all properties from class 'SubmissionContact', with no additional properties required.
 
-#### 3.3.4. Subclass: 'SubmissionContact'
+#### 4.3.4. Subclass: 'SubmissionContact'
 
 "SubmissionContact" represents the contact point(s) associated with the submission. 
 
@@ -189,11 +189,11 @@ This subclass inherits all properties from class 'Person', and has an additional
 
 'SubmissionContact' acts as a parent class for 'SubmittingUser' and 'SubmissionAdditionalContact'. Both subclasses inherit all properties from class 'SubmissionContact', with no additional properties required.
 
-### 3.4. Study
+### 4.4. Study
 
 "Study" represents a scientific study spanning a certain period of time with designated Principal Investigators and supporting legal and ethical documentation. When submitting data from a large study with sub-studies keep in mind the following: if all sub-studies have the same properties; i.e. same PIs, same start/end dates and the same ethics approval, then they can be declared as a single study. The differences i.e. different sub-studies can be stated in dataset names.  
 
-#### 3.4.1. Mandatory Properties in Class 'Study'
+#### 4.4.1. Mandatory Properties in Class 'Study'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
@@ -202,7 +202,7 @@ This subclass inherits all properties from class 'Person', and has an additional
 |description               |Dataset description            |String       | 1            |   Provide a brief textual description about the study.         |   NA                                   | CoolStudy attempts to address some seriously awesome stuff that will be very helpful        |
 |mainStudyContact              |Main contact point for the study            |MainStudyContact (class)       | 1            | This is typically the Study PI, who might be, but is not necessarily, identical to the main contact in the Submission. Values for this property are instances of class 'MainStudyContact', which is a subclass of 'StudyContact' (itself a subclass of 'Person').      |      NA                                | NA        |
 
-#### 3.4.2. Recommended Properties in Class 'Study'
+#### 4.4.2. Recommended Properties in Class 'Study'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
@@ -223,11 +223,11 @@ This subclass inherits all properties from class 'Person', and has an additional
 |additionalStudyContact              |Additional contact point(s) for the study  | StudyAdditionalContact (class)       | 0..*           | Values for this property are instances of class 'StudyAdditionalContact', which is a subclass of 'StudyContact' (itself a subclass of 'Person').      |      NA                                | NA        |
 |studyContactRemarks             |Remarks about the contact point(s) for the study  | String       | 0..1           | Provide any necessary additional information about the study contact(s).      |      NA                                | *TBD*        |
 
-### 3.5. Submission
+### 4.5. Submission
 
 "Submission" represents the process of submitting data to the system. It contains metadata describing that process. 
 
-#### 3.5.1. Mandatory Properties in Class 'Submission'
+#### 4.5.1. Mandatory Properties in Class 'Submission'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
@@ -239,17 +239,17 @@ This subclass inherits all properties from class 'Person', and has an additional
 |study          | Study/Cohort that is the source of the data          |   Study (class)    |  1..*         | A submission must be linked to at least one study, with no upper limit for the number of studies linked. The value of this property is an instance of class 'Study'.            |            NA                          | NA       |
 |dataset          | Unit of data originated from a study.         |  Dataset (class)     |  1..*            |  A submission must contain at least one dataset, with no upper limit for the number of datasets submitted. The value of this property is an instance of class 'Dataset'.          |      NA                                |  NA      |
 
-#### 3.5.2. Recommended Properties in Class 'Submission'
+#### 4.5.2. Recommended Properties in Class 'Submission'
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
 |additional contact           | Any additional contact point in the submission (different from the main contact point).          |  AdditionalContact (class)    |  0..*         | Provide additional contacts for the submission, if any. Values for this property are instances of class 'AdditionalContact', which is a subclass of 'SubmissionContact' (itself a subclass of 'Person').               |       NA                               |  NA     |
 
-## 4. Supporting Entities
+## 5. Supporting Entities
 
 This section describes the enumerations and custom data types that support the core classes in the schema.
 
-### 4.1. Data Type: 'Date'
+### 5.1. Data Type: 'Date'
 
 **Description:** Represents a calendar date.
 
@@ -263,26 +263,26 @@ This section describes the enumerations and custom data types that support the c
 | month             | Integer   | Month of the year |
 | year              | Integer   | Calendar year      |
 
-### 4.2. Enumeration: 'ConsentStatus'
+### 5.2. Enumeration: 'ConsentStatus'
 
-**Description:** This enumeration contains the values to specify whether the consent is heterogeneous or homogeneous. It is used as a value range for property 'consent status' in class ['Dataset'](#31-dataset).
+**Description:** This enumeration contains the values to specify whether the consent is heterogeneous or homogeneous. It is used as a value range for property 'consent status' in class ['Dataset'](#41-dataset).
 
 **Values:**
 - Heterogeneous: If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous.
 - Homogeneus: If the consent form has stayed the same over the course of the study but it has options so that different subjects can create different restrictions on their data, then this case is also considered heterogeneous.
 - Don't_know
 
-### 4.3. Enumeration: 'DACApproval'
+### 5.3. Enumeration: 'DACApproval'
 
-**Description:** This enumeration contains the values to specify whether access to data will require DAC approval. It is used as a value range for property 'DAC approval' in class ['Dataset'](#31-dataset).
+**Description:** This enumeration contains the values to specify whether access to data will require DAC approval. It is used as a value range for property 'DAC approval' in class ['Dataset'](#41-dataset).
 
 **Values:**
 - DAC_approval_needed
 - DAC_approval_not_needed
 
-### 4.4. Enumeration: 'DataType'
+### 5.4. Enumeration: 'DataType'
 
-**Description:** This enumeration includes the possible values to indicate the data types included in the dataset. It is used as a value range for property 'data types' in class ['Dataset'](#31-dataset).
+**Description:** This enumeration includes the possible values to indicate the data types included in the dataset. It is used as a value range for property 'data types' in class ['Dataset'](#41-dataset).
 
 **Note:** For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (*in italics*) and user-selectable items in the list. 
 
@@ -319,18 +319,18 @@ This section describes the enumerations and custom data types that support the c
     - Other phenotype data
 - Other
 
-### 4.5. Enumeration: 'De-identificationType'
+### 5.5. Enumeration: 'De-identificationType'
 
-**Description:** This enumeration includes the possible values to indicate whether the data has been anonymized or pseudonymized, if applicable. It is used as a value range for property 'anonymized or pseudonimized' in class ['Dataset'](#31-dataset).
+**Description:** This enumeration includes the possible values to indicate whether the data has been anonymized or pseudonymized, if applicable. It is used as a value range for property 'anonymized or pseudonimized' in class ['Dataset'](#41-dataset).
 
 **Values:**
 - Anonymized: A dataset is considered anonymised if no stakeholder is holding a mapping from the Subject ID in the data to the identifying personal information e.g. name, surname, date of birth, address of the human subject supplying the data.
 - Pseudonimized: A dataset is considered pseudonymised if there exists some cohort owner/coordinator holding the mapping from the Subject ID to the human subject identifying personal information.
 - NA
 
-### 4.6. Enumeration: 'LegalBasis'
+### 5.6. Enumeration: 'LegalBasis'
 
-**Description:** This enumeration includes the possible values to indicate to indicate the legal bases for the collection, sharing, and subsequent processing of personal data according to [Art.6.1 from the GDPR](https://gdpr-info.eu/art-6-gdpr/). It is used as a value range for property 'collection legal basis' and 'sharing legal basis' in class ['Dataset'](#31-dataset), respectively.
+**Description:** This enumeration includes the possible values to indicate to indicate the legal bases for the collection, sharing, and subsequent processing of personal data according to [Art.6.1 from the GDPR](https://gdpr-info.eu/art-6-gdpr/). It is used as a value range for property 'collection legal basis' and 'sharing legal basis' in class ['Dataset'](#41-dataset), respectively.
 
 **Values:**
 - Consent_(6.1(a))
@@ -340,9 +340,9 @@ This section describes the enumerations and custom data types that support the c
 - Public_interest_(6.1(e))
 - Legitimate_interest_(6.1(f))
 
-### 4.7. Enumeration: 'PersonalData'
+### 5.7. Enumeration: 'PersonalData'
 
-**Description:** This enumeration includes the possible values to indicate the personal data types included in the dataset according to [Art. 9.1](https://gdpr-info.eu/art-9-gdpr/) and [Art. 10](https://gdpr-info.eu/art-10-gdpr/) from the GDPR, if applicable. It is used as a value range for property 'personal data' in class ['Dataset'](#31-dataset).
+**Description:** This enumeration includes the possible values to indicate the personal data types included in the dataset according to [Art. 9.1](https://gdpr-info.eu/art-9-gdpr/) and [Art. 10](https://gdpr-info.eu/art-10-gdpr/) from the GDPR, if applicable. It is used as a value range for property 'personal data' in class ['Dataset'](#41-dataset).
 
 **Note:** For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (*in italics*) and user-selectable items in the list. 
 
@@ -358,22 +358,22 @@ This section describes the enumerations and custom data types that support the c
    - Data relating to criminal convictions and offences
    - Other special categories of data (e.g., molecular data that can give indication of a person's health)
 
-### 4.8. Enumeration: 'ReceivingProject'
+### 5.8. Enumeration: 'ReceivingProject'
 
-**Description:** This enumeration provides a list with the names of the projects of origin of both studies and datasets belonging to the studies. It is used as a value range for property 'receiving research project in class ['Submission'](#35-submission).
+**Description:** This enumeration provides a list with the names of the projects of origin of both studies and datasets belonging to the studies. It is used as a value range for property 'receiving research project in class ['Submission'](#45-submission).
 
 **Values:**
 Values for projects are not shown in the diagram since the list of projects is retrieved from the [Data Information Syystem \(DAISY\)](https://github.com/elixir-luxembourg/daisy/) used at the LCSB and the ELIXIR-LU data hub. 
 
-### 4.9. Enumeration: 'RequestForm'
+### 5.9. Enumeration: 'RequestForm'
 
-**Description:** This enumeration includes the possible values to indicate whether all researchers accessing to data will need to sign an access request form. It is used as a value range for property 'access request form' in class ['Dataset'](#31-dataset).
+**Description:** This enumeration includes the possible values to indicate whether all researchers accessing to data will need to sign an access request form. It is used as a value range for property 'access request form' in class ['Dataset'](#41-dataset).
 
 **Values:**
 - Additional_form_needed 
 - No_additional_form_needed
 
-### 4.10. Enumeration: 'Role'
+### 5.10. Enumeration: 'Role'
 
 **Description:** This enumeration contains the values to specify the job role of the submission contacts in the system.
 
@@ -385,7 +385,7 @@ Values for projects are not shown in the diagram since the list of projects is r
 - Legal_Representative
 - Other
 
-### 4.11. Enumeration: 'YesNoNA'
+### 5.11. Enumeration: 'YesNoNA'
 
 **Description:** This enumeration includes the possible values for Yes/No questions. Additional values such as 'not applicable' and 'don't know' are also allowed. 
 
