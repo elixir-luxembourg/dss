@@ -643,7 +643,7 @@ class SubmissionAccess(db.Model):
 
 
 class SubmissionDatasetCreator(db.Model):
-    __tablename__ = "submission_dataset_creators"
+    __tablename__ = "submission_dataset_creator"
 
     id = db.Column(db.Integer, primary_key=True)
 
