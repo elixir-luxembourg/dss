@@ -818,7 +818,11 @@ def add_submission_dataset(sub_id):
             and int(posted_form.submission_id.data) == sub_id
         ):
             dataset = SubmissionDataset()
-            populate_except(posted_form, dataset, exclude={"creators"})
+            populate_except(
+                posted_form,
+                dataset,
+                exclude={"creators", "data_type_bg_or_result"},
+            )
             dataset.id = None
             # creators
             dataset.creators = []
