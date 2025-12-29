@@ -6,7 +6,9 @@ from wtforms import (
     HiddenField,
     IntegerField,
     StringField,
-    TextAreaField, FieldList, FormField,
+    TextAreaField,
+    FieldList,
+    FormField,
 )
 from wtforms.validators import (
     DataRequired,
@@ -29,40 +31,55 @@ from elixir_dss.models.submission import (
 
 from .validators import OptionalFieldValidator
 
+
 class DatasetCreatorForm(FlaskForm):
     first_name = StringField(
         "Name",
         validators=[
             DataRequired(),
-            Regexp(r"^[\w\s,\-.]+$", message="Can only contain letters, digits, dash, comma and dot."),
+            Regexp(
+                r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            ),
         ],
     )
     last_name = StringField(
         "Surname",
         validators=[
             DataRequired(),
-            Regexp(r"^[\w\s,\-.]+$", message="Can only contain letters, digits, dash, comma and dot."),
+            Regexp(
+                r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            ),
         ],
     )
     email = EmailField(
         "Email",
-        validators=[DataRequired(), Email("This field requires a valid email address.")],
+        validators=[
+            DataRequired(),
+            Email("This field requires a valid email address."),
+        ],
     )
     institution = StringField(
         "Institution",
-        validators=[DataRequired(),Regexp(
-            r"^[\w\s,\-.]+$",
-            message="Can only contain letters, digits, dash, comma and dot.",
-        ),],
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            ),
+        ],
     )
     role = StringField(
         "Role",
-        validators=[DataRequired(),Regexp(
-            r"^[\w\s,\-.]+$",
-            message="Can only contain letters, digits, dash, comma and dot.",
-        ),],
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            ),
+        ],
     )
-
 
 
 class DatasetForm(FlaskForm):
@@ -72,7 +89,7 @@ class DatasetForm(FlaskForm):
     creators = FieldList(
         FormField(DatasetCreatorForm),
         min_entries=1,
-        description="At least one creator is required. Additional creators are optional."
+        description="At least one creator is required. Additional creators are optional.",
     )
     description = TextAreaField(
         "Dataset description",
@@ -506,22 +523,19 @@ class DatasetForm(FlaskForm):
 
     def validate_creators(self, field):
         if not any(
-                entry.first_name.data
-                or entry.last_name.data
-                or entry.email.data
-                for entry in field.entries
+            entry.first_name.data or entry.last_name.data or entry.email.data
+            for entry in field.entries
         ):
             raise ValidationError("At least one creator is required.")
 
-
         for entry in field.entries:
             if not any(
-                    [
-                        entry.first_name.data,
-                        entry.last_name.data,
-                        entry.email.data,
-                        entry.institution.data,
-                        entry.role.data,
-                    ]
+                [
+                    entry.first_name.data,
+                    entry.last_name.data,
+                    entry.email.data,
+                    entry.institution.data,
+                    entry.role.data,
+                ]
             ):
                 raise ValidationError("Creator entries cannot be empty.")

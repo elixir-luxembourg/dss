@@ -52,7 +52,8 @@ from elixir_dss.models.submission import (
     SubmissionDataset,
     SubmissionMessage,
     SubmissionStatusEnum,
-    SubmissionStudy, SubmissionDatasetCreator,
+    SubmissionStudy,
+    SubmissionDatasetCreator,
 )
 
 from . import protect
@@ -112,12 +113,12 @@ def _load_study_json_to_form(study_rec, form):
         if values:
             getattr(form, form_field).data = "; ".join(values)
 
+
 def populate_except(form, obj, exclude):
     for name, field in form._fields.items():
         if name in exclude:
             continue
         field.populate_obj(obj, name)
-
 
 
 @app.route("/", methods=["GET"])

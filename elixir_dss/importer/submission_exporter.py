@@ -119,10 +119,17 @@ class SubmissionExporter:
             dataset_info = {}
 
             dataset_info["title"] = dataset.title
-            dataset_info["creator_name"] = dataset.creator_name
-            dataset_info["creator_email"] = dataset.creator_email
-            dataset_info["creator_institution"] = dataset.creator_institution
-            dataset_info["creator_role"] = dataset.creator_role
+            dataset_info["creators"] = [
+                {
+                    "first_name": creator.first_name,
+                    "last_name": creator.last_name,
+                    "full_name": f"{creator.first_name} {creator.last_name}".strip(),
+                    "email": creator.email,
+                    "institution": creator.institution,
+                    "role": creator.role,
+                }
+                for creator in dataset.creators
+            ]
             dataset_info["description"] = dataset.description
             dataset_info["external_identifiers"] = dataset.external_identifiers
 

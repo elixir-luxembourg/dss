@@ -648,9 +648,7 @@ class SubmissionDatasetCreator(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     dataset_id = db.Column(
-        db.Integer,
-        db.ForeignKey("submission_dataset.id"),
-        nullable=False
+        db.Integer, db.ForeignKey("submission_dataset.id"), nullable=False
     )
 
     first_name = db.Column(db.String, nullable=False)
@@ -659,10 +657,7 @@ class SubmissionDatasetCreator(db.Model):
     institution = db.Column(db.String, nullable=False)
     role = db.Column(db.String, nullable=False)
 
-    dataset = db.relationship(
-        "SubmissionDataset",
-        back_populates="creators"
-    )
+    dataset = db.relationship("SubmissionDataset", back_populates="creators")
 
     def fullname(self):
         return f"{self.first_name} {self.last_name.upper()}"

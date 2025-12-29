@@ -5,16 +5,16 @@ Revises: 58515c3d1dc2
 Create Date: 2025-12-23 11:33:17.938318
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b3b0006e8f0b'
-down_revision = '58515c3d1dc2'
+revision = "b3b0006e8f0b"
+down_revision = "58515c3d1dc2"
 branch_labels = None
 depends_on = None
-
 
 
 def upgrade():
@@ -63,7 +63,9 @@ def downgrade():
     with op.batch_alter_table("submission_dataset") as batch_op:
         batch_op.add_column(sa.Column("creator_name", sa.String(), nullable=False))
         batch_op.add_column(sa.Column("creator_email", sa.String(), nullable=False))
-        batch_op.add_column(sa.Column("creator_institution", sa.String(), nullable=False))
+        batch_op.add_column(
+            sa.Column("creator_institution", sa.String(), nullable=False)
+        )
         batch_op.add_column(sa.Column("creator_role", sa.String(), nullable=False))
 
     # 2. Restore legacy data from first creator
