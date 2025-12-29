@@ -88,12 +88,12 @@ class SubmissionAttachment(db.Model):
 
 
 class SubmissionStatusEnum(enum.Enum):
-    draft = "Draft"
-    metadata_submission = "Metadata Submission"
-    metadata_approval = "Metadata Approval"
+    draft = "Initiation"
+    metadata_submission = "Metadata Entry"
+    metadata_approval = "Metadata Review"
     data_upload = "Data Upload"
-    data_approval = "Data Approval"
-    completed = "Completed"
+    data_approval = "Data Verification"
+    completed = "Complete"
     cancelled = "Cancelled"
 
     def next_state(self):
