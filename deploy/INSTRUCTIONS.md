@@ -1,4 +1,4 @@
-# Elixir DSS Deployment Guide
+# LCSB DSS Deployment Guide
 
 Deployment using systemd and nginx on Rocky Linux 8
 

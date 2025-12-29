@@ -2,7 +2,7 @@ ELIXIR-LU / LCSB
 
 Dear Data Steward,
 
-The following submission has been steered to the Dataset Upload stage in the Data Submission System. The data provider has been instructed to upload their dataset using this submission reference.
+The following submission has been steered to the Dataset Upload stage in the {{ SYSTEM_NAME }}. The data provider has been instructed to upload their dataset using this submission reference.
 
 Submission Ref: {{ submission.ref_name }}
 Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}

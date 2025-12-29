@@ -2,7 +2,7 @@ ELIXIR-LU / LCSB
 
 Dear Data Provider,
 
-Good news! Your metadata has been reviewed and approved by the data steward. You may now proceed to the data upload stage in the Data Submission System.
+Good news! Your metadata has been reviewed and approved by the data steward. You may now proceed to the data upload stage in the {{ SYSTEM_NAME }}.
 
 Submission Ref: {{ submission.ref_name }}
 Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
@@ -12,7 +12,7 @@ Feedback from Data Steward:
 {{ feedback }}
 {% endif %}
 
-If you have any questions or require assistance while uploading data, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the Data Submission System at {{ url_for('home', _external=True) }} for guidance and information.
+If you have any questions or require assistance while uploading data, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the {{ SYSTEM_NAME }} at {{ url_for('home', _external=True) }} for guidance and information.
 
 Thank you for your contribution,
 

@@ -1,4 +1,4 @@
-# Elixir Data Submission System (DSS)
+# LCSB Data Submission System (DSS)
 
 ## Quick Start (Recommended)
 

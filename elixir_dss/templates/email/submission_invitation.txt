@@ -2,7 +2,7 @@ ELIXIR-LU / LCSB
 
 Dear Colleague,
 
-You have been invited to collaborate on submission {{ submission.ref_name }} in the Data Submission System.
+You have been invited to collaborate on submission {{ submission.ref_name }} in the {{ SYSTEM_NAME }}.
 
 This means you can upload, add, and contribute to the submission’s metadata and associated data files. Please ensure that you verify the information carefully before proceeding or uploading the data.
 
@@ -11,7 +11,7 @@ To access the submission, click the link below:
 
 You’ll be asked to sign in via LCSB SSO.
 
-If you have any questions, encounter issues, or need assistance while working on the submission, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the Data Submission System at {{ url_for('home', _external=True) }} for more information and guidance.
+If you have any questions, encounter issues, or need assistance while working on the submission, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the {{ SYSTEM_NAME }} at {{ url_for('home', _external=True) }} for more information and guidance.
 
 Thank you for your contribution and collaboration,
 
