@@ -1,5 +1,5 @@
 {% if submission.datasets %}
-    {% set can_edit = ((current_user.is_data_steward() and submission.current_status.step_num() < 5) or submission.current_status.step_num() == 1) and not submission.is_cancelled() %}
+    {% set can_edit = submission.current_status.step_num() == 1 and not submission.is_cancelled() %}
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
