@@ -827,15 +827,7 @@ def add_submission_dataset(sub_id):
                 dataset.file_types_json = json.dumps(posted_form.file_types.data)
             if posted_form.sample_types.data:
                 dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
-            if (
-                hasattr(posted_form, "data_type_bg_or_result")
-                and posted_form.data_type_bg_or_result.data
-            ):
-                dataset.data_type_bg_or_result = json.dumps(
-                    posted_form.data_type_bg_or_result.data
-                )
-            else:
-                dataset.data_type_bg_or_result = None
+
             dataset.internal_id = generate_id(dataset.title)
             dataset.creation_date = date.today()
             dataset.last_update_date = date.today()
@@ -869,13 +861,7 @@ def edit_submission_dataset(dataset_id):
             result_form.file_types.data = json.loads(dataset.file_types_json)
         if dataset.sample_types_json:
             result_form.sample_types.data = json.loads(dataset.sample_types_json)
-        if (
-            hasattr(result_form, "data_type_bg_or_result")
-            and dataset.data_type_bg_or_result
-        ):
-            result_form.data_type_bg_or_result.data = json.loads(
-                dataset.data_type_bg_or_result
-            )
+
         return render_template(
             "submission/dataset_form.html",
             dataset_form=result_form,
@@ -902,15 +888,7 @@ def edit_submission_dataset(dataset_id):
                 dataset.file_types_json = json.dumps(posted_form.file_types.data)
             if posted_form.sample_types.data:
                 dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
-            if (
-                hasattr(posted_form, "data_type_bg_or_result")
-                and posted_form.data_type_bg_or_result.data
-            ):
-                dataset.data_type_bg_or_result = json.dumps(
-                    posted_form.data_type_bg_or_result.data
-                )
-            else:
-                dataset.data_type_bg_or_result = None
+
             if not dataset.internal_id:
                 dataset.internal_id = generate_id(dataset.title)
             dataset.last_update_date = date.today()

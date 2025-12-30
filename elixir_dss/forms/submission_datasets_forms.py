@@ -370,11 +370,6 @@ class DatasetForm(FlaskForm):
         description="",
         default=False,
     )
-    data_type_bg_or_result = SelectMultipleField(
-        "Is the data Background or Results as defined in the Consortium Agreement?",
-        description="Select all that apply.",
-        choices=[],
-    )
 
     restriction_ts_lcsb = BooleanField(
         "Is the data being sent to ELIXIR-LU/LCSB for a limited duration?",
@@ -504,9 +499,6 @@ class DatasetForm(FlaskForm):
         ]
         self.consent_status_code.choices = [
             (c.code, c.label) for c in ConsentStatus.query.all()
-        ]
-        self.data_type_bg_or_result.choices = [
-            (c, c) for c in app.config.get("DATA_INIT")["data_bg_or_result_types"]
         ]
 
     def validate_last_update_date(self, field):
