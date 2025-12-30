@@ -35,15 +35,15 @@
                 {{ fmacros.render_field_with_errors(study_form.description) }}
                 {{ fmacros.render_field_with_errors(study_form.external_identifiers) }}
                 {{ fmacros.render_field_with_errors(study_form.website) }}
-            </fieldset>
-
-            <fieldset class="mb-4 pb-3 border-bottom">
-                <h5 class="fw-semibold mb-3">Ethics & Study Classification</h5>
-                {{ fmacros.render_field_with_errors(study_form.ethics_approval_exists) }}
-                {{ fmacros.render_field_with_errors(study_form.ethics_approval_no) }}
                 {{ fmacros.render_field_with_errors(study_form.study_types, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(study_form.multi_center_study) }}
                 {{ fmacros.render_field_with_errors(study_form.study_characteristics) }}
+            </fieldset>
+
+            <fieldset class="mb-4 pb-3 border-bottom">
+                <h5 class="fw-semibold mb-3">Ethics</h5>
+                {{ fmacros.render_field_with_errors(study_form.ethics_approval_exists) }}
+                {{ fmacros.render_field_with_errors(study_form.ethics_approval_no) }}
             </fieldset>
 
             <fieldset class="mb-4 pb-3 border-bottom">
