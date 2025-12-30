@@ -58,18 +58,17 @@
                 {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_std_code, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.is_special_category_data) }}
                 {{ fmacros.render_field_with_errors(dataset_form.has_art92_derogation) }}
+
+                <!-- Scope of Data Subjects Section -->
+                    <h6 class="fw-semibold mb-3">Scope of data subjects</h6>
+                    {{ fmacros.render_field_with_errors(dataset_form.has_special_subjects) }}
+                    {{ fmacros.render_field_with_errors(dataset_form.special_subjects_notes) }}
             </div>
 
-            <!-- Scope of Data Subjects Section -->
-            <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Scope of data subjects</h5>
-                {{ fmacros.render_field_with_errors(dataset_form.has_special_subjects) }}
-                {{ fmacros.render_field_with_errors(dataset_form.special_subjects_notes) }}
-            </div>
 
             <!-- Consent and Ethics Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Consent and ethics</h6>
+                <h5 class="fw-semibold mb-3">Consent and ethics</h5>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_gs) }}
@@ -84,7 +83,7 @@
 
             <!-- Specific Data Use Conditions Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Specific data use conditions</h6>
+                <h5 class="fw-semibold mb-3">Specific data use conditions</h5>
                 <h6 class="fw-semibold mb-3 mt-4">Use of DATA is limited to the RESEARCH PROJECT</h6>
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_project) }}
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_research_use) }}
@@ -119,7 +118,7 @@
 
             <!-- Technical Metadata Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Technical metadata</h6>
+                <h5 class="fw-semibold mb-3">Technical metadata</h5>
                 <div class="row">
                     <div class="col-md-6">
                         {{ fmacros.render_field_with_errors(dataset_form.number_of_records) }}
