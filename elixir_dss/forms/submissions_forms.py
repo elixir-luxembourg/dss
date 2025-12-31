@@ -331,12 +331,12 @@ class SubmissionForm(FlaskForm):
     )
 
     local_custodians = SelectMultipleField(
-        "Recipient PI(s)",
+        "Recipient",
         description="If known please specify the Principal Investigator/Researcher that is the recipient of data.",
     )
 
     local_project_name = SelectField(
-        "Recipient project",
+        "Receiving project",
         description="If you are making this submission in the context of a  collaboration/project, please specif its name here.",
         coerce=str,
     )
