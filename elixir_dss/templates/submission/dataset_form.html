@@ -58,18 +58,17 @@
                 {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_std_code, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.is_special_category_data) }}
                 {{ fmacros.render_field_with_errors(dataset_form.has_art92_derogation) }}
+
+                <!-- Scope of Data Subjects Section -->
+                    <h6 class="fw-semibold mb-3">Scope of data subjects</h6>
+                    {{ fmacros.render_field_with_errors(dataset_form.has_special_subjects) }}
+                    {{ fmacros.render_field_with_errors(dataset_form.special_subjects_notes) }}
             </div>
 
-            <!-- Scope of Data Subjects Section -->
-            <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Scope of data subjects</h5>
-                {{ fmacros.render_field_with_errors(dataset_form.has_special_subjects) }}
-                {{ fmacros.render_field_with_errors(dataset_form.special_subjects_notes) }}
-            </div>
 
             <!-- Consent and Ethics Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Consent and ethics</h6>
+                <h5 class="fw-semibold mb-3">Consent and ethics</h5>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_gs) }}
@@ -84,27 +83,27 @@
 
             <!-- Specific Data Use Conditions Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Specific data use conditions</h6>
-                <h6 class="fw-semibold mb-3 mt-4">Use of DATA is limited to the RESEARCH PROJECT</h6>
+                <h5 class="fw-semibold mb-3">Specific data use conditions</h5>
+                <div class="mb-2 mt-4">Use of DATA is limited to the RESEARCH PROJECT</div>
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_project) }}
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_research_use) }}
                 {{ fmacros.render_field_with_errors(dataset_form.data_type_bg_or_result, clazz="elx-multi-select") }}
-                <h6 class="fw-semibold mb-3 mt-4">Time limit of storage at LCSB</h6>
+                <div class="mb-2 mt-4">Time limit of storage at LCSB</div>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb_date) }}
-                <h6 class="fw-semibold mb-3 mt-4">Publication requirements</h6>
+                <div class="mb-2 mt-4">Publication requirements</div>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_pub) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_pub_notes) }}
-                <h6 class="fw-semibold mb-3 mt-4">Data return requirements</h6>
+                <div class="mb-2 mt-4">Data return requirements</div>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn_notes) }}
-                <h6 class="fw-semibold mb-3 mt-4">User specific restrictions</h6>
+                <div class="mb-2 mt-4">User specific restrictions</div>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_us) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_us_notes) }}
-                <h6 class="fw-semibold mb-3 mt-4">IP-related conditions/restrictions</h6>
+                <div class="mb-2 mt-4">IP-related conditions/restrictions</div>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ip) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ip_notes) }}
-                <h6 class="fw-semibold mb-3 mt-4">Other restrictions</h6>
+                <div class="mb-2 mt-4">Other restrictions</div>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_other_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.access_form_required) }}
 
@@ -119,7 +118,7 @@
 
             <!-- Technical Metadata Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Technical metadata</h6>
+                <h5 class="fw-semibold mb-3">Technical metadata</h5>
                 <div class="row">
                     <div class="col-md-6">
                         {{ fmacros.render_field_with_errors(dataset_form.number_of_records) }}
