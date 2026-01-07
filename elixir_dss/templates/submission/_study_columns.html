@@ -25,7 +25,14 @@
                     {% if can_edit %}
                     <a href="{{ url_for('edit_submission_study', study_id=study.id) }}"
                         class="text-dark text-decoration-none fw-semibold d-inline-flex align-items-center gap-2">
-                        <span>{{ study.name }}</span>
+                        <span class="fw-semibold">
+                            {{ study.name }}
+                            {% if study.external_identifiers %}
+                                <span class="badge bg-primary bg-opacity-25 text-muted text-muted small ms-1">
+                                     {{ study.external_identifiers[0] }}
+                                </span>
+                            {% endif %}
+                        </span>
                         {% if study.acronym %}<span class="text-muted small">({{ study.acronym }})</span>{% endif %}
                     </a>
                     {% else %}
