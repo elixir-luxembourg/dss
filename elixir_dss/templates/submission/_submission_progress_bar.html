@@ -77,31 +77,6 @@
 
     <nav aria-label="Submission progress">
         <div class="card border-0 shadow-sm">
-            <!-- Card Header -->
-            <div class="card-header bg-white border-0 px-4 pt-3 pb-2">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="fw-semibold mb-1">Submission Progress</h6>
-                    </div>
-
-                    <!-- Workflow Control Buttons -->
-                    {% if current_user.is_data_steward() or submission.current_status.step_num() == 1 or submission.current_status.step_num() == 2 %}
-                        <div class="d-flex gap-2">
-                            {% if submission.current_status.prev_state() is not none %}
-                                {% if current_user.is_data_steward() %}
-                                    <a name="button_submission_editor_revert"
-                                       data-url="{{ url_for('revert_submission', sub_id=submission.id) }}"
-                                       class="btn btn-outline-secondary btn-sm"
-                                       title="Revert to previous step">
-                                        <i class="bi bi-arrow-left me-1"></i>
-                                        <span class="d-none d-md-inline">Revert</span>
-                                    </a>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
 
             <div class="card-body px-4 pb-3 pt-1">
                 <!-- Progress Steps Container -->
@@ -139,9 +114,6 @@
                             <div class="small fw-semibold {% if stp == 0 %}text-primary{% elif stp > 0 %}text-success{% else %}text-muted{% endif %} mb-1">
                                 Initiation
                             </div>
-                            <div class="text-muted" style="font-size: 0.7rem; line-height: 1.2;">
-                                {% if stp == 0 %}Data Steward creates{% else %}Setup{% endif %}
-                            </div>
                         </div>
 
                         <!-- Step 1: Metadata -->
@@ -161,9 +133,6 @@
                             </div>
                             <div class="small fw-semibold {% if stp == 1 %}text-primary{% elif stp > 1 %}text-success{% else %}text-muted{% endif %} mb-1">
                                 Metadata Entry
-                            </div>
-                            <div class="text-muted" style="font-size: 0.7rem; line-height: 1.2;">
-                                {% if stp == 1 %}Add studies & datasets{% else %}Study and Dataset metadata{% endif %}
                             </div>
                         </div>
 
@@ -185,9 +154,6 @@
                             <div class="small fw-semibold {% if stp == 2 %}text-primary{% elif stp > 2 %}text-success{% else %}text-muted{% endif %} mb-1">
                                 Metadata Review
                             </div>
-                            <div class="text-muted" style="font-size: 0.7rem; line-height: 1.2;">
-                                {% if stp == 2 %}Steward approves{% else %}Approval{% endif %}
-                            </div>
                         </div>
 
                         <!-- Step 3: Data Upload -->
@@ -207,9 +173,6 @@
                             </div>
                             <div class="small fw-semibold {% if stp == 3 %}text-primary{% elif stp > 3 %}text-success{% else %}text-muted{% endif %} mb-1">
                                 Data Upload
-                            </div>
-                            <div class="text-muted" style="font-size: 0.7rem; line-height: 1.2;">
-                                {% if stp == 3 %}Upload via LFT{% else %}File upload{% endif %}
                             </div>
                         </div>
 
@@ -231,9 +194,6 @@
                             <div class="small fw-semibold {% if stp == 4 %}text-primary{% elif stp > 4 %}text-success{% else %}text-muted{% endif %} mb-1">
                                 Data Verification
                             </div>
-                            <div class="text-muted" style="font-size: 0.7rem; line-height: 1.2;">
-                                {% if stp == 4 %}Steward verifies{% else %}Verify data{% endif %}
-                            </div>
                         </div>
 
                         <!-- Step 5: Complete -->
@@ -250,9 +210,6 @@
                             </div>
                             <div class="small fw-semibold {% if stp >= 5 %}text-success{% else %}text-muted{% endif %} mb-1">
                                 Complete
-                            </div>
-                            <div class="text-muted" style="font-size: 0.7rem; line-height: 1.2;">
-                                {% if stp >= 5 %}Finalized{% else %}Ready{% endif %}
                             </div>
                         </div>
                     </div>
