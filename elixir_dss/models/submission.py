@@ -490,7 +490,6 @@ class SubmissionDataset(db.Model):
 
     use_restriction_project = db.Column(db.Boolean, nullable=False, default=False)
     use_restriction_research_use = db.Column(db.Boolean, nullable=False, default=False)
-    data_type_bg_or_result = db.Column(db.String, nullable=True)
 
     restriction_rs = db.Column(db.Boolean, nullable=False, default=False)
     restriction_rs_notes = db.Column(db.String, nullable=True)
@@ -606,7 +605,6 @@ class SubmissionDataset(db.Model):
             "has_art92_derogation": self.has_art92_derogation,
             "use_restriction_project": self.use_restriction_project,
             "use_restriction_research_use": self.use_restriction_research_use,
-            "data_type_bg_or_result": self.data_type_bg_or_result,
             "number_of_records": self.number_of_records,
             "dataset_version": self.dataset_version,
             "creation_date": self.creation_date.isoformat()

@@ -201,8 +201,6 @@ class SubmissionExporter:
                 dataset_info["use_restriction_research_use"] = (
                     dataset.use_restriction_research_use
                 )
-            if dataset.data_type_bg_or_result:
-                dataset_info["data_type_bg_or_result"] = dataset.data_type_bg_or_result
 
             dataset_list.append(dataset_info)
         return dataset_list
