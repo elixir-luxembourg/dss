@@ -1,6 +1,5 @@
 {% if submission.studies %}
-{% set can_edit = ((current_user.is_data_steward() and submission.current_status.step_num() < 5) or
-    submission.current_status.step_num()==1) and not submission.is_cancelled() %} <div class="table-responsive">
+{% set can_edit = (submission.current_status.step_num()==1) and not submission.is_cancelled() %} <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
         <thead style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
             <tr>
@@ -13,8 +12,7 @@
                 <th class="fw-semibold text-dark py-3 align-middle border-end" style="background-color: #e9ecef;">
                     <i class="bi bi-people me-2 text-primary"></i>Contacts
                 </th>
-                {% if (current_user.is_data_steward() and submission.current_status.step_num() < 5) or
-                    submission.current_status.step_num()==1 %} <th
+                {% if can_edit %} <th
                     class="fw-semibold text-dark py-3 text-md-center align-middle" style="background-color: #e9ecef;">
                     Actions</th>
                     {% endif %}
