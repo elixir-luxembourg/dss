@@ -22,7 +22,6 @@ from elixir_dss.models.submission import (
     ContactType,
     Submission,
     SubmissionAccess,
-    SubmissionScope,
     SubmissionStatusEnum,
     SubmissionDatasetCreator,
 )
@@ -81,8 +80,6 @@ class ModelPersistenceTest(BaseTest):
         self.assertFalse(pinar.is_active)
 
     def test_create_submission(self):
-        self.assertEqual(18, len(SubmissionScope.query.all()))
-
         submission_rec = create_sub("ELU_I_77")
 
         self.assertEqual(1, len(Submission.query.all()))
@@ -91,7 +88,6 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(sub.ref_name, "ELX_LU_SUB-1")
         self.assertEqual(sub.current_status, SubmissionStatusEnum.draft)
         self.assertIsNotNone(sub.created_on)
-        self.assertEqual(sub.submission_scope_code, "elu")
 
         self.assertTrue(sub.is_deletable())
         self.assertFalse(sub.is_in_progress())

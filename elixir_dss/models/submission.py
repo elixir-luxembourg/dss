@@ -126,12 +126,6 @@ class SubmissionStatusEnum(enum.Enum):
         }.get(self)
 
 
-class SubmissionScope(db.Model):
-    __tablename__ = "submission_scope"
-    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
-    label = db.Column(db.String, nullable=False)
-
-
 def uniqid():
     from time import time
 
@@ -155,10 +149,6 @@ class Submission(db.Model):
     institution_accession = db.Column(db.String)
     submission_contacts = db.relationship(
         "Contact", back_populates="submission", cascade="all, delete-orphan"
-    )
-    submission_scope = db.relationship("SubmissionScope")
-    submission_scope_code = db.Column(
-        db.String, db.ForeignKey("submission_scope.code"), nullable=False, default="elu"
     )
     local_custodians_json = db.Column(db.String)
     local_project_name = db.Column(db.String)
@@ -229,12 +219,6 @@ class Submission(db.Model):
             return json.loads(self.local_custodians_json)
         else:
             return []
-
-    def is_elixir(self):
-        if self.submission_scope_code == "e":
-            return True
-        else:
-            return False
 
     def has_providers(self):
         if not self.submission_accesses:

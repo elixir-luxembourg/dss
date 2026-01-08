@@ -35,12 +35,6 @@
 <div class="border-top pt-4">
     <div class="row g-4">
         <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Submission Category</label>
-            <div class="fw-semibold">
-                <span class="badge bg-primary-subtle text-primary fs-6 fw-medium">{{ submission.submission_scope.label }}</span>
-            </div>
-        </div>
-        <div class="col-md-4">
             <label class="form-label text-muted small mb-1">Recipient</label>
             <div class="fw-semibold">
                 {% if submission.local_custodians() %}

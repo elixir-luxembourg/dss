@@ -44,7 +44,6 @@ class SubmissionFactory(SQLAlchemyModelFactory):
 
     ref_name = factory.Sequence(lambda n: f"submission-{n}")
     institution_accession = "ELU_I_77"
-    submission_scope_code = "e"
     current_status = SubmissionStatusEnum.draft
     created_on = factory.LazyFunction(date.today)
 

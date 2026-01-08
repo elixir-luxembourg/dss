@@ -36,10 +36,6 @@
                 <td>{{ submission_rec.finalised_on or '' }}</td>
             </tr>
             <tr>
-                <th scope="row">Category</th>
-                <td>{{ submission_rec.submission_scope.label }}</td>
-            </tr>
-            <tr>
                 <th scope="row">Recipient</th>
                 <td>{{ submission_rec.local_custodians_json|replace('"','') | replace("[", '')| replace("]",
                     '')|join('')}}
