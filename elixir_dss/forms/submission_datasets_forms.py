@@ -42,6 +42,7 @@ class DatasetCreatorForm(FlaskForm):
                 message="Can only contain letters, digits, dash, comma and dot.",
             ),
         ],
+        render_kw={"placeholder": "Name"},
     )
     last_name = StringField(
         "Surname",
@@ -52,6 +53,7 @@ class DatasetCreatorForm(FlaskForm):
                 message="Can only contain letters, digits, dash, comma and dot.",
             ),
         ],
+        render_kw={"placeholder": "SURNAME"},
     )
     email = EmailField(
         "Email",
@@ -59,6 +61,7 @@ class DatasetCreatorForm(FlaskForm):
             DataRequired(),
             Email("This field requires a valid email address."),
         ],
+        render_kw={"placeholder": "Institutional e-mail"},
     )
     institution = StringField(
         "Institution",
@@ -69,6 +72,8 @@ class DatasetCreatorForm(FlaskForm):
                 message="Can only contain letters, digits, dash, comma and dot.",
             ),
         ],
+        render_kw={"placeholder": "University/Institution"},
+        description="Main institutional affiliation",
     )
     role = StringField(
         "Role",
@@ -79,6 +84,7 @@ class DatasetCreatorForm(FlaskForm):
                 message="Can only contain letters, digits, dash, comma and dot.",
             ),
         ],
+        description="Please specify the role of the contact person (e.g., Principal Investigator, Researcher, Data Manager)",
     )
 
 

@@ -61,12 +61,20 @@ def upgrade():
 def downgrade():
     # 1. Recreate legacy columns
     with op.batch_alter_table("submission_dataset") as batch_op:
-        batch_op.add_column(sa.Column("creator_name", sa.String(), nullable=False))
-        batch_op.add_column(sa.Column("creator_email", sa.String(), nullable=False))
         batch_op.add_column(
-            sa.Column("creator_institution", sa.String(), nullable=False)
+            sa.Column("creator_name", sa.String(), nullable=False, server_default="")
         )
-        batch_op.add_column(sa.Column("creator_role", sa.String(), nullable=False))
+        batch_op.add_column(
+            sa.Column("creator_email", sa.String(), nullable=False, server_default="")
+        )
+        batch_op.add_column(
+            sa.Column(
+                "creator_institution", sa.String(), nullable=False, server_default=""
+            )
+        )
+        batch_op.add_column(
+            sa.Column("creator_role", sa.String(), nullable=False, server_default="")
+        )
 
     # 2. Restore legacy data from first creator
     op.execute("""

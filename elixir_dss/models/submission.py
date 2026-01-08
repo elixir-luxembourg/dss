@@ -627,7 +627,11 @@ class SubmissionDataset(db.Model):
             c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude
         }
         attrs.update(overrides)
-        return self.__class__(**attrs)
+        cloned = SubmissionDataset(**attrs)
+
+        cloned.creators = [creator.clone() for creator in self.creators]
+
+        return cloned
 
 
 class SubmissionAccess(db.Model):
@@ -670,3 +674,13 @@ class SubmissionDatasetCreator(db.Model):
             "institution": self.institution,
             "role": self.role,
         }
+
+    def clone(self, **overrides):
+        return SubmissionDatasetCreator(
+            first_name=self.first_name,
+            last_name=self.last_name,
+            email=self.email,
+            institution=self.institution,
+            role=self.role,
+            **overrides,
+        )
