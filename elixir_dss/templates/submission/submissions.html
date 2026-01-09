@@ -90,9 +90,9 @@
                             <td>{{ submission.local_project_name | default('-', true) }}</td>
                             <td>{{ submission.created_on }}</td>
                             <td>
-                                {% if submission.current_status.value == 'Pending' %}
+                                {% if submission.current_status.value == 'Initiation' %}
                                     <span class="badge bg-warning text-dark">{{ submission.current_status.value }}</span>
-                                {% elif submission.current_status.value == 'Completed' %}
+                                {% elif submission.current_status.value == 'Complete' %}
                                     <span class="badge bg-success">{{ submission.current_status.value }}</span>
                                 {% elif submission.current_status.value == 'Cancelled' %}
                                     <span class="badge bg-danger">{{ submission.current_status.value }}</span>
