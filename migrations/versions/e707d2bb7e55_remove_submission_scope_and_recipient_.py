@@ -1,7 +1,7 @@
 """Remove submission_scope and recipient lab
 
 Revision ID: e707d2bb7e55
-Revises: 58515c3d1dc2
+Revises: b3b0006e8f0b
 Create Date: 2026-01-08 11:56:17.545825
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "e707d2bb7e55"
-down_revision = "58515c3d1dc2"
+down_revision = "b3b0006e8f0b"
 branch_labels = None
 depends_on = None
 
