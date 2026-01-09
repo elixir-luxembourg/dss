@@ -2,7 +2,7 @@ ELIXIR-LU / LCSB
 
 Dear Data Steward,
 
-A data provider has completed the metadata section for a submission. The submission is now ready for your review and approval in the Data Submission System.
+A data provider has completed the metadata section for a submission. The submission is now ready for your review and approval in the {{ SYSTEM_NAME }}.
 
 Submission Ref: {{ submission.ref_name }}
 Approval Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}

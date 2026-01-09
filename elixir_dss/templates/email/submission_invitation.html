@@ -7,18 +7,18 @@
     <tr>
         <td>
             <p>Dear Colleague,</p>
-            <p>You have been invited to collaborate on submission <strong>{{ submission.ref_name }}</strong> in the Data Submission System.</p>
+            <p>You have been invited to collaborate on submission <strong>{{ submission.ref_name }}</strong> in the {{ SYSTEM_NAME }}.</p>
             <p>This means you can upload, add, and contribute to the submission’s metadata and associated data files. Please ensure that you verify the information carefully before proceeding or uploading the data.</p>
         </td>
     </tr>
     <tr>
         <td>
-            <p>To access the submission, use the following link:</p>
+            <p>To access your submission, use the following link:</p>
             <p>
                 <a href="{{ url_for('view_submission', sub_id=submission.id, _external=True) }}">
                     View submission {{ submission.ref_name }}
                 </a><br/>
-                <small>You’ll be asked to sign in via <strong>LCSB SSO</strong>.</small>
+                <small>You'll be asked to sign in via <strong>LCSB SSO</strong>.</small>
             </p>
         </td>
     </tr>
@@ -26,7 +26,7 @@
         <td style="padding-top: 16px;">
             <p>If you have any questions, encounter issues, or need assistance while working on the submission, please contact the LCSB Data Stewards at
                 <a href="mailto:lcsb-datastewards@uni.lu">lcsb-datastewards@uni.lu</a>. You can also visit the
-                <a href="{{ url_for('home', _external=True) }}" target="_blank">Data Submission System</a> for more information and guidance.
+                <a href="{{ url_for('home', _external=True) }}" target="_blank">{{ SYSTEM_NAME }}</a> for more information and guidance.
             </p>
         </td>
     </tr>

@@ -7,7 +7,7 @@
     <tr>
         <td>
             <p>Dear Data Provider,</p>
-            <p>ELIXIR Luxembourg has shared a new data submission session with you. The next step is to complete the required forms in the <strong>Study</strong> and <strong>Dataset</strong> sections for this submission in the Data Submission System.</p>
+            <p>{{ SYSTEM_NAME }} has shared a new data submission session with you. The next step is to complete the required forms in the <strong>Study</strong> and <strong>Dataset</strong> sections for this submission in the {{ SYSTEM_NAME }}.</p>
             <p><strong>Important:</strong> Please ensure that the metadata you provide is accurate and complete. You will take full responsibility for any incorrect, misleading, or incomplete information submitted.</p>
         </td>
     </tr>
@@ -31,7 +31,7 @@
         <td style="padding-top: 16px;">
             <p>If you have any questions or need assistance while completing the submission, please contact the LCSB Data Stewards at
                 <a href="mailto:lcsb-datastewards@uni.lu">lcsb-datastewards@uni.lu</a>. You can also visit the
-                <a href="{{ url_for('home', _external=True) }}" target="_blank">Data Submission System</a> for guidance and further information.
+                <a href="{{ url_for('home', _external=True) }}" target="_blank">{{ SYSTEM_NAME }}</a> for guidance and further information.
             </p>
         </td>
     </tr>

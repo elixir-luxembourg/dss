@@ -2,7 +2,7 @@ ELIXIR-LU / LCSB
 
 Dear User,
 
-The following submission has received a new message in the Data Submission System. You can view and respond to the message via the submission page.
+The following submission has received a new message in the {{ SYSTEM_NAME }}. You can view and respond to the message via the submission page.
 
 Submission Ref: {{ submission.ref_name }}
 Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}

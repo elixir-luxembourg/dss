@@ -10,9 +10,9 @@ Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=T
 Required Changes:
 {{ feedback }}
 
-Once you have made the necessary corrections, please click "Proceed" in the Data Submission System to resubmit your submission for review.
+Once you have made the necessary corrections, please click "Proceed" in the {{ SYSTEM_NAME }} to resubmit your submission for review.
 
-If you have any questions or need assistance while making these corrections, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the Data Submission System at {{ url_for('home', _external=True) }} for guidance.
+If you have any questions or need assistance while making these corrections, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the {{ SYSTEM_NAME }} at {{ url_for('home', _external=True) }} for guidance.
 
 Thank you for your collaboration,
 

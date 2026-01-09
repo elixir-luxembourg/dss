@@ -9,9 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     {% block meta %}
-        <meta name="description" content="Data Submission System (DSS)">
-        <meta property="og:title" content="Data Submission System (DSS)">
-        <meta property="og:description" content="Data Submission System (DSS)">
+        <meta name="description" content="{{ SYSTEM_NAME }}">
+        <meta property="og:title" content="{{ SYSTEM_NAME }}">
+        <meta property="og:description" content="{{ SYSTEM_NAME }}">
         <meta property="og:image" content="{{ url_for('static', filename='public/images/ELIXIR_LU_WB.png', _external=True) }}">
         <meta property="og:url" content="{{ request.url }}">
         <meta property="og:type" content="website">

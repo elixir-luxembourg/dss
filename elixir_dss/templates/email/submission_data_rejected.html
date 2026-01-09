@@ -30,14 +30,14 @@
         <td style="padding-top: 16px;">
             <p><strong>Required Changes:</strong></p>
             <p>{{ feedback }}</p>
-            <p>Once you have made the necessary corrections, please click "Proceed" in the Data Submission System to resubmit your submission for review.</p>
+            <p>Once you have made the necessary corrections, please click "Proceed" in the {{ SYSTEM_NAME }} to resubmit your submission for review.</p>
         </td>
     </tr>
     <tr>
         <td style="padding-top: 16px;">
             <p>If you have any questions or need assistance while making these corrections, please contact the LCSB Data Stewards at
                 <a href="mailto:lcsb-datastewards@uni.lu">lcsb-datastewards@uni.lu</a>. You can also visit the
-                <a href="{{ url_for('home', _external=True) }}" target="_blank">Data Submission System</a> for guidance.
+                <a href="{{ url_for('home', _external=True) }}" target="_blank">{{ SYSTEM_NAME }}</a> for guidance.
             </p>
         </td>
     </tr>

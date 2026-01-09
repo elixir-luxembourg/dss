@@ -101,7 +101,10 @@ def _jinja2_filter_date(date, fmt=None):
 
 @app.context_processor
 def inject_now():
-    return {"version": __VERSION__}
+    return {
+        "version": __VERSION__,
+        "SYSTEM_NAME": app.config.get("TITLE", "LCSB Data Submission System"),
+    }
 
 
 @app.before_request
