@@ -67,13 +67,13 @@ class LFTHandler:
             self.password = lft_password
             self.links_url = links_url
             self.link_validity_days = app.config.get("LFT_LINK_VALIDITY_DAYS", 1)
-            app.logger.info("LFT client initialized")
+            app.logger.info("LFT client initialised")
         else:
             app.logger.warning("LFT not configured")
 
     def get_or_create_link(self, dataset: "Dataset", sub: str) -> LFTLink:  # noqa: F821
         if not self.client:
-            raise RuntimeError("LFT client not initialized")
+            raise RuntimeError("LFT client not initialised")
         try:
             self.client.login(self.username, self.password)
         except LFTClientException as e:

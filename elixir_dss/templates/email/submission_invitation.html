@@ -13,10 +13,10 @@
     </tr>
     <tr>
         <td>
-            <p>To access the submission, click the link below:</p>
+            <p>To access the submission, use the following link:</p>
             <p>
                 <a href="{{ url_for('view_submission', sub_id=submission.id, _external=True) }}">
-                    {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+                    View submission {{ submission.ref_name }}
                 </a><br/>
                 <small>You’ll be asked to sign in via <strong>LCSB SSO</strong>.</small>
             </p>
@@ -25,8 +25,8 @@
     <tr>
         <td style="padding-top: 16px;">
             <p>If you have any questions, encounter issues, or need assistance while working on the submission, please contact the LCSB Data Stewards at
-                <a href="mailto:lcsb-datastewards@uni.lu">lcsb-datastewards@uni.lu</a>. You can also visit the Data Submission System at
-                <a href="{{ url_for('home', _external=True) }}" target="_blank">our website</a> for more information and guidance.
+                <a href="mailto:lcsb-datastewards@uni.lu">lcsb-datastewards@uni.lu</a>. You can also visit the
+                <a href="{{ url_for('home', _external=True) }}" target="_blank">Data Submission System</a> for more information and guidance.
             </p>
         </td>
     </tr>

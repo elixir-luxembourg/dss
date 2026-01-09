@@ -19,13 +19,13 @@
 {% block content %}
 <div class="card border shadow-sm mb-4">
     <div class="card-header bg-white border-bottom">
-        <h5 class="mb-0 fw-semibold">
+        <h1 class="h5 mb-0 fw-semibold">
             {% if dataset_form.internal_id.data %}
                 <span class="badge bg-secondary ms-2">{{ dataset_form.internal_id.data }}</span>
             {% else %}
             Add New Dataset
             {% endif %}
-        </h5>
+        </h1>
     </div>
     <div class="card-body p-4">
         <form method="POST" {% if dataset_form.id.data %}
@@ -35,7 +35,7 @@
 
             <!-- Overview Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Overview</h5>
+                <h2 class="h5 fw-semibold mb-3">Overview</h2>
                 {{ fmacros.render_field_with_errors(dataset_form.title) }}
                 {{ fmacros.render_field_with_errors(dataset_form.study_id, clazz="elx-select")}}
                 {{ fmacros.render_field_with_errors(dataset_form.description) }}
@@ -104,7 +104,7 @@
 
             <!-- Data Protection (GDPR) Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Data Protection (GDPR)</h5>
+                <h2 class="h5 fw-semibold mb-3">Data Protection (GDPR)</h2>
                 {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.legal_basis_collection_std_code, clazz="elx-select") }}
@@ -113,7 +113,7 @@
                 {{ fmacros.render_field_with_errors(dataset_form.has_art92_derogation) }}
 
                 <!-- Scope of Data Subjects Section -->
-                    <h6 class="fw-semibold mb-3">Scope of data subjects</h6>
+                    <h3 class="h6 fw-semibold mb-3">Scope of data subjects</h3>
                     {{ fmacros.render_field_with_errors(dataset_form.has_special_subjects) }}
                     {{ fmacros.render_field_with_errors(dataset_form.special_subjects_notes) }}
             </div>
@@ -121,7 +121,7 @@
 
             <!-- Consent and Ethics Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Consent and ethics</h5>
+                <h2 class="h5 fw-semibold mb-3">Consent and ethics</h2>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_gs) }}
@@ -136,7 +136,7 @@
 
             <!-- Specific Data Use Conditions Section -->
             <div class="mb-4">
-                <h5 class="fw-semibold mb-3">Specific data use conditions</h5>
+                <h2 class="h5 fw-semibold mb-3">Specific data use conditions</h2>
                 <div class="mb-2 mt-4">Use of DATA is limited to the RESEARCH PROJECT</div>
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_project) }}
                 {{ fmacros.render_field_with_errors(dataset_form.use_restriction_research_use) }}
