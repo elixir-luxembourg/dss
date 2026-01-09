@@ -1,7 +1,7 @@
 """Normalize dataset creators
 
 Revision ID: b3b0006e8f0b
-Revises: 58515c3d1dc2
+Revises: 8873ba3e2997
 Create Date: 2025-12-23 11:33:17.938318
 
 """
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "b3b0006e8f0b"
-down_revision = "58515c3d1dc2"
+down_revision = "8873ba3e2997"
 branch_labels = None
 depends_on = None
 
