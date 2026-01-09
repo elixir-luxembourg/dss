@@ -652,7 +652,7 @@ def cancel_submission(sub_id):
         return (
             render_template(
                 "error.html",
-                message="Error 403 - You are not authorized to cancel this submission.",
+                message="Error 403 - You are not authorised to cancel this submission.",
                 show_home_link=True,
             ),
             403,

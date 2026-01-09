@@ -175,8 +175,8 @@ class StudyForm(FlaskForm):
     )
 
     multi_center_study = BooleanField(
-        "Multi-center study?",
-        description="Is this a multi-center study?",
+        "Multi-centre study?",
+        description="Is this a multi-centre study?",
         default=False,
     )
 

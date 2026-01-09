@@ -47,7 +47,7 @@ def protect(roles=None, states=None, public=False):
                     abort(404)
 
             if roles and not current_user.has_role_from(roles):
-                return _forbidden("Error 403 - Unauthorized")
+                return _forbidden("Error 403 - Unauthorised")
 
             if submission:
                 is_steward = current_user.is_data_steward()

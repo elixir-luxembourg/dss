@@ -19,7 +19,7 @@
 {% block content %}
 <div class="card border shadow-sm mb-4">
     <div class="card-header bg-white border-bottom">
-        <h5 class="mb-0 fw-semibold">{% if study_form.id.data %}Update {% else %}Add New {% endif %}Study</h5>
+        <h1 class="h5 mb-0 fw-semibold">{% if study_form.id.data %}Update {% else %}Add New {% endif %}Study</h1>
     </div>
     <div class="card-body p-4">
         <form method="POST" {% if study_form.id.data %}
@@ -29,7 +29,7 @@
             {{ study_form.hidden_tag() }}
 
             <fieldset class="mb-4 pb-3 border-bottom">
-                <h5 class="fw-semibold mb-3">Study Overview</h5>
+                <h2 class="h5 fw-semibold mb-3">Study Overview</h2>
                 {{ fmacros.render_field_with_errors(study_form.name, autofocus="autofocus") }}
                 {{ fmacros.render_field_with_errors(study_form.acronym) }}
                 {{ fmacros.render_field_with_errors(study_form.description) }}
@@ -41,13 +41,13 @@
             </fieldset>
 
             <fieldset class="mb-4 pb-3 border-bottom">
-                <h5 class="fw-semibold mb-3">Ethics</h5>
+                <h2 class="h5 fw-semibold mb-3">Ethics</h2>
                 {{ fmacros.render_field_with_errors(study_form.ethics_approval_exists) }}
                 {{ fmacros.render_field_with_errors(study_form.ethics_approval_no) }}
             </fieldset>
 
             <fieldset class="mb-4 pb-3 border-bottom">
-                <h5 class="fw-semibold mb-3">Scientific Metadata</h5>
+                <h2 class="h5 fw-semibold mb-3">Scientific Metadata</h2>
                 {{ fmacros.render_field_with_errors(study_form.number_of_subjects) }}
                 {{ fmacros.render_field_with_errors(study_form.age_range_of_subjects) }}
                 {{ fmacros.render_field_with_errors(study_form.species) }}
@@ -60,7 +60,7 @@
             </fieldset>
 
             <fieldset id="contacts-fieldset" class="mb-4">
-                <h5 class="fw-semibold mb-3">Study Contacts</h5>
+                <h2 class="h5 fw-semibold mb-3">Study Contacts</h2>
                 <p class="text-muted small mb-3">
                     At least one study contact is required (typically the Study PI).
                     Please designate one as the main contact.
