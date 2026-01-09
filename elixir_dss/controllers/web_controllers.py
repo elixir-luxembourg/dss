@@ -53,6 +53,7 @@ from elixir_dss.models.submission import (
     SubmissionMessage,
     SubmissionStatusEnum,
     SubmissionStudy,
+    SubmissionDatasetCreator,
 )
 
 from . import protect
@@ -111,6 +112,13 @@ def _load_study_json_to_form(study_rec, form):
         values = json.loads(getattr(study_rec, json_attr) or "[]")
         if values:
             getattr(form, form_field).data = "; ".join(values)
+
+
+def populate_except(form, obj, exclude):
+    for name, field in form._fields.items():
+        if name in exclude:
+            continue
+        field.populate_obj(obj, name)
 
 
 @app.route("/", methods=["GET"])
@@ -811,8 +819,24 @@ def add_submission_dataset(sub_id):
             and int(posted_form.submission_id.data) == sub_id
         ):
             dataset = SubmissionDataset()
-            posted_form.populate_obj(dataset)
+            populate_except(
+                posted_form,
+                dataset,
+                exclude={"creators", "data_type_bg_or_result"},
+            )
             dataset.id = None
+            # creators
+            dataset.creators = []
+            for creator_form in posted_form.creators.entries:
+                dataset.creators.append(
+                    SubmissionDatasetCreator(
+                        first_name=creator_form.first_name.data,
+                        last_name=creator_form.last_name.data,
+                        email=creator_form.email.data,
+                        institution=creator_form.institution.data,
+                        role=creator_form.role.data,
+                    )
+                )
             if posted_form.sci_datatypes.data:
                 dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
             if posted_form.gdpr_datatypes.data:
@@ -871,8 +895,20 @@ def edit_submission_dataset(dataset_id):
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
             original_title = dataset.title
-            posted_form.populate_obj(dataset)
+            populate_except(posted_form, dataset, exclude={"creators"})
             dataset.title = original_title
+            # --- creators ---
+            dataset.creators.clear()
+            for creator_form in posted_form.creators.entries:
+                dataset.creators.append(
+                    SubmissionDatasetCreator(
+                        first_name=creator_form.first_name.data,
+                        last_name=creator_form.last_name.data,
+                        email=creator_form.email.data,
+                        institution=creator_form.institution.data,
+                        role=creator_form.role.data,
+                    )
+                )
 
             if posted_form.sci_datatypes.data:
                 dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)

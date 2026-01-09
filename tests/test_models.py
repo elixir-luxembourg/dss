@@ -24,6 +24,7 @@ from elixir_dss.models.submission import (
     SubmissionAccess,
     SubmissionScope,
     SubmissionStatusEnum,
+    SubmissionDatasetCreator,
 )
 from tests import BaseTest
 from tests.factories import (
@@ -339,10 +340,15 @@ class ModelPersistenceTest(BaseTest):
             submission_id=sub.id,
             study_id=study.id,
             title="Dataset 1",
-            creator_name="John Doe",
-            creator_email="john.doe@example.com",
-            creator_institution="University of Example",
-            creator_role="Principal Investigator",
+            creators=[
+                SubmissionDatasetCreator(
+                    first_name="John",
+                    last_name="Doe",
+                    email="john@example.com",
+                    institution="Uni",
+                    role="PI",
+                )
+            ],
             description="Sample dataset description",
             gdpr_datatypes_json=json.dumps(["personal"]),
             sci_datatypes_json=json.dumps(["RNASeq"]),

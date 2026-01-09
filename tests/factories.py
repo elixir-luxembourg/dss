@@ -14,6 +14,7 @@ from elixir_dss.models.submission import (
     SubmissionDataset,
     SubmissionStatusEnum,
     SubmissionStudy,
+    SubmissionDatasetCreator,
 )
 
 
@@ -55,10 +56,6 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     title = factory.Faker("sentence", nb_words=3)
-    creator_name = factory.Faker("name")
-    creator_email = factory.Faker("email")
-    creator_institution = factory.Faker("company")
-    creator_role = "Principal Investigator"
     description = factory.Faker("text", max_nb_chars=200)
     gdpr_datatypes_json = '["genetic"]'
     sci_datatypes_json = '["genomics"]'
@@ -67,6 +64,31 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
     legal_basis_sharing_std_code = "61a"
     is_special_category_data = False
     consent_status_code = "hm"
+
+    @factory.post_generation
+    def creators(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            for creator in extracted:
+                self.creators.append(creator)
+        else:
+            self.creators.append(
+                SubmissionDatasetCreator(
+                    first_name=factory.Faker("first_name").evaluate(
+                        None, None, {"locale": None}
+                    ),
+                    last_name=factory.Faker("last_name").evaluate(
+                        None, None, {"locale": None}
+                    ),
+                    email=factory.Faker("email").evaluate(None, None, {"locale": None}),
+                    institution=factory.Faker("company").evaluate(
+                        None, None, {"locale": None}
+                    ),
+                    role="Principal Investigator",
+                )
+            )
 
 
 class SubmissionStudyFactory(factory.alchemy.SQLAlchemyModelFactory):

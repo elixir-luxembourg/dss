@@ -7,6 +7,8 @@ from wtforms import (
     IntegerField,
     StringField,
     TextAreaField,
+    FieldList,
+    FormField,
 )
 from wtforms.validators import (
     DataRequired,
@@ -30,14 +32,9 @@ from elixir_dss.models.submission import (
 from .validators import OptionalFieldValidator
 
 
-class DatasetForm(FlaskForm):
-    id = HiddenField("dataset_Id")
-    submission_id = HiddenField("Submission_Id")
-    internal_id = StringField("Internal ID", render_kw={"readonly": True})
-
-    creator_name = StringField(
-        "Creator(s) - Full Name",
-        description="Please provide the full name(s) of the dataset creator(s).",
+class DatasetCreatorForm(FlaskForm):
+    first_name = StringField(
+        "Name",
         validators=[
             DataRequired(),
             Regexp(
@@ -45,18 +42,29 @@ class DatasetForm(FlaskForm):
                 message="Can only contain letters, digits, dash, comma and dot.",
             ),
         ],
+        render_kw={"placeholder": "Name"},
     )
-    creator_email = EmailField(
-        "Creator(s) - Email",
-        description="Please provide the email address(es) of the dataset creator(s).",
+    last_name = StringField(
+        "Surname",
+        validators=[
+            DataRequired(),
+            Regexp(
+                r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
+            ),
+        ],
+        render_kw={"placeholder": "SURNAME"},
+    )
+    email = EmailField(
+        "Email",
         validators=[
             DataRequired(),
             Email("This field requires a valid email address."),
         ],
+        render_kw={"placeholder": "Institutional e-mail"},
     )
-    creator_institution = StringField(
-        "Creator(s) - Institution",
-        description="Please provide the institution(s) of the dataset creator(s).",
+    institution = StringField(
+        "Institution",
         validators=[
             DataRequired(),
             Regexp(
@@ -64,17 +72,30 @@ class DatasetForm(FlaskForm):
                 message="Can only contain letters, digits, dash, comma and dot.",
             ),
         ],
+        render_kw={"placeholder": "University/Institution"},
+        description="Main institutional affiliation",
     )
-    creator_role = StringField(
-        "Creator(s) - Role",
-        description="Please specify the role(s) of the dataset creator(s) (e.g., Principal Investigator, Researcher).",
+    role = StringField(
+        "Role",
         validators=[
             DataRequired(),
             Regexp(
-                r"^[\w\s,\-_]+$",
-                message="Can only contain letters, digits, dash, underscore and spaces.",
+                r"^[\w\s,\-.]+$",
+                message="Can only contain letters, digits, dash, comma and dot.",
             ),
         ],
+        description="Please specify the role of the contact person (e.g., Principal Investigator, Researcher, Data Manager)",
+    )
+
+
+class DatasetForm(FlaskForm):
+    id = HiddenField("dataset_Id")
+    submission_id = HiddenField("Submission_Id")
+    internal_id = StringField("Internal ID", render_kw={"readonly": True})
+    creators = FieldList(
+        FormField(DatasetCreatorForm),
+        min_entries=1,
+        description="At least one creator is required. Additional creators are optional.",
     )
     description = TextAreaField(
         "Dataset description",
@@ -505,3 +526,22 @@ class DatasetForm(FlaskForm):
         if self.creation_date.data and field.data:
             if field.data < self.creation_date.data:
                 raise ValidationError("Last update date must be after creation date.")
+
+    def validate_creators(self, field):
+        if not any(
+            entry.first_name.data or entry.last_name.data or entry.email.data
+            for entry in field.entries
+        ):
+            raise ValidationError("At least one creator is required.")
+
+        for entry in field.entries:
+            if not any(
+                [
+                    entry.first_name.data,
+                    entry.last_name.data,
+                    entry.email.data,
+                    entry.institution.data,
+                    entry.role.data,
+                ]
+            ):
+                raise ValidationError("Creator entries cannot be empty.")

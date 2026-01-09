@@ -436,10 +436,12 @@ class SubmissionDataset(db.Model):
     )
     study = db.relationship("SubmissionStudy", foreign_keys=[study_id])
 
-    creator_name = db.Column(db.String, nullable=False)
-    creator_email = db.Column(db.String, nullable=False)
-    creator_institution = db.Column(db.String, nullable=False)
-    creator_role = db.Column(db.String, nullable=False)
+    creators = db.relationship(
+        "SubmissionDatasetCreator",
+        back_populates="dataset",
+        cascade="all, delete-orphan",
+        order_by="SubmissionDatasetCreator.id",
+    )
 
     description = db.Column(db.String, nullable=False)
     external_identifiers = db.Column(db.String, nullable=True)
@@ -580,10 +582,7 @@ class SubmissionDataset(db.Model):
     def to_dict(self):
         base_dict = {
             "title": self.title,
-            "creator_name": self.creator_name,
-            "creator_email": self.creator_email,
-            "creator_institution": self.creator_institution,
-            "creator_role": self.creator_role,
+            "creators": [creator.to_dict() for creator in self.creators],
             "description": self.description,
             "external_identifiers": self.external_identifiers,
             "gdpr_datatypes_json": self.gdpr_datatypes_json,
@@ -628,7 +627,11 @@ class SubmissionDataset(db.Model):
             c.key: getattr(self, c.key) for c in mapper.columns if c.key not in exclude
         }
         attrs.update(overrides)
-        return self.__class__(**attrs)
+        cloned = SubmissionDataset(**attrs)
+
+        cloned.creators = [creator.clone() for creator in self.creators]
+
+        return cloned
 
 
 class SubmissionAccess(db.Model):
@@ -641,3 +644,43 @@ class SubmissionAccess(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     access_granted_on = db.Column(db.DateTime, nullable=False)
     user = db.relationship("User")
+
+
+class SubmissionDatasetCreator(db.Model):
+    __tablename__ = "submission_dataset_creator"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    dataset_id = db.Column(
+        db.Integer, db.ForeignKey("submission_dataset.id"), nullable=False
+    )
+
+    first_name = db.Column(db.String, nullable=False)
+    last_name = db.Column(db.String, nullable=False)
+    email = db.Column(db.String, nullable=False)
+    institution = db.Column(db.String, nullable=False)
+    role = db.Column(db.String, nullable=False)
+
+    dataset = db.relationship("SubmissionDataset", back_populates="creators")
+
+    def fullname(self):
+        return f"{self.first_name} {self.last_name.upper()}"
+
+    def to_dict(self):
+        return {
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "institution": self.institution,
+            "role": self.role,
+        }
+
+    def clone(self, **overrides):
+        return SubmissionDatasetCreator(
+            first_name=self.first_name,
+            last_name=self.last_name,
+            email=self.email,
+            institution=self.institution,
+            role=self.role,
+            **overrides,
+        )
