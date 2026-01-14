@@ -467,9 +467,6 @@ def send_async_email_target(app, msg):
 
 
 def update_submission_basic_info(submission: Submission, **kwargs):
-    if "submission_scope_code" in kwargs:
-        submission.submission_scope_code = kwargs.pop("submission_scope_code")
-
     if "institution_accession" in kwargs:
         submission.institution_accession = kwargs.pop("institution_accession")
 
@@ -567,7 +564,6 @@ def clone_sub(
         new_sub = Submission(
             institution_accession=old_sub.institution_accession,
             created_on=datetime.now(),
-            submission_scope_code=old_sub.submission_scope_code,
             local_custodians_json=old_sub.local_custodians_json,
             local_project_name=old_sub.local_project_name,
             current_status=new_status,

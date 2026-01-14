@@ -66,7 +66,6 @@ class SubmissionExporter:
             sub_info["contacts"].append(contact_info)
         sub_info["name"] = sub.ref_name
         sub_info["ref_name"] = sub.ref_name
-        sub_info["submission_scope_code"] = sub.submission_scope_code
         sub_info["submitting_institution_accession"] = sub.institution_accession
         sub_info["submitting_institution_name"] = sub.provider_institute_name()
         sub_info["submitting_institution_address"] = sub.provider_institute_address()
@@ -74,8 +73,6 @@ class SubmissionExporter:
         sub_info["created_on"] = sub.created_on.strftime("%Y-%m-%d")
         if sub.finalised_on:
             sub_info["finalised_on"] = sub.finalised_on.strftime("%Y-%m-%d")
-        sub_info["submission_scope_code"] = sub.submission_scope.code
-        sub_info["submission_scope_label"] = sub.submission_scope.label
         if sub.local_custodians_json:
             sub_info["local_custodians"] = sub.local_custodians()
         if sub.local_project_name:

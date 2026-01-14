@@ -22,7 +22,7 @@ from wtforms_components import SelectField, SelectMultipleField
 from elixir_dss import app
 from elixir_dss.controllers.api_controllers import get_elu_partners, get_elu_projects
 from elixir_dss.models.services import get_active_users
-from elixir_dss.models.submission import Contact, ContactType, SubmissionScope
+from elixir_dss.models.submission import Contact, ContactType
 
 from .validators import OptionalFieldValidator
 
@@ -324,19 +324,13 @@ class SubmissionForm(FlaskForm):
         coerce=int,
     )
 
-    submission_scope_code = SelectField(
-        "Recipient lab",
-        description="Please select either an LCSB research lab or ELIXIR-Luxembourg.",
-        validators=[DataRequired()],
-    )
-
     local_custodians = SelectMultipleField(
-        "Recipient PI(s)",
+        "Recipient",
         description="If known please specify the Principal Investigator/Researcher that is the recipient of data.",
     )
 
     local_project_name = SelectField(
-        "Recipient project",
+        "Receiving project",
         description="If you are making this submission in the context of a  collaboration/project, please specif its name here.",
         coerce=str,
     )
@@ -371,9 +365,6 @@ class SubmissionForm(FlaskForm):
         FlaskForm.__init__(self, *args, **kwargs)
         self.provider_user_ids.choices = [
             (usr.id, usr.display_name()) for usr in get_active_users()
-        ]
-        self.submission_scope_code.choices = [
-            (c.code, c.label) for c in SubmissionScope.query.all()
         ]
         self.local_custodians.choices = [
             (c, c) for c in app.config.get("DATA_INIT")["lcsb_pis"]

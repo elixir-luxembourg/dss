@@ -6,7 +6,6 @@ from elixir_dss.models.submission import (
     DeIdentificationType,
     LegalBasisType,
     SubjectCategory,
-    SubmissionScope,
 )
 
 INIT_DATA = {
@@ -44,26 +43,6 @@ INIT_DATA = {
         ["61e", "Public interest (6.1(e))"],
         ["61f", "Legitimate interest (6.1(f))"],
     ],
-    "submission_scope": [
-        ["elu", "ELIXIR Luxembourg"],
-        ["l_bc", "LCSB/Bioinformatics Core"],
-        ["l_bmd", "LCSB/Biomedical Data Science"],
-        ["l_chb", "LCSB/Chemical Biology"],
-        ["l_cen", "LCSB/Clinical & Experimental Neuroscience"],
-        ["l_ccb", "LCSB/Computational Biology"],
-        ["l_dcb", "LCSB/Developmental & Cellular Biology"],
-        ["l_esb", "LCSB/Eco-Systems Biology"],
-        ["l_ec", "LCSB/Environmental Cheminformatics"],
-        ["l_em", "LCSB/Enzymology & Metabolism"],
-        ["l_en", "LCSB/Experimental Neurobiology"],
-        ["l_ics", "LCSB/Integrative Cell Signalling"],
-        ["l_in", "LCSB/Interventional Neuroscience"],
-        ["l_mtr", "LCSB/Medical Translational Research"],
-        ["l_mfn", "LCSB/Molecular & Functional Neurobiology"],
-        ["l_np", "LCSB/Neuropathology"],
-        ["l_sbc", "LCSB/Systems Biochemistry"],
-        ["l_sc", "LCSB/Systems Control"],
-    ],
 }
 
 
@@ -91,9 +70,5 @@ def seed_init_data():
     if not db.session.query(ConsentStatus).first():
         for cons_status in INIT_DATA["consent_status"]:
             db.session.add(ConsentStatus(code=cons_status[0], label=cons_status[1]))
-
-    if not db.session.query(SubmissionScope).first():
-        for sub_scope in INIT_DATA["submission_scope"]:
-            db.session.add(SubmissionScope(code=sub_scope[0], label=sub_scope[1]))
 
     db.session.commit()

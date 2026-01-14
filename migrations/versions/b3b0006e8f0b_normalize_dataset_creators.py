@@ -25,13 +25,12 @@ def upgrade():
         sa.Column("dataset_id", sa.Integer(), nullable=False),
         sa.Column("first_name", sa.String(), nullable=False),
         sa.Column("last_name", sa.String(), nullable=False),
-        sa.Column("email", sa.String(), nullable=True),
-        sa.Column("institution", sa.String(), nullable=True),
-        sa.Column("role", sa.String(), nullable=True),
+        sa.Column("email", sa.String(), nullable=False),
+        sa.Column("institution", sa.String(), nullable=False),
+        sa.Column("role", sa.String(), nullable=False),
         sa.ForeignKeyConstraint(
             ["dataset_id"],
             ["submission_dataset.id"],
-            ondelete="CASCADE",
         ),
     )
 

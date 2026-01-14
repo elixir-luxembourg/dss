@@ -601,7 +601,6 @@ def edit_submission(sub_id):
             form.populate_obj(submission_rec)
             update_submission_basic_info(
                 submission_rec,
-                submission_scope_code=form.submission_scope_code.data,
                 local_custodians_json=json.dumps(form.local_custodians.data),
                 local_project_name=form.local_project_name.data,
                 institution_accession=form.institution_accession.data,

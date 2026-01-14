@@ -35,13 +35,7 @@
 <div class="border-top pt-4">
     <div class="row g-4">
         <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Submission Category</label>
-            <div class="fw-semibold">
-                <span class="badge bg-primary-subtle text-primary fs-6 fw-medium">{{ submission.submission_scope.label }}</span>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Recipient PIs</label>
+            <label class="form-label text-muted small mb-1">Recipient</label>
             <div class="fw-semibold">
                 {% if submission.local_custodians() %}
                     {{ submission.local_custodians() | join(', ') }}
@@ -51,7 +45,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Recipient Project</label>
+            <label class="form-label text-muted small mb-1">Receiving Project</label>
             <div class="fw-semibold">{{ submission.local_project_name | default('-', true)}}</div>
         </div>
     </div>
