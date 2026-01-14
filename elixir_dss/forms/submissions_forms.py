@@ -238,7 +238,7 @@ class StudyForm(FlaskForm):
     study_contacts = FieldList(
         FormField(ContactForm, default=lambda: Contact()),
         min_entries=1,
-        description="At least one main contact is required. You may add additional contacts as needed.",
+        description="At least one study contact is required (typically the Study PI). You may add additional contacts if needed.",
     )
 
     contact_remarks = TextAreaField(
