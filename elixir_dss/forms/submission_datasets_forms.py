@@ -24,7 +24,6 @@ from wtforms_components import SelectField, SelectMultipleField
 from elixir_dss import app
 from elixir_dss.models.submission import (
     ConsentStatus,
-    DeIdentificationType,
     LegalBasisType,
     SubmissionStudy,
 )
