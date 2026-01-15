@@ -138,10 +138,27 @@ class DatasetForm(FlaskForm):
 
     # Data protection (GDPR)
 
+    contains_personal_data = BooleanField(
+        "Does the dataset contain personal data?",
+        description="Personal data is any information relating to an identified or identifiable natural person (data subject). Select 'Yes' if your dataset contains such data.",
+        default=True,
+    )
+
+    data_processing_type = SelectField(
+        "How is the data processed?",
+        description="Anonymised: Data that cannot be attributed to a specific person. Pseudonymised: Direct identifiers are replaced with pseudonyms. Direct identifiers: Data contains direct identifying information.",
+        choices=[
+            ("anonymised", "Anonymised (not personal data)"),
+            ("pseudonymised", "Pseudonymised"),
+            ("direct_identifiers", "Contains direct identifiers"),
+        ],
+        validators=[Optional()],
+    )
+
     gdpr_datatypes = SelectMultipleField(
         "The data includes the following categories and types of personal data",
         description='These are definitions from the GDPR. In biomedical projects with pseudonymised cohort data, the options  would likely fall under  "Special category, i.e. sensitive, personal data" e.g. "Genetic data", "Data concerning health" and ""Other special categories of data". \nYou may get assistance from your institute\'s DPO or legal team in filling out this section.',
-        validators=[DataRequired()],
+        validators=[Optional()],
     )
     gdpr_datatypes_notes = TextAreaField(
         "Personal data remarks",
@@ -186,11 +203,6 @@ class DatasetForm(FlaskForm):
                 message="Can only contain letters, digits, dash, comma and dot.",
             )
         ],
-    )
-    de_identification_type_code = SelectField(
-        "Is the data anonymised or pseudonymised?",
-        description="A dataset is considered anonymised if no stakeholder is holding a mapping from the Subject ID in the data to the identifying personal information e.g. name, surname, date of birth, address of the human subject supplying the data.\nA dataset is considered pseudonymised if there exists some cohort owner/coordinator holding the mapping from the Subject ID to the human subject identifying personal information.",
-        validators=[DataRequired()],
     )
 
     # Data protection (GDPR)
@@ -507,9 +519,6 @@ class DatasetForm(FlaskForm):
         lb_lookup = [(c.code, c.label) for c in LegalBasisType.query.all()]
         self.legal_basis_sharing_std_code.choices = lb_lookup
         self.legal_basis_collection_std_code.choices = lb_lookup
-        self.de_identification_type_code.choices = [
-            (c.code, c.label) for c in DeIdentificationType.query.all()
-        ]
         self.sci_datatypes.choices = app.config.get("DATA_INIT")["sci_datatypes"]
         self.gdpr_datatypes.choices = app.config.get("DATA_INIT")["gdpr_datatypes"]
         self.study_id.choices = [(-1, "-")] + [

@@ -436,10 +436,14 @@ class SubmissionDataset(db.Model):
     sci_datatypes_json = db.Column(db.String, nullable=False)
     sci_datatypes_notes = db.Column(db.String, nullable=True)
 
+    # New GDPR workflow fields
+    contains_personal_data = db.Column(db.Boolean, nullable=True, default=True)
+    data_processing_type = db.Column(db.String, nullable=True)  # 'anonymised', 'pseudonymised', 'direct_identifiers'
+
     de_identification_type_code = db.Column(
         db.String,
         db.ForeignKey("deidentification_type.code"),
-        nullable=False,
+        nullable=True,  # Changed to nullable for backwards compatibility
         default="p",
     )
     de_identification_type = db.relationship("DeIdentificationType")
@@ -573,6 +577,8 @@ class SubmissionDataset(db.Model):
             "gdpr_datatypes_notes": self.gdpr_datatypes_notes,
             "sci_datatypes_json": self.sci_datatypes_json,
             "sci_datatypes_notes": self.sci_datatypes_notes,
+            "contains_personal_data": self.contains_personal_data,
+            "data_processing_type": self.data_processing_type,
             "de_identification_type_code": self.de_identification_type_code,
             "de_identification_type": self.de_identification_type,
             "legal_basis_collection_std_code": self.legal_basis_collection_std_code,

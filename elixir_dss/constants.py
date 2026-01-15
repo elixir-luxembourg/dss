@@ -1,6 +1,5 @@
 CONFIG_DATA = {
     "gdpr_datatypes": (
-        ("non_human", "Non-human data"),
         ("standard", "Standard personal data"),
         (
             "Special_category_sensitive_personal_data",
