@@ -567,8 +567,7 @@ def edit_submission(sub_id):
             AdminSubmissionForm.submission_contacts = FieldList(
                 FormField(forms.ContactForm, default=lambda: Contact()),
                 min_entries=1,
-                description="You must provide at least three contacts. (1) Main contact who is the signatory on the submission info sheet, another (2) Data protection officer of the submitting institution\
-                                                                                                                      (3) Legal representative for the submitting institution",
+                description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
                 label="Submission contacts",
             )
             sub_form = AdminSubmissionForm(obj=submission_rec)
@@ -589,8 +588,7 @@ def edit_submission(sub_id):
             AdminSubmissionForm.submission_contacts = FieldList(
                 FormField(forms.ContactForm, default=lambda: Contact()),
                 min_entries=1,
-                description="You must provide at least three contacts. (1) Main contact who is the signatory on the submission info sheet, another (2) Data protection officer of the submitting institution\
-                                                                                                                      (3) Legal representative for the submitting institution",
+                description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
                 label="Submission contacts",
             )
             form = AdminSubmissionForm(request.form)
