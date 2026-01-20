@@ -1,8 +1,8 @@
 """Initial migration.
 
-Revision ID: 58515c3d1dc2
+Revision ID: cff59b0aa417
 Revises:
-Create Date: 2025-11-21 16:38:58.409553
+Create Date: 2026-01-20 11:33:52.921404
 
 """
 
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "58515c3d1dc2"
+revision = "cff59b0aa417"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,13 +32,6 @@ def upgrade():
         sa.Column("name", sa.String(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("name"),
-    )
-    op.create_table(
-        "deidentification_type",
-        sa.Column("code", sa.String(), nullable=False),
-        sa.Column("label", sa.String(), nullable=False),
-        sa.PrimaryKeyConstraint("code"),
-        sa.UniqueConstraint("code"),
     )
     op.create_table(
         "email_notification",
@@ -68,13 +61,6 @@ def upgrade():
     )
     op.create_table(
         "subject_category",
-        sa.Column("code", sa.String(), nullable=False),
-        sa.Column("label", sa.String(), nullable=False),
-        sa.PrimaryKeyConstraint("code"),
-        sa.UniqueConstraint("code"),
-    )
-    op.create_table(
-        "submission_scope",
         sa.Column("code", sa.String(), nullable=False),
         sa.Column("label", sa.String(), nullable=False),
         sa.PrimaryKeyConstraint("code"),
@@ -118,7 +104,6 @@ def upgrade():
         ),
         sa.Column("exported", sa.Boolean(), nullable=False),
         sa.Column("institution_accession", sa.String(), nullable=True),
-        sa.Column("submission_scope_code", sa.String(), nullable=False),
         sa.Column("local_custodians_json", sa.String(), nullable=True),
         sa.Column("local_project_name", sa.String(), nullable=True),
         sa.Column("notes", sa.String(length=250), nullable=True),
@@ -127,10 +112,6 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ["cancelled_by_user_id"],
             ["users.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["submission_scope_code"],
-            ["submission_scope.code"],
         ),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -264,17 +245,14 @@ def upgrade():
         sa.Column("title", sa.String(), nullable=False),
         sa.Column("submission_id", sa.Integer(), nullable=False),
         sa.Column("study_id", sa.Integer(), nullable=False),
-        sa.Column("creator_name", sa.String(), nullable=False),
-        sa.Column("creator_email", sa.String(), nullable=False),
-        sa.Column("creator_institution", sa.String(), nullable=False),
-        sa.Column("creator_role", sa.String(), nullable=False),
         sa.Column("description", sa.String(), nullable=False),
         sa.Column("external_identifiers", sa.String(), nullable=True),
         sa.Column("gdpr_datatypes_json", sa.String(), nullable=False),
         sa.Column("gdpr_datatypes_notes", sa.String(), nullable=True),
         sa.Column("sci_datatypes_json", sa.String(), nullable=False),
         sa.Column("sci_datatypes_notes", sa.String(), nullable=True),
-        sa.Column("de_identification_type_code", sa.String(), nullable=False),
+        sa.Column("contains_personal_data", sa.Boolean(), nullable=True),
+        sa.Column("data_processing_type", sa.String(), nullable=True),
         sa.Column("legal_basis_collection_std_code", sa.String(), nullable=False),
         sa.Column("legal_basis_sharing_std_code", sa.String(), nullable=False),
         sa.Column("is_special_category_data", sa.Boolean(), nullable=False),
@@ -285,7 +263,6 @@ def upgrade():
         sa.Column("has_art92_derogation", sa.Boolean(), nullable=False),
         sa.Column("use_restriction_project", sa.Boolean(), nullable=False),
         sa.Column("use_restriction_research_use", sa.Boolean(), nullable=False),
-        sa.Column("data_type_bg_or_result", sa.String(), nullable=True),
         sa.Column("restriction_rs", sa.Boolean(), nullable=False),
         sa.Column("restriction_rs_notes", sa.String(), nullable=True),
         sa.Column("restriction_gs", sa.Boolean(), nullable=False),
@@ -321,10 +298,6 @@ def upgrade():
             ["consent_status.code"],
         ),
         sa.ForeignKeyConstraint(
-            ["de_identification_type_code"],
-            ["deidentification_type.code"],
-        ),
-        sa.ForeignKeyConstraint(
             ["legal_basis_collection_std_code"],
             ["legalbasis_type.code"],
         ),
@@ -343,11 +316,27 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("internal_id"),
     )
+    op.create_table(
+        "submission_dataset_creator",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("dataset_id", sa.Integer(), nullable=False),
+        sa.Column("first_name", sa.String(), nullable=False),
+        sa.Column("last_name", sa.String(), nullable=False),
+        sa.Column("email", sa.String(), nullable=False),
+        sa.Column("institution", sa.String(), nullable=False),
+        sa.Column("role", sa.String(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["dataset_id"],
+            ["submission_dataset.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+    )
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_table("submission_dataset_creator")
     op.drop_table("submission_dataset")
     op.drop_table("contacts")
     op.drop_table("submission_study")
@@ -360,12 +349,10 @@ def downgrade():
 
     op.drop_table("submissions")
     op.drop_table("users")
-    op.drop_table("submission_scope")
     op.drop_table("subject_category")
     op.drop_table("roles")
     op.drop_table("legalbasis_type")
     op.drop_table("email_notification")
-    op.drop_table("deidentification_type")
     op.drop_table("contact_types")
     op.drop_table("consent_status")
     # ### end Alembic commands ###

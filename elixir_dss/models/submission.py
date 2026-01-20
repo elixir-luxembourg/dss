@@ -19,12 +19,6 @@ class ContactType(db.Model):
     name = db.Column(db.String, unique=True, nullable=False)
 
 
-class DeIdentificationType(db.Model):
-    __tablename__ = "deidentification_type"
-    code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
-    label = db.Column(db.String, nullable=False)
-
-
 class LegalBasisType(db.Model):
     __tablename__ = "legalbasis_type"
     code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
@@ -439,14 +433,6 @@ class SubmissionDataset(db.Model):
     contains_personal_data = db.Column(db.Boolean, nullable=True, default=True)
     data_processing_type = db.Column(db.String, nullable=True)
 
-    de_identification_type_code = db.Column(
-        db.String,
-        db.ForeignKey("deidentification_type.code"),
-        nullable=True,
-        default="p",
-    )
-    de_identification_type = db.relationship("DeIdentificationType")
-
     legal_basis_collection_std_code = db.Column(
         db.String, db.ForeignKey("legalbasis_type.code"), nullable=False, default="61a"
     )
@@ -578,8 +564,6 @@ class SubmissionDataset(db.Model):
             "sci_datatypes_notes": self.sci_datatypes_notes,
             "contains_personal_data": self.contains_personal_data,
             "data_processing_type": self.data_processing_type,
-            "de_identification_type_code": self.de_identification_type_code,
-            "de_identification_type": self.de_identification_type,
             "legal_basis_collection_std_code": self.legal_basis_collection_std_code,
             "legal_basis_collection_std": self.legal_basis_collection_std,
             "legal_basis_sharing_std_code": self.legal_basis_sharing_std_code,

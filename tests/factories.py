@@ -60,7 +60,6 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
     sci_datatypes_json = '["genomics"]'
     contains_personal_data = True
     data_processing_type = "pseudonymised"
-    de_identification_type_code = "p"
     legal_basis_collection_std_code = "61a"
     legal_basis_sharing_std_code = "61a"
     is_special_category_data = False

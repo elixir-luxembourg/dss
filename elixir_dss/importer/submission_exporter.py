@@ -150,9 +150,9 @@ class SubmissionExporter:
             dataset_info["has_special_subjects"] = dataset.has_special_subjects
             dataset_info["special_subject_notes"] = dataset.special_subjects_notes
 
-            dataset_info["de_identification"] = (
-                dataset.de_identification_type.label.lower()
-            )
+            dataset_info["contains_personal_data"] = dataset.contains_personal_data
+            if dataset.data_processing_type:
+                dataset_info["data_processing_type"] = dataset.data_processing_type
 
             dataset_info["use_restrictions"] = self.export_dataset_restrictions(
                 dataset, sub

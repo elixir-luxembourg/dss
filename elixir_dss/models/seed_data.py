@@ -3,7 +3,6 @@ from elixir_dss.models.security import Role
 from elixir_dss.models.submission import (
     ConsentStatus,
     ContactType,
-    DeIdentificationType,
     LegalBasisType,
     SubjectCategory,
 )
@@ -18,7 +17,6 @@ INIT_DATA = {
         "Legal_Representative",
         "Other",
     ],
-    "deidentification_type": [["p", "Pseudonymised"], ["a", "Anonymised"]],
     "subject_category": [
         ["ca", "Cases"],
         ["co", "Controls"],
@@ -54,10 +52,6 @@ def seed_init_data():
     if not db.session.query(Role).first():
         for name_role in INIT_DATA["names_roles"]:
             db.session.add(Role(name=name_role))
-
-    if not db.session.query(DeIdentificationType).first():
-        for deid_type in INIT_DATA["deidentification_type"]:
-            db.session.add(DeIdentificationType(code=deid_type[0], label=deid_type[1]))
 
     if not db.session.query(SubjectCategory).first():
         for subj_cat in INIT_DATA["subject_category"]:
