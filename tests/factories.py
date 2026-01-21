@@ -58,7 +58,8 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
     description = factory.Faker("text", max_nb_chars=200)
     gdpr_datatypes_json = '["genetic"]'
     sci_datatypes_json = '["genomics"]'
-    de_identification_type_code = "p"
+    contains_personal_data = True
+    data_processing_type = "pseudonymised"
     legal_basis_collection_std_code = "61a"
     legal_basis_sharing_std_code = "61a"
     is_special_category_data = False

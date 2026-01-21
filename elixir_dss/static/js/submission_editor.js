@@ -193,8 +193,40 @@ $(document).ready(function () {
         }
     }
     toggleNotesForMultiSelectFields('sci_datatypes', 'sci_datatypes_notes', 'Other');
-    toggleNotesForMultiSelectFields('gdpr_datatypes', 'gdpr_datatypes_notes', 'Other special categories of data');
+    toggleNotesForMultiSelectFields('gdpr_datatypes', 'gdpr_datatypes_notes', 'other');
     toggleNotesForMultiSelectFields('consent_status_code', 'consent_notes', 'ht');
+
+    // Handle personal data workflow visibility
+    function togglePersonalDataFields() {
+        const containsPersonalData = $('#contains_personal_data');
+        const dataProcessingType = $('#data_processing_type');
+        const personalDataFields = $('#personal-data-fields');
+        const gdprFields = $('#gdpr-fields');
+        
+        if (containsPersonalData.length && personalDataFields.length && gdprFields.length) {
+            function updateVisibility() {
+                if (containsPersonalData.is(':checked')) {
+                    personalDataFields.show();
+                    
+                    // Show GDPR fields only if processing type is pseudonymised or direct_identifiers
+                    const processingType = dataProcessingType.val() || '';
+                    if (processingType === 'pseudonymised' || processingType === 'direct_identifiers') {
+                        gdprFields.show();
+                    } else {
+                        gdprFields.hide();
+                    }
+                } else {
+                    personalDataFields.hide();
+                    gdprFields.hide();
+                }
+            }
+            
+            updateVisibility();
+            containsPersonalData.on('change', updateVisibility);
+            dataProcessingType.on('change', updateVisibility);
+        }
+    }
+    togglePersonalDataFields();
 
     $('#submission_create_modal').on('shown.bs.modal', function () {
         $(this).find('.elx-select').select2({

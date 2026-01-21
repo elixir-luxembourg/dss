@@ -13,9 +13,6 @@
                 <th rowspan="2" class="fw-semibold text-dark py-2 align-middle border-end" style="background-color: #e9ecef;">
                     <i class="bi bi-file-earmark-bar-graph me-2 text-primary"></i>Data Type(s)
                 </th>
-                <th rowspan="2" class="fw-semibold text-dark py-2 align-middle border-end" style="background-color: #e9ecef;">
-                    <i class="bi bi-shield-check me-2 text-primary"></i>De-Identification
-                </th>
                 {% if submission.current_status.step_num() > 2 and submission.current_status.step_num() < 5 %}
                     <th rowspan="2" class="fw-semibold text-dark py-2 align-middle border-end" style="background-color: #e9ecef;">
                         <i class="bi bi-link-45deg me-2 text-primary"></i>Upload Link
@@ -37,7 +34,7 @@
                                 <span>{{ dataset.title }}  <span class="badge bg-primary bg-opacity-25 text-muted small"> {{ dataset.internal_id }}</span></span>
                             </a>
                         {% else %}
-                            <span class="fw-semibold">{{ dataset.title }}  <span class="badge bg-primary bg-opacity-25 text-muted small"> {{ dataset.internal_id }}</span>v</span>
+                            <span class="fw-semibold">{{ dataset.title }}  <span class="badge bg-primary bg-opacity-25 text-muted small"> {{ dataset.internal_id }}</span></span>
                         {% endif %}
                     </td>
                     <td class="py-2">
@@ -56,15 +53,6 @@
                             </div>
                         {% else %}
                             <span class="text-muted small fst-italic">No data types</span>
-                        {% endif %}
-                    </td>
-                    <td class="py-2">
-                        {% if dataset.de_identification_type %}
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="small">{{ dataset.de_identification_type.label }}</span>
-                            </div>
-                        {% else %}
-                            <span class="text-muted small fst-italic">Not specified</span>
                         {% endif %}
                     </td>
                     {% if submission.current_status.step_num() > 2 and submission.current_status.step_num() < 5 %}
