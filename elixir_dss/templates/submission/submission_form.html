@@ -19,11 +19,11 @@
 {% block content %}
 <div class="card border shadow-sm mb-4">
     <div class="card-header bg-white border-bottom">
-        <h1 class="h5 mb-0 fw-semibold">Update Submission</h1>
+        <h1 class="h5 mb-0 fw-semibold">{% if submsn_form.id.data %}Update{% else %}Create{% endif %} Submission</h1>
     </div>
     <div class="card-body p-4">
         <form method="POST"
-              data-url="{{ url_for('edit_submission',sub_id=submsn_form.id.data)}}">
+              {% if submsn_form.id.data %}data-url="{{ url_for('edit_submission',sub_id=submsn_form.id.data)}}"{% endif %}>
             <fieldset>
                 {{ submsn_form.hidden_tag() }}
                 {{ fmacros.render_field_with_errors(submsn_form.institution_accession, clazz="elx-select") }}
@@ -87,8 +87,8 @@
                 {% endif %}
                 </fieldset>
             <div class="d-flex gap-2 mt-4">
-                <input type="submit" class="save btn btn-primary" value="Save"/>
-                <a href="{{ url_for('view_submission',sub_id=submsn_form.id.data) }}" class="cancel btn btn-outline-secondary" role="button">Cancel</a>
+                <input type="submit" class="save btn btn-primary" value="{% if submsn_form.id.data %}Save{% else %}Create{% endif %}"/>
+                <a href="{% if submsn_form.id.data %}{{ url_for('view_submission',sub_id=submsn_form.id.data) }}{% else %}{{ url_for('list_submissions') }}{% endif %}" class="cancel btn btn-outline-secondary" role="button">Cancel</a>
             </div>
         </form>
     </div>

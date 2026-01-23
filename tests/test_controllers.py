@@ -73,11 +73,18 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_submission_create_submission(self):
         self.login("steward1@uni.lu", "steward1")
-
+        steward = User.query.filter_by(email="steward1@uni.lu").first()
         create_submission_url = url_for("create_submission")
         response = self.client.post(
             create_submission_url,
-            data={"title": "Test Submission 123", "institution_accession": "ELU_I_9"},
+            data={
+                "institution_accession": "ELU_I_9",
+                "provider_user_ids": [steward.id],
+                "submission_contacts-0-first_name": "John",
+                "submission_contacts-0-last_name": "Doe",
+                "submission_contacts-0-email": "john.doe@example.com",
+                "submission_contacts-0-category_id": "1",
+            },
             follow_redirects=True,
         )
         data = response.data.decode("utf-8")
@@ -125,9 +132,17 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_data_steward_can_create_submission(self):
         self.login("steward1@uni.lu", "steward1")
+        steward = User.query.filter_by(email="steward1@uni.lu").first()
         response = self.client.post(
             url_for("create_submission"),
-            data={"title": "Steward Submission", "institution_accession": "ELU_I_9"},
+            data={
+                "institution_accession": "ELU_I_9",
+                "provider_user_ids": [steward.id],
+                "submission_contacts-0-first_name": "Jane",
+                "submission_contacts-0-last_name": "Smith",
+                "submission_contacts-0-email": "jane.smith@example.com",
+                "submission_contacts-0-category_id": "1",
+            },
             follow_redirects=True,
         )
         self.assert200(response)
@@ -135,9 +150,17 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_data_admin_cannot_create_submission(self):
         self.login("admin@uni.lu", "admin")
+        steward = User.query.filter_by(email="steward1@uni.lu").first()
         response = self.client.post(
             url_for("create_submission"),
-            data={"title": "Steward Submission", "institution_accession": "ELU_I_9"},
+            data={
+                "institution_accession": "ELU_I_9",
+                "provider_user_ids": [steward.id],
+                "submission_contacts-0-first_name": "Jane",
+                "submission_contacts-0-last_name": "Smith",
+                "submission_contacts-0-email": "jane.smith@example.com",
+                "submission_contacts-0-category_id": "1",
+            },
             follow_redirects=True,
         )
         self.assert403(response)
