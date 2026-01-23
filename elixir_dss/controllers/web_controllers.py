@@ -834,12 +834,12 @@ def add_submission_dataset(sub_id):
                         role=creator_form.role.data,
                     )
                 )
-            if posted_form.sci_datatypes.data:
-                dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
-            if posted_form.gdpr_datatypes.data:
-                dataset.gdpr_datatypes_json = json.dumps(
-                    posted_form.gdpr_datatypes.data
-                )
+            dataset.sci_datatypes_json = json.dumps(
+                posted_form.sci_datatypes.data or []
+            )
+            dataset.gdpr_datatypes_json = json.dumps(
+                posted_form.gdpr_datatypes.data or []
+            )
             if posted_form.data_standards.data:
                 dataset.data_standards_json = json.dumps(
                     posted_form.data_standards.data
@@ -907,12 +907,12 @@ def edit_submission_dataset(dataset_id):
                     )
                 )
 
-            if posted_form.sci_datatypes.data:
-                dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
-            if posted_form.gdpr_datatypes.data:
-                dataset.gdpr_datatypes_json = json.dumps(
-                    posted_form.gdpr_datatypes.data
-                )
+            dataset.sci_datatypes_json = json.dumps(
+                posted_form.sci_datatypes.data or []
+            )
+            dataset.gdpr_datatypes_json = json.dumps(
+                posted_form.gdpr_datatypes.data or []
+            )
             if posted_form.data_standards.data:
                 dataset.data_standards_json = json.dumps(
                     posted_form.data_standards.data
