@@ -133,22 +133,11 @@ class LFTHandler:
         for ds in datasets:
             if not ds.internal_id:
                 continue
-
             try:
-                links = (
-                    self.client.links_list(
-                        namespace_id=self.namespace_id,
-                        share_name=ds.internal_id,
-                        sub=None,
-                    )
-                    or []
+                self.client.delete_share(
+                    namespace_id=self.namespace_id,
+                    share_name=ds.internal_id,
                 )
-                for lk in links:
-                    self.client.delete_link(
-                        namespace_id=self.namespace_id,
-                        share_name=ds.internal_id,
-                        link=lk.hashid,
-                    )
             except Exception as e:
                 self._logger.error(f"LFT invalidate failed for ds {ds.id}: {e}")
 

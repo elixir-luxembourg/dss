@@ -297,14 +297,6 @@ class ControllersTest(BaseIntegrationTest):
             lft.username = "user"
             lft.password = "pass"
 
-            link1 = MagicMock(hashid="link_ds1")
-            link2 = MagicMock(hashid="link_ds2")
-
-            mock_client.links_list.side_effect = [
-                [link1],
-                [link2],
-            ]
-
             resp = self.client.post(
                 url_for("cancel_submission", sub_id=sub.id),
                 data={"cancellation_reason": "testing LFT cleanup"},
@@ -312,23 +304,14 @@ class ControllersTest(BaseIntegrationTest):
             )
             self.assert200(resp)
 
-            expected_calls_links_list = [
-                call(namespace_id="ns", share_name="ds1", sub=None),
-                call(namespace_id="ns", share_name="ds2", sub=None),
-            ]
-            mock_client.links_list.assert_has_calls(
-                expected_calls_links_list, any_order=True
-            )
-            self.assertEqual(mock_client.links_list.call_count, 2)
-
             expected_calls_delete = [
-                call(namespace_id="ns", share_name="ds1", link="link_ds1"),
-                call(namespace_id="ns", share_name="ds2", link="link_ds2"),
+                call(namespace_id="ns", share_name="ds1"),
+                call(namespace_id="ns", share_name="ds2"),
             ]
-            mock_client.delete_link.assert_has_calls(
+            mock_client.delete_share.assert_has_calls(
                 expected_calls_delete, any_order=True
             )
-            self.assertEqual(mock_client.delete_link.call_count, 2)
+            self.assertEqual(mock_client.delete_share.call_count, 2)
 
         finally:
             lft.client = original_client
