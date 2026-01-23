@@ -102,27 +102,90 @@
 
             {% for dataset in submission_rec.datasets %}
             <tr>
-                <td rowspan="10" {% if loop.index % 2== 1 %} bgcolor="#CCC" {% else %} bgcolor="#f2f2f2" {% endif %}>
+                <td rowspan="20" {% if loop.index % 2== 1 %} bgcolor="#CCC" {% else %} bgcolor="#f2f2f2" {% endif %}>
                     {{loop.index}}
                 </td>
             </tr>
 
             <tr>
+                <th scope="row">Dataset Title</th>
+                <td><strong>{{ dataset.title }}</strong></td>
+            </tr>
+            <tr>
+                <th scope="row">Description</th>
+                <td>{{ dataset.description }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Creators</th>
+                <td>
+                    {% if dataset.creators %}
+                        <table class="table table-borderless table-sm">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Institution</th>
+                                <th>Role</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for creator in dataset.creators %}
+                            <tr>
+                                <td>{{ creator.fullname() }}</td>
+                                <td>{{ creator.email }}</td>
+                                <td>{{ creator.institution }}</td>
+                                <td>{{ creator.role }}</td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
                 <th scope="row">Source Study</th>
-
                 <td>{% if dataset.study %}
                     {{ dataset.study.name }}
                     {% endif %}
                 </td>
             </tr>
             <tr>
-                <th scope="row">Special Subjects </th>
+                <th scope="row">GDPR Data Types</th>
+                <td>{{ dataset.gdpr_data_type_names() | join(', ') or '-' }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Scientific Data Types</th>
+                <td>{{ dataset.sci_data_type_names() | join(', ') or '-' }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Contains Personal Data</th>
+                <td>{{ dataset.contains_personal_data | replace("True","Yes") | replace("False","No") | replace("None","-") }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Data Processing Type</th>
+                <td>{{ dataset.data_processing_type or '-' }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Legal Basis (Collection)</th>
+                <td>{{ dataset.legal_basis_collection_std.label }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Legal Basis (Sharing)</th>
+                <td>{{ dataset.legal_basis_sharing_std.label }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Special Category Data</th>
+                <td>{{ dataset.is_special_category_data | replace("True","Yes") | replace("False","No") }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Special Subjects</th>
                 <td>{{ dataset.has_special_subjects | replace("True","Yes") | replace("False","No") }}</td>
             </tr>
-
             <tr>
-                <th scope="row">Notes on special subjects</th>
-                <td>{{ dataset.special_subjects_notes }}</td>
+                <th scope="row">Notes on Special Subjects</th>
+                <td>{{ dataset.special_subjects_notes or '-' }}</td>
             </tr>
             <tr>
                 <th scope="row">Consent Status</th>
@@ -130,7 +193,53 @@
             </tr>
             <tr>
                 <th scope="row">Notes on Consent</th>
-                <td>{{ dataset.consent_notes }}</td>
+                <td>{{ dataset.consent_notes or '-' }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Access Requirements</th>
+                <td>
+                    {% if dataset.dac_approval_required %}
+                        <strong>DAC Approval Required</strong>
+                        {% if dataset.dac_approval_notes %}<br/>{{ dataset.dac_approval_notes }}{% endif %}
+                    {% elif dataset.access_form_required %}
+                        Access form required
+                    {% else %}
+                        No specific access restrictions
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Use Restrictions</th>
+                <td>
+                    <table class="table table-borderless table-sm">
+                        {% if dataset.restriction_rs %}<tr><td>✓ Research-specific use (RS)</td></tr>{% endif %}
+                        {% if dataset.restriction_gs %}<tr><td>✓ Genetic studies only (GS)</td></tr>{% endif %}
+                        {% if dataset.restriction_us or dataset.restriction_user_specific %}<tr><td>✓ User-specific restrictions (US)</td></tr>{% endif %}
+                        {% if dataset.restriction_pub %}<tr><td>✓ Publication required (PUB)</td></tr>{% endif %}
+                        {% if dataset.restriction_rtn %}<tr><td>✓ Return to database (RTN)</td></tr>{% endif %}
+                        {% if dataset.restriction_ip %}<tr><td>✓ Intellectual property restrictions (IP)</td></tr>{% endif %}
+                        {% if dataset.restriction_ts or dataset.restriction_ts_lcsb %}
+                            <tr><td>✓ Time limit (TS){% if dataset.restriction_ts_lcsb_date %} - Until {{ dataset.restriction_ts_lcsb_date }}{% endif %}</td></tr>
+                        {% endif %}
+                        {% if dataset.use_restriction_project %}<tr><td>✓ Project-specific use</td></tr>{% endif %}
+                        {% if dataset.use_restriction_research_use %}<tr><td>✓ Research use only</td></tr>{% endif %}
+                        {% if dataset.restriction_other_notes %}<tr><td>✓ Other: {{ dataset.restriction_other_notes }}</td></tr>{% endif %}
+                        {% if not (dataset.restriction_rs or dataset.restriction_gs or dataset.restriction_us or dataset.restriction_user_specific or dataset.restriction_pub or dataset.restriction_rtn or dataset.restriction_ip or dataset.restriction_ts or dataset.restriction_ts_lcsb or dataset.use_restriction_project or dataset.use_restriction_research_use or dataset.restriction_other_notes) %}
+                            <tr><td>No specific use restrictions</td></tr>
+                        {% endif %}
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Technical Metadata</th>
+                <td>
+                    <table class="table table-borderless table-sm">
+                        {% if dataset.number_of_records %}<tr><td><strong>Records:</strong> {{ dataset.number_of_records }}</td></tr>{% endif %}
+                        {% if dataset.byte_size %}<tr><td><strong>Size:</strong> {{ dataset.byte_size }}</td></tr>{% endif %}
+                        {% if dataset.dataset_version %}<tr><td><strong>Version:</strong> {{ dataset.dataset_version }}</td></tr>{% endif %}
+                        {% if dataset.file_type_names() %}<tr><td><strong>File Types:</strong> {{ dataset.file_type_names() | join(', ') }}</td></tr>{% endif %}
+                    </table>
+                </td>
             </tr>
 
             {% endfor %}
