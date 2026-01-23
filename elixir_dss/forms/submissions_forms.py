@@ -344,8 +344,8 @@ class SubmissionForm(FlaskForm):
     submission_contacts = FieldList(
         FormField(ContactForm, default=lambda: Contact()),
         min_entries=1,
-        description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
-        label="Submission contacts",
+        description="Add contact persons for coordination and communication (e.g., Principal Investigator, Data Manager, Study Coordinator). At least one contact is required.",
+        label="Additional Contacts",
     )
 
     notes = TextAreaField(

@@ -29,62 +29,91 @@
                 {{ fmacros.render_field_with_errors(submsn_form.institution_accession, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.local_custodians, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.local_project_name, clazz="elx-multi-select") }}
-                <div class="mb-3">
-                    <label for="contacts-fieldset" class="form-label fw-medium">
-                        {{submsn_form.submission_contacts.label.text}}<span class="text-danger">*</span>
-                    </label>
-                    <small class="form-text text-muted d-block">{{submsn_form.submission_contacts.description}}</small>
-                </div>
-                <fieldset id="contacts-fieldset">
-                    <div class="mb-3 {% if submsn_form.submission_contacts.errors %}is-invalid{% endif %}">
-                        <div data-toggle="fieldset" id="submsn-contacts-fieldset">
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="bg-body-tertiary">
-                                    <tr>
-                                        <th class="fw-semibold" width="10%">Name</th>
-                                        <th class="fw-semibold" width="10%">Surname</th>
-                                        <th class="fw-semibold" width="15%">Email</th>
-                                        <th class="fw-semibold" width="10%">Role</th>
-                                        <th class="fw-semibold" width="40%">Institution (if different from submitting institute)</th>
-                                        <th class="fw-semibold" width="10%">Send invite</th>
-                                        <th class="fw-semibold" width="5%"></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for contact_form in submsn_form.submission_contacts %}
-                                    <tr data-toggle="fieldset-entry">
-                                        <td>{{ fmacros.render_field(contact_form.first_name, clazz='form-control-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.last_name, clazz='form-control-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.email, clazz='form-control-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.category_id, clazz='form-select-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.institution, clazz='form-control-sm') }}</td>
-                                        <td>{{ fmacros.render_field(contact_form.send_invite, clazz='form-control-sm') }}</td>
-                                        <td>
-                                            <button type="button" class="btn btn-danger btn-sm" data-toggle="fieldset-remove-row"
-                                                    id="submsn-contacts-{{ loop.index0 }}-remove">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <button type="button" class="btn btn-primary btn-sm mb-3" data-toggle="fieldset-add-row" data-target="#submsn-contacts-fieldset">
-                                <i class="bi bi-plus-circle"></i> Add Contact
-                            </button>
+                
+                <!-- Submission Contacts Section -->
+                <div class="mb-4 mt-4">
+                    <h5 class="fw-semibold text-primary mb-3">
+                        <i class="bi bi-people me-2"></i>Submission Contacts
+                    </h5>
+                    <p class="text-muted small mb-4">
+                        Specify who is involved in this submission. Submitting users have full edit access, while additional contacts are for reference and coordination.
+                    </p>
+                    
+                    <!-- Submitting Users -->
+                    {% if current_user.is_data_steward() %}
+                    <div class="card border-0 bg-light mb-3">
+                        <div class="card-header bg-white border-bottom">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="bi bi-person-badge me-2 text-primary"></i>Submitting Users
+                            </h6>
+                            <small class="text-muted">Users with full edit access to this submission</small>
                         </div>
-                        {% if submsn_form.submission_contacts.errors %}
-                        {% for error in submsn_form.submission_contacts.errors %}<div class="invalid-feedback d-block">{{ error }}</div>
-                        {% endfor %}
-                        {% endif %}
+                        <div class="card-body">
+                            {{ fmacros.render_field_with_errors(submsn_form.provider_user_ids, clazz="elx-multi-select") }}
+                        </div>
                     </div>
-                </fieldset>
+                    {% endif %}
+                    
+                    <!-- Additional Contacts -->
+                    <div class="card border-0 bg-light">
+                        <div class="card-header bg-white border-bottom">
+                            <h6 class="mb-0 fw-semibold">
+                                <i class="bi bi-person-lines-fill me-2 text-primary"></i>Additional Contacts<span class="text-danger">*</span>
+                            </h6>
+                            <small class="text-muted">{{submsn_form.submission_contacts.description}}</small>
+                        </div>
+                        <div class="card-body">
+                            <fieldset id="contacts-fieldset">
+                                <div class="mb-3 {% if submsn_form.submission_contacts.errors %}is-invalid{% endif %}">
+                                    <div data-toggle="fieldset" id="submsn-contacts-fieldset">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-hover align-middle mb-0">
+                                                <thead class="table-light">
+                                                <tr>
+                                                    <th class="fw-semibold">Name</th>
+                                                    <th class="fw-semibold">Surname</th>
+                                                    <th class="fw-semibold">Email</th>
+                                                    <th class="fw-semibold">Role</th>
+                                                    <th class="fw-semibold">Institution</th>
+                                                    <th class="fw-semibold text-center">Send Invite</th>
+                                                    <th class="fw-semibold text-center">Action</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for contact_form in submsn_form.submission_contacts %}
+                                                <tr data-toggle="fieldset-entry">
+                                                    <td>{{ fmacros.render_field(contact_form.first_name, clazz='form-control-sm') }}</td>
+                                                    <td>{{ fmacros.render_field(contact_form.last_name, clazz='form-control-sm') }}</td>
+                                                    <td>{{ fmacros.render_field(contact_form.email, clazz='form-control-sm') }}</td>
+                                                    <td>{{ fmacros.render_field(contact_form.category_id, clazz='form-select-sm') }}</td>
+                                                    <td>{{ fmacros.render_field(contact_form.institution, clazz='form-control-sm') }}</td>
+                                                    <td class="text-center">{{ fmacros.render_field(contact_form.send_invite, clazz='form-check-input') }}</td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-danger btn-sm" data-toggle="fieldset-remove-row"
+                                                                id="submsn-contacts-{{ loop.index0 }}-remove">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <button type="button" class="btn btn-primary btn-sm mt-3" data-toggle="fieldset-add-row" data-target="#submsn-contacts-fieldset">
+                                            <i class="bi bi-plus-circle me-1"></i> Add Contact
+                                        </button>
+                                    </div>
+                                    {% if submsn_form.submission_contacts.errors %}
+                                    {% for error in submsn_form.submission_contacts.errors %}<div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                
                 {{ fmacros.render_field_with_errors(submsn_form.notes) }}
-                {% if current_user.is_data_steward() %}
-                {{ fmacros.render_field_with_errors(submsn_form.provider_user_ids, clazz="elx-multi-select") }}
-                {% endif %}
                 </fieldset>
             <div class="d-flex gap-2 mt-4">
                 <input type="submit" class="save btn btn-primary" value="Save"/>
