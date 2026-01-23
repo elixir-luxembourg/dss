@@ -544,9 +544,6 @@ def create_submission():
         )
 
     posted_form = forms.SubmissionForm(request.form)
-    app.logger.error(f"Form validation errors: {posted_form.errors}")
-    app.logger.error(f"Form data - local_project_name: {posted_form.local_project_name.data}, choices: {posted_form.local_project_name.choices}")
-    app.logger.error(f"Form data - local_custodians: {posted_form.local_custodians.data}, choices: {posted_form.local_custodians.choices}")
     if not posted_form.validate_on_submit():
         return render_template(
             "submission/submission_form.html", submsn_form=posted_form
