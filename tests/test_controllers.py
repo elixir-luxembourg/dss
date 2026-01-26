@@ -73,11 +73,18 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_submission_create_submission(self):
         self.login("steward1@uni.lu", "steward1")
-
+        steward = User.query.filter_by(email="steward1@uni.lu").first()
         create_submission_url = url_for("create_submission")
         response = self.client.post(
             create_submission_url,
-            data={"title": "Test Submission 123", "institution_accession": "ELU_I_9"},
+            data={
+                "institution_accession": "ELU_I_9",
+                "provider_user_ids": [steward.id],
+                "submission_contacts-0-first_name": "John",
+                "submission_contacts-0-last_name": "Doe",
+                "submission_contacts-0-email": "john.doe@example.com",
+                "submission_contacts-0-category_id": "1",
+            },
             follow_redirects=True,
         )
         data = response.data.decode("utf-8")
@@ -125,9 +132,17 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_data_steward_can_create_submission(self):
         self.login("steward1@uni.lu", "steward1")
+        steward = User.query.filter_by(email="steward1@uni.lu").first()
         response = self.client.post(
             url_for("create_submission"),
-            data={"title": "Steward Submission", "institution_accession": "ELU_I_9"},
+            data={
+                "institution_accession": "ELU_I_9",
+                "provider_user_ids": [steward.id],
+                "submission_contacts-0-first_name": "Jane",
+                "submission_contacts-0-last_name": "Smith",
+                "submission_contacts-0-email": "jane.smith@example.com",
+                "submission_contacts-0-category_id": "1",
+            },
             follow_redirects=True,
         )
         self.assert200(response)
@@ -135,9 +150,17 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_data_admin_cannot_create_submission(self):
         self.login("admin@uni.lu", "admin")
+        steward = User.query.filter_by(email="steward1@uni.lu").first()
         response = self.client.post(
             url_for("create_submission"),
-            data={"title": "Steward Submission", "institution_accession": "ELU_I_9"},
+            data={
+                "institution_accession": "ELU_I_9",
+                "provider_user_ids": [steward.id],
+                "submission_contacts-0-first_name": "Jane",
+                "submission_contacts-0-last_name": "Smith",
+                "submission_contacts-0-email": "jane.smith@example.com",
+                "submission_contacts-0-category_id": "1",
+            },
             follow_redirects=True,
         )
         self.assert403(response)
@@ -297,14 +320,6 @@ class ControllersTest(BaseIntegrationTest):
             lft.username = "user"
             lft.password = "pass"
 
-            link1 = MagicMock(hashid="link_ds1")
-            link2 = MagicMock(hashid="link_ds2")
-
-            mock_client.links_list.side_effect = [
-                [link1],
-                [link2],
-            ]
-
             resp = self.client.post(
                 url_for("cancel_submission", sub_id=sub.id),
                 data={"cancellation_reason": "testing LFT cleanup"},
@@ -312,23 +327,14 @@ class ControllersTest(BaseIntegrationTest):
             )
             self.assert200(resp)
 
-            expected_calls_links_list = [
-                call(namespace_id="ns", share_name="ds1", sub=None),
-                call(namespace_id="ns", share_name="ds2", sub=None),
-            ]
-            mock_client.links_list.assert_has_calls(
-                expected_calls_links_list, any_order=True
-            )
-            self.assertEqual(mock_client.links_list.call_count, 2)
-
             expected_calls_delete = [
-                call(namespace_id="ns", share_name="ds1", link="link_ds1"),
-                call(namespace_id="ns", share_name="ds2", link="link_ds2"),
+                call(namespace_id="ns", share_name="ds1"),
+                call(namespace_id="ns", share_name="ds2"),
             ]
-            mock_client.delete_link.assert_has_calls(
+            mock_client.delete_share.assert_has_calls(
                 expected_calls_delete, any_order=True
             )
-            self.assertEqual(mock_client.delete_link.call_count, 2)
+            self.assertEqual(mock_client.delete_share.call_count, 2)
 
         finally:
             lft.client = original_client

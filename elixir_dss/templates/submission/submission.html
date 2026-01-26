@@ -303,7 +303,27 @@
 
                 <!-- Reference Sections -->
                 <div class="mb-4">
-                    <h6 class="text-muted mb-3 small text-uppercase">Submitted Metadata</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0 small text-uppercase">Submitted Metadata</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button"
+                                    id="exportMetadataDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download me-1"></i>Export
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportMetadataDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('generate_submission_docx', sub_id=submission.id) }}">
+                                        <i class="bi bi-file-earmark-word me-2"></i>Export as DOCX
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('generate_submission_pdf', sub_id=submission.id) }}">
+                                        <i class="bi bi-file-earmark-pdf me-2"></i>Export as PDF
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="accordion" id="metadataAccordion">
                         <div class="accordion-item border shadow-sm mb-2">
                             <h2 class="accordion-header">
@@ -384,7 +404,27 @@
 
                 <!-- Reference Sections -->
                 <div class="mb-4">
-                    <h6 class="text-muted mb-3 small text-uppercase">Your Metadata</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0 small text-uppercase">Your Metadata</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button"
+                                    id="exportUploadDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download me-1"></i>Export
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportUploadDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('generate_submission_docx', sub_id=submission.id) }}">
+                                        <i class="bi bi-file-earmark-word me-2"></i>Export as DOCX
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('generate_submission_pdf', sub_id=submission.id) }}">
+                                        <i class="bi bi-file-earmark-pdf me-2"></i>Export as PDF
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="accordion" id="uploadAccordion">
                         <div class="accordion-item border shadow-sm mb-2">
                             <h2 class="accordion-header">
@@ -484,7 +524,27 @@
 
                 <!-- Reference Sections -->
                 <div class="mb-4">
-                    <h6 class="text-muted mb-3 small text-uppercase">Submission Details</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0 small text-uppercase">Submission Details</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button"
+                                    id="exportVerificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download me-1"></i>Export
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportVerificationDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('generate_submission_docx', sub_id=submission.id) }}">
+                                        <i class="bi bi-file-earmark-word me-2"></i>Export as DOCX
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('generate_submission_pdf', sub_id=submission.id) }}">
+                                        <i class="bi bi-file-earmark-pdf me-2"></i>Export as PDF
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="accordion" id="verificationAccordion">
                         <div class="accordion-item border shadow-sm mb-2">
                             <h2 class="accordion-header">
@@ -548,7 +608,27 @@
 
                 <!-- Complete Submission Details -->
                 <div class="mb-4">
-                    <h6 class="text-muted mb-3 small text-uppercase">Complete Submission</h6>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-muted mb-0 small text-uppercase">Complete Submission</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button"
+                                    id="exportCompletionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download me-1"></i>Export
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportCompletionDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('generate_submission_docx', sub_id=submission.id) }}">
+                                        <i class="bi bi-file-earmark-word me-2"></i>Export as DOCX
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('generate_submission_pdf', sub_id=submission.id) }}">
+                                        <i class="bi bi-file-earmark-pdf me-2"></i>Export as PDF
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
 
                     <div class="card border-0 shadow-sm mb-3">
                         <div class="card-header bg-white border-bottom p-3">

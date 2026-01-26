@@ -506,7 +506,6 @@ def list_submissions():
     return render_template(
         "submission/submissions.html",
         submissions=submissions,
-        submsn_create_form=forms.SubmissionForm(),
         cancel_submission_form=forms.CancelSubmissionForm(),
     )
 
@@ -535,13 +534,32 @@ def get_submission(sub_id):
     return render_template("submission/viewer.html", submission=submission_rec)
 
 
-@app.route("/submission/create", methods=["POST"])
+@app.route("/submission/create", methods=["GET", "POST"])
 @protect(roles=["data_steward"])
 def create_submission():
-    creation_form = forms.SubmissionForm(request.form)
-    submission_rec = create_sub(creation_form.institution_accession.data)
+    if request.method == "GET":
+        return render_template(
+            "submission/submission_form.html",
+            submsn_form=forms.SubmissionForm(formdata=None, obj=None),
+        )
+
+    posted_form = forms.SubmissionForm(request.form)
+    if not posted_form.validate_on_submit():
+        return render_template(
+            "submission/submission_form.html", submsn_form=posted_form
+        ), 400
+
+    submission_rec = create_sub(posted_form.institution_accession.data)
+    update_submission_basic_info(
+        submission_rec,
+        local_custodians_json=json.dumps(posted_form.local_custodians.data),
+        local_project_name=posted_form.local_project_name.data,
+        institution_accession=posted_form.institution_accession.data,
+        provider_user_ids=posted_form.provider_user_ids.data,
+    )
+    invite_submitters(submission_rec, submission_rec.submission_contacts)
     flash(f"New submission {submission_rec.ref_name} created", "success")
-    return redirect(url_for("list_submissions"))
+    return redirect(url_for("view_submission", sub_id=submission_rec.id))
 
 
 @app.route("/submission/view/<int:sub_id>", methods=["GET"])
@@ -834,12 +852,12 @@ def add_submission_dataset(sub_id):
                         role=creator_form.role.data,
                     )
                 )
-            if posted_form.sci_datatypes.data:
-                dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
-            if posted_form.gdpr_datatypes.data:
-                dataset.gdpr_datatypes_json = json.dumps(
-                    posted_form.gdpr_datatypes.data
-                )
+            dataset.sci_datatypes_json = json.dumps(
+                posted_form.sci_datatypes.data or []
+            )
+            dataset.gdpr_datatypes_json = json.dumps(
+                posted_form.gdpr_datatypes.data or []
+            )
             if posted_form.data_standards.data:
                 dataset.data_standards_json = json.dumps(
                     posted_form.data_standards.data
@@ -907,12 +925,12 @@ def edit_submission_dataset(dataset_id):
                     )
                 )
 
-            if posted_form.sci_datatypes.data:
-                dataset.sci_datatypes_json = json.dumps(posted_form.sci_datatypes.data)
-            if posted_form.gdpr_datatypes.data:
-                dataset.gdpr_datatypes_json = json.dumps(
-                    posted_form.gdpr_datatypes.data
-                )
+            dataset.sci_datatypes_json = json.dumps(
+                posted_form.sci_datatypes.data or []
+            )
+            dataset.gdpr_datatypes_json = json.dumps(
+                posted_form.gdpr_datatypes.data or []
+            )
             if posted_form.data_standards.data:
                 dataset.data_standards_json = json.dumps(
                     posted_form.data_standards.data

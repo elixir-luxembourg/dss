@@ -365,7 +365,7 @@ class SubmissionForm(FlaskForm):
         self.provider_user_ids.choices = [
             (usr.id, usr.display_name()) for usr in get_active_users()
         ]
-        self.local_custodians.choices = [
+        self.local_custodians.choices = [("", "")] + [
             (c, c) for c in app.config.get("DATA_INIT")["lcsb_pis"]
         ]
         self.institution_accession.choices = [
@@ -381,7 +381,7 @@ class SubmissionForm(FlaskForm):
             )
             for c in get_elu_partners()
         ]
-        self.local_project_name.choices = [
+        self.local_project_name.choices = [("", "")] + [
             (
                 c["external_id"],
                 (
