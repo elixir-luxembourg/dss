@@ -169,11 +169,11 @@
             </tr>
             <tr>
                 <th scope="row">Legal Basis (Collection)</th>
-                <td>{{ dataset.legal_basis_collection_std.label }}</td>
+                <td>{{ dataset.legal_basis_collection_std.label if dataset.legal_basis_collection_std else '-' }}</td>
             </tr>
             <tr>
                 <th scope="row">Legal Basis (Sharing)</th>
-                <td>{{ dataset.legal_basis_sharing_std.label }}</td>
+                <td>{{ dataset.legal_basis_sharing_std.label if dataset.legal_basis_sharing_std else '-' }}</td>
             </tr>
             <tr>
                 <th scope="row">Special Category Data</th>
