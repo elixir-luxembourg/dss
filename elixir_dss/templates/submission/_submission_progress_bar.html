@@ -2,6 +2,12 @@
     {% set stp = submission.current_status.step_num() %}
     {% set pending_user_block = ((stp in [2,4]) and (not current_user.is_data_steward())) and not submission.is_cancelled()  %}
 
+    {% set progress_percent = ((stp + 0.5) / 6) * 100 %}
+    {% if stp >= 5 %}
+        {% set progress_percent = 100 %}
+    {% endif %}
+    {% set line_color = '#198754' if stp >= 5 else '#0d6efd' %}
+
     <!-- Submission Overview Summary -->
     <div class="card border-0 shadow-sm mb-3">
         <div class="card-header bg-primary border-bottom p-3 d-flex justify-content-between align-items-center">
@@ -85,12 +91,11 @@
                     <div class="position-absolute top-0 start-0 w-100" style="height: 40px; pointer-events: none;">
                         <div class="d-flex align-items-center h-100 px-4">
                             <div class="w-100" style="height: 2px; background: linear-gradient(to right,
-                                    {% if stp >= 0 %}#0d6efd 16.66%{% else %}#dee2e6 16.66%{% endif %},
-                                    {% if stp >= 1 %}#0d6efd 33.33%{% else %}#dee2e6 33.33%{% endif %},
-                                    {% if stp >= 2 %}#0d6efd 50%{% else %}#dee2e6 50%{% endif %},
-                                    {% if stp >= 3 %}#0d6efd 66.66%{% else %}#dee2e6 66.66%{% endif %},
-                                    {% if stp >= 4 %}#0d6efd 83.33%{% else %}#dee2e6 83.33%{% endif %},
-                                    {% if stp >= 5 %}#198754{% else %}#dee2e6{% endif %} 100%);"></div>
+                                    #0d6efd 0%,
+                                    #0d6efd {{ progress_percent }}%,
+                                    #dee2e6 {{ progress_percent }}%,
+                                    #dee2e6 100%);">
+                            </div>
                         </div>
                     </div>
 
