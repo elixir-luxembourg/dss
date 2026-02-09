@@ -297,9 +297,9 @@ class ModelPersistenceTest(BaseTest):
         exporter = SubmissionExporter()
         exp = exporter.export_submission(submission_rec)
 
-        self.assertEqual(exp["ref_name"], submission_rec.ref_name)
-        self.assertEqual(len(exp["data_declarations"]), 2)
-        print(json.dumps(exp, indent=4))
+        self.assertEqual(exp["submission"]["submission_id"], submission_rec.ref_name)
+        self.assertEqual(len(exp["studies"]), 1)
+        self.assertEqual(len(exp["studies"][0]["datasets"]), 2)
 
     def test_clone_submission_basic(self):
         original = create_sub("ELU_I_11")
