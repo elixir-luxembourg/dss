@@ -20,7 +20,7 @@ from werkzeug.utils import secure_filename
 from wtforms import FieldList, FormField
 
 from elixir_dss import app, db, lft, login_manager, oauth
-from elixir_dss.controllers.api_controllers import generate_id
+from elixir_dss.clients.idservice import generate_id
 import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
 from elixir_dss.models.security import User

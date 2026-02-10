@@ -14,7 +14,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, Length, Regexp
 
-from elixir_dss.controllers.api_controllers import get_elu_partners
+from elixir_dss.clients.daisy import get_elu_partners
 from elixir_dss.forms.submissions_forms import (
     AttachmentForm,
     ContactForm,

@@ -1,58 +1,75 @@
-import json
+from functools import wraps
+import os
 
-import requests
+from flask import Blueprint, request, jsonify
 
-from elixir_dss import app
-
-
-@app.cache.cached(timeout=1800, key_prefix="elu_partners")
-def get_elu_partners():
-    return get_elu_entities("partners")
+from elixir_dss.models.submission import Submission
+from elixir_dss.models.submission import SubmissionStatusEnum
 
 
-@app.cache.cached(timeout=1800, key_prefix="elu_projects")
-def get_elu_projects():
-    return get_elu_entities("projects")
+dss_api = Blueprint("dss_api", __name__)
+
+SERVICE_API_KEY = os.getenv("SERVICE_API_KEY", "secret-api-key")
+
+ALLOWED_STATUSES = {
+    "completed": SubmissionStatusEnum.completed,
+    "cancelled": SubmissionStatusEnum.cancelled,
+    "data_upload": SubmissionStatusEnum.data_upload,
+    "data_approval": SubmissionStatusEnum.data_approval,
+}
 
 
-def get_elu_entities(entity_name):
-    if not app.config.get("DAISY_USE"):
-        app.logger.info("Defaulting config file")
-        entities_json_str = json.dumps(app.config.get("DATA_INIT")[entity_name])
-        return json.loads(entities_json_str)
+def require_api_key(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        api_key = request.headers.get("X-API-Key")
+        if not api_key or api_key != SERVICE_API_KEY:
+            return jsonify({"error": "Invalid or missing API key"}), 401
+        return f(*args, **kwargs)
 
-    try:
-        daisy_url = app.config.get("DAISY_URL")
-        api_key = app.config.get("DAISY_API_KEY")
-        result = requests.get(
-            f"{daisy_url}/api/{entity_name}",
-            params={"API_KEY": api_key, "fields": "external_id,acronym,name"},
-            timeout=10,
-            verify=app.config.get("DAISY_VERIFY_SSL"),
+    decorated_function._public = True
+    return decorated_function
+
+
+@dss_api.route("/healthz", methods=["GET"])
+@require_api_key
+def healthz():
+    return jsonify({"status": "ok"})
+
+
+@dss_api.route("/submissions", methods=["GET"])
+@require_api_key
+def list_submissions():
+    submissions = Submission.query.filter(
+        Submission.current_status.in_(ALLOWED_STATUSES.values())
+    ).all()
+    submission_list = []
+    for submission in submissions:
+        submission_list.append(
+            {
+                "id": submission.id,
+                "ref_name": submission.ref_name,
+                "status": submission.current_status.value,
+            }
         )
-        result.raise_for_status()
-        data = result.json()
-        return data.get("items", []) or data.get("results", [])
-    except (requests.RequestException, ValueError):
-        app.logger.error("Error fetching ELU entities: %s", entity_name)
-        app.logger.info("Defaulting config file")
-        entities_json_str = json.dumps(app.config.get("DATA_INIT")[entity_name])
-        return json.loads(entities_json_str)
+    return jsonify({"data": submission_list, "count": len(submission_list)})
 
 
-def generate_id(title: str) -> str:
-    if not app.config.get("IDSERVICE_ENDPOINT"):
-        app.logger.warning("ID Service endpoint is not set")
-        return ""
-
-    response = requests.post(
-        f"{app.config.get('IDSERVICE_ENDPOINT')}",
-        json={
-            "entity": "dataset",
-            "name": title,
-        },
-        timeout=6,
-        headers={"Content-Type": "application/json"},
+@dss_api.route("/submissions/<int:submission_id>/datasets", methods=["GET"])
+@require_api_key
+def get_submission_datasets(submission_id):
+    submission = Submission.query.get_or_404(submission_id)
+    dataset_list = []
+    for dataset in submission.datasets:
+        dataset_list.append(dataset.to_dict())
+    return jsonify(
+        {
+            "data": dataset_list,
+            "count": len(dataset_list),
+            "submission": {
+                "id": submission.id,
+                "ref_name": submission.ref_name,
+                "status": submission.current_status.value,
+            },
+        }
     )
-    response.raise_for_status()
-    return response.text

@@ -99,8 +99,8 @@ def _forbidden(message):
     )
 
 
-from . import errors, reporters, web_controllers  # noqa: E402
+from . import errors, reporters, web_controllers, api_controllers  # noqa: E402
 
 __author__ = "Valentin Grouès, Pinar Alper"
 
-__all__ = [errors, web_controllers, reporters]
+__all__ = [errors, web_controllers, reporters, api_controllers]

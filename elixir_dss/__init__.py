@@ -133,6 +133,8 @@ def run_export_submission():
 # Import controllers and models after all other objects are created to avoid circular imports
 from . import controllers, models  # noqa: E402
 
+app.register_blueprint(controllers.api_controllers.dss_api, url_prefix="/api/v1")
+
 __all__ = [controllers, assets, app, db, exceptions, oauth, mail, lft]
 
 if __name__ == "__main__":

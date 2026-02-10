@@ -66,6 +66,12 @@ cd ../../..
 cp .env.template .env
 vi .env  # Set ELIXIR_DSS_ENV=prod
 
+# Install LFT client
+cd ~/app-src/elixir-dss/lftpythonclient
+source ../project_venv/bin/activate
+pip install -e .
+cd ..
+
 # Initialize database
 ./manage.py init-db
 ./manage.py load-demo-users
