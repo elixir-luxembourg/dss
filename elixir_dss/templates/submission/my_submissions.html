@@ -113,25 +113,11 @@
                                         </button>
                                     {% endif %}
 
-                                    <div class="dropdown position-static">
-                                        <button class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button"
-                                                id="dropdownMenu{{ submission.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                            <i class="bi bi-download"></i>
-                                            <span>Export</span>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu{{ submission.id }}">
-                                            <li>
-                                                <a class="dropdown-item" href="{{ url_for('generate_submission_docx',sub_id=submission.id) }}">
-                                                    Export as ELIXIR-LU Terms Agreement Annex
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="{{ url_for('generate_submission_pdf',sub_id=submission.id) }}">
-                                                    Export as PDF
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                    <a class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1"
+                                       href="{{ url_for('generate_submission_docx', sub_id=submission.id) }}">
+                                        <i class="bi bi-download"></i>
+                                        <span>Export</span>
+                                    </a>
                                     <a href="#" class="btn btn-outline-primary btn-sm"
                                        data-bs-toggle="modal"
                                        data-bs-target="#cloneModal"

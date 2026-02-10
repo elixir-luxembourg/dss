@@ -3,60 +3,13 @@ import os
 
 from docxtpl import DocxTemplate
 from flask import (
-    make_response,
-    render_template,
-    request,
     send_file,
 )
-from weasyprint import CSS, HTML
-from weasyprint.text.fonts import FontConfiguration
 
 from elixir_dss import app
 from elixir_dss.controllers import protect
 from elixir_dss.importer.submission_exporter import SubmissionExporter
 from elixir_dss.models.submission import Submission
-
-
-@app.route("/submission/generate_submission_pdf/<int:sub_id>", methods=["GET"])
-@protect(roles=["user", "data_steward"])
-def generate_submission_pdf(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
-    rendered = render_template(
-        "submission/generate_submission_pdf.html",
-        submission_rec=submission_rec,
-        png_elx_lu=app.static_folder + "/public/images/" + "ELIXIR_LU_WB.png",
-        png_lcsb=app.static_folder + "/public/images/" + "LCSB-logo.png",
-        png_uni=app.static_folder + "/public/images/" + "Uni-LU.png",
-    )
-
-    font_config = FontConfiguration()
-    bootstrap_css = CSS(
-        filename=app.static_folder
-        + "/vendor/node_modules/bootstrap/dist/css/bootstrap.css"
-    )
-    page_css = CSS(
-        string="""
-        @page {
-            size: A4;
-            margin: 1cm;
-            @bottom-center {
-                content: counter(page) " of " counter(pages);
-                font-size: 9pt;
-            }
-        }
-    """
-    )
-    html = HTML(string=rendered, base_url=request.url_root)
-    pdf_bytes = html.write_pdf(
-        stylesheets=[bootstrap_css, page_css], font_config=font_config
-    )
-
-    response = make_response(pdf_bytes)
-    response.headers["Content-Type"] = "application/pdf"
-    response.headers["Content-Disposition"] = (
-        f"inline; filename=submission_{submission_rec.ref_name}.pdf"
-    )
-    return response
 
 
 @app.route("/submission/generate_submission_docx/<int:sub_id>", methods=["GET"])
