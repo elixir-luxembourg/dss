@@ -9,25 +9,48 @@ if [ "$USER" != "elixirdss" ]; then
     exec sudo -u elixirdss bash "$0" "$@"
 fi
 
-echo "=== Updating Elixir DSS ==="
+VERSION="${1}"
+if [ -z "$VERSION" ]; then
+    echo "Usage: $0 <tag-version>"
+    echo "Example: $0 v0.4.0"
+    echo ""
+    echo "Available tags:"
+    git tag --list | head -10
+    exit 1
+fi
+
+echo "=== Deploying Elixir DSS ${VERSION} ==="
+echo "Started at: $(date)"
 
 cd "$APP_DIR"
-git pull
 
-# Update Python dependencies
+echo "Fetching tags..."
+git fetch --tags origin
+if ! git rev-parse "$VERSION" >/dev/null 2>&1; then
+    echo "Error: Tag $VERSION does not exist"
+    echo "Available tags:"
+    git tag --list | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -5
+    exit 1
+fi
+
+echo "Checking out tag: $VERSION"
+git checkout "$VERSION"
+
+echo "Updating Python dependencies..."
 source project_venv/bin/activate
 pip install -e . --upgrade
 
-# Apply database migrations
+echo "Applying database migrations..."
 flask db upgrade
 
-# Build frontend assets
+echo "Building frontend assets..."
 cd elixir_dss/static/vendor
 npm ci
 npm run build:css
 
-# Restart services
+echo "Restarting services..."
 sudo systemctl restart elixir-dss
 sudo systemctl restart nginx
 
-echo "✓ Update completed successfully!"
+echo "✓ Deployment completed successfully!"
+echo "✓ Deployed version: $(git describe --tags)"
