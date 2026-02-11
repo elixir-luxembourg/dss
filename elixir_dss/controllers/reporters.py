@@ -1,7 +1,6 @@
 import io
 import os
 
-from docxtpl import DocxTemplate
 from flask import (
     send_file,
 )
@@ -15,6 +14,8 @@ from elixir_dss.models.submission import Submission
 @app.route("/submission/generate_submission_docx/<int:sub_id>", methods=["GET"])
 @protect(roles=["user", "data_steward"])
 def generate_submission_docx(sub_id):
+    from docxtpl import DocxTemplate
+
     sub = Submission.query.get_or_404(sub_id)
     template_path = os.path.join(
         app.root_path, "templates", "submission", "generate_submission_docx.docx"
