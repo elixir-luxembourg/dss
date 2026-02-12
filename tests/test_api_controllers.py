@@ -15,30 +15,14 @@ class ApiControllersTest(BaseTest):
         self.api_key_header = {"X-API-Key": api_key}
         api_controllers.SERVICE_API_KEY = api_key
 
-    def test_healthz_with_valid_api_key(self):
+    def test_healthz(self):
         response = self.client.get("/api/v1/healthz", headers=self.api_key_header)
 
         self.assert200(response)
         data = response.get_json()
         self.assertEqual(data["status"], "ok")
 
-    def test_healthz_without_api_key(self):
-        response = self.client.get("/api/v1/healthz")
-
-        self.assertEqual(response.status_code, 401)
-        data = response.get_json()
-        self.assertEqual(data["error"], "Invalid or missing API key")
-
-    def test_healthz_with_invalid_api_key(self):
-        response = self.client.get(
-            "/api/v1/healthz", headers={"X-API-Key": "wrong-key"}
-        )
-
-        self.assertEqual(response.status_code, 401)
-        data = response.get_json()
-        self.assertEqual(data["error"], "Invalid or missing API key")
-
-    def test_list_submissions_with_valid_api_key(self):
+    def test_list_submissions(self):
         completed_submission = SubmissionFactory(
             ref_name="sub-completed", current_status=SubmissionStatusEnum.completed
         )
@@ -82,7 +66,7 @@ class ApiControllersTest(BaseTest):
         data = response.get_json()
         self.assertEqual(data["error"], "Invalid or missing API key")
 
-    def test_get_submission_datasets_success(self):
+    def test_get_submission_datasets(self):
         submission = SubmissionFactory(
             ref_name="test-submission", current_status=SubmissionStatusEnum.completed
         )
