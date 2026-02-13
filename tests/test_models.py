@@ -301,6 +301,119 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(len(exp["studies"]), 1)
         self.assertEqual(len(exp["studies"][0]["datasets"]), 2)
 
+    def test_export_submission_structure(self):
+        submission_rec = create_sub("ELU_I_5")
+        exporter = SubmissionExporter()
+        exp = exporter.export_submission(submission_rec)
+
+        expected_submission_keys = {
+            "submission_id",
+            "created_on",
+            "finalised_on",
+            "status",
+            "local_project_name",
+            "local_custodians_json",
+            "institution_accession",
+            "providers",
+        }
+
+        self.assertSetEqual(
+            set(exp["submission"].keys()),
+            expected_submission_keys
+        )
+
+    def test_export_study_structure(self):
+        submission_rec = create_sub("ELU_I_5")
+        SubmissionStudyFactory(submission_id=submission_rec.id)
+
+        exporter = SubmissionExporter()
+        exp = exporter.export_submission(submission_rec)
+
+        expected_study_keys = {
+            "title",
+            "description",
+            "ethics_approval_no",
+            "ethics_approval_exists",
+            "study_types",
+            "multi_center_study",
+            "species_json",
+            "diseases_json",
+            "number_of_subjects",
+            "sample_sources_json",
+            "informed_consent_given",
+            "external_id",
+            "datasets",
+        }
+
+        self.assertSetEqual(
+            set(exp["studies"][0].keys()),
+            expected_study_keys
+        )
+
+    def test_export_dataset_structure(self):
+        submission_rec = create_sub("ELU_I_5")
+        study_rec = SubmissionStudyFactory(submission_id=submission_rec.id)
+
+        SubmissionDatasetFactory(
+            submission_id=submission_rec.id,
+            study_id=study_rec.id,
+        )
+
+        exporter = SubmissionExporter()
+        exp = exporter.export_submission(submission_rec)
+
+        dataset = exp["studies"][0]["datasets"][0]
+
+        expected_dataset_keys = {
+            "dataset_id",
+            "title",
+            "description",
+            "study",
+            "external_id",
+            "gdpr_data_types",
+            "scientific_data_types",
+            "contains_personal_data",
+            "data_processing_type",
+            "special_category_data",
+            "special_subjects",
+            "consent_status",
+            "legal_basis_collection",
+            "legal_basis_sharing",
+            "records",
+            "dataset_version",
+            "creation_date",
+            "last_update_date",
+            "file_types",
+            "data_standards",
+            "size_bytes",
+            "uc_project_limited",
+            "uc_research_use_limited",
+            "uc_research_area_restriction",
+            "uc_research_area_notes",
+            "uc_geographic_restriction",
+            "uc_geographic_notes",
+            "uc_recipient_type_restriction",
+            "uc_recipient_type_notes",
+            "uc_user_restriction",
+            "uc_user_notes",
+            "uc_publication_restriction",
+            "uc_publication_notes",
+            "uc_time_restriction",
+            "uc_time_notes",
+            "uc_lcsb_time_restriction",
+            "uc_lcsb_time_date",
+            "uc_return_requirement",
+            "uc_return_notes",
+            "uc_ip_restriction",
+            "uc_ip_notes",
+            "uc_dac_required",
+            "uc_dac_notes",
+            "uc_access_form_required",
+            "uc_other_notes",
+        }
+
+        self.assertSetEqual(set(dataset.keys()), expected_dataset_keys)
+
     def test_clone_submission_basic(self):
         original = create_sub("ELU_I_11")
 
