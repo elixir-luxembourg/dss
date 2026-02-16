@@ -317,10 +317,7 @@ class ModelPersistenceTest(BaseTest):
             "providers",
         }
 
-        self.assertSetEqual(
-            set(exp["submission"].keys()),
-            expected_submission_keys
-        )
+        self.assertSetEqual(set(exp["submission"].keys()), expected_submission_keys)
 
     def test_export_study_structure(self):
         submission_rec = create_sub("ELU_I_5")
@@ -345,10 +342,7 @@ class ModelPersistenceTest(BaseTest):
             "datasets",
         }
 
-        self.assertSetEqual(
-            set(exp["studies"][0].keys()),
-            expected_study_keys
-        )
+        self.assertSetEqual(set(exp["studies"][0].keys()), expected_study_keys)
 
     def test_export_dataset_structure(self):
         submission_rec = create_sub("ELU_I_5")
