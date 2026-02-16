@@ -125,7 +125,7 @@ sudo systemctl restart nginx
 
 ## Maintenance
 
-### Update Application
+### Update Application (Manual)
 ```bash
 su - elixirdss
 cd ~/app-src/elixir-dss
@@ -144,9 +144,13 @@ sudo systemctl restart elixir-dss
 sudo systemctl restart nginx
 ```
 
-### Update with .sh
+### Update Application (Automated)
 ```bash
-sudo bash /home/elixirdss/app-src/elixir-dss/update_release.sh v0.1.2
+# Deploy latest stable release (recommended)
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh
+
+# Or deploy a specific version
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh v0.1.2
 ```
 
 ### View Logs

@@ -10,22 +10,25 @@ if [ "$USER" != "elixirdss" ]; then
 fi
 
 VERSION="${1}"
-if [ -z "$VERSION" ]; then
-    echo "Usage: $0 <tag-version>"
-    echo "Example: $0 v0.4.0"
-    echo ""
-    echo "Available tags:"
-    git tag --list | head -10
-    exit 1
-fi
 
-echo "=== Deploying Elixir DSS ${VERSION} ==="
+echo "=== Deploying Elixir DSS ==="
 echo "Started at: $(date)"
 
 cd "$APP_DIR"
 
 echo "Fetching tags..."
 git fetch --tags origin
+
+if [ -z "$VERSION" ]; then
+    echo "No VERSION provided. Using latest stable tag..."
+    VERSION=$(git tag | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+    if [ -z "$VERSION" ]; then
+        echo "Error: No version tags found"
+        exit 1
+    fi
+    echo "Selected: $VERSION"
+fi
+
 if ! git rev-parse "$VERSION" >/dev/null 2>&1; then
     echo "Error: Tag $VERSION does not exist"
     echo "Available tags:"
@@ -53,4 +56,4 @@ sudo systemctl restart elixir-dss
 sudo systemctl restart nginx
 
 echo "✓ Deployment completed successfully!"
-echo "✓ Deployed version: $(git describe --tags)"
+echo "✓ Deployed version: $VERSION"

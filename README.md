@@ -259,6 +259,10 @@ Push the commit and tag to git after releasing.
 **Update Application on VM:**
 
 ```bash
+# Deploy latest stable release (recommended)
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh
+
+# Or deploy a specific version
 sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh v0.0.1
 ```
 
