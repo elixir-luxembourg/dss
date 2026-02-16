@@ -13,9 +13,6 @@ SERVICE_API_KEY = os.getenv("SERVICE_API_KEY", "secret-api-key")
 
 ALLOWED_STATUSES = {
     "completed": SubmissionStatusEnum.completed,
-    "cancelled": SubmissionStatusEnum.cancelled,
-    "data_upload": SubmissionStatusEnum.data_upload,
-    "data_approval": SubmissionStatusEnum.data_approval,
 }
 
 

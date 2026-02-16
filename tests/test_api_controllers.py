@@ -26,25 +26,17 @@ class ApiControllersTest(BaseTest):
         completed_submission = SubmissionFactory(
             ref_name="sub-completed", current_status=SubmissionStatusEnum.completed
         )
-        cancelled_submission = SubmissionFactory(
-            ref_name="sub-cancelled", current_status=SubmissionStatusEnum.cancelled
-        )
         draft_submission = SubmissionFactory(
             ref_name="sub-draft", current_status=SubmissionStatusEnum.draft
-        )
-        data_upload_submission = SubmissionFactory(
-            ref_name="sub-data-upload", current_status=SubmissionStatusEnum.data_upload
         )
         response = self.client.get("/api/v1/submissions", headers=self.api_key_header)
 
         self.assert200(response)
         data = response.get_json()
-        self.assertEqual(data["count"], 3)
-        self.assertEqual(len(data["data"]), 3)
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(len(data["data"]), 1)
         submission_ids = {s["id"] for s in data["data"]}
         self.assertIn(completed_submission.id, submission_ids)
-        self.assertIn(cancelled_submission.id, submission_ids)
-        self.assertIn(data_upload_submission.id, submission_ids)
         self.assertNotIn(draft_submission.id, submission_ids)
         for submission in data["data"]:
             self.assertIn("id", submission)
