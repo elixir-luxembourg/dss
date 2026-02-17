@@ -102,6 +102,18 @@ class ApiControllersTest(BaseTest):
         self.assertEqual(data["count"], 0)
         self.assertEqual(data["data"], [])
 
+    def test_get_submission_datasets_with_wrong_status(self):
+        submission = SubmissionFactory(
+            ref_name="wrong-status-submission",
+            current_status=SubmissionStatusEnum.draft,
+        )
+        response = self.client.get(
+            f"/api/v1/submissions/{submission.id}/datasets",
+            headers=self.api_key_header,
+        )
+
+        self.assert404(response)
+
     def test_get_submission_datasets_without_api_key(self):
         response = self.client.get("/api/v1/submissions/1/datasets")
 

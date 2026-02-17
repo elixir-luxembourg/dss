@@ -59,6 +59,8 @@ def list_submissions():
 @require_api_key
 def get_submission_datasets(submission_id):
     submission = Submission.query.get_or_404(submission_id)
+    if submission.current_status not in ALLOWED_STATUSES.values():
+        return jsonify({"error": "Submission is not found"}), 404
     dataset_list = []
     for dataset in submission.datasets:
         dataset_list.append(dataset.to_dict())
