@@ -161,6 +161,15 @@ class TestConfig(Config):
     DAISY_URL = "https://test-daisy.example.com"
     DAISY_API_KEY = "test_api_key"
 
+    LFT_HOST = "lft.example.com"
+    LFT_PORT = 8443
+    LFT_SCHEME = "https"
+    LFT_USERNAME = "test_user"
+    LFT_PASSWORD = "test_pass"
+    LFT_NAMESPACE_ID = "test_namespace"
+    LFT_LINKS_BASE_URL = "https://lft.example.com/links/"
+    LFT_LINK_VALIDITY_DAYS = 7
+
     IDSERVICE_ENDPOINT = "https://test-idservice.com/v1/api/id"
 
     SERVICE_API_KEY = "test-secret-key"
