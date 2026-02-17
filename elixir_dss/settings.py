@@ -161,4 +161,6 @@ class TestConfig(Config):
     DAISY_URL = "https://test-daisy.example.com"
     DAISY_API_KEY = "test_api_key"
 
+    IDSERVICE_ENDPOINT = "https://test-idservice.com/v1/api/id"
+
     SERVICE_API_KEY = "test-secret-key"

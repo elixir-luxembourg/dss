@@ -84,7 +84,9 @@ def steer_sub(submission_id: str):
         elif target_state == SubmissionStatusEnum.data_approval:
             if lft.client:
                 try:
-                    lft.invalidate_links_for_submission(submission.id, delete_share=False)
+                    lft.invalidate_links_for_submission(
+                        submission.id, delete_share=False
+                    )
                 except Exception as e:
                     app.logger.error(
                         f"LFT invalidate failed for ds {submission.id}: {e}"
