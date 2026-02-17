@@ -30,7 +30,8 @@
     5.5. [Enumeration: 'LegalBasis'](#55-enumeration-legalbasis)<br>
     5.6. [Enumeration: 'PersonalData'](#56-enumeration-personaldata)<br>
     5.7. [Enumeration: 'ReceivingProject'](#57-enumeration-receivingproject)<br>
-    5.8. [Enumeration: 'Role'](#58-enumeration-role)<br>
+    5.8. [Enumeration: 'Recipient'](#58-enumeration-recipient)<br>
+    5.9. [Enumeration: 'Role'](#59-enumeration-role)<br>
         
 ## 1. Introduction
 
@@ -51,7 +52,7 @@ To support future alignment with the European Health Data Space (EHDS), the sele
 
 ## 3. Overview
 
-Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes \([Dataset](#41-dataset), [Distribution](#42-distribution), [Person](#43-person), [Submission](#45-submission), and [Study](#44-study)\), along with four subclassess derived from class 'Person' \([DatasetCreator](#432-subclass-datasetcreator), [StudyContact](#433-subclass-studycontact) with subclasses MainStudyContact and StudyAdditionalContact, and [SubmissionContact]((#434-subclass-submissioncontact)) with subclasses SubmittingUser and AdditionalContact\). In addition, it includes eight supporting entities: one custom [data type \(Date\)](#51-data-type-date) and seven enumerations \([ConsentStatus](#52-enumeration-consentstatus), [DataType](#53-enumeration-datatype), [De-identificationType](#54-enumeration-de-identificationtype), [LegalBasis](#55-enumeration-legalbasis), [PersonalData](#56-enumeration-personaldata), [ReceivingProject](#57-enumeration-receivingproject), and [Role](#58-enumeration-role)\).
+Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes \([Dataset](#41-dataset), [Distribution](#42-distribution), [Person](#43-person), [Submission](#45-submission), and [Study](#44-study)\), along with four subclassess derived from class 'Person' \([DatasetCreator](#432-subclass-datasetcreator), [StudyContact](#433-subclass-studycontact) with subclasses MainStudyContact and StudyAdditionalContact, and [SubmissionContact]((#434-subclass-submissioncontact)) with subclasses SubmittingUser and AdditionalContact\). In addition, it includes nine supporting entities: one custom [data type \(Date\)](#51-data-type-date) and eight enumerations \([ConsentStatus](#52-enumeration-consentstatus), [DataType](#53-enumeration-datatype), [De-identificationType](#54-enumeration-de-identificationtype), [LegalBasis](#55-enumeration-legalbasis), [PersonalData](#56-enumeration-personaldata), [ReceivingProject](#57-enumeration-receivingproject), [Recipient](#58-enumeration-recipient), and [Role](#59-enumeration-role)\).
 
 According to the metadata schema, a submission must always be linked to at least one study and one dataset, and may be linked to multiple studies and multiple datasets. However, each study and dataset can only be linked to a single submission. Furthermore, a dataset must always be linked to a study, as the study represents the origin of the data. Conversely, a dataset may be associated with zero or more distributions, each representing a physical expression of the dataset in a specific format.
 
@@ -212,12 +213,14 @@ This subclass inherits all properties from class 'Person', and has an additional
 |ethics approval ID           | Identifier for the ethics/IRB approval document           | String      | 0..1            |  In case of ethics approval, provide the identifier.          |     NA                                 | X00.000       |
 |study type          | Study type\(s\)           | String      | 0..1            |   Indicate the type of study. This property contains suggested controlled vocabularies.         |  EDAM, EFO, NCIt                                    | observational study \(NCIT:C16084\), drug discovery \(NCIT:C15802\)       |
 |multi-center study           | Is it a multi-center study?            | Boolean      | 0..1            |  This property accepts a 'Yes/No' value.          |          NA                            |  No     |
+|study characteristics           | Description of the study using gene, disease, phenotype terms and study types           | String      | 0..1            |  Provide a brief description of the study using gene, disease, phenotype terms and study types.          |          NA                            |  *TBD*     |
+|number of subjects           | Number of subjects/specimen           | UnlimitedNatural      | 0..1            |  Value must be a non-negative integer.            |        NA                              | 524       |
+|age range           | Age range of subjects in the study           | String      | 0..1            |  Provide an age range.          |   NA                                   | 18-99 years       |
 |species           | Species of origin of the samples/data          | String      | 0..*            |  This property contains suggested controlled vocabularies.          |   NCBITaxon                                   | Homo sapiens       |
 |diseases           | Disease of data subjects or the focus disease of the study           | String      | 0..*           | This property contains suggested controlled vocabularies.            |     MONDO | Crohn's disease, type II diabetes mellitus       |
-|number of subjects           | Number of subjects/specimen           | UnlimitedNatural      | 0..1            |  Value must be a non-negative integer.            |        NA                              | 524       |
 |sample source          | Biological or material source\(s\) of the samples           | String      | 0..*            |   This property contains suggested controlled vocabularies.         |     NCIt, EFO, UBERON                                 | tissue sample, cell line       |
 |cohort description           | Description of cohorts           | String      | 0..1            |   Describe the data subjects in the study.         |   NA                                   | 250 patients \(132 male, 118 female\) with type II diabetes, 400 healthy controls \(174 male, 226 female\)       |
-|age range           | Age range of subjects in the study           | String      | 0..1            |  Provide an age range.          |   NA                                   | 18-99 years       |
+|informed consent given           | Has informed consent been given?          | Boolean      | 0..1            |  This property accepts a 'Yes/No' value.          |   NA                                   | Yes       |
 |other subject characteristics           | Other subject characteristics           | String      | 0..*            | Describe other subject characteristics, if any.           |      NA                                | sex: 57 male / 85 female, diabetes status: 103 type II diabetes / 39 non-diabetic       |
 |additionalStudyContact              |Additional contact point(s) for the study  | StudyAdditionalContact (class)       | 0..*           | Values for this property are instances of class 'StudyAdditionalContact', which is a subclass of 'StudyContact' (itself a subclass of 'Person').      |      NA                                | NA        |
 |studyContactRemarks             |Remarks about the contact point(s) for the study  | String       | 0..1           | Provide any necessary additional information about the study contact(s).      |      NA                                | *TBD*        |
@@ -242,6 +245,7 @@ This subclass inherits all properties from class 'Person', and has an additional
 
 | Property name | Definition | Range | Cardinality | Usage note | Suggested controlled<br>vocabularies | Example |
 |---------------|------------|-------|-------------|------------|--------------------------------------|---------|
+|recipient             |Principal Investigator/Researcher that is the recipient of data.           |String       | 0..*            |  Information about the recipient (name and surname) will be taken from Daisy.          |       NA                               | NA        |
 |additional contact           | Any additional contact point in the submission (different from the main contact point).          |  AdditionalContact (class)    |  0..*         | Provide additional contacts for the submission, if any. Values for this property are instances of class 'AdditionalContact', which is a subclass of 'SubmissionContact' (itself a subclass of 'Person').               |       NA                               |  NA     |
 
 ## 5. Supporting Entities
@@ -355,7 +359,14 @@ This section describes the enumerations and custom data types that support the c
 **Values:**
 Values for projects are not shown in the diagram since the list of projects is retrieved from the [Data Information Syystem \(DAISY\)](https://github.com/elixir-luxembourg/daisy/) used at the LCSB and the ELIXIR-LU data hub. 
 
-### 5.8. Enumeration: 'Role'
+### 5.8. Enumeration: 'Recipient'
+
+**Description:** This enumeration provides a list with the names and surnames of principal investigators/researchers that can be recipient of data. It is used as a value range for property 'recipient' in class ['Submission'](#45-submission).
+
+**Values:**
+Values for projects are not shown in the diagram since the list of projects is retrieved from the [Data Information Syystem \(DAISY\)](https://github.com/elixir-luxembourg/daisy/) used at the LCSB and the ELIXIR-LU data hub.
+
+### 5.9. Enumeration: 'Role'
 
 **Description:** This enumeration contains the values to specify the job role of the submission contacts in the system.
 
