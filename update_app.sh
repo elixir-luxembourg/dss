@@ -20,7 +20,7 @@ git fetch --tags origin
 
 if [ -n "$VERSION" ]; then
     if ! echo "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9._/+-]+)?$'; then
-        echo "Error: VERSION '$VERSION' has invalid format. Should be in format 'v1.0.0' or 'v0.2.0-dev'."
+        echo "Error: VERSION '$VERSION' has invalid format (expected 'v1.0.0' or 'v0.2.0-dev')"
         exit 1
     fi
 else
@@ -34,8 +34,7 @@ else
 fi
 
 if ! git show-ref --tags --quiet --verify "refs/tags/$VERSION"; then
-    echo "Error: Tag $VERSION does not exist"
-    echo "Available stable tags:"
+    echo "Error: Tag $VERSION does not exist. Available tags:"
     git tag --list | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -5
     exit 1
 fi
