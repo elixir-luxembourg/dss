@@ -112,6 +112,8 @@ class Config(object):
 
     IDSERVICE_ENDPOINT = os.environ.get("IDSERVICE_ENDPOINT")
 
+    SERVICE_API_KEY = os.environ.get("SERVICE_API_KEY")
+
 
 class ProdConfig(Config):
     DEBUG = False
@@ -158,3 +160,5 @@ class TestConfig(Config):
     DAISY_USE = True
     DAISY_URL = "https://test-daisy.example.com"
     DAISY_API_KEY = "test_api_key"
+
+    SERVICE_API_KEY = "test-secret-key"

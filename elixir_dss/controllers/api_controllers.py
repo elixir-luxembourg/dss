@@ -1,26 +1,29 @@
 from functools import wraps
-import os
 
 from flask import Blueprint, request, jsonify
 
+from elixir_dss import app
 from elixir_dss.models.submission import Submission
 from elixir_dss.models.submission import SubmissionStatusEnum
 
-
 dss_api = Blueprint("dss_api", __name__)
 
-SERVICE_API_KEY = os.getenv("SERVICE_API_KEY", "secret-api-key")
 
 ALLOWED_STATUSES = {
     "completed": SubmissionStatusEnum.completed,
 }
 
+if not app.config.get("SERVICE_API_KEY"):
+    raise RuntimeError("SERVICE_API_KEY is not configured")
+
 
 def require_api_key(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        if not app.config.get("SERVICE_API_KEY"):
+            return jsonify({"error": "DSS API is not configured"}), 503
         api_key = request.headers.get("X-API-Key")
-        if not api_key or api_key != SERVICE_API_KEY:
+        if not api_key or api_key != app.config.get("SERVICE_API_KEY"):
             return jsonify({"error": "Invalid or missing API key"}), 401
         return f(*args, **kwargs)
 

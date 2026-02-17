@@ -1,5 +1,5 @@
 from elixir_dss.models.submission import SubmissionStatusEnum
-from elixir_dss.controllers import api_controllers
+
 from tests import BaseTest
 from tests.factories import (
     SubmissionFactory,
@@ -11,9 +11,7 @@ from tests.factories import (
 class ApiControllersTest(BaseTest):
     def setUp(self):
         super().setUp()
-        api_key = "test-secret-key"
-        self.api_key_header = {"X-API-Key": api_key}
-        api_controllers.SERVICE_API_KEY = api_key
+        self.api_key_header = {"X-API-Key": "test-secret-key"}
 
     def test_healthz(self):
         response = self.client.get("/api/v1/healthz", headers=self.api_key_header)
