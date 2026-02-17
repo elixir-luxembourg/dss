@@ -67,8 +67,8 @@ cp .env.template .env
 vi .env  # Set ELIXIR_DSS_ENV=prod
 
 # Install LFT client
-cd ~/app-src/elixir-dss/lftpythonclient
-source ../project_venv/bin/activate
+cd ~/app-src/elixir-dss/
+git clone git@gitlab.com:uniluxembourg/lcsb/elixir/lft/lftpythonclient.git
 pip install -e .
 cd ..
 

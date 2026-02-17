@@ -9,6 +9,7 @@ try:
 except ImportError:
     LFTClient = None
     LFTClientException = Exception
+    AccessLevel = None
 
 
 @dataclass
