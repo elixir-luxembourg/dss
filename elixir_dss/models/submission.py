@@ -7,7 +7,8 @@ from sqlalchemy import Sequence
 from sqlalchemy.orm import object_mapper
 
 from elixir_dss import db
-from elixir_dss.controllers.api_controllers import get_elu_partners
+from elixir_dss.clients.daisy import get_elu_partners
+from elixir_dss.clients.idservice import generate_id
 from elixir_dss.controllers.utils import dict_list_lookup
 
 
@@ -24,11 +25,17 @@ class LegalBasisType(db.Model):
     code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
     label = db.Column(db.String, nullable=False)
 
+    def to_dict(self):
+        return {"code": self.code, "label": self.label}
+
 
 class ConsentStatus(db.Model):
     __tablename__ = "consent_status"
     code = db.Column(db.String, unique=True, nullable=False, primary_key=True)
     label = db.Column(db.String, nullable=False)
+
+    def to_dict(self):
+        return {"code": self.code, "label": self.label}
 
 
 class SubjectCategory(db.Model):
@@ -565,26 +572,36 @@ class SubmissionDataset(db.Model):
             "contains_personal_data": self.contains_personal_data,
             "data_processing_type": self.data_processing_type,
             "legal_basis_collection_std_code": self.legal_basis_collection_std_code,
-            "legal_basis_collection_std": self.legal_basis_collection_std,
+            "legal_basis_collection_std": (
+                self.legal_basis_collection_std.to_dict()
+                if self.legal_basis_collection_std
+                else None
+            ),
             "legal_basis_sharing_std_code": self.legal_basis_sharing_std_code,
-            "legal_basis_sharing_std": self.legal_basis_sharing_std,
+            "legal_basis_sharing_std": (
+                self.legal_basis_sharing_std.to_dict()
+                if self.legal_basis_sharing_std
+                else None
+            ),
             "is_special_category_data": self.is_special_category_data,
             "has_special_subjects": self.has_special_subjects,
             "special_subjects_notes": self.special_subjects_notes,
             "consent_status_code": self.consent_status_code,
-            "consent_status": self.consent_status,
+            "consent_status": (
+                self.consent_status.to_dict() if self.consent_status else None
+            ),
             "consent_notes": self.consent_notes,
             "has_art92_derogation": self.has_art92_derogation,
             "use_restriction_project": self.use_restriction_project,
             "use_restriction_research_use": self.use_restriction_research_use,
             "number_of_records": self.number_of_records,
             "dataset_version": self.dataset_version,
-            "creation_date": self.creation_date.isoformat()
-            if self.creation_date
-            else None,
-            "last_update_date": self.last_update_date.isoformat()
-            if self.last_update_date
-            else None,
+            "creation_date": (
+                self.creation_date.isoformat() if self.creation_date else None
+            ),
+            "last_update_date": (
+                self.last_update_date.isoformat() if self.last_update_date else None
+            ),
             "data_standards_json": self.data_standards_json,
             "file_types_json": self.file_types_json,
             "byte_size": self.byte_size,
@@ -603,7 +620,7 @@ class SubmissionDataset(db.Model):
         cloned = SubmissionDataset(**attrs)
 
         cloned.creators = [creator.clone() for creator in self.creators]
-
+        cloned.internal_id = generate_id(cloned.title)
         return cloned
 
 

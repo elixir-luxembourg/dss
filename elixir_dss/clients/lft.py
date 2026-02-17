@@ -5,9 +5,11 @@ from flask import Flask
 
 try:
     from lftclient import LFTClient, LFTClientException
+    from lftclient.lft import AccessLevel
 except ImportError:
     LFTClient = None
     LFTClientException = Exception
+    AccessLevel = None
 
 
 @dataclass
@@ -105,6 +107,7 @@ class LFTHandler:
                 share_name=share_name,
                 sub=sub,
                 expiration_date=dt.date(dt.now() + td(days=self.link_validity_days)),
+                access_level=AccessLevel.READ_WRITE,
             )
             return LFTLink(
                 id=link.id,
@@ -115,7 +118,9 @@ class LFTHandler:
         except LFTClientException as e:
             raise RuntimeError("LFT link creation failed") from e
 
-    def invalidate_links_for_submission(self, submission_id: int):
+    def invalidate_links_for_submission(
+        self, submission_id: int, delete_share: bool = True
+    ) -> None:
         from elixir_dss.models.submission import SubmissionDataset
 
         if not self.client:
@@ -134,10 +139,26 @@ class LFTHandler:
             if not ds.internal_id:
                 continue
             try:
-                self.client.delete_share(
-                    namespace_id=self.namespace_id,
-                    share_name=ds.internal_id,
-                )
+                if delete_share:
+                    self.client.delete_share(
+                        namespace_id=self.namespace_id,
+                        share_name=ds.internal_id,
+                    )
+                else:
+                    links = (
+                        self.client.links_list(
+                            namespace_id=self.namespace_id,
+                            share_name=ds.internal_id,
+                            sub=None,
+                        )
+                        or []
+                    )
+                    for lk in links:
+                        self.client.delete_link(
+                            namespace_id=self.namespace_id,
+                            share_name=ds.internal_id,
+                            link=lk.hashid,
+                        )
             except Exception as e:
                 self._logger.error(f"LFT invalidate failed for ds {ds.id}: {e}")
 

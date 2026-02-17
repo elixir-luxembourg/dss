@@ -2,6 +2,8 @@ import json
 from datetime import date
 from unittest.mock import patch
 
+import pytest
+
 from elixir_dss import db
 from elixir_dss.exceptions import RecordLifecycleException
 from elixir_dss.importer.submission_exporter import SubmissionExporter, normalize
@@ -446,6 +448,7 @@ class ModelPersistenceTest(BaseTest):
         subs = Submission.query.all()
         self.assertEqual(2, len(subs))
 
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
     def test_clone_with_studies_and_datasets(self):
         sub = create_sub("ELU_I_77")
 
@@ -480,6 +483,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(len(clone.studies), 1)
         self.assertEqual(len(clone.datasets), 1)
         self.assertEqual(clone.datasets[0].title, "Dataset 1")
+        self.assertEqual(clone.datasets[0].internal_id, "TEST_DATASET_ID_001")
         self.assertNotEqual(clone.datasets[0].id, dataset.id)
         self.assertNotEqual(clone.studies[0].id, study.id)
 

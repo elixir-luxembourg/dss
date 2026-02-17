@@ -1,62 +1,122 @@
-from unittest.mock import Mock, patch
+from elixir_dss.models.submission import SubmissionStatusEnum
 
-import requests
-
-from elixir_dss.controllers.api_controllers import get_elu_entities
-from .factories import ProjectFactory, PartnerFactory
 from tests import BaseTest
+from tests.factories import (
+    SubmissionFactory,
+    SubmissionStudyFactory,
+    SubmissionDatasetFactory,
+)
 
 
-class TestGetEluEntities(BaseTest):
-    @patch("elixir_dss.controllers.api_controllers.requests.get")
-    def test_with_partners(self, mock_get):
-        mock_get.return_value = Mock()
-        mock_get.return_value.json.return_value = {"items": [PartnerFactory.build()]}
-        result = get_elu_entities("partners")
+class ApiControllersTest(BaseTest):
+    def setUp(self):
+        super().setUp()
+        self.api_key_header = {"X-API-Key": "test-secret-key"}
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["external_id"], "ELU_I_1")
+    def test_healthz(self):
+        response = self.client.get("/api/v1/healthz", headers=self.api_key_header)
 
-    @patch("elixir_dss.controllers.api_controllers.requests.get")
-    def test_with_projects(self, mock_get):
-        mock_get.return_value = Mock()
-        mock_get.return_value.json.return_value = {"items": [ProjectFactory.build()]}
-        result = get_elu_entities("projects")
+        self.assert200(response)
+        data = response.get_json()
+        self.assertEqual(data["status"], "ok")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]["external_id"], "ELU_P_1")
+    def test_list_submissions(self):
+        completed_submission = SubmissionFactory(
+            ref_name="sub-completed", current_status=SubmissionStatusEnum.completed
+        )
+        draft_submission = SubmissionFactory(
+            ref_name="sub-draft", current_status=SubmissionStatusEnum.draft
+        )
+        response = self.client.get("/api/v1/submissions", headers=self.api_key_header)
 
-    @patch("elixir_dss.controllers.api_controllers.requests.get")
-    def test_fallback_on_request_exception(self, mock_get):
-        mock_get.side_effect = requests.RequestException("Network error")
-        result = get_elu_entities("projects")
+        self.assert200(response)
+        data = response.get_json()
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(len(data["data"]), 1)
+        submission_ids = {s["id"] for s in data["data"]}
+        self.assertIn(completed_submission.id, submission_ids)
+        self.assertNotIn(draft_submission.id, submission_ids)
+        for submission in data["data"]:
+            self.assertIn("id", submission)
+            self.assertIn("ref_name", submission)
+            self.assertIn("status", submission)
 
-        self.assertGreater(len(result), 0)
-        self.assertEqual(result[0]["external_id"], "ELU_P_1")
+    def test_list_submissions_empty(self):
+        response = self.client.get("/api/v1/submissions", headers=self.api_key_header)
 
-    @patch("elixir_dss.controllers.api_controllers.requests.get")
-    def test_fallback_on_http_error(self, mock_get):
-        mock_get.return_value = Mock()
-        mock_get.return_value.raise_for_status.side_effect = requests.HTTPError("404")
+        self.assert200(response)
+        data = response.get_json()
+        self.assertEqual(data["count"], 0)
+        self.assertEqual(data["data"], [])
 
-        result = get_elu_entities("projects")
+    def test_list_submissions_without_api_key(self):
+        response = self.client.get("/api/v1/submissions")
 
-        self.assertGreater(len(result), 0)
-        self.assertEqual(result[0]["external_id"], "ELU_P_1")
+        self.assertEqual(response.status_code, 401)
+        data = response.get_json()
+        self.assertEqual(data["error"], "Invalid or missing API key")
 
-    @patch("elixir_dss.controllers.api_controllers.requests.get")
-    def test_fallback_on_invalid_json(self, mock_get):
-        mock_get.return_value = Mock()
-        mock_get.return_value.json.side_effect = ValueError("Invalid JSON")
-        result = get_elu_entities("projects")
+    def test_get_submission_datasets(self):
+        submission = SubmissionFactory(
+            ref_name="test-submission", current_status=SubmissionStatusEnum.completed
+        )
+        study = SubmissionStudyFactory(submission_id=submission.id, name="Test Study")
+        for i in range(2):
+            SubmissionDatasetFactory(
+                submission_id=submission.id, title=f"Dataset {i + 1}", study_id=study.id
+            )
+        response = self.client.get(
+            f"/api/v1/submissions/{submission.id}/datasets",
+            headers=self.api_key_header,
+        )
 
-        self.assertGreater(len(result), 0)
-        self.assertEqual(result[0]["external_id"], "ELU_P_1")
+        self.assert200(response)
+        data = response.get_json()
+        self.assertIn("data", data)
+        self.assertIn("count", data)
+        self.assertIn("submission", data)
+        self.assertEqual(data["count"], 2)
+        self.assertEqual(len(data["data"]), 2)
+        self.assertEqual(data["submission"]["id"], submission.id)
+        self.assertEqual(data["submission"]["ref_name"], "test-submission")
+        self.assertEqual(data["submission"]["status"], "Complete")
 
-    @patch("elixir_dss.controllers.api_controllers.requests.get")
-    def test_empty_response(self, mock_get):
-        mock_get.return_value = Mock()
-        mock_get.return_value.json.return_value = {}
-        result = get_elu_entities("projects")
+    def test_get_submission_datasets_not_found(self):
+        response = self.client.get(
+            "/api/v1/submissions/99999/datasets", headers=self.api_key_header
+        )
 
-        self.assertEqual(result, [])
+        self.assert404(response)
+
+    def test_get_submission_datasets_empty(self):
+        submission = SubmissionFactory(
+            ref_name="empty-submission", current_status=SubmissionStatusEnum.completed
+        )
+        response = self.client.get(
+            f"/api/v1/submissions/{submission.id}/datasets",
+            headers=self.api_key_header,
+        )
+
+        self.assert200(response)
+        data = response.get_json()
+        self.assertEqual(data["count"], 0)
+        self.assertEqual(data["data"], [])
+
+    def test_get_submission_datasets_with_wrong_status(self):
+        submission = SubmissionFactory(
+            ref_name="wrong-status-submission",
+            current_status=SubmissionStatusEnum.draft,
+        )
+        response = self.client.get(
+            f"/api/v1/submissions/{submission.id}/datasets",
+            headers=self.api_key_header,
+        )
+
+        self.assert404(response)
+
+    def test_get_submission_datasets_without_api_key(self):
+        response = self.client.get("/api/v1/submissions/1/datasets")
+
+        self.assertEqual(response.status_code, 401)
+        data = response.get_json()
+        self.assertEqual(data["error"], "Invalid or missing API key")

@@ -20,7 +20,7 @@ from werkzeug.utils import secure_filename
 from wtforms import FieldList, FormField
 
 from elixir_dss import app, db, lft, login_manager, oauth
-from elixir_dss.controllers.api_controllers import generate_id
+from elixir_dss.clients.idservice import IDServiceError, generate_id
 import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
 from elixir_dss.models.security import User
@@ -647,8 +647,8 @@ def clone_submission(submission_id):
         )
     except Exception as e:
         app.logger.error("ERROR %s", e)
-        flash("Unable to clone submission")
-        return redirect(url_for("view_submission", sub_id=submission_id))
+        flash("Unable to clone submission", "danger")
+        return redirect(url_for("list_submissions"))
 
     flash(f"Submission {new_sub.ref_name} cloned successfully.", "success")
     return redirect(url_for("view_submission", sub_id=new_sub.id))
@@ -867,7 +867,17 @@ def add_submission_dataset(sub_id):
             if posted_form.sample_types.data:
                 dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
 
-            dataset.internal_id = generate_id(dataset.title)
+            try:
+                dataset.internal_id = generate_id(dataset.title)
+            except IDServiceError:
+                flash(
+                    "Failed to create dataset: ID generation service is unavailable. Please try again later.",
+                    "danger",
+                )
+                return render_template(
+                    "submission/dataset_form.html",
+                    dataset_form=posted_form,
+                ), 503
             dataset.creation_date = date.today()
             dataset.last_update_date = date.today()
             db.session.add(dataset)
@@ -941,7 +951,17 @@ def edit_submission_dataset(dataset_id):
                 dataset.sample_types_json = json.dumps(posted_form.sample_types.data)
 
             if not dataset.internal_id:
-                dataset.internal_id = generate_id(dataset.title)
+                try:
+                    dataset.internal_id = generate_id(dataset.title)
+                except IDServiceError:
+                    flash(
+                        "Failed to create dataset: ID generation service is unavailable. Please try again later.",
+                        "danger",
+                    )
+                    return render_template(
+                        "submission/dataset_form.html",
+                        dataset_form=posted_form,
+                    ), 503
             dataset.last_update_date = date.today()
             db.session.add(dataset)
             db.session.commit()

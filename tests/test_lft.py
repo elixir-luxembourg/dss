@@ -1,28 +1,13 @@
-import unittest
 from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 
 from flask import Flask
 
 from elixir_dss.clients.lft import LFTHandler
+from tests import BaseTest
 
 
-class TestLFTHandler(unittest.TestCase):
-    def setUp(self):
-        self.app = Flask(__name__)
-        self.app.config.update(
-            {
-                "LFT_HOST": "lft.example.com",
-                "LFT_PORT": 8443,
-                "LFT_SCHEME": "https",
-                "LFT_USERNAME": "test_user",
-                "LFT_PASSWORD": "test_pass",
-                "LFT_NAMESPACE_ID": "test_namespace",
-                "LFT_LINKS_BASE_URL": "https://lft.example.com/links/",
-                "LFT_LINK_VALIDITY_DAYS": 7,
-            }
-        )
-
+class TestLFTHandler(BaseTest):
     @patch("elixir_dss.clients.lft.LFTClient", None)
     def test_without_lftclient(self):
         handler = LFTHandler(self.app)
@@ -39,8 +24,10 @@ class TestLFTHandler(unittest.TestCase):
         self.assertIsNone(handler.client)
 
     @patch("elixir_dss.clients.lft.LFTClient")
-    def test_create_new_link(self, mock_client_class):
+    @patch("elixir_dss.clients.lft.AccessLevel")
+    def test_create_new_link(self, mock_access_level, mock_client_class):
         mock_client = mock_client_class.return_value
+        mock_access_level.READ_WRITE = "V"
         mock_client.links_list.return_value = []
 
         mock_link = Mock(
@@ -82,8 +69,10 @@ class TestLFTHandler(unittest.TestCase):
         mock_client.login.assert_called_once()
 
     @patch("elixir_dss.clients.lft.LFTClient")
-    def test_skip_expired_link(self, mock_client_class):
+    @patch("elixir_dss.clients.lft.AccessLevel")
+    def test_skip_expired_link(self, mock_access_level, mock_client_class):
         mock_client = mock_client_class.return_value
+        mock_access_level.READ_WRITE = "V"
 
         expired_link = Mock(expiration_datetime=datetime.now() - timedelta(days=1))
         new_link = Mock(

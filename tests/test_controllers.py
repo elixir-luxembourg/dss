@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch, call
 from datetime import datetime, timedelta
 
 from flask import url_for
+import pytest
 from elixir_dss import db, lft
 
 from elixir_dss.models.security import User
@@ -205,6 +206,7 @@ class ControllersTest(BaseIntegrationTest):
                 dataset=dataset, sub=submission.ref_name
             )
 
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
     def test_add_submission_dataset(self):
         self.login("steward1@uni.lu", "steward1")
 
@@ -245,7 +247,7 @@ class ControllersTest(BaseIntegrationTest):
 
         dataset = SubmissionDataset.query.filter_by(submission_id=submission.id).first()
         self.assertIsNotNone(dataset)
-        self.assertIsNotNone(dataset.internal_id)
+        self.assertEqual(dataset.internal_id, "TEST_DATASET_ID_001")
         self.assertEqual("Test_Dataset", dataset.title)
 
     def test_delete_submission(self):
