@@ -62,5 +62,4 @@ echo "Restarting services..."
 sudo systemctl restart elixir-dss
 sudo systemctl restart nginx
 
-echo "✓ Deployment completed successfully!"
-echo "✓ Deployed version: $VERSION"
+echo "✓ Deployment completed successfully (version: $VERSION)!"
