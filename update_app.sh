@@ -19,9 +19,14 @@ cd "$APP_DIR"
 echo "Fetching tags..."
 git fetch --tags origin
 
-if [ -z "$VERSION" ]; then
+if [ -n "$VERSION" ]; then
+    if ! echo "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9._/+-]+)?$'; then
+        echo "Error: VERSION '$VERSION' has invalid format. Should be in format 'vMAJOR.MINOR.PATCH' or 'vMAJOR.MINOR.PATCH-<suffix>'."
+        exit 1
+    fi
+else
     echo "No VERSION provided. Using latest stable tag..."
-    VERSION=$(git tag | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+    VERSION=$(git tag --list | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
     if [ -z "$VERSION" ]; then
         echo "Error: No version tags found"
         exit 1
@@ -29,7 +34,7 @@ if [ -z "$VERSION" ]; then
     echo "Selected: $VERSION"
 fi
 
-if ! git rev-parse "$VERSION" >/dev/null 2>&1; then
+if ! git show-ref --tags --quiet --verify "refs/tags/$VERSION"; then
     echo "Error: Tag $VERSION does not exist"
     echo "Available tags:"
     git tag --list | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -5
@@ -37,7 +42,10 @@ if ! git rev-parse "$VERSION" >/dev/null 2>&1; then
 fi
 
 echo "Checking out tag: $VERSION"
-git checkout "$VERSION"
+if ! git checkout "$VERSION"; then
+    echo "Error: git checkout $VERSION failed"
+    exit 1
+fi
 
 echo "Updating Python dependencies..."
 source project_venv/bin/activate
