@@ -25,15 +25,12 @@
 5. [Supporting Entities](#5-supporting-entities)<br>
     5.1. [Data Type: 'Date'](#51-data-type-date)<br>
     5.2. [Enumeration: 'ConsentStatus'](#52-enumeration-consentstatus)<br>
-    5.3. [Enumeration: 'DACApproval'](#53-enumeration-dacapproval)<br>
-    5.4. [Enumeration: 'DataType'](#54-enumeration-datatype)<br>
-    5.5. [Enumeration: 'De-identificationType'](#55-enumeration-de-identificationtype)<br>
-    5.6. [Enumeration: 'LegalBasis'](#56-enumeration-legalbasis)<br>
-    5.7. [Enumeration: 'PersonalData'](#57-enumeration-personaldata)<br>
-    5.8. [Enumeration: 'ReceivingProject'](#58-enumeration-receivingproject)<br>
-    5.9. [Enumeration: 'RequestForm'](#59-enumeration-requestform)<br>
-    5.10. [Enumeration: 'Role'](#510-enumeration-role)<br>
-    5.11. [Enumeration: 'YesNoNA'](#511-enumeration-yesnona)<br>
+    5.3. [Enumeration: 'DataType'](#53-enumeration-datatype)<br>
+    5.4. [Enumeration: 'De-identificationType'](#54-enumeration-de-identificationtype)<br>
+    5.5. [Enumeration: 'LegalBasis'](#55-enumeration-legalbasis)<br>
+    5.6. [Enumeration: 'PersonalData'](#56-enumeration-personaldata)<br>
+    5.7. [Enumeration: 'ReceivingProject'](#57-enumeration-receivingproject)<br>
+    5.8. [Enumeration: 'Role'](#58-enumeration-role)<br>
         
 ## 1. Introduction
 
@@ -54,7 +51,7 @@ To support future alignment with the European Health Data Space (EHDS), the sele
 
 ## 3. Overview
 
-Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes \([Dataset](#41-dataset), [Distribution](#42-distribution), [Person](#43-person), [Submission](#45-submission), and [Study](#44-study)\), along with four subclassess derived from class 'Person' \([DatasetCreator](#432-subclass-datasetcreator), [StudyContact](#433-subclass-studycontact) with subclasses MainStudyContact and StudyAdditionalContact, and [SubmissionContact]((#434-subclass-submissioncontact)) with subclasses SubmittingUser and AdditionalContact\). In addition, it includes eleven supporting entities: one custom [data type \(Date\)](#51-data-type-date) and ten enumerations \([ConsentStatus](#52-enumeration-consentstatus), [DACApproval](#53-enumeration-dacapproval), [DataType](#54-enumeration-datatype), [De-identificationType](#55-enumeration-de-identificationtype), [LegalBasis](#56-enumeration-legalbasis), [PersonalData](#57-enumeration-personaldata), [ReceivingProject](#58-enumeration-receivingproject), [RequestForm](#59-enumeration-requestform), [Role](#510-enumeration-role), and [YesNoNA](#511-enumeration-yesnona)\).
+Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes \([Dataset](#41-dataset), [Distribution](#42-distribution), [Person](#43-person), [Submission](#45-submission), and [Study](#44-study)\), along with four subclassess derived from class 'Person' \([DatasetCreator](#432-subclass-datasetcreator), [StudyContact](#433-subclass-studycontact) with subclasses MainStudyContact and StudyAdditionalContact, and [SubmissionContact]((#434-subclass-submissioncontact)) with subclasses SubmittingUser and AdditionalContact\). In addition, it includes eight supporting entities: one custom [data type \(Date\)](#51-data-type-date) and seven enumerations \([ConsentStatus](#52-enumeration-consentstatus), [DataType](#53-enumeration-datatype), [De-identificationType](#54-enumeration-de-identificationtype), [LegalBasis](#55-enumeration-legalbasis), [PersonalData](#56-enumeration-personaldata), [ReceivingProject](#57-enumeration-receivingproject), and [Role](#58-enumeration-role)\).
 
 According to the metadata schema, a submission must always be linked to at least one study and one dataset, and may be linked to multiple studies and multiple datasets. However, each study and dataset can only be linked to a single submission. Furthermore, a dataset must always be linked to a study, as the study represents the origin of the data. Conversely, a dataset may be associated with zero or more distributions, each representing a physical expression of the dataset in a specific format.
 
@@ -90,39 +87,40 @@ This section provides detailed descriptions of the core classes in the diagram, 
 |external identifier              |External identifers/links, such as DOIs, accession numbers, or registry IDs            |String       |  0..*           |  Provide additional identifiers or links from external sources, if any.          |  NA                                    | EGAD00000000001        |
 |data types remarks               |Remarks on data types included in the dataset            |  String     |  0..1           | In case of selecting "other" types of data in property 'data types', please describe those data types.           |          NA                            |  *TBD*       |
 |sample types              |Types of samples analyzed            |   String    |     0..*        |  Controlled vocabularies are suggested in this property.          | UBERON, FMA                                      | blood, skin, tumor tissue         |
-|personal data               | Does the dataset contain personal data           | Boolean      | 0..1            |  Personal data is any information relating to an identified or identifiable natural person (data subject). This property accepts a 'Yes/No' value.          |      NA                                |  Yes       |
+|personal data               | Does the dataset contain personal data?           | Boolean      | 0..1            |  Personal data is any information relating to an identified or identifiable natural person (data subject). This property accepts a 'Yes/No' value.          |      NA                                |  Yes       |
 |de-identification               |Is the data anonymised, pseudonymised, or contains direct identfiers?            |  De-identificationType (enumeration)     | 0..1            |  In case of selecting "yes" in property 'personal data', please select the de-identification process applied, if any. A dataset is considered anonymised if no stakeholder is holding a mapping from the Subject ID in the data to the identifying personal information e.g. name, surname, date of birth, address of the human subject supplying the data. A dataset is considered pseudonymised if there exists some cohort owner/coordinator holding the mapping from the Subject ID to the human subject identifying personal information.         |              NA                        | Anonymized        |
 |personal data categories               |Categories and types of personal data included in the dataset, if applicable.            |  PersonalData (enumeration)     | 0..*            | This property accepts one or more values from the enumeration 'PersonalData'. The definitions for these categories of data are sourced in the GDPR. In biomedical projects with pseudonymised cohort data, the options  would likely fall under  “Special category, i.e. sensitive, personal data” e.g. “Genetic data”, “Data concerning health” and "Other special categories of data”. <br> You may get assistance from your institute’s DPO or legal team in filling out this section.           |       NA                               | Genetic data, Data concerning health        |
 |personal data remarks               | Remarks on categories of personal data           | String      | 0..1            |  In case of selecting "other special categories of data", please provide a brief description.          |      NA                                |  *TBD*       |
 |collection legal basis               | Legal basis according to Art. 6.1 GDPR for the collection of personal data           |  LegalBasis (enumeration)     |  0..1           | This property accepts none or one value from the enumeration 'LegalBasis'. These values come from GDPR Article 6. You may get assistance from your institute’s DPO or legal team in filling out this section.           |   NA                                   | Consent (6.1(a))        |
 |sharing legal basis               |Legal basis according to Art. 6.1 GDPR for the sharing and, where applicable, the subsequent processing of personal data            |  LegalBasis (enumeration)     |  0..1           | This property accepts none or one value from the enumeration 'LegalBasis'. These values come from GDPR Article 6. You may get assistance from your institute’s DPO or legal team in filling out this section.           |      NA                                | Public interest (6.1(e))        |
-|legitimation sensitive data               |For the processing of special category (sensitive) personal data, do you have a  legitimation under Art. 9.2 GDPR that provides specific derogation from the general prohibition to process such data?            | YesNoNA (enumeration)      |   0..1          | This property accepts none or one value from the enumeration 'YesNoNA'.           |               NA                       |   Yes      |
+|sensitive personal data               | Is data classified as special category (sensitive) personal data according to Art 9.2 GDPR?          | Boolean      | 0..1            |  This property accepts a 'Yes/No' value.          |      NA                                |  Yes      | 
+|legitimation sensitive data               |For the processing of special category (sensitive) personal data, do you have a  legitimation under Art. 9.2 GDPR that provides specific derogation from the general prohibition to process such data?            | Boolean      |   0..1          | This property accepts a 'Yes/No' value.           |               NA                       |   Yes      |
 |data subjects scope              |Scope of data subjects            | String      |   0..1          | Describe the scope of data subjects.           |       NA                               | *TBD*        |
-|special data subjects               | Does the dataset contain data from special subjects?           | YesNoNA (enumeration)    | 0..1            |  "Special subjects" refers to minors or subjects unable to give consent e.g. mentally impaired subjects. This property accepts none or one value from the enumeration 'YesNoNA'.          |     NA                                 | Yes       |
+|special data subjects               | Does the dataset contain data from special subjects?           | Boolean    | 0..1            |  "Special subjects" refers to minors or subjects unable to give consent e.g. mentally impaired subjects. This property accepts a 'Yes/No' value.          |     NA                                 | Yes       |
 |special data subjects description              |Description of special data subjects            | String      | 0..1            |  Provide a brief description of special data subjects, if any.          |     NA                                 | Children        |
-|research limited scope           |Limited scope of research \(i.e., research/disease area\)            | YesNoNA (enumeration)        |  0..1           |  This field answers the question whether the data is consented to be used only in specific research/disease areas. This property accepts none or one value from the enumeration 'YesNoNA'.          |     NA                                 | Yes        |
+|research limited scope           |Limited scope of research \(i.e., research/disease area\)            | Boolean        |  0..1           |  This field answers the question whether the data is consented to be used only in specific research/disease areas. This property accepts a 'Yes/No' value.          |     NA                                 | Yes        |
 |research limited scope description           | Description of the research/disease areas restriction on data           | String      |  0..1           |  Describe the restrictions on data about specific research/disease areas, if any.           |    NA                                  | Use only in Biomedical Research         |
-|geographical restrictions           | Does consent contain clauses that put geographical restrictions to the sharing of data?           | YesNoNA (enumeration)      |  0..1           | This field answers the question whether the consent contain clauses that put geographical restrictions to the sharing of data. This property accepts none or one value from the enumeration 'YesNoNA'.           |     NA                                 |  Yes       |
+|geographical restrictions           | Does consent contain clauses that put geographical restrictions to the sharing of data?           | Boolean      |  0..1           | This field answers the question whether the consent contain clauses that put geographical restrictions to the sharing of data. This property accepts a 'Yes/No' value.           |     NA                                 |  Yes       |
 |geographical restrictions description           |Description of geographical restrictions on data            | String      |  0..1           | Describe the geographical restrictions on data, if any.          |   NA                                   | Not to be shared outside Country A, B, or EU/EEA        |
-|restricted recipients           |Does the consent limit the type of recipients?             | YesNoNA (enumeration)      |  0..1           | This field indicates whether the consent limits the type of recipient(s). This property accepts none or one value from the enumeration 'YesNoNA'.            |   NA                                   |   Yes      |
+|restricted recipients           |Does the consent limit the type of recipients?             | Boolean    |  0..1           | This field indicates whether the consent limits the type of recipient(s). This property accepts a 'Yes/No' value.            |   NA                                   |   Yes      |
 |restricted recipients description           |Description of the recipient restrictions on data            | String      |  0..1           | Describe the recipient restrictions on data, if any.           |   NA                                   | Data can be sent only to a specific type of institution such as private research institutions or public research institutions or to a named list of  institutions.        |
-|retention time           | Does the consent contain clauses that put time-limits on the use of data?             | YesNoNA (enumeration)      |  0..1           | This field indicates whether the consent contains clauses that establish time limitations on the use of data. This property accepts none or one value from the enumeration 'YesNoNA'.          |             NA                         |   Yes      |
+|retention time           | Does the consent contain clauses that put time-limits on the use of data?             | Boolean      |  0..1           | This field indicates whether the consent contains clauses that establish time limitations on the use of data. This property accepts a 'Yes/No' value.          |             NA                         |   Yes      |
 |retention time description           |Description of the time-limit restrictions on data            | String      | 0..1            |  Describe the time-limit restrictions on data, if any.          |          NA                            | 10 years from end of the project        |
 |consent form          |Are the consents heterogeneous or homogeneous?            | ConsentStatus (enumeration)      |  0..1           | If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous. If the consent form has stayed the same over the course of the study but it has options so that different subjects can create different restrictions on their data, then this case is also considered heterogeneous. <br> This property accepts none or one value from the enumeration 'ConsentStatus'.           |    NA                                  |  Heterogeneous       |
 |consent form description         | Data dictionary item (column) that specifies consent groups in data.             | String      |   0..1          |   This information should be provided in cases where the consent is heterogeneous.        |     NA                                 |  *TBD*       |
-|time limit storage          |Is the data being sent to ELIXIR-LU/LCSB for a limited duration?            | YesNoNA (enumeration)      |  0..1           |  This property accepts none or one value from the enumeration 'YesNoNA'.          |      NA                                |   Yes      |
+|time limit storage          |Is the data being sent to ELIXIR-LU/LCSB for a limited duration?            | Boolean      |  0..1           |  This property accepts a 'Yes/No' value.          |      NA                                |   Yes      |
 |time limit storage date          |Agreed end date or criteria for data's residence at ELIXIR-LU/LCSB            | Date (data type)     |   0..1          |  Indicate end date (YYYY-MM-DD) of permitted storage at ELIXIR-LU/LCSB.          |      NA                                |  2030-04-25       |
-|publication requirements          |Are there any requirements in case of publications based on the data?            |  YesNoNA (enumeration)     | 0..1            |   This property accepts none or one value from the enumeration 'YesNoNA'.          |    NA                                  | Yes       |
+|publication requirements          |Are there any requirements in case of publications based on the data?            |  Boolean     | 0..1            |   This property accepts a 'Yes/No' value.          |    NA                                  | Yes       |
 |publication requirements description          |Publication requirements for the dataset.           | String       |  0..1           |  Describe the publication requirements, if any.          |         NA                            |  Papers should cite the cohort study.        |
-|data return requirements          |Is there a requirement to return data or documents to the database/resource?            | YesNoNA (enumeration)      |   0..1          |  This property accepts none or one value from the enumeration 'YesNoNA'.          |       NA                               | Yes        |
+|data return requirements          |Is there a requirement to return data or documents to the database/resource?            | Boolean      |   0..1          |  This property accepts a 'Yes/No' value.          |       NA                               | Yes        |
 |data return requirements description          |Return requirements for the dataset.            | String      |   0..1          | Describe the publication requirements, if any.          |    NA                                  |  *TBD*       |
-|user specific restrictions          |Is the use limited to approved users/groups/institutions?            | YesNoNA (enumeration)      |   0..1          |  This property accepts none or one value from the enumeration 'YesNoNA'.          |     NA                                 |   Yes      |
+|user specific restrictions          |Is the use limited to approved users/groups/institutions?            | Boolean      |   0..1          |  This property accepts a 'Yes/No' value.          |     NA                                 |   Yes      |
 |user specific restrictions description          |Specific users/groups/institutions to which ELIXIR-LU/LCSB is instructed to give access to the data upon request            |  String     |  0..1           |  List the specific users/groups/institutions.        |      NA                                |  *TBD*       |
-|IP conditions          | Are there any conditions/restrictions regarding the Intellectual Property (IP) of the data?           | YesNoNA (enumeration)      | 0..1            |  is property accepts none or one value from the enumeration 'YesNoNA'.           |        NA                              |   Yes      |
+|IP conditions          | Are there any conditions/restrictions regarding the Intellectual Property (IP) of the data?           | Boolean      | 0..1            |  This property accepts a 'Yes/No' value.           |        NA                              |   Yes      |
 |IP conditions description|  IP conditions/restrictions on the data.          | String      | 0..1            |  Describe the IP conditions/restrictions on the data, if any.          |            NA                          |   *TBD*      |
 |other restrictions         |Description of other restrictions on data            | String       |   0..1          | If applicable, in your description you may refer to [GA4GH Data Use Category Codes](https://www.ga4gh.org/document/archived-data-use-categories-and-requirements-consent-codes/)           |                                      |         |
-|access request form          | Will all researchers accessing the data need to sign an access request form?           | RequestForm (enumeration)      | 0..1            |  This property accepts none or one value from the enumeration 'RequestForm'.          |  NA                                    |   Additional form needed      |
-|DAC approval          |Will access require Data Access Committee (DAC) approval?            | DACApproval (enumeration)      |  0..1           | This property accepts none or one value from the enumeration 'DACApproval'.           |    NA                                  |  DAC approval needed       |
+|access request form          | Will all researchers accessing the data need to sign an access request form?           | Boolean      | 0..1            |  This property accepts a 'Yes/No' value.If an access request form is needed, please make sure you provide the form template as a supporting document to the submission.         |  NA                                    |   Yes      |
+|DAC approval          |Will access require Data Access Committee (DAC) approval?            | Boolean     |  0..1           | This property accepts a 'Yes/No' value.           |    NA                                  |  Yes       |
 |DAC approval procedure          |Required procedure when a DAC approval is needed.            | String      | 0..1           |  Describe the required procedure.          |       NA                               |   *TBD*      |
 |number of records          |Number of records in the dataset            |   UnlimitedNatural    |   0..1          | Value must be a non-negative integer.           |     NA                                 | 45        |
 |version          | Dataset version            |  String     | 0..1            |  Use semantic versioning (e.g., v1.0, v2.1) or a date-based versioning scheme, if applicable.          |       NA                               | v1.5        |
@@ -273,15 +271,7 @@ This section describes the enumerations and custom data types that support the c
 - Homogeneus: If the consent form has stayed the same over the course of the study but it has options so that different subjects can create different restrictions on their data, then this case is also considered heterogeneous.
 - Don't_know
 
-### 5.3. Enumeration: 'DACApproval'
-
-**Description:** This enumeration contains the values to specify whether access to data will require DAC approval. It is used as a value range for property 'DAC approval' in class ['Dataset'](#41-dataset).
-
-**Values:**
-- DAC_approval_needed
-- DAC_approval_not_needed
-
-### 5.4. Enumeration: 'DataType'
+### 5.3. Enumeration: 'DataType'
 
 **Description:** This enumeration includes the possible values to indicate the data types included in the dataset. It is used as a value range for property 'data types' in class ['Dataset'](#41-dataset).
 
@@ -320,7 +310,7 @@ This section describes the enumerations and custom data types that support the c
     - Other phenotype data
 - Other
 
-### 5.5. Enumeration: 'De-identificationType'
+### 5.4. Enumeration: 'De-identificationType'
 
 **Description:** This enumeration includes the possible values to indicate whether the data has been anonymized or pseudonymized, if applicable. It is used as a value range for property 'anonymized or pseudonimized' in class ['Dataset'](#41-dataset).
 
@@ -329,7 +319,7 @@ This section describes the enumerations and custom data types that support the c
 - Pseudonimized: A dataset is considered pseudonymised if there exists some cohort owner/coordinator holding the mapping from the Subject ID to the human subject identifying personal information.
 - Contains direct identifiers
 
-### 5.6. Enumeration: 'LegalBasis'
+### 5.5. Enumeration: 'LegalBasis'
 
 **Description:** This enumeration includes the possible values to indicate to indicate the legal bases for the collection, sharing, and subsequent processing of personal data according to [Art.6.1 from the GDPR](https://gdpr-info.eu/art-6-gdpr/). It is used as a value range for property 'collection legal basis' and 'sharing legal basis' in class ['Dataset'](#41-dataset), respectively.
 
@@ -341,7 +331,7 @@ This section describes the enumerations and custom data types that support the c
 - Public_interest_(6.1(e))
 - Legitimate_interest_(6.1(f))
 
-### 5.7. Enumeration: 'PersonalData'
+### 5.6. Enumeration: 'PersonalData'
 
 **Description:** This enumeration includes the possible values to indicate the personal data types included in the dataset according to [Art. 9.1](https://gdpr-info.eu/art-9-gdpr/) and [Art. 10](https://gdpr-info.eu/art-10-gdpr/) from the GDPR, if applicable. It is used as a value range for property 'personal data' in class ['Dataset'](#41-dataset).
 
@@ -358,22 +348,14 @@ This section describes the enumerations and custom data types that support the c
    - Data relating to criminal convictions and offences
    - Other special categories of data (e.g., molecular data that can give indication of a person's health)
 
-### 5.8. Enumeration: 'ReceivingProject'
+### 5.7. Enumeration: 'ReceivingProject'
 
 **Description:** This enumeration provides a list with the names of the projects of origin of both studies and datasets belonging to the studies. It is used as a value range for property 'receiving research project in class ['Submission'](#45-submission).
 
 **Values:**
 Values for projects are not shown in the diagram since the list of projects is retrieved from the [Data Information Syystem \(DAISY\)](https://github.com/elixir-luxembourg/daisy/) used at the LCSB and the ELIXIR-LU data hub. 
 
-### 5.9. Enumeration: 'RequestForm'
-
-**Description:** This enumeration includes the possible values to indicate whether all researchers accessing to data will need to sign an access request form. It is used as a value range for property 'access request form' in class ['Dataset'](#41-dataset).
-
-**Values:**
-- Additional_form_needed 
-- No_additional_form_needed
-
-### 5.10. Enumeration: 'Role'
+### 5.8. Enumeration: 'Role'
 
 **Description:** This enumeration contains the values to specify the job role of the submission contacts in the system.
 
@@ -385,12 +367,4 @@ Values for projects are not shown in the diagram since the list of projects is r
 - Legal_Representative
 - Other
 
-### 5.11. Enumeration: 'YesNoNA'
 
-**Description:** This enumeration includes the possible values for Yes/No questions. Additional values such as 'not applicable' and 'don't know' are also allowed. 
-
-**Values:**
-- Yes
-- No
-- NA: Not applicable
-- Don't_know
