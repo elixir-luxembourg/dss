@@ -13,7 +13,7 @@
                 <th rowspan="2" class="fw-semibold text-dark py-2 align-middle border-end" style="background-color: #e9ecef;">
                     <i class="bi bi-file-earmark-bar-graph me-2 text-primary"></i>Data Type(s)
                 </th>
-                {% if submission.current_status.step_num() > 2 and submission.current_status.step_num() < 5 %}
+                {% if submission.current_status.step_num() == 3 %}
                     <th rowspan="2" class="fw-semibold text-dark py-2 align-middle border-end" style="background-color: #e9ecef;">
                         <i class="bi bi-link-45deg me-2 text-primary"></i>Upload Link
                     </th>
@@ -55,7 +55,7 @@
                             <span class="text-muted small fst-italic">No data types</span>
                         {% endif %}
                     </td>
-                    {% if submission.current_status.step_num() > 2 and submission.current_status.step_num() < 5 %}
+                    {% if submission.current_status.step_num() == 3 %}
                 <td>
                     <button type="button"
                             class="btn btn-primary btn-sm"

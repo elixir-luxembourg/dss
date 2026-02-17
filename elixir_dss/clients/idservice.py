@@ -25,4 +25,4 @@ def generate_id(title: str) -> str:
         return response.text
 
     except requests.RequestException as e:
-        raise IDServiceError(f"ID Service request failed: {e}") from e
+        raise IDServiceError(f"ID Service request failed: {e}")
