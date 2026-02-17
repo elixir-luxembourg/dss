@@ -9,7 +9,7 @@ def set_test_env():
     os.environ["ELIXIR_DSS_ENV"] = "test"
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(scope="function")
 def mock_idservice_requests_post():
     with patch("elixir_dss.clients.idservice.requests.post") as mock_post:
         mock_resp = MagicMock()
