@@ -1,9 +1,10 @@
 import json
+from datetime import date
 from unittest.mock import patch
 
 from elixir_dss import db
 from elixir_dss.exceptions import RecordLifecycleException
-from elixir_dss.importer.submission_exporter import SubmissionExporter
+from elixir_dss.importer.submission_exporter import SubmissionExporter, normalize
 from elixir_dss.models.security import User
 from elixir_dss.models.services import (
     assign_role_to_user,
@@ -407,6 +408,23 @@ class ModelPersistenceTest(BaseTest):
         }
 
         self.assertSetEqual(set(dataset.keys()), expected_dataset_keys)
+
+    def test_normalize(self):
+        self.assertEqual(normalize(None), "-")
+        self.assertEqual(normalize(""), "-")
+        self.assertEqual(normalize([]), "-")
+
+        self.assertEqual(normalize(True), "Yes")
+        self.assertEqual(normalize(False), "No")
+
+        self.assertEqual(normalize(["a", "b"]), "a, b")
+
+        self.assertEqual(normalize(date(2024, 6, 1)), "2024-06-01")
+
+        self.assertEqual(normalize('["Genomics", "RNASeq"]'), "Genomics, RNASeq")
+        self.assertEqual(normalize('{"key": "value"}'), "key: value")
+
+        self.assertEqual(normalize("test"), "test")
 
     def test_clone_submission_basic(self):
         original = create_sub("ELU_I_11")

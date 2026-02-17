@@ -1,7 +1,7 @@
 import io
 import os
-from docxtpl import DocxTemplate
 
+from docxtpl import DocxTemplate
 from flask import (
     send_file,
 )
