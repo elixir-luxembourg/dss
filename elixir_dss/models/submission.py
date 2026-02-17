@@ -8,6 +8,7 @@ from sqlalchemy.orm import object_mapper
 
 from elixir_dss import db
 from elixir_dss.clients.daisy import get_elu_partners
+from elixir_dss.clients.idservice import generate_id
 from elixir_dss.controllers.utils import dict_list_lookup
 
 
@@ -619,7 +620,7 @@ class SubmissionDataset(db.Model):
         cloned = SubmissionDataset(**attrs)
 
         cloned.creators = [creator.clone() for creator in self.creators]
-
+        cloned.internal_id = generate_id(cloned.title)
         return cloned
 
 

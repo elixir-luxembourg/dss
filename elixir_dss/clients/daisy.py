@@ -1,5 +1,3 @@
-import json
-
 import requests
 
 from elixir_dss import app
@@ -15,11 +13,14 @@ def get_elu_projects():
     return get_elu_entities("projects")
 
 
+def _get_default_elu_entities(entity_name):
+    app.logger.info("Defaulting config file")
+    return app.config.get("DATA_INIT", {}).get(entity_name, [])
+
+
 def get_elu_entities(entity_name):
     if not app.config.get("DAISY_USE"):
-        app.logger.info("Defaulting config file")
-        entities_json_str = json.dumps(app.config.get("DATA_INIT")[entity_name])
-        return json.loads(entities_json_str)
+        return _get_default_elu_entities(entity_name)
 
     try:
         daisy_url = app.config.get("DAISY_URL")
@@ -35,6 +36,4 @@ def get_elu_entities(entity_name):
         return data.get("items", []) or data.get("results", [])
     except (requests.RequestException, ValueError):
         app.logger.error("Error fetching ELU entities: %s", entity_name)
-        app.logger.info("Defaulting config file")
-        entities_json_str = json.dumps(app.config.get("DATA_INIT")[entity_name])
-        return json.loads(entities_json_str)
+        return _get_default_elu_entities(entity_name)

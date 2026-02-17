@@ -5,6 +5,7 @@ from flask import Flask
 
 try:
     from lftclient import LFTClient, LFTClientException
+    from lftclient.lft import AccessLevel
 except ImportError:
     LFTClient = None
     LFTClientException = Exception
@@ -105,6 +106,7 @@ class LFTHandler:
                 share_name=share_name,
                 sub=sub,
                 expiration_date=dt.date(dt.now() + td(days=self.link_validity_days)),
+                access_level=AccessLevel.READ_WRITE,
             )
             return LFTLink(
                 id=link.id,
