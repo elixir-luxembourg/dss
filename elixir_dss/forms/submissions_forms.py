@@ -212,14 +212,8 @@ class StudyForm(FlaskForm):
         description="Sample sources studied. Separate multiple values with semicolons. Ontology terms optional (e.g., tissue sample; Blood (UBERON:0000178))",
     )
 
-    description_of_data_subjects = TextAreaField(
-        "Description of data subjects",
-        description="Description of data subjects",
-        render_kw={"rows": 3},
-    )
-
     description_of_cohorts = TextAreaField(
-        "Description of cohorts",
+        "Description of Data Subjects",
         description="Detailed cohort description (e.g., 250 patients (132 male, 118 female) with type II diabetes)",
         render_kw={"rows": 3},
     )

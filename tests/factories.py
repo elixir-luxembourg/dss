@@ -112,7 +112,6 @@ class SubmissionStudyFactory(factory.alchemy.SQLAlchemyModelFactory):
     species_json = '["Homo sapiens (NCBITaxon:9606)"]'
     diseases_json = '["Parkinson\'s disease (MONDO:0005180)"]'
     sample_sources_json = '["Brain (UBERON:0000955)", "Blood (UBERON:0000178)"]'
-    description_of_data_subjects = factory.Faker("text", max_nb_chars=150)
     description_of_cohorts = factory.Faker("text", max_nb_chars=150)
     informed_consent_given = True
     other_subject_characteristics_json = '["sex: 57 male, 85 female"]'
