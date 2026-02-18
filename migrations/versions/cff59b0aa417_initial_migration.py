@@ -200,7 +200,6 @@ def upgrade():
         sa.Column("diseases_json", sa.String(), nullable=True),
         sa.Column("number_of_subjects", sa.Integer(), nullable=True),
         sa.Column("sample_sources_json", sa.String(), nullable=True),
-        sa.Column("description_of_data_subjects", sa.Text(), nullable=True),
         sa.Column("description_of_cohorts", sa.Text(), nullable=True),
         sa.Column("informed_consent_given", sa.Boolean(), nullable=True),
         sa.Column("age_range_of_subjects", sa.String(), nullable=True),

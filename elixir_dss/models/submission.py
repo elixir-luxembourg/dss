@@ -345,7 +345,6 @@ class SubmissionStudy(db.Model):
     diseases_json = db.Column(db.String, nullable=True)
     number_of_subjects = db.Column(db.Integer, nullable=True)
     sample_sources_json = db.Column(db.String, nullable=True)
-    description_of_data_subjects = db.Column(db.Text, nullable=True)
     description_of_cohorts = db.Column(db.Text, nullable=True)
     informed_consent_given = db.Column(db.Boolean, nullable=True)
     age_range_of_subjects = db.Column(db.String, nullable=True)
