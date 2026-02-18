@@ -125,11 +125,14 @@ sudo systemctl restart nginx
 
 ## Maintenance
 
-### Update Application
+### Update Application (Manual)
 ```bash
 su - elixirdss
 cd ~/app-src/elixir-dss
-git pull
+
+git fetch --tags origin
+git checkout v0.1.2
+
 source project_venv/bin/activate
 pip install -e . --upgrade
 cd elixir_dss/static/vendor
@@ -139,6 +142,15 @@ exit
 
 sudo systemctl restart elixir-dss
 sudo systemctl restart nginx
+```
+
+### Update Application (Automated)
+```bash
+# Deploy latest stable release (recommended)
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh
+
+# Or deploy a specific version
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh v0.1.2
 ```
 
 ### View Logs
