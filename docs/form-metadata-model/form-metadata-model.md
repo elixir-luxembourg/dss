@@ -58,7 +58,7 @@ According to the metadata schema, a submission must always be linked to at least
 
 [Section 4](#4-main-entities) provides an overview of the main entities in the diagram, including the core classes and their subclasses. For each class, details about its properties are presented, such as name, definition, range, cardinality, usage notes, suggested controlled vocabularies (where applicable), and examples. While specific controlled vocabularies are recommended for some properties, alternative vocabularies are also acceptable. [Section 5](#5-supporting-entities) describes includes the supporting entities (i.e., data types and enumerations). 
 
-![UML class diagram representing the metadata schema for the DSS form](2025-11_UML_DSS_metadata_schema.drawio.svg "Figure 1. UML class diagram of the DSS form metadata schema")
+![UML class diagram representing the metadata schema for the DSS form](2026-02_UML_DSS_metadata_schema.drawio.svg "Figure 1. UML class diagram of the DSS form metadata schema")
 *Figure 1. UML class diagram of the DSS form metadata schema*
 
 ## 4. Main Entities
