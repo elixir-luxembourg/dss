@@ -87,7 +87,7 @@
                 {% endif %}
                 </fieldset>
             <div class="d-flex gap-2 mt-4">
-                <input type="submit" class="save btn btn-primary" value="{% if submsn_form.id.data %}Save{% else %}Create{% endif %}"/>
+                <input type="submit" class="save btn btn-primary" id="submit-btn" value="{% if submsn_form.id.data %}Save{% else %}Create{% endif %}"/>
                 <a href="{% if submsn_form.id.data %}{{ url_for('view_submission',sub_id=submsn_form.id.data) }}{% else %}{{ url_for('list_submissions') }}{% endif %}" class="cancel btn btn-outline-secondary" role="button">Cancel</a>
             </div>
         </form>

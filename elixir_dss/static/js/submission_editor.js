@@ -256,5 +256,19 @@ $(document).ready(function () {
         });
     }
 
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            const btn = document.getElementById('submit-btn');
+            if (!btn) return;
+            if (btn.disabled) {
+                e.preventDefault();
+                return;
+            }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+        });
+    }
+
 
 });
