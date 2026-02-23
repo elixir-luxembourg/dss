@@ -9,6 +9,17 @@
 {% assets "submission_editor_js" %}
 <script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
+    <script>
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const btn = document.getElementById('submit-btn');
+            if (btn.disabled) {
+                e.preventDefault();
+                return;
+            }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+        });
+    </script>
 {% endblock %}
 {% block css %}
 {{ super() }}
@@ -207,7 +218,7 @@
 
             <!-- Form Actions -->
             <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" id="submit-btn">
                     <i class="bi bi-check-circle"></i> Save
                 </button>
                 <a href="{{ url_for('view_submission',sub_id=dataset_form.submission_id.data) }}" class="btn btn-outline-secondary" role="button">
