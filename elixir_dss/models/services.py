@@ -485,6 +485,15 @@ def update_submission_basic_info(submission: Submission, **kwargs):
     if "local_project_name" in kwargs:
         submission.local_project_name = kwargs.pop("local_project_name")
 
+    if "submission_contacts" in kwargs:
+        contacts_data = kwargs.pop("submission_contacts")
+        submission.submission_contacts = []
+        for contact_data in contacts_data:
+            contact = Contact()
+            for key, value in contact_data.items():
+                setattr(contact, key, value)
+            submission.submission_contacts.append(contact)
+
     db.session.add(submission)
     db.session.commit()
 
