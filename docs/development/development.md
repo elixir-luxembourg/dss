@@ -1,3 +1,34 @@
+## Quick Start (Recommended)
+
+For most users, this is all you need:
+
+```bash
+# First time setup (creates venv, installs deps, builds CSS, initializes DB)
+./setup_dev.sh
+
+# Start the development server
+./run_dev.sh
+```
+
+Application runs at **http://127.0.0.1:5000**
+
+**Demo Login Credentials:**
+- Admin: `steward1@uni.lu` / `steward1`
+- Data Provider: `submitter1@some.edu` / `submitter1`
+
+### Daily Development
+
+**Starting the server:**
+```bash
+./run_dev.sh
+```
+
+**Auto-compile SCSS on file changes (optional, in a separate terminal):**
+```bash
+cd elixir_dss/static/vendor && npm run watch:css
+```
+
+Edit `.scss` files → auto-recompiles → refresh browser to see changes!
 
 ## Technical Implementation Notes
 
