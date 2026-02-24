@@ -136,12 +136,6 @@ venv.bak/
 *.db
 project_venv
 
-<<<<<<< HEAD
-elixir_dcp/static/vendor/node_modules/
-
-# Draw.IO
-*.drawio.bkp
-=======
 elixir_dss/static/vendor/node_modules/
 
 elixir_dss/static/public/css/*.min.css
@@ -160,4 +154,3 @@ cache/
 *.log.*
 
 .scannerwork/
->>>>>>> develop
