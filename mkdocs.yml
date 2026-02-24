@@ -30,13 +30,13 @@ plugins:
 
 
 nav:
-  - Home: overview.md
+  - Home: index.md
   - User Guide:
-      - Getting Started: user-guide.md/getting-started.md
-      - Managing Submissions: user-guide.md/managing-submissions.md
-      - Roles & Permissions: user-guide.md/roles.md
-      - Submission States: user-guide.md/submission-states.md
-      - Notifications: user-guide.md/notifications.md
+      - Getting Started: user-guide/getting-started.md
+      - Managing Submissions: user-guide/managing-submissions.md
+      - Roles & Permissions: user-guide/roles.md
+      - Submission States: user-guide/submission-states.md
+      - Notifications: user-guide/notifications.md
   - Technical Documentation:
       - Authentication: technical-documentation/authentication.md
       - UI: technical-documentation/ui.md

@@ -154,3 +154,5 @@ cache/
 *.log.*
 
 .scannerwork/
+
+.$*.drawio.bkp
