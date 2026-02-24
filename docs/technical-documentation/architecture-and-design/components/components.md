@@ -8,29 +8,41 @@ Following diagram shows external components and their relationship
 - Authentication of users
 
 ## Data transfer tool
+
 - The tool provides data upload links for each dataset registered in submission system.
-- In our case LFT.
-- Based on the size of the files, specific tool can be chosen...
+- Currently its LCSB File Transfer tool powered by IBM Aspera
+- In future, based on e.g. the size of the files, specific tool can be selected.
 
-## Insformation system
+## Information system
 
-System providing list of existing active (running) projects.
-The data gets ingested into the respective project space. 
+System containing ground truth on external assets. 
 
 This system can also provide:
 - contracts under which submission is to happen
 - membership/role of internal personnel in the project (e.g. data manager role) acting as recipients
 
 ### Database of partners
-- either ROR.org
+
+- either ROR.org or local infromation system
 - or API call to the database of partners (can be the same system as the project database)
+
+
+
+!!! warning
+    Following integrations are not implemented
+
+
+## Arbitrary field integration (API)
+
+The forms This can be used for validation of metadata upon input. E.g. ontology lookup or any curated resource (ror.org, fairsharing.org, ...)
+
+## Ingestion module
+
+Module with access to data landing zone responsible for its ingestion into final project location. This module is rather independent of data submission system.
+The module queries DSS API for information if needed.
+
+In future, it could also give "feedback" on the insgestion, e.g. in case the ingestion fails or there is a report compiled.
 
 ## ORCID
 e.g. for selecting Authors of a dataset
 This would require integration with Keycloak as well - even identities not coming from ORCID could have ORCID ID assigned.
-
-## Arbitrary field integration (API)
-
-This can be used for validation of metadata upon input. E.g. ontology lookup or any curated resource (ror.org, fairsharing.org, ...)
-
-
