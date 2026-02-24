@@ -1,0 +1,21 @@
+ELIXIR-LU / LCSB
+
+Dear Data Provider,
+
+Congratulations! Your data upload has been approved by the data steward. Your submission is now complete in the {{ SYSTEM_NAME }}.
+
+Submission Ref: {{ submission.ref_name }}
+Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+
+{% if feedback %}
+Feedback from Data Steward:
+{{ feedback }}
+{% endif %}
+
+If you have any questions or need assistance, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the {{ SYSTEM_NAME }} at {{ url_for('home', _external=True) }} for more information.
+
+Thank you for using the {{ SYSTEM_NAME }},
+
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.

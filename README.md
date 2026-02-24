@@ -1,16 +1,36 @@
-# Elixir Data and Computing Platform 
+# LCSB Data Submission System (DSS)
 
-## Quick Start
+## Quick Start (Recommended)
+
+For most users, this is all you need:
 
 ```bash
-# First time setup
+# First time setup (creates venv, installs deps, builds CSS, initializes DB)
 ./setup_dev.sh
 
-# Run development server
+# Start the development server
 ./run_dev.sh
 ```
 
-Application runs at http://127.0.0.1:5000
+Application runs at **http://127.0.0.1:5000**
+
+**Demo Login Credentials:**
+- Admin: `steward1@uni.lu` / `steward1`
+- Data Provider: `submitter1@some.edu` / `submitter1`
+
+### Daily Development
+
+**Starting the server:**
+```bash
+./run_dev.sh
+```
+
+**Auto-compile SCSS on file changes (optional, in a separate terminal):**
+```bash
+cd elixir_dss/static/vendor && npm run watch:css
+```
+
+Edit `.scss` files → auto-recompiles → refresh browser to see changes!
 
 ## Research Data Submission Process
 
@@ -74,154 +94,133 @@ flowchart LR
     style Stage4 fill:#e8f5e9,stroke:#43a047,stroke-width:2px
 ```
 
-## Development
-## Setting up Development Environment
+## Manual Setup (Advanced)
 
+Only needed if you want to customize the setup process. Otherwise, use `./setup_dev.sh` above.
 
-The project_venv folder is for holding the virtual environment. (Elixir DCP supports Python 3.8+) 
+### Requirements
+- Python 3.12 or newer
+- Node.js and npm
+- OpenJDK 21+ (for some dependencies)
+- **Optional:** [lftpythonclient](https://gitlab.com/uniluxembourg/lcsb/elixir/lft/lftpythonclient) - Required for LFT integration to generate upload links
+
+### Python Environment Setup
 
 ```bash
-# Create virtual environment
-python3 -m venv project_venv
+# Using UV (recommended)
+pip install uv
+uv venv project_venv
 source ./project_venv/bin/activate
+uv pip install -e '.[dev]'
 ```
 
-Install dependencies with:
- 
-```bash
-pip install -e .[dev]
+### Frontend Dependencies
 
-# Frontend dependencies
-cd elixir_dcp/static/vendor
-npm ci
+```bash
+cd elixir_dss/static/vendor
+npm ci                    # Install exact versions from package-lock.json
+npm run build:css         # Build SASS to CSS
 cd ../../../
 ```
 
-## Requirements
- - Python 3.12 or newer
- - JDK (OpenJDK 21 suffices) 
- - nodejs and less (`npm install -g less`)
- 
-## Configuration
+### Configuration
 
-### 1. Create your settings file
+The setup script automatically creates `.env` file. For manual configuration:
+
+**1. Create settings file:**
 ```bash
-cp elixir_dcp/settings.py.template elixir_dcp/settings.py
+cp .env.template .env
 ```
 
-### 2. Configure authentication method
-The platform supports two authentication methods:
+**2. Database:** SQLite is configured by default (no setup needed)
 
-* **CONFIG** (local authentication) - Uses username/password pairs defined in `AUTHENTICATION_DICT`
-  - Perfect for development and testing
-  - Users are authenticated against local database
-  
-* **AAI** (ELIXIR AAI) - Uses OIDC authentication with ELIXIR AAI
-  - Requires valid `client_secrets.json` configuration
-  - For production deployments
+**3. Authentication:**
+- **CONFIG** (default): Local username/password auth - perfect for development
+- **AAI**: ELIXIR OIDC authentication
 
-
-
-### 3. Configure database
-Update the `SQLALCHEMY_DATABASE_URI` variable in `settings.py`:
- 
-* **Option 1 - SQLite backend (development)**
-    ```python
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'elixir-dcp.db')
-    ```
-    
-* **Option 2 - PostgreSQL backend (production)**
-    ```python
-    SQLALCHEMY_DATABASE_URI = 'postgresql://[user[:password]@][netloc][:port][/dbname]'
-    ```
-    
-    The project includes a docker compose configuration for PostgreSQL:
-    ```python
-    SQLALCHEMY_DATABASE_URI = 'postgresql://elixirdcp:elixirdcp@localhost:5432/elixirdcp'
-    ```
-
-### 4. Set secret key
-For development, any string can be used. For production, generate a secure key:
+**4. Secret Key:** For production, generate a secure key:
 ```python
 import os
 os.urandom(24)
 ```
         
-## Database Initialization
+### Database Initialization
 
-### Start database (if using Docker PostgreSQL)
+The `./setup_dev.sh` script handles this automatically. For manual setup:
 
-1. Copy the environment template and customize if needed:
 ```bash
-cp .env.template .env
+./manage.py init-db                                # Initialize DB with default data
+./manage.py load-demo-users                        # Create demo users
+./manage.py grant-data-steward-access <user_email> # Grant data-steward access to existing user
 ```
 
-2. Start the PostgreSQL container:
+**Create additional admin users:**
 ```bash
-docker compose up
+./manage.py create-admin "First" "Last" "email@uni.lu" "elixir_id" "ELU_I_77"
 ```
 
-### Initialize database with default data
+### Database Migrations
+
+The application uses Flask-Migrate (Alembic) for database schema changes.
+
 ```bash
-export FLASK_APP=elixir_dcp
-./manage.py init-db
+# Create a new migration after model changes
+flask db migrate -m "Description of changes"
+
+# Apply migrations to database
+flask db upgrade
+
+# Rollback last migration
+flask db downgrade
 ```
-
-### Create demo users (for development)
-```bash
-./manage.py load-demo-users
-```
-
-This creates three demo users for CONFIG authentication:
-- `steward1@uni.lu` / `steward1` (admin)
-- `submitter1@some.edu` / `submitter1` (data_provider)
-- `submitter2@some.edu` / `submitter2` (data_provider)
-
-### Create an admin user
-```bash
-./manage.py create-admin "John" "Doe" "john.doe@acme.edu" "xxxxx@elixir-europe.org" "ELU_I_77"
-```
-
 
 
 ## Running the Application
 
-### Development server
-```bash
-export FLASK_APP=elixir_dcp
-flask run --debug --port 5000
+Use `./run_dev.sh` or manually:
 
-# Or using the manage.py script
-./manage.py run
+```bash
+source ./project_venv/bin/activate
+export FLASK_APP=elixir_dss
+flask run --debug --port 5000
 ```
 
-The application will be available at http://127.0.0.1:5000
+Application available at http://127.0.0.1:5000
 
-### Export submissions
+**Export submissions:**
 ```bash
-# Export completed submissions
-./manage.py export-submissions
-
-# Export all submissions
-./manage.py export-submissions --all
-
-# Export specific submissions
-./manage.py export-submissions --submission-id 1 --submission-id 2
+./manage.py export-submissions                    # Export completed
+./manage.py export-submissions --all              # Export all
+./manage.py export-submissions --submission-id 1  # Export specific
 ```
 
 ## Testing
- 
-Run tests with pytest:
-```bash
-pytest
 
-# With coverage
-pytest --cov=elixir_dcp
+Dependencies are installed by `./setup_dev.sh`. For manual testing:
+
+```bash
+# Run tests
+uv run pytest
+uv run pytest --cov=elixir_dss --cov-report=term-missing --cov-report=xml
+
+# Lint and format
+uvx ruff check .
+uvx ruff format .
+
+# Test across Python versions
+uv run tox
 ```
 
-Run tests with multiple Python versions using tox:
+## Code Quality
+
+Run SonarQube analysis:
+
 ```bash
-tox
+# Generate coverage report first
+uv run pytest --cov=elixir_dss --cov-report=xml
+
+# Run SonarQube scanner
+sonar-scanner -Dsonar.token=<user-token>
 ```
 
 
@@ -252,6 +251,22 @@ This will:
 - Create a commit and tag
 
 Push the commit and tag to git after releasing.
+
+## Deployment
+
+**[Create Tag and GitHub Release](https://github.com/elixir-luxembourg/dss/releases/new)**
+
+**Update Application on VM:**
+
+```bash
+# Deploy latest stable release (recommended)
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh
+
+# Or deploy a specific version
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh v0.0.1
+```
+
+See `deploy/INSTRUCTIONS.md` for full deployment guide.
 
 ## Current Version
 

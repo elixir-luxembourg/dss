@@ -1,166 +1,171 @@
-# Elixir Data and Computing Platform (elixir-dcp) Deployment
+# LCSB DSS Deployment Guide
 
+Deployment using systemd and nginx on Rocky Linux 8
 
-## Install platform dependencies
+## 1. Install System Dependencies
 
 ```bash
-sudo yum install -y epel-release 
-sudo yum group install -y "Development Tools"
-sudo yum install -y nginx 
-sudo yum install -y python36-devel   
-sudo yum install -y java-1.8.0-openjdk-devel
-sudo yum install -y supervisor  
-curl "https://bootstrap.pypa.io/get-pip.py" | sudo python3.6   
+sudo dnf update -y
+sudo dnf install -y python3.12 python3.12-pip nginx git nodejs npm
+sudo dnf groupinstall -y "Development Tools"
 ```
 
-### Install wkhtmltopdf
+## 2. Setup Application User
+
 ```bash
-sudo yum install -y xorg-x11-fonts-Type1 xorg-x11-fonts-75dpi libjpeg-turbo libX11 libXext libXrender libpng
-wget https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox-0.12.5-1.centos7.x86_64.rpm
-rpm -Uvh wkhtmltox-0.12.5-1.centos7.x86_64.rpm
+sudo useradd elixirdss
+
+# Grant limited sudo access (only for deployment commands)
+echo "elixirdss ALL=(ALL) NOPASSWD: /usr/bin/systemctl, /usr/bin/chmod, /usr/bin/chown, /usr/bin/ln" | sudo tee /etc/sudoers.d/elixirdss
+sudo chmod 440 /etc/sudoers.d/elixirdss
+
+sudo su - elixirdss
 ```
 
-## Create elixirdcp user and clone project
+Create directory structure:
 ```bash
-sudo useradd elixirdcp
-sudo passwd elixirdcp
-su - elixirdcp
-```
-#### Setup folder structure
-```
-mkdir app-data
-mkdir app-src
-mkdir app-data/uploads
-mkdir app-data/exports
-mkdir app-logs
+mkdir -p app-src app-data/{uploads,exports} app-logs
 ```
 
-#### Clone project and set secret
+Setup SSH key for private repository access:
+```bash
+# Generate SSH key
+ssh-keygen -t ed25519 -C "elixirdss-deploy"
+
+# Display public key to add to GitHub Deploy Keys
+cat ~/.ssh/id_ed25519.pub
+# Add this key to: GitHub repo → Settings → Deploy keys → Add deploy key
+```
+
+Clone repository:
 ```bash
 cd app-src
-git clone ssh://git@git-r3lab-server.uni.lu:8022/elixir/elixir-dcp.git
+git clone git@github.com:elixir-luxembourg/dss.git elixir-dss
+cd elixir-dss
 ```
 
-Put in the client id and client secret:
+## 3. Configure Application
 
 ```bash
-cd elixir-dcp
-vi elixir_dcp/client_secrets.json
-```
-
-## Install
-
-### Setup virtual environment
-
-```bash
-mkdir project_venv
-```
-
-Create the environment using venv module
-
-```bash
-python3.6 -m venv project_venv
-```
-
-<font style="color:grey">If previous command fails (e.g. on CentOS), run "`sudo pip install virtualenv`" and create environment as elixirdcp user by running "`virtualenv --python=$(which python3.6) project_venv`"</font>
-
-Finally, activate virtual environment and install dependencies:
-
-```bash
+# Create virtual environment
+python3.12 -m venv project_venv
 source project_venv/bin/activate
+
+# Install dependencies
+pip install --upgrade pip
 pip install -e .
 pip install gunicorn
+
+# Build frontend assets
+cd elixir_dss/static/vendor
+npm ci
+npm run build:css
+cd ../../..
+
+# Configure environment
+cp .env.template .env
+vi .env  # Set ELIXIR_DSS_ENV=prod
+
+# Install LFT client
+cd ~/app-src/elixir-dss/
+git clone git@gitlab.com:uniluxembourg/lcsb/elixir/lft/lftpythonclient.git
+pip install -e .
+cd ..
+
+# Initialize database
+./manage.py init-db
+./manage.py load-demo-users
 ```
 
-## Configure Project
+## 4. Setup Systemd Service
 
 ```bash
-cp elixir_dcp/settings.py.template elixir_dcp/settings.py
+sudo ln -s /home/elixirdss/app-src/elixir-dss/deploy/elixir-dss-gunicorn.ini \
+           /etc/systemd/system/elixir-dss.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable elixir-dss
+sudo systemctl start elixir-dss
 ```
 
-Edit settings.py as necessary. Set `ELIXIR_DCP_ENV` to 'prod'.
+## 5. Configure Nginx
 
-Initialize the database to add the admin user and basic lookup values.
-
+Create SSL certificates (if needed):
 ```bash
-python3.6 manage.py init_db
-```
-
-## Configure and run nginx
-
-```bash
-# if it does not already exist
-sudo mkdir /etc/nginx/conf.d
-# create symlink
-sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-nginx.conf /etc/nginx/conf.d/elixir-dcp-nginx.conf
-sudo vi /etc/nginx/nginx.conf
-```
-
-Change nginx.conf so that:
-
-1. comment out the  `server {...}` section.
-
-2. nginx is being run with the elixirdcp user.
-
-    ```config
-    user elixirdcp;
-    ```
-
-3. Ensure that elixir-dcp's nginx conf file is included as follows
-  
-    ```config
-    http {
-      # ... ...
-      # ... ... nginx stuff
-      # ... ...
-      # include all server conf files
-      include /etc/nginx/conf.d/*.conf;
-    }
-    ```
-
-Create self-signed certificates if they already don't exist.
-
-```bash
-cd /home/elixirdcp/app-src/elixir-dcp/deploy
+cd /home/elixirdss/app-src/elixir-dss/deploy
 openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 ```
 
-Change ownership of nginx:
-
+Setup nginx:
 ```bash
-sudo chown -R elixirdcp.elixirdcp /var/lib/nginx
+sudo ln -s /home/elixirdss/app-src/elixir-dss/deploy/elixir-dss-nginx.conf \
+           /etc/nginx/conf.d/elixir-dss.conf
 ```
 
-Start NGINX web server
+### Fix static file permissions for nginx
+If you see nginx errors like `Permission denied` for static files, run the following commands to ensure nginx can traverse directories and read static files:
 
 ```bash
-systemctl enable nginx
-systemctl start nginx
+# Make directories traversable and files readable by nginx
+sudo chmod 755 /home/elixirdss
+sudo chmod 755 /home/elixirdss/app-src
+sudo chmod 755 /home/elixirdss/app-src/elixir-dss
+sudo chmod 755 /home/elixirdss/app-src/elixir-dss/elixir_dss
+sudo chmod 755 /home/elixirdss/app-src/elixir-dss/elixir_dss/static
+sudo chmod -R 755 /home/elixirdss/app-src/elixir-dss/elixir_dss/static/public
+sudo chmod -R +r /home/elixirdss/app-src/elixir-dss/elixir_dss/static/public
 ```
 
-## Configure and run GUNICORN web application server
-
+Continue with nginx setup:
 ```bash
-sudo ln -s /home/elixirdcp/app-src/elixir-dcp/deploy/elixir-dcp-gunicorn.ini  /etc/supervisord.d/elixir-dcp-gunicorn.ini
-sudo systemctl start supervisord
-sudo supervisorctl start gunicorn
+sudo chown -R nginx:nginx /var/lib/nginx
+sudo systemctl enable nginx
+sudo systemctl restart nginx
 ```
 
-Go to:  https://elixir-dcp.lcsb.uni.lu  to check if it works
+## Maintenance
 
-## For Maintenance and Updates
-
+### Update Application (Manual)
 ```bash
-sudo nginx -s stop
-sudo supervisorctl stop gunicorn
+su - elixirdss
+cd ~/app-src/elixir-dss
 
+git fetch --tags origin
+git checkout v0.1.2
 
-git pull
+source project_venv/bin/activate
 pip install -e . --upgrade
-cd elixir_dcp/static/vendor
+cd elixir_dss/static/vendor
 npm ci
+npm run build:css
+exit
 
-
-sudo supervisorctl start gunicorn
-sudo nginx
+sudo systemctl restart elixir-dss
+sudo systemctl restart nginx
 ```
+
+### Update Application (Automated)
+```bash
+# Deploy latest stable release (recommended)
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh
+
+# Or deploy a specific version
+sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh v0.1.2
+```
+
+### View Logs
+```bash
+# Application logs
+tail -f /home/elixirdss/app-logs/gunicorn-error.log
+
+# Nginx logs
+tail -f /var/log/nginx/error.log
+```
+
+### Check Status
+```bash
+sudo systemctl status elixir-dss
+sudo systemctl status nginx
+```
+
+Access at: https://dss-elixir-srv.lcsb.uni.lu/

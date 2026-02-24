@@ -3,9 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "elixir-dcp"
+name = "elixir-dss"
 version = "0.4.0-dev"
-description = "Elixir-LU Data and Computing Platform"
+description = "Elixir-LU Data Submission System (DSS)"
 authors = [
     {name = "Valentin Grouès", email = "valentin.groues@uni.lu"}
 ]
@@ -24,12 +24,12 @@ dependencies = [
     "Jinja2==3.1.6",
     "SQLAlchemy==2.0.43",
     "Werkzeug==3.1.3",
-    "closure==20191111",
+    "rjsmin==1.2.5",
     "flask-caching==2.3.1",
     "Flask-Login==0.6.3",
     "Flask-WTF==1.2.2",
     "Flask-Migrate==4.1.0",
-    "flask-oidc==2.4.0",
+    "Authlib==1.6.5",
     "Flask-Testing==0.8.1",
     "sqlalchemy-utils==0.41.2",
     "Flask-Mail==0.10.0",
@@ -38,7 +38,6 @@ dependencies = [
     "webassets==3.0.0",
     "requests==2.32.4",
     "weasyprint==66.0",
-    "psycopg2-binary==2.9.10",
     "WTForms-Components==0.11.0",
     "schedule==1.2.2",
     "WTForms==3.2.1",
@@ -47,6 +46,7 @@ dependencies = [
     "markupsafe==3.0.2",
     "itsdangerous==2.2.0",
     "email_validator==2.2.0",
+    "python-dotenv==1.1.1",
 ]
 
 [project.optional-dependencies]
@@ -56,21 +56,24 @@ dev = [
     "bumpversion",
     "coverage",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "ruff",
 ]
 test = [
     "coverage",
     "pytest",
-    "pytest-cov"
+    "pytest-cov",
+    "factory-boy>=3.3.3",
+    "ruff",
 ]
 
 [project.urls]
 Homepage = "https://git-r3lab.uni.lu/elixir/elixir-dcp"
 
 [tool.setuptools]
-packages = ["elixir_dcp"]
+packages = ["elixir_dss"]
 include-package-data = true
 zip-safe = false
 
 [tool.setuptools.package-data]
-elixir_dcp = ["resources/*"]
+elixir_dss = ["resources/*"]

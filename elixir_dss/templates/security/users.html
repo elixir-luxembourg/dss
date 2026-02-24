@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+{% set active_page = 'users' %}
+{% block title %} Users List {% endblock %}
+{% block js %}
+    {{ super() }}
+    {% assets "user_listing_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "select2_js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+{% block css %}
+    {{ super() }}
+    {% assets "select2_css" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+{% endblock %}
+{% block content %}
+    <div class="card border shadow-sm mb-4">
+        <!-- Card Header with Title -->
+        <div class="card-header bg-white border-bottom">
+            <h2 class="fw-semibold text-primary mb-0">Users List</h2>
+        </div>
+
+        <!-- Card Body with Table -->
+        <div class="card-body p-4">
+        {% if users %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="user_list_table">
+                    <thead class="bg-body-tertiary">
+                    <tr>
+                        <th class="fw-semibold">First Name</th>
+                        <th class="fw-semibold">Last Name</th>
+                        <th class="fw-semibold">Email</th>
+                        <th class="fw-semibold">Active</th>
+                        <th class="fw-semibold text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('edit_user', user_id=user.id) }}" class="text-dark text-decoration-none">
+                                    {{ user.first_name }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('edit_user', user_id=user.id) }}" class="text-dark text-decoration-none">
+                                    {{ user.last_name }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('edit_user', user_id=user.id) }}" class="text-primary text-decoration-none fw-medium">
+                                    {{ user.email }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if user.active_user %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                    <a name="button_user_listing_edit"
+                                       href="{{ url_for('edit_user', user_id=user.id) }}"
+                                       class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+                                        <i class="bi bi-pencil"></i>
+                                        <span>Edit</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="bg-light border rounded p-4 d-flex align-items-center gap-3">
+                <i class="bi bi-people fs-1 text-secondary"></i>
+                <div>
+                    <strong>No users found.</strong>
+                    <p class="mb-0 text-muted">User accounts will appear here once created.</p>
+                </div>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}

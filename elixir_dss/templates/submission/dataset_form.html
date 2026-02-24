@@ -1,0 +1,220 @@
+{% extends "layout.html" %}
+{% import "forms_macros.html" as fmacros %}
+{% block title %}Dataset Form{% endblock %}
+{% block js %}
+{{ super() }}
+{% assets "select2_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "submission_editor_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+{% block css %}
+{{ super() }}
+{% assets "select2_css" %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+{% endassets %}
+{% endblock %}
+{% block content %}
+<div class="card border shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom">
+        <h1 class="h5 mb-0 fw-semibold">
+            {% if dataset_form.internal_id.data %}
+                <span class="badge bg-secondary ms-2">{{ dataset_form.internal_id.data }}</span>
+            {% else %}
+            Add New Dataset
+            {% endif %}
+        </h1>
+    </div>
+    <div class="card-body p-4">
+        <form method="POST" {% if dataset_form.id.data %}
+              data-url="{{ url_for('edit_submission_dataset', dataset_id = dataset_form.id.data)}}" {% else %}
+              data-url="{{ url_for('add_submission_dataset', sub_id=dataset_form.submission_id.data)}}" {% endif %}>
+            {{ dataset_form.hidden_tag() }}
+
+            <!-- Overview Section -->
+            <div class="mb-4">
+                <h2 class="h5 fw-semibold mb-3">Overview</h2>
+                {{ fmacros.render_field_with_errors(dataset_form.title) }}
+                {{ fmacros.render_field_with_errors(dataset_form.study_id, clazz="elx-select")}}
+                {{ fmacros.render_field_with_errors(dataset_form.description) }}
+                {{ fmacros.render_field_with_errors(dataset_form.external_identifiers) }}
+                {{ fmacros.render_field_with_errors(dataset_form.sci_datatypes, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.sci_datatypes_notes) }}
+            </div>
+
+            <!-- Creator Section -->
+            <div class="mb-4">
+                <h5 class="fw-semibold mb-3">
+                    Dataset Creators <span class="text-danger">*</span>
+                </h5>
+
+                <small class="form-text text-muted d-block mb-2">
+                    At least one creator is required. Additional creators are optional.
+                </small>
+
+                <div data-toggle="fieldset" id="dataset-creators-fieldset">
+
+                    <button type="button"
+                            class="btn btn-primary btn-sm mb-3"
+                            data-toggle="fieldset-add-row"
+                            data-target="#dataset-creators-fieldset">
+                        <i class="bi bi-plus-circle"></i> Add Creator
+                    </button>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-body-tertiary">
+                            <tr>
+                                <th>Name</th>
+                                <th>Surname</th>
+                                <th>Email</th>
+                                <th>Institution</th>
+                                <th>Role</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for creator_form in dataset_form.creators %}
+                                <tr data-toggle="fieldset-entry">
+                                    <td>{{ fmacros.render_field(creator_form.first_name, clazz="form-control-sm") }}</td>
+                                    <td>{{ fmacros.render_field(creator_form.last_name, clazz="form-control-sm") }}</td>
+                                    <td>{{ fmacros.render_field(creator_form.email, clazz="form-control-sm") }}</td>
+                                    <td>{{ fmacros.render_field(creator_form.institution, clazz="form-control-sm") }}</td>
+                                    <td>{{ fmacros.render_field(creator_form.role, clazz="form-control-sm") }}</td>
+                                    <td class="text-end">
+                                        <button type="button"
+                                                class="btn btn-danger btn-sm"
+                                                data-toggle="fieldset-remove-row"
+                                                id="dataset-creators-{{ loop.index0 }}-remove"
+                                                aria-label="Remove creator">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Data Protection (GDPR) Section -->
+            <div class="mb-4">
+                <h2 class="h5 fw-semibold mb-3">Data Protection (GDPR)</h2>
+                
+                {{ fmacros.render_field_with_errors(dataset_form.contains_personal_data) }}
+                
+                <div id="personal-data-fields" style="display: none;">
+                    {{ fmacros.render_field_with_errors(dataset_form.data_processing_type, clazz="elx-select") }}
+                    
+                    <div id="gdpr-fields" style="display: none;">
+                        {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes, clazz="elx-multi-select") }}
+                        {{ fmacros.render_field_with_errors(dataset_form.gdpr_datatypes_notes) }}
+                        {{ fmacros.render_field_with_errors(dataset_form.legal_basis_collection_std_code, clazz="elx-select") }}
+                        {{ fmacros.render_field_with_errors(dataset_form.legal_basis_sharing_std_code, clazz="elx-select") }}
+                        {{ fmacros.render_field_with_errors(dataset_form.is_special_category_data) }}
+                        {{ fmacros.render_field_with_errors(dataset_form.has_art92_derogation) }}
+
+                        <!-- Scope of Data Subjects Section -->
+                        <h3 class="h6 fw-semibold mb-3">Scope of data subjects</h3>
+                        {{ fmacros.render_field_with_errors(dataset_form.has_special_subjects) }}
+                        {{ fmacros.render_field_with_errors(dataset_form.special_subjects_notes) }}
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Consent and Ethics Section -->
+            <div class="mb-4">
+                <h2 class="h5 fw-semibold mb-3">Consent and ethics</h2>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rs) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rs_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_gs) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_gs_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_user_specific) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_user_specific_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.consent_status_code, clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.consent_notes) }}
+            </div>
+
+            <!-- Specific Data Use Conditions Section -->
+            <div class="mb-4">
+                <h2 class="h5 fw-semibold mb-3">Specific data use conditions</h2>
+                <div class="mb-2 mt-4">Use of DATA is limited to the RESEARCH PROJECT</div>
+                {{ fmacros.render_field_with_errors(dataset_form.use_restriction_project) }}
+                {{ fmacros.render_field_with_errors(dataset_form.use_restriction_research_use) }}
+                <div class="mb-2 mt-4">Time limit of storage at LCSB</div>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb_date) }}
+                <div class="mb-2 mt-4">Publication requirements</div>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_pub) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_pub_notes) }}
+                <div class="mb-2 mt-4">Data return requirements</div>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn_notes) }}
+                <div class="mb-2 mt-4">User specific restrictions</div>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_us) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_us_notes) }}
+                <div class="mb-2 mt-4">IP-related conditions/restrictions</div>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip_notes) }}
+                <div class="mb-2 mt-4">Other restrictions</div>
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_other_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.access_form_required) }}
+
+                <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                    <div>If an access request form is needed, please make sure you upload the form template as an attachment to this submission.</div>
+                </div>
+
+                {{ fmacros.render_field_with_errors(dataset_form.dac_approval_required) }}
+                {{ fmacros.render_field_with_errors(dataset_form.dac_approval_notes) }}
+            </div>
+
+            <!-- Technical Metadata Section -->
+            <div class="mb-4">
+                <h5 class="fw-semibold mb-3">Technical metadata</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ fmacros.render_field_with_errors(dataset_form.number_of_records) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ fmacros.render_field_with_errors(dataset_form.dataset_version) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ fmacros.render_field_with_errors(dataset_form.creation_date) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ fmacros.render_field_with_errors(dataset_form.last_update_date) }}
+                    </div>
+                </div>
+                {{ fmacros.render_field_with_errors(dataset_form.data_standards, clazz="elx-multi-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.file_types, clazz="elx-multi-select") }}
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ fmacros.render_field_with_errors(dataset_form.byte_size) }}
+                    </div>
+                </div>
+                {{ fmacros.render_field_with_errors(dataset_form.sample_types, clazz="elx-multi-select") }}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary" id="submit-btn">
+                    <i class="bi bi-check-circle"></i> Save
+                </button>
+                <a href="{{ url_for('view_submission',sub_id=dataset_form.submission_id.data) }}" class="btn btn-outline-secondary" role="button">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

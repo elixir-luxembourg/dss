@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% import "forms_macros.html" as fmacros %}
+{% block title %}User Edit{% endblock %}
+{% block js %}
+{{ super() }}
+{% assets "select2_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "user_editor_js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% endblock %}
+
+{% block css %}
+{{ super() }}
+{% assets "select2_css" %}
+<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+{% endassets %}
+{% endblock %}
+{% block content %}
+<div class="card shadow-sm p-4 mb-4">
+    <div class="card-header bg-primary text-white fw-bold">Update User</div>
+    <div class="card-body">
+            <form  method="POST"
+                   action="{{ url_for('edit_user',user_id=user_form.id.data) }}">
+                {{ user_form.hidden_tag() }}
+                {{ fmacros.render_field_with_errors(user_form.first_name, clazz="bg-light text-muted") }}
+                {{ fmacros.render_field_with_errors(user_form.last_name, clazz="bg-light text-muted") }}
+                {{ fmacros.render_field_with_errors(user_form.email, clazz="bg-light text-muted") }}
+                {{ fmacros.render_field_with_errors(user_form.phone_no) }}
+                {{ fmacros.render_field_with_errors(user_form.addr_line1) }}
+                {{ fmacros.render_field_with_errors(user_form.addr_line2) }}
+                {{ fmacros.render_field_with_errors(user_form.institution_accession, clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(user_form.institution_division) }}
+                {{ fmacros.render_field_with_errors(user_form.assigned_role_ids, clazz="elx-multi-select") }}
+                <input type="submit" class="save btn btn-primary" value="Save"/>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

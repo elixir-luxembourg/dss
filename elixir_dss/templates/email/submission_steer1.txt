@@ -1,0 +1,18 @@
+ELIXIR-LU / LCSB
+
+Dear Data Provider,
+
+{{ SYSTEM_NAME }} has shared a new data submission session with you. The next step is to complete the required forms in the Study and Dataset sections for this submission in the {{ SYSTEM_NAME }}.
+
+Important: Please ensure that the metadata you provide is accurate and complete. You will take full responsibility for any incorrect, misleading, or incomplete information submitted.
+
+Submission Ref: {{ submission.ref_name }}
+Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+
+If you have any questions or need assistance while completing the submission, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the {{ SYSTEM_NAME }} at {{ url_for('home', _external=True) }} for guidance and further information.
+
+Thank you for your collaboration,
+
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.

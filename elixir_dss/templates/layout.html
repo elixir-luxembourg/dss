@@ -1,0 +1,93 @@
+{% import 'macros.html' as macros %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ config.get('TITLE', 'DSS') }} - {% block title %}Home{% endblock %}</title>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {% block meta %}
+        <meta name="description" content="{{ SYSTEM_NAME }}">
+        <meta property="og:title" content="{{ SYSTEM_NAME }}">
+        <meta property="og:description" content="{{ SYSTEM_NAME }}">
+        <meta property="og:image" content="{{ url_for('static', filename='public/images/ELIXIR_LU_WB.png', _external=True) }}">
+        <meta property="og:url" content="{{ request.url }}">
+        <meta property="og:type" content="website">
+    {% endblock %}
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    {% block css %}
+        {% assets "common_css" %}
+            <link rel="stylesheet" href="{{ ASSET_URL }}">
+        {% endassets %}
+    {% endblock %}
+
+    <script>
+        function defer(method) {
+            if (window.jQuery) method();
+            else setTimeout(function() { defer(method); }, 50);
+        }
+    </script>
+    
+    <!-- HTMX -->
+    <script src="{{ url_for('static', filename='vendor/htmx.min.js') }}"></script>
+</head>
+
+<body class="bg-light">
+<div id="wrap">
+    {% block navbar %}
+        {% with active_page=active_page %}
+            {% include 'navbar.html' %}
+        {% endwith %}
+    {% endblock %}
+
+    {% block container %}
+        <div class="container" id="main-container">
+            {{ macros.show_flashes() }}
+            {% block content %}{% endblock %}
+
+            <!-- Bootstrap Confirmation Modal -->
+            <div class="modal fade" id="common-command-dialog" tabindex="-1" aria-labelledby="confirmDialogLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header border-bottom">
+                            <h5 class="modal-title fw-semibold" id="confirmDialogLabel">
+                                <i class="bi bi-exclamation-circle text-warning me-2"></i>
+                                Confirm Action
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <p class="mb-0" id="command-dialog-text">You are about to perform this action.</p>
+                        </div>
+                        <div class="modal-footer border-top">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </button>
+                            <button type="button" class="btn btn-primary" id="confirm-dialog-continue">
+                                <i class="bi bi-check-circle me-2"></i>Continue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+</div>
+
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}
+
+{% block extra_content %}{% endblock %}
+
+{% block js %}
+    {% assets "common_js" %}
+        <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+</body>
+</html>

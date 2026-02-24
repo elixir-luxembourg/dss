@@ -1,0 +1,18 @@
+ELIXIR-LU / LCSB
+
+Dear all,
+
+We would like to inform you that the following submission has been CANCELLED:
+
+Submission Ref: {{ submission.ref_name }}
+Cancelled By: {{ cancelled_by_user.display_name() if cancelled_by_user else "Unknown" }}
+Reason: {{ submission.cancellation_reason or "No reason provided" }}
+
+Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+
+If you have any questions or need further clarification, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu or visit our website: {{ url_for('home', _external=True) }}
+
+Thank you,
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.

@@ -1,0 +1,53 @@
+<!-- Basic Information -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <label class="form-label text-muted small mb-1">Reference Number</label>
+        <div class="fw-semibold fs-5">{{ submission.ref_name }}</div>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label text-muted small mb-1">Created On</label>
+        <div class="fw-semibold fs-5">{{ submission.created_on }}</div>
+    </div>
+</div>
+
+{% if details %}
+<!-- Submitter Information -->
+<div class="border-top pt-4 mb-4">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <label class="form-label text-muted small mb-1">Submitting Institute</label>
+            <div class="fw-semibold">{{ submission.provider_institute_name() | default('-', true)}}</div>
+        </div>
+        <div class="col-md-8">
+            <label class="form-label text-muted small mb-1">Submitting Users</label>
+            <div class="fw-semibold">
+                {% if submission.provider_user_names() %}
+                    {{ submission.provider_user_names() | join(', ') }}
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recipient Information -->
+<div class="border-top pt-4">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <label class="form-label text-muted small mb-1">Recipient</label>
+            <div class="fw-semibold">
+                {% if submission.local_custodians() %}
+                    {{ submission.local_custodians() | join(', ') }}
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label text-muted small mb-1">Receiving Project</label>
+            <div class="fw-semibold">{{ submission.local_project_name | default('-', true)}}</div>
+        </div>
+    </div>
+</div>
+{% endif %}
