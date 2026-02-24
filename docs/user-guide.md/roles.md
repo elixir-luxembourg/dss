@@ -1,16 +1,16 @@
- two primary user roles:
+There are two primary groups of roles in the system based on the context in which they are defined.
 
 ## Global roles
 - **Admin**: power user managing user and config
 - **Data Steward**: Create and manages submissions, and oversees the entire submission process
 - **User**: Can create submissions and become Submitter. Can be also added as recipient.
 
-## Submission context roles
+## Submission roles
 User roles assinged within the scope of the submission.
 - **Submitter**:  Submitter is defined in the draft stage by user creating the submission.
 - **Recipient**: Person recieving data on our side. It can be same user as submitter. The recipient must be defined as project member.
 
-If regular user creates a submission, they have to get submitter role. Otherwise, the submission cannot be steered further.
+If regular user creates a submission, they get submitter role.
 
 
 ## User Roles and Permissions
@@ -20,10 +20,9 @@ graph TB
     subgraph "Global User Roles"
         Admin["👤 Admin"]
         DataSteward
-        User
     end
 
-    subgraph "Submission user roles"
+    subgraph "Submission User Roles"
         Submitter
         Recipient
     end
@@ -104,10 +103,6 @@ flowchart TD
     style Start fill:#4ecdc4
     style MySubmissions fill:#ffd93d
 ```
-
-### DataSteward Capabilities Summary
-
-**Submission Management:**
 
 ## Data Steward Workflow
 

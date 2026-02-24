@@ -4,6 +4,7 @@
 
 
 ## Share submission
+
 ### Appointing submitter
 - DataSteward can appoint a submitter in the Draft phase
 
@@ -19,12 +20,11 @@ This is commonly needed in Approval phase when the submission metadata is attach
 
 ### Export formats
 
-- **PDF** 
 - **MS Word document .docx** - easier for attachement to contracts
 - **JSON** - or any other machine actionable format
 
-
 ## Attach file
+
 Arbitrary files can be attached to the submission. These are commonly supporting documents like contracts, confirmation forms, de-identification procedure, ethics approvals, etc.
 
 ### Attachement Constraints

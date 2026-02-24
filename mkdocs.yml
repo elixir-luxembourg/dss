@@ -31,21 +31,24 @@ plugins:
 
 nav:
   - Home: overview.md
-  - Technical design:
-      - Use Cases: use_cases.md
-      - Roles & Permissions: roles.md
-      - Submission states: submission_states.md
-      - Authentication & Access:
-          - Authentication: docs/authentication.md
-      - Notifications: 
-  - Submission System:
-      - System Overview: submission-system_specs.md
-      - Scenarios: scenarios.md
-      - Technical & Design:
-          - Naming & Roles: submission-system_specs.md#define-who-is-provider-submit...
-          - System Differences: submission-system_specs.md#how-this-system-differs-from-systems-used-for-other-sumbmissions-daisy-eln-platforms-ibridges-yoda-
-          - Technical TODOs: submission-system_specs.md#todo
-          - Data Model Entities: USER_WORKFLOWS.md#data-model-key-entities
-          - Implementation Notes: USER_WORKFLOWS.md#technical-implementation-notes
+  - User Guide:
+      - Getting Started: user-guide.md/getting-started.md
+      - Managing Submissions: user-guide.md/managing-submissions.md
+      - Roles & Permissions: user-guide.md/roles.md
+      - Submission States: user-guide.md/submission-states.md
+      - Notifications: user-guide.md/notifications.md
+  - Technical Documentation:
+      - Authentication: technical-documentation/authentication.md
+      - UI: technical-documentation/ui.md
+      - Architecture & Design:
+          - System Data Model: technical-documentation/architecture-and-design/system-data-model.md
+          - Use Cases: technical-documentation/architecture-and-design/use-cases/use-cases.md
+          - Sequence Diagram: technical-documentation/architecture-and-design/sequence-diagram.md
+          - Components: technical-documentation/architecture-and-design/components/components.md
+          - Scenarios: technical-documentation/architecture-and-design/scenarios.md
+  - Development:
+      - Development Guide: development/development.md
+  - Metadata:
+      - Form Metadata Model: form-metadata-model/form-metadata-model.md
 
 
