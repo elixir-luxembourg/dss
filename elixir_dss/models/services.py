@@ -532,8 +532,8 @@ def update_user_info(usr: User, **kwargs):
         usr.first_name = kwargs.pop("first_name")
     if "last_name" in kwargs:
         usr.last_name = kwargs.pop("last_name")
-    if "institution" in kwargs:
-        usr.institution_accession = kwargs.pop("institution")
+    if "institution_accession" in kwargs:
+        usr.institution_accession = kwargs.pop("institution_accession")
     if "institution_division" in kwargs:
         usr.institution_division = kwargs.pop("institution_division")
     if "email" in kwargs:
