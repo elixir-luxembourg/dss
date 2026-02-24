@@ -556,6 +556,7 @@ def create_submission():
         local_project_name=posted_form.local_project_name.data,
         institution_accession=posted_form.institution_accession.data,
         provider_user_ids=posted_form.provider_user_ids.data,
+        submission_contacts=posted_form.submission_contacts.data,
     )
     invite_submitters(submission_rec, submission_rec.submission_contacts)
     flash(f"New submission {submission_rec.ref_name} created", "success")
