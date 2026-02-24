@@ -1,6 +1,6 @@
-# External components
+# Integrations
 
-Following diagram shows external components and their relationship 
+Following diagram shows other systems DSS depend on or can be integrated with
 
 ![components](./dss_components.drawio.png)
 
@@ -15,7 +15,7 @@ Following diagram shows external components and their relationship
 
 ## Information system
 
-System containing ground truth on external assets. 
+System containing ground truth on external assets. Currently this module provides projects and list of internal users eligible to get recipient role.
 
 This system can also provide:
 - contracts under which submission is to happen
