@@ -1,10 +1,11 @@
 site_name: Data Submission System (DSS)
 theme:
   name: material
+  custom_dir: custom_theme
   palette:
       - scheme: default
-        primary: deep green
-        accent: blue grey
+        primary: custom
+        accent: indigo
         toggle:
           icon: material/weather-night
           name: Switch to dark mode
@@ -14,6 +15,12 @@ theme:
         toggle:
           icon: material/weather-sunny
           name: Switch to light mode
+  features:
+    - navigation.footer
+    - navigation.path
+  font:
+    text: Lato Regular
+  language: en
 
 markdown_extensions:
   - admonition
@@ -27,6 +34,11 @@ markdown_extensions:
 plugins:
   - search
   - mermaid2
+
+extra_css:
+  - css/extra.css
+
+copyright: Copyright © ELIXIR 2025 |  ELIXIR Luxembourg, Luxembourg Centre for Systems Biomedicine, Campus Belval, Biotech II, 6 avenue du Swing, L-4367 Belvaux
 
 
 nav:
