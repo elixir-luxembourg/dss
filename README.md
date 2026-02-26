@@ -1,4 +1,5 @@
 # LCSB Data Submission System (DSS)
+[![CI](https://github.com/elixir-luxembourg/dss/actions/workflows/main.yml/badge.svg)](https://github.com/elixir-luxembourg/dss/actions/workflows/main.yml)
 
 ## Quick Start (Recommended)
 
