@@ -1,4 +1,5 @@
-# Data Submission System (DSS)
+# LCSB Data Submission System (DSS)
+[![CI](https://github.com/elixir-luxembourg/dss/actions/workflows/main.yml/badge.svg)](https://github.com/elixir-luxembourg/dss/actions/workflows/main.yml)
 
 The [Data Submission System \(DSS\)](https://datasubmission.lcsb.uni.lu/about) is an open-source collaborative platform designed to streamline the submission of biomedical data and associated information to your infrastructure.
 It supports submitters, recipients, and data stewards through a guided multi-step workflow including metadata collection, file transfer, review and validation, communication, and completion.

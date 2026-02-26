@@ -217,6 +217,88 @@ body.wait *, body.wait
 {
   cursor: progress !important;
 }
+
+.home-process-timeline {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.home-process-line {
+  width: 2px;
+  top: 1.35rem;
+  bottom: 1.35rem;
+  height: auto;
+  background: linear-gradient(
+    180deg,
+    rgba(var(--bs-primary-rgb), 0.08) 0%,
+    rgba(var(--bs-primary-rgb), 0.22) 15%,
+    rgba(var(--bs-primary-rgb), 0.22) 85%,
+    rgba(var(--bs-success-rgb), 0.14) 100%
+  );
+  z-index: 0;
+}
+
+.home-process-step {
+  margin-bottom: .85rem;
+}
+
+.home-process-step:last-child {
+  margin-bottom: 0;
+}
+
+.home-process-card {
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: .65rem;
+}
+
+.home-process-card .card-body {
+  padding: 1rem 1.1rem !important;
+}
+
+.home-process-card .badge {
+  font-size: .72rem;
+  padding: .4em .55em;
+  letter-spacing: .01em;
+}
+
+.home-process-marker {
+  width: 3.3rem;
+  height: 3.3rem;
+  font-size: 1.05rem;
+  color: #fff;
+  background-color: var(--bs-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 .2rem .45rem rgba(11, 58, 90, .2);
+  z-index: 1;
+}
+
+.home-process-marker-left {
+  margin-left: -1.65rem;
+}
+
+.home-process-marker-right {
+  margin-right: -1.65rem;
+}
+
+.home-process-marker-final {
+  font-size: 1.35rem;
+  color: #fff;
+  background-color: var(--bs-success);
+  border-color: #fff;
+}
+
+@media (max-width: 767.98px) {
+  .home-process-marker-left,
+  .home-process-marker-right {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .home-process-step {
+    margin-bottom: 1rem;
+  }
+}
+
 .badge-warning {
   background-color: #f8db27;
 }
@@ -262,4 +344,3 @@ ul.timeline > li:before {
   height: 20px;
   z-index: 400;
 }
-
