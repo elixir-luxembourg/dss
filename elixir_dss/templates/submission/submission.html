@@ -2,6 +2,15 @@
 {% set active_page = 'submission' %}
 {% import "forms_macros.html" as fmacros %}
 {% block title %}View Submission{% endblock %}
+{% block css %}
+    {{ super() }}
+    <style>
+        #dataUploadConfirmModal form:not(:has(#dataUploadAck:checked)) button[type="submit"] {
+            opacity: 0.65;
+            pointer-events: none;
+        }
+    </style>
+{% endblock %}
 {% block js %}
     {{ super() }}
     {% assets "submission_editor_js" %}
@@ -379,12 +388,13 @@
                         </div>
                         <!-- Proceed Button -->
                         <div class="d-flex justify-content-end mt-4 mb-2">
-                            <a name="button_submission_editor_steer"
-                               data-url="{{ url_for('steer_submission', sub_id=submission.id) }}"
-                               class="btn btn-primary btn-lg shadow-sm px-4">
+                            <button type="button"
+                                    class="btn btn-primary btn-lg shadow-sm px-4"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#dataUploadConfirmModal">
                                 Proceed to Data Verification
                                 <i class="bi bi-arrow-right ms-2"></i>
-                            </a>
+                            </button>
                         </div>
 
                     </div>
@@ -856,6 +866,48 @@
         </div>
     </div>
 
+
+    <!-- Data Upload Confirmation Modal -->
+    <div class="modal fade" id="dataUploadConfirmModal" tabindex="-1" aria-labelledby="dataUploadConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form method="POST" action="{{ url_for('steer_submission_confirmed', sub_id=submission.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="modal-header border-bottom">
+                        <h5 class="modal-title fw-bold" id="dataUploadConfirmModalLabel">
+                            Upload Confirmation
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="small mb-3">
+                            Before proceeding to Data Verification, please confirm that you have completed the upload of all required data files.
+                        </p>
+                        <div class="bg-primary-subtle p-3 border border-primary rounded mb-3 text-dark small">
+                            <p class="mb-2 fw-semibold">Please ensure that:</p>
+                            <ul class="mb-0 ps-3">
+                                <li class="mb-1">All data files for every dataset have been uploaded via the LFT link(s).</li>
+                                <li class="mb-1">The uploaded files are complete and not corrupted.</li>
+                                <li class="mb-1">You have not accidentally skipped any dataset.</li>
+                            </ul>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="dataUploadAck" name="responsibility_ack" required>
+                            <label class="form-check-label" for="dataUploadAck">
+                                I confirm I have uploaded all data files for this submission.
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Not Now</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-arrow-right me-2"></i>Proceed
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Responsibility Confirmation Modal -->
     <div class="modal fade" id="responsibilityModal" tabindex="-1" aria-labelledby="responsibilityModalLabel" aria-hidden="true">
