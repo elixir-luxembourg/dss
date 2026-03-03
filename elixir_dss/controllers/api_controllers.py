@@ -3,8 +3,10 @@ from functools import wraps
 from flask import Blueprint, request, jsonify
 
 from elixir_dss import app
-from elixir_dss.models.submission import Submission
-from elixir_dss.models.submission import SubmissionStatusEnum
+from elixir_dss.models.submission import (
+    Submission,
+    SubmissionStatusEnum,
+)
 
 dss_api = Blueprint("dss_api", __name__)
 

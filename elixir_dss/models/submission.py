@@ -560,6 +560,7 @@ class SubmissionDataset(db.Model):
 
     def to_dict(self):
         base_dict = {
+            "dataset_id": self.internal_id,
             "title": self.title,
             "creators": [creator.to_dict() for creator in self.creators],
             "description": self.description,
