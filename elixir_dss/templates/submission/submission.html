@@ -385,6 +385,13 @@
                                     <li>Once complete, click <strong>"Proceed to Data Verification"</strong> below</li>
                                 </ol>
                             </div>
+
+                            <div class="small text-muted mt-2" style="font-size: 0.75rem; opacity: 0.8;">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <strong>Browser Compatibility Notice:</strong>
+                                LFT is not fully supported in Safari.
+                                For a smoother experience, we recommend using Chrome.
+                            </div>
                         </div>
                         <!-- Proceed Button -->
                         <div class="d-flex justify-content-end mt-4 mb-2">
@@ -435,7 +442,7 @@
                                     <span class="badge bg-secondary ms-2">{{ data_count }}</span>
                                 </button>
                             </h2>
-                            <div id="datasetsRefCollapse" class="accordion-collapse collapse">
+                            <div id="datasetsRefCollapse" class="accordion-collapse collapse show">
                                 <div class="accordion-body">
                                     {% include 'submission/_dataset_columns.html' %}
                                 </div>

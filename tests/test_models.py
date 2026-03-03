@@ -20,6 +20,11 @@ from elixir_dss.models.services import (
     steer_sub,
     cancel_sub,
     invite_submitters,
+    update_user_info,
+    approve_metadata,
+    reject_metadata,
+    approve_data,
+    reject_data,
 )
 from elixir_dss.models.submission import (
     ContactType,
@@ -27,6 +32,7 @@ from elixir_dss.models.submission import (
     SubmissionAccess,
     SubmissionStatusEnum,
     SubmissionDatasetCreator,
+    SubmissionMessage,
 )
 from tests import BaseTest
 from tests.factories import (
@@ -603,3 +609,76 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(cancelled.current_status, SubmissionStatusEnum.cancelled)
         self.assertEqual(cancelled.cancellation_reason, "test reason")
         self.assertEqual(cancelled.cancelled_by_user_id, usr.id)
+
+    def test_update_user_info_fields(self):
+        user = UserFactory(
+            first_name="Old",
+            last_name="Name",
+            email="old@example.com",
+            phone_no="000000",
+            institution_accession="OLD_INST",
+        )
+
+        update_user_info(
+            user,
+            first_name="New",
+            last_name="User",
+            email="new@example.com",
+            phone_no="123456",
+            institution_accession="NEW_INST",
+            addr_line1="Street 1",
+            addr_line2="Street 2",
+        )
+
+        u = User.query.get(user.id)
+        self.assertEqual(u.first_name, "New")
+        self.assertEqual(u.last_name, "User")
+        self.assertEqual(u.email, "new@example.com")
+        self.assertEqual(u.phone_no, "123456")
+        self.assertEqual(u.institution_accession, "NEW_INST")
+        self.assertEqual(u.addr_line1, "Street 1")
+        self.assertEqual(u.addr_line2, "Street 2")
+
+    def test_approve_metadata(self):
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        reviewer = UserFactory()
+        approve_metadata(sub.id, reviewer.id, feedback="Looks good")
+
+        sub = Submission.query.get(sub.id)
+        msg = SubmissionMessage.query.filter_by(submission_id=sub.id).first()
+        assert sub.current_status == SubmissionStatusEnum.data_upload
+        assert "Metadata approved" in msg.message_text
+        assert msg.sender_user_id == reviewer.id
+
+    def test_reject_metadata(self):
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        reviewer = UserFactory()
+        reject_metadata(sub.id, reviewer.id, feedback="Missing fields")
+
+        sub = Submission.query.get(sub.id)
+        msg = SubmissionMessage.query.filter_by(submission_id=sub.id).first()
+        assert sub.current_status == SubmissionStatusEnum.metadata_submission
+        assert "Metadata rejected" in msg.message_text
+        assert msg.sender_user_id == reviewer.id
+
+    def test_approve_data(self):
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
+        reviewer = UserFactory()
+        approve_data(sub.id, reviewer.id, feedback="Data good")
+
+        sub = Submission.query.get(sub.id)
+        msg = SubmissionMessage.query.filter_by(submission_id=sub.id).first()
+        assert sub.current_status == SubmissionStatusEnum.completed
+        assert "Data approved" in msg.message_text
+        assert msg.sender_user_id == reviewer.id
+
+    def test_reject_data(self):
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
+        reviewer = UserFactory()
+        reject_data(sub.id, reviewer.id, feedback="Incorrect format")
+
+        sub = Submission.query.get(sub.id)
+        msg = SubmissionMessage.query.filter_by(submission_id=sub.id).first()
+        assert sub.current_status == SubmissionStatusEnum.data_upload
+        assert "Data rejected" in msg.message_text
+        assert msg.sender_user_id == reviewer.id

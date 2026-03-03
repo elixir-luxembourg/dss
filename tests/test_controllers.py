@@ -549,3 +549,49 @@ class ControllersTest(BaseIntegrationTest):
 
         resp = self.client.get(url_for("delete_submission_study", study_id=study.id))
         self.assert403(resp)
+
+    @patch("elixir_dss.controllers.web_controllers._keycloak_logout_url")
+    def test_logout_keycloak(self, mock_logout_url):
+        self.login("submitter1@some.edu", "submitter1")
+
+        mock_logout_url.return_value = "/kc/logout"
+        self.app.config["AUTHENTICATION_METHOD"] = "IA"
+
+        with self.client.session_transaction() as sess:
+            sess["oidc_id_token"] = "fake-token"
+        resp = self.client.get(url_for("logout"))
+
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/kc/logout", resp.location)
+
+    @patch("elixir_dss.controllers.web_controllers.reject_data")
+    def test_reject_data(self, mock_reject):
+        self.login("steward1@uni.lu", "steward1")
+        sub = SubmissionFactory()
+        db.session.commit()
+        resp = self.client.post(
+            url_for("reject_data_endpoint", sub_id=sub.id),
+            data={"feedback": ""},
+            follow_redirects=True,
+        )
+        self.assertIn("feedback is required", resp.data.decode().lower())
+
+        resp = self.client.post(
+            url_for("reject_data_endpoint", sub_id=sub.id),
+            data={"feedback": "Not OK"},
+        )
+
+        mock_reject.assert_called_once()
+        self.assertEqual(resp.status_code, 302)
+
+    def test_delete_study_success(self):
+        self.login("submitter1@some.edu", "submitter1")
+
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        db.session.commit()
+
+        resp = self.client.get(url_for("delete_submission_study", study_id=study.id))
+        self.assertEqual(resp.status_code, 302)
