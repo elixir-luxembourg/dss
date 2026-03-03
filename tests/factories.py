@@ -64,6 +64,7 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
     legal_basis_sharing_std_code = "61a"
     is_special_category_data = False
     consent_status_code = "hm"
+    internal_id = factory.Faker("uuid4")
 
     @factory.post_generation
     def creators(self, create, extracted, **kwargs):

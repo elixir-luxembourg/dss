@@ -75,6 +75,7 @@ class ApiControllersTest(BaseTest):
         self.assertIn("data", data)
         self.assertIn("count", data)
         self.assertIn("submission", data)
+        self.assertIn("internal_id", data["data"][0])
         self.assertEqual(data["count"], 2)
         self.assertEqual(len(data["data"]), 2)
         self.assertEqual(data["submission"]["id"], submission.id)
