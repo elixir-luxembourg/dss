@@ -625,7 +625,7 @@ class ModelPersistenceTest(BaseTest):
             last_name="User",
             email="new@example.com",
             phone_no="123456",
-            institution="NEW_INST",
+            institution_accession="NEW_INST",
             addr_line1="Street 1",
             addr_line2="Street 2",
         )
