@@ -20,6 +20,8 @@ from elixir_dss.models.submission import (
     SubmissionDataset,
 )
 
+CANNOT_STEER_MSG = "Submission cannot be steered to the next state!"
+
 
 def delete_sub(submission_id: str):
     submission = Submission.query.filter_by(id=submission_id).one_or_none()
@@ -41,14 +43,11 @@ def has_access(user_id: str, submission_id: str):
         return False
 
 
-def steer_sub(submission_id: str):
-    submission = Submission.query.get_or_404(submission_id)
-    target_state = submission.current_status.next_state()
+def _validate_steer(submission, target_state):
     if target_state is None:
-        raise RecordLifecycleException(
-            "Submission cannot be steered to the next state!"
-        )
-    elif (
+        raise RecordLifecycleException(CANNOT_STEER_MSG)
+
+    if (
         submission.current_status == SubmissionStatusEnum.draft
         and not submission.has_providers()
     ):
@@ -56,47 +55,56 @@ def steer_sub(submission_id: str):
             "You need to specify a data provider user before initiating a submission",
             "error",
         )
-        raise RecordLifecycleException(
-            "Submission cannot be steered to the next state!"
-        )
-    elif submission.current_status == SubmissionStatusEnum.metadata_submission and (
+        raise RecordLifecycleException(CANNOT_STEER_MSG)
+
+    if submission.current_status == SubmissionStatusEnum.metadata_submission and (
         not submission.has_study() or not submission.has_dataset()
     ):
         flash(
             "You need to add at least one study and one dataset before proceeding to the next step.",
             "error",
         )
-        raise RecordLifecycleException(
-            "Submission cannot be steered to the next state!"
+        raise RecordLifecycleException(CANNOT_STEER_MSG)
+
+
+def _apply_steer_side_effects(submission, target_state):
+    if target_state == SubmissionStatusEnum.metadata_submission:
+        send_submission_steer_step1_notification(submission)
+
+    elif target_state == SubmissionStatusEnum.metadata_approval:
+        send_metadata_approval_request_notification(submission)
+
+    elif target_state == SubmissionStatusEnum.data_upload:
+        submission.finalised_on = datetime.today()
+        send_submission_steer_step2_notification(submission)
+        flash(
+            "An upload link will be created once all information provided is checked and where required signatures are received.",
+            "success",
         )
-    else:
-        if target_state == SubmissionStatusEnum.metadata_submission:
-            send_submission_steer_step1_notification(submission)
-        elif target_state == SubmissionStatusEnum.metadata_approval:
-            send_metadata_approval_request_notification(submission)
-        elif target_state == SubmissionStatusEnum.data_upload:
-            submission.finalised_on = datetime.today()
-            send_submission_steer_step2_notification(submission)
-            flash(
-                "An upload link will be created once all information provided is checked and where required signatures are received.",
-                "success",
-            )
-        elif target_state == SubmissionStatusEnum.data_approval:
-            if lft.client:
-                try:
-                    lft.invalidate_links_for_submission(
-                        submission.id, delete_share=False
-                    )
-                except Exception as e:
-                    app.logger.error(
-                        f"LFT invalidate failed for ds {submission.id}: {e}"
-                    )
-            send_data_approval_request_notification(submission)
-        elif target_state == SubmissionStatusEnum.completed:
-            send_submission_steer_step3_notification(submission)
-        submission.current_status = target_state
-        db.session.add(submission)
-        db.session.commit()
+
+    elif target_state == SubmissionStatusEnum.data_approval:
+        if lft.client:
+            try:
+                lft.invalidate_links_for_submission(submission.id, delete_share=False)
+            except Exception as e:
+                app.logger.error(f"LFT invalidate failed for ds {submission.id}: {e}")
+        send_data_approval_request_notification(submission)
+
+    elif target_state == SubmissionStatusEnum.completed:
+        send_submission_steer_step3_notification(submission)
+
+
+def steer_sub(submission_id: str):
+    submission = Submission.query.get_or_404(submission_id)
+    target_state = submission.current_status.next_state()
+
+    _validate_steer(submission, target_state)
+    _apply_steer_side_effects(submission, target_state)
+
+    submission.current_status = target_state
+    db.session.add(submission)
+    db.session.commit()
+
     return submission
 
 
