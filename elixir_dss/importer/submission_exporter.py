@@ -193,8 +193,10 @@ class SubmissionExporter:
 
 def _parse_json_string(value: str):
     stripped = value.strip()
-    if not ((stripped.startswith("[") and stripped.endswith("]")) or
-            (stripped.startswith("{") and stripped.endswith("}"))):
+    if not (
+        (stripped.startswith("[") and stripped.endswith("]"))
+        or (stripped.startswith("{") and stripped.endswith("}"))
+    ):
         return None
 
     try:
