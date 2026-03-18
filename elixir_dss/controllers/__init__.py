@@ -21,6 +21,52 @@ ACCESS_RULES = {
 }
 
 
+def _resolve_submission(kwargs):
+    entity_cls, attr, entity_id = _resolve_access(kwargs)
+    if not entity_cls:
+        return None
+
+    record = db.session.get(entity_cls, entity_id)
+    if not record:
+        abort(404)
+
+    submission_id = getattr(record, attr)
+    submission = (
+        record
+        if entity_cls == Submission
+        else db.session.get(Submission, submission_id)
+    )
+
+    if not submission:
+        abort(404)
+
+    return submission
+
+
+def _check_roles(roles):
+    if roles and not current_user.has_role_from(roles):
+        return _forbidden("Error 403 - Unauthorised")
+    return None
+
+
+def _check_submission_access(submission):
+    is_steward = current_user.is_data_steward()
+    if not is_steward and not has_access(current_user.get_id(), submission.id):
+        abort(404)
+    return is_steward
+
+
+def _check_submission_state(submission, states, is_steward):
+    if submission.is_cancelled() and request.method not in ("GET", "HEAD", "OPTIONS"):
+        return _forbidden("This submission has been cancelled. No further changes allowed.")
+
+    if states and not is_steward:
+        if submission.current_status not in states:
+            return _forbidden("You are not allowed to perform this action at this stage.")
+
+    return None
+
+
 def protect(roles=None, states=None, public=False):
     def decorator(func):
         @wraps(func)
@@ -28,49 +74,17 @@ def protect(roles=None, states=None, public=False):
             if public:
                 return func(*args, **kwargs)
 
-            entity_cls, attr, entity_id = _resolve_access(kwargs)
-            submission = None
+            submission = _resolve_submission(kwargs)
 
-            if entity_cls:
-                record = db.session.get(entity_cls, entity_id)
-                if not record:
-                    abort(404)
-
-                submission_id = getattr(record, attr)
-                submission = (
-                    record
-                    if entity_cls == Submission
-                    else db.session.get(Submission, submission_id)
-                )
-
-                if not submission:
-                    abort(404)
-
-            if roles and not current_user.has_role_from(roles):
-                return _forbidden("Error 403 - Unauthorised")
+            error = _check_roles(roles)
+            if error:
+                return error
 
             if submission:
-                is_steward = current_user.is_data_steward()
-
-                if not is_steward and not has_access(
-                    current_user.get_id(), submission.id
-                ):
-                    abort(404)
-
-                if submission.is_cancelled() and request.method not in (
-                    "GET",
-                    "HEAD",
-                    "OPTIONS",
-                ):
-                    return _forbidden(
-                        "This submission has been cancelled. No further changes allowed."
-                    )
-
-                if states and not is_steward:
-                    if submission.current_status not in states:
-                        return _forbidden(
-                            "You are not allowed to perform this action at this stage."
-                        )
+                is_steward = _check_submission_access(submission)
+                error = _check_submission_state(submission, states, is_steward)
+                if error:
+                    return error
 
             return func(*args, **kwargs)
 
