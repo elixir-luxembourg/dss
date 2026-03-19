@@ -203,12 +203,12 @@ class CancelSubmissionForm(FlaskForm):
 
 
 __all__ = [
-    SubmissionForm,
-    ContactForm,
-    AttachmentForm,
-    DatasetForm,
-    StudyForm,
-    UserForm,
-    MyProfileForm,
-    MessageForm,
+    "SubmissionForm",
+    "ContactForm",
+    "AttachmentForm",
+    "DatasetForm",
+    "StudyForm",
+    "UserForm",
+    "MyProfileForm",
+    "MessageForm",
 ]

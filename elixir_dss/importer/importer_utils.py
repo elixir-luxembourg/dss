@@ -31,27 +31,6 @@ def schedule_submission_export(
             ) as jsonfile:
                 exporter.export_to_file(jsonfile)
 
-            """
-            submission_exportfile = open(os.path.join(export_directory, submission.ref_name + ".json"), "w")
-            submission_exportfile.write(json.dumps([export_submission(submission)], indent=4))
-            """
-            # submission_attachments = SubmissionAttachment.query.filter_by(submission_id=submission.id).all()
-            # for attachment in submission_attachments:
-            #
-            #     try:
-            #         path_on_server = os.path.join(app.config['UPLOAD_FOLDER'], attachment.folder_name)
-            #         attachment_folder_name = os.path.join(export_directory, attachment.folder_name)
-            #         if not os.path.exists(attachment_folder_name):
-            #             os.makedirs(attachment_folder_name)
-            #         attachment_file = os.path.join(path_on_server, attachment.file_names)
-            #         os.popen('cp ' + attachment_file + ' ' + attachment_folder_name)
-            #
-            #     except OSError as err:
-            #         err.extend(err.args[0])
-
-            # shutil.make_archive(export_directory, 'zip', export_directory)
-            # app.logger.info("Created zip file")
-
             submission.exported = True
             db.session.add(submission)
             db.session.commit()

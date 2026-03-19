@@ -60,6 +60,7 @@ from . import protect
 
 
 SUBMISSION_FORM_TEMPLATE = "submission/submission_form.html"
+ERROR_LOG_MSG = "ERROR %s"
 
 
 def _split_semicolon_values(raw_value):
@@ -398,7 +399,7 @@ def delete_submission(sub_id):
         flash("Submission deleted!", "success")
         return "", 204
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to delete submission", "error")
         return "", 400
 
@@ -417,7 +418,7 @@ def steer_submission(sub_id):
         )
         return "", 204
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to transition submission to the next state", "error")
         return "", 400
 
@@ -436,7 +437,7 @@ def steer_submission_confirmed(sub_id):
             "success",
         )
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to transition submission to the next state", "error")
     return redirect(url_for("view_submission", sub_id=sub_id))
 
@@ -452,7 +453,7 @@ def revert_submission(sub_id):
         )
         return "", 204
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to revert submission to the previous state", "error")
         return "", 400
 
@@ -571,6 +572,22 @@ def view_submission(sub_id):
     return render_template("submission/submission.html", submission=submission_rec)
 
 
+def _build_submission_form(data=None, obj=None):
+    if current_user.is_data_steward():
+
+        class AdminSubmissionForm(forms.SubmissionForm):
+            pass
+
+        AdminSubmissionForm.submission_contacts = FieldList(
+            FormField(forms.ContactForm, default=lambda: Contact()),
+            min_entries=1,
+            description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
+            label="Submission contacts",
+        )
+        return AdminSubmissionForm(data, obj=obj)
+    return forms.SubmissionForm(data, obj=obj)
+
+
 @app.route("/submission/edit/<int:sub_id>", methods=["GET", "POST"])
 @protect(roles=["data_steward"])
 def edit_submission(sub_id):
@@ -579,20 +596,7 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info("Sub REC: %s", submission_rec)
 
-        if current_user.is_data_steward():
-
-            class AdminSubmissionForm(forms.SubmissionForm):
-                pass
-
-            AdminSubmissionForm.submission_contacts = FieldList(
-                FormField(forms.ContactForm, default=lambda: Contact()),
-                min_entries=1,
-                description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
-                label="Submission contacts",
-            )
-            sub_form = AdminSubmissionForm(obj=submission_rec)
-        else:
-            sub_form = forms.SubmissionForm(obj=submission_rec)
+        sub_form = _build_submission_form(data=submission_rec)
         if submission_rec.local_custodians_json:
             sub_form.local_custodians.data = json.loads(
                 submission_rec.local_custodians_json
@@ -600,20 +604,7 @@ def edit_submission(sub_id):
         sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
         return render_template(SUBMISSION_FORM_TEMPLATE, submsn_form=sub_form)
     elif request.method == "POST":
-        if current_user.is_data_steward():
-
-            class AdminSubmissionForm(forms.SubmissionForm):
-                pass
-
-            AdminSubmissionForm.submission_contacts = FieldList(
-                FormField(forms.ContactForm, default=lambda: Contact()),
-                min_entries=1,
-                description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
-                label="Submission contacts",
-            )
-            form = AdminSubmissionForm(request.form)
-        else:
-            form = forms.SubmissionForm(request.form)
+        form = _build_submission_form(data=request.form)
         submission_rec = Submission.query.get_or_404(form.id.data)
         if form.validate_on_submit():
             form.populate_obj(submission_rec)
@@ -646,7 +637,7 @@ def clone_submission(submission_id):
             clone_datasets=clone_datasets,
         )
     except Exception as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to clone submission", "danger")
         return redirect(url_for("list_submissions"))
 

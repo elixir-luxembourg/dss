@@ -62,11 +62,8 @@ def _check_submission_state(submission, states, is_steward):
             "This submission has been cancelled. No further changes allowed."
         )
 
-    if states and not is_steward:
-        if submission.current_status not in states:
-            return _forbidden(
-                "You are not allowed to perform this action at this stage."
-            )
+    if states and not is_steward and submission.current_status not in states:
+        return _forbidden("You are not allowed to perform this action at this stage.")
 
     return None
 

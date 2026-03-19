@@ -1,12 +1,12 @@
 {% if link %}
   <div class="mb-3">
-    <label class="form-label small text-muted">Upload Link</label>
+    <label class="form-label small text-muted" for="lftUrl">Upload Link</label>
     <div class="input-group input-group-sm">
       <input type="text" class="form-control" value="{{ link.absolute_url }}" id="lftUrl" readonly>
     </div>
   </div>
   <div class="mb-3">
-    <label class="form-label small text-muted">Password</label>
+    <label class="form-label small text-muted" for="lftPassword">Password</label>
     <div class="input-group input-group-sm">
       <input type="text" class="form-control font-monospace" value="{{ link.password }}" readonly>
     </div>
