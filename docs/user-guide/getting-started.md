@@ -1,7 +1,18 @@
+# Getting Started
 
-TODO: DEMO vs Deployment
+## Accessing the System
 
-**Demo Accounts:**
+DSS is a web application. Access it via your browser at the URL provided by your institution.
+
+For the LCSB instance: [https://datasubmission.lcsb.uni.lu](https://datasubmission.lcsb.uni.lu)
+
+### Logging In
+
+**OIDC / Institutional login (production):**
+Click **Sign in** and authenticate with your institutional account via the OIDC provider (e.g. Keycloak). On your first login, you will be prompted to complete a short registration form.
+
+**Local login (development / demo):**
+Use one of the built-in demo accounts:
 
 | Email | Password | Role |
 |-------|----------|------|
@@ -9,12 +20,20 @@ TODO: DEMO vs Deployment
 | `submitter1@some.edu` | `submitter1` | Data Provider |
 | `submitter2@some.edu` | `submitter2` | Data Provider |
 
-**Configuration:**
-```python
-AUTHENTICATION_METHOD = 'CONFIG'
-AUTHENTICATION_DICT = {
-    'steward1@uni.lu': 'steward1',
-    'submitter1@some.edu': 'submitter1',
-    'submitter2@some.edu': 'submitter2'
-}
-```
+---
+
+## Starting a Submission
+
+Submissions are initiated by a **Data Steward**, not by the submitter directly.
+
+1. Contact your Data Steward to open a new submission.
+2. The steward creates a submission, assigns you as a **Submitter**, and sets a recipient project.
+3. You will receive an email notification with a link to the submission.
+
+See [Managing Submissions](managing-submissions.md) for a full walkthrough of each phase.
+
+---
+
+## Running a Local Development Instance
+
+If you want to run DSS locally for development or evaluation, see the [Development Guide](../development/development.md).

@@ -60,6 +60,9 @@ nav:
           - Scenarios: technical-documentation/architecture-and-design/scenarios.md
   - Development:
       - Development Guide: development/development.md
+  - Deployment:
+      - Deployment Guide: deployment/deployment.md
+  - Known Issues: known-issues.md
   - Metadata:
       - Form Metadata Model: form-metadata-model/form-metadata-model.md
 
