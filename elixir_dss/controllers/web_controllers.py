@@ -572,7 +572,7 @@ def view_submission(sub_id):
     return render_template("submission/submission.html", submission=submission_rec)
 
 
-def _build_submission_form(data=None, obj=None):
+def _build_submission_form(formdata=None, obj=None):
     if current_user.is_data_steward():
 
         class AdminSubmissionForm(forms.SubmissionForm):
@@ -584,7 +584,7 @@ def _build_submission_form(data=None, obj=None):
             description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
             label="Submission contacts",
         )
-        return AdminSubmissionForm(data, obj=obj)
+        return AdminSubmissionForm(formdata=formdata, obj=obj)
     return forms.SubmissionForm(data, obj=obj)
 
 
@@ -596,7 +596,7 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info("Sub REC: %s", submission_rec)
 
-        sub_form = _build_submission_form(data=submission_rec)
+        sub_form = _build_submission_form(obj=submission_rec)
         if submission_rec.local_custodians_json:
             sub_form.local_custodians.data = json.loads(
                 submission_rec.local_custodians_json
@@ -604,7 +604,7 @@ def edit_submission(sub_id):
         sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
         return render_template(SUBMISSION_FORM_TEMPLATE, submsn_form=sub_form)
     elif request.method == "POST":
-        form = _build_submission_form(data=request.form)
+        form = _build_submission_form(formdata=request.form)
         submission_rec = Submission.query.get_or_404(form.id.data)
         if form.validate_on_submit():
             form.populate_obj(submission_rec)
