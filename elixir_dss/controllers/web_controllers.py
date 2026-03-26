@@ -585,7 +585,7 @@ def _build_submission_form(formdata=None, obj=None):
             label="Submission contacts",
         )
         return AdminSubmissionForm(formdata=formdata, obj=obj)
-    return forms.SubmissionForm(data, obj=obj)
+    return forms.SubmissionForm(formdata=formdata, obj=obj)
 
 
 @app.route("/submission/edit/<int:sub_id>", methods=["GET", "POST"])
