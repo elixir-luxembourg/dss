@@ -59,6 +59,31 @@ jobs:
         run: cp .env.template .env
 
       - name: Run tests
-        run: uv run pytest --cov=elixir_dss --cov-report=term-missing
+        run: uv run pytest --cov=elixir_dss --cov-report=term-missing --cov-report=xml:coverage.xml
         env:
           ELIXIR_DSS_ENV: test
+
+      - name: Upload coverage report
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  sonarqube:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'develop'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+
+      - uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
