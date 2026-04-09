@@ -59,6 +59,10 @@ from elixir_dss.models.submission import (
 from . import protect
 
 
+SUBMISSION_FORM_TEMPLATE = "submission/submission_form.html"
+ERROR_LOG_MSG = "ERROR %s"
+
+
 def _split_semicolon_values(raw_value):
     if not raw_value:
         return []
@@ -395,7 +399,7 @@ def delete_submission(sub_id):
         flash("Submission deleted!", "success")
         return "", 204
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to delete submission", "error")
         return "", 400
 
@@ -414,7 +418,7 @@ def steer_submission(sub_id):
         )
         return "", 204
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to transition submission to the next state", "error")
         return "", 400
 
@@ -433,7 +437,7 @@ def steer_submission_confirmed(sub_id):
             "success",
         )
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to transition submission to the next state", "error")
     return redirect(url_for("view_submission", sub_id=sub_id))
 
@@ -449,7 +453,7 @@ def revert_submission(sub_id):
         )
         return "", 204
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to revert submission to the previous state", "error")
         return "", 400
 
@@ -539,15 +543,13 @@ def get_submission(sub_id):
 def create_submission():
     if request.method == "GET":
         return render_template(
-            "submission/submission_form.html",
+            SUBMISSION_FORM_TEMPLATE,
             submsn_form=forms.SubmissionForm(formdata=None, obj=None),
         )
 
     posted_form = forms.SubmissionForm(request.form)
     if not posted_form.validate_on_submit():
-        return render_template(
-            "submission/submission_form.html", submsn_form=posted_form
-        ), 400
+        return render_template(SUBMISSION_FORM_TEMPLATE, submsn_form=posted_form), 400
 
     submission_rec = create_sub(posted_form.institution_accession.data)
     update_submission_basic_info(
@@ -570,6 +572,22 @@ def view_submission(sub_id):
     return render_template("submission/submission.html", submission=submission_rec)
 
 
+def _build_submission_form(formdata=None, obj=None):
+    if current_user.is_data_steward():
+
+        class AdminSubmissionForm(forms.SubmissionForm):
+            pass
+
+        AdminSubmissionForm.submission_contacts = FieldList(
+            FormField(forms.ContactForm, default=lambda: Contact()),
+            min_entries=1,
+            description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
+            label="Submission contacts",
+        )
+        return AdminSubmissionForm(formdata=formdata, obj=obj)
+    return forms.SubmissionForm(formdata=formdata, obj=obj)
+
+
 @app.route("/submission/edit/<int:sub_id>", methods=["GET", "POST"])
 @protect(roles=["data_steward"])
 def edit_submission(sub_id):
@@ -578,41 +596,15 @@ def edit_submission(sub_id):
         submission_rec = Submission.query.get_or_404(sub_id)
         app.logger.info("Sub REC: %s", submission_rec)
 
-        if current_user.is_data_steward():
-
-            class AdminSubmissionForm(forms.SubmissionForm):
-                pass
-
-            AdminSubmissionForm.submission_contacts = FieldList(
-                FormField(forms.ContactForm, default=lambda: Contact()),
-                min_entries=1,
-                description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
-                label="Submission contacts",
-            )
-            sub_form = AdminSubmissionForm(obj=submission_rec)
-        else:
-            sub_form = forms.SubmissionForm(obj=submission_rec)
+        sub_form = _build_submission_form(obj=submission_rec)
         if submission_rec.local_custodians_json:
             sub_form.local_custodians.data = json.loads(
                 submission_rec.local_custodians_json
             )
         sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
-        return render_template("submission/submission_form.html", submsn_form=sub_form)
+        return render_template(SUBMISSION_FORM_TEMPLATE, submsn_form=sub_form)
     elif request.method == "POST":
-        if current_user.is_data_steward():
-
-            class AdminSubmissionForm(forms.SubmissionForm):
-                pass
-
-            AdminSubmissionForm.submission_contacts = FieldList(
-                FormField(forms.ContactForm, default=lambda: Contact()),
-                min_entries=1,
-                description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
-                label="Submission contacts",
-            )
-            form = AdminSubmissionForm(request.form)
-        else:
-            form = forms.SubmissionForm(request.form)
+        form = _build_submission_form(formdata=request.form)
         submission_rec = Submission.query.get_or_404(form.id.data)
         if form.validate_on_submit():
             form.populate_obj(submission_rec)
@@ -629,9 +621,7 @@ def edit_submission(sub_id):
             flash("Submission updated", "success")
             return redirect(url_for("view_submission", sub_id=submission_rec.id))
         else:
-            return render_template(
-                "submission/submission_form.html", submsn_form=form
-            ), 400
+            return render_template(SUBMISSION_FORM_TEMPLATE, submsn_form=form), 400
 
 
 @app.route("/submission/clone/<int:submission_id>")
@@ -647,7 +637,7 @@ def clone_submission(submission_id):
             clone_datasets=clone_datasets,
         )
     except Exception as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to clone submission", "danger")
         return redirect(url_for("list_submissions"))
 

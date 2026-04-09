@@ -217,14 +217,14 @@
                     </div>
                 {% else %}
                     <div class="d-flex justify-content-end mt-4 mb-2">
-                        <a class="btn btn-primary btn-lg shadow-sm px-4"
+                        <button class="btn btn-primary btn-lg shadow-sm px-4"
                            data-bs-toggle="modal"
                            data-bs-target="#responsibilityModal"
                            data-url="{{ url_for('steer_submission', sub_id=submission.id) }}"
                            onclick="document.getElementById('responsibilityConfirmBtn').dataset.url = this.dataset.url;">
                             Proceed to Metadata Review
                             <i class="bi bi-arrow-right ms-2"></i>
-                        </a>
+                        </button>
                     </div>
                     <div class="alert alert-success d-flex align-items-start gap-3 border-0 shadow-sm" role="alert">
                         <i class="bi bi-check-circle fs-5"></i>

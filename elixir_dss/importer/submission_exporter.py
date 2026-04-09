@@ -191,6 +191,28 @@ class SubmissionExporter:
         return study_list
 
 
+def _parse_json_string(value: str):
+    stripped = value.strip()
+    if not (
+        (stripped.startswith("[") and stripped.endswith("]"))
+        or (stripped.startswith("{") and stripped.endswith("}"))
+    ):
+        return None
+
+    try:
+        parsed = json.loads(stripped)
+    except Exception:
+        return None
+
+    if isinstance(parsed, list):
+        return ", ".join(str(v) for v in parsed) if parsed else "-"
+
+    if isinstance(parsed, dict):
+        return ", ".join(f"{k}: {v}" for k, v in parsed.items()) if parsed else "-"
+
+    return None
+
+
 def normalize(value):
     if value in (None, "", [], {}):
         return "-"
@@ -205,25 +227,9 @@ def normalize(value):
         return value.isoformat()
 
     if isinstance(value, str):
-        value = value.strip()
-
-        if (value.startswith("[") and value.endswith("]")) or (
-            value.startswith("{") and value.endswith("}")
-        ):
-            try:
-                parsed = json.loads(value)
-
-                if isinstance(parsed, list):
-                    return ", ".join(str(v) for v in parsed) if parsed else "-"
-
-                if isinstance(parsed, dict):
-                    return (
-                        ", ".join(f"{k}: {v}" for k, v in parsed.items())
-                        if parsed
-                        else "-"
-                    )
-
-            except Exception:
-                pass
+        result = _parse_json_string(value)
+        if result is not None:
+            return result
+        return value.strip()
 
     return value

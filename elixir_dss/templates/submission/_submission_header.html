@@ -1,11 +1,11 @@
 <!-- Basic Information -->
 <div class="row g-4 mb-4">
     <div class="col-md-4">
-        <label class="form-label text-muted small mb-1">Reference Number</label>
+        <p class="form-label text-muted small mb-1">Reference Number</p>
         <div class="fw-semibold fs-5">{{ submission.ref_name }}</div>
     </div>
     <div class="col-md-4">
-        <label class="form-label text-muted small mb-1">Created On</label>
+        <p class="form-label text-muted small mb-1">Created On</p>
         <div class="fw-semibold fs-5">{{ submission.created_on }}</div>
     </div>
 </div>
@@ -15,11 +15,11 @@
 <div class="border-top pt-4 mb-4">
     <div class="row g-4">
         <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Submitting Institute</label>
+            <p class="form-label text-muted small mb-1">Submitting Institute</p>
             <div class="fw-semibold">{{ submission.provider_institute_name() | default('-', true)}}</div>
         </div>
         <div class="col-md-8">
-            <label class="form-label text-muted small mb-1">Submitting Users</label>
+            <p class="form-label text-muted small mb-1">Submitting Users</p>
             <div class="fw-semibold">
                 {% if submission.provider_user_names() %}
                     {{ submission.provider_user_names() | join(', ') }}
@@ -35,7 +35,7 @@
 <div class="border-top pt-4">
     <div class="row g-4">
         <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Recipient</label>
+            <p class="form-label text-muted small mb-1">Recipient</p>
             <div class="fw-semibold">
                 {% if submission.local_custodians() %}
                     {{ submission.local_custodians() | join(', ') }}
@@ -45,7 +45,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Receiving Project</label>
+            <p class="form-label text-muted small mb-1">Receiving Project</p>
             <div class="fw-semibold">{{ submission.local_project_name | default('-', true)}}</div>
         </div>
     </div>
