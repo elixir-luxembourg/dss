@@ -107,11 +107,10 @@ Only needed if you want to customize the setup process. Otherwise, use `./setup_
 ### Python Environment Setup
 
 ```bash
-# Using UV (recommended)
+# Using UV (recommended) — matches CI: installs exactly what's in uv.lock
 pip install uv
-uv venv project_venv
-source ./project_venv/bin/activate
-uv pip install -e '.[dev]'
+uv sync --locked --extra dev --extra test
+source ./.venv/bin/activate
 ```
 
 ### Frontend Dependencies
@@ -180,7 +179,7 @@ flask db downgrade
 Use `./run_dev.sh` or manually:
 
 ```bash
-source ./project_venv/bin/activate
+source ./.venv/bin/activate
 export FLASK_APP=elixir_dss
 flask run --debug --port 5000
 ```
