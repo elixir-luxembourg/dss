@@ -95,7 +95,7 @@ def _apply_steer_side_effects(submission, target_state):
 
 
 def steer_sub(submission_id: str):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     target_state = submission.current_status.next_state()
 
     _validate_steer(submission, target_state)
@@ -109,7 +109,7 @@ def steer_sub(submission_id: str):
 
 
 def revert_sub(submission_id: str):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     new_state = submission.current_status.prev_state()
     if new_state is not None:
         submission.current_status = new_state
@@ -360,7 +360,7 @@ def send_invitations(submission: Submission, users: list[User]):
 
 
 def approve_metadata(submission_id, reviewer_id, feedback=None):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     submission.current_status = SubmissionStatusEnum.data_upload
     db.session.add(submission)
 
@@ -384,7 +384,7 @@ def approve_metadata(submission_id, reviewer_id, feedback=None):
 
 
 def reject_metadata(submission_id, reviewer_id, feedback):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     submission.current_status = SubmissionStatusEnum.metadata_submission
     db.session.add(submission)
 
@@ -405,7 +405,7 @@ def reject_metadata(submission_id, reviewer_id, feedback):
 
 
 def approve_data(submission_id, reviewer_id, feedback=None):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     submission.current_status = SubmissionStatusEnum.completed
     db.session.add(submission)
 
@@ -429,7 +429,7 @@ def approve_data(submission_id, reviewer_id, feedback=None):
 
 
 def reject_data(submission_id, reviewer_id, feedback):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     submission.current_status = SubmissionStatusEnum.data_upload
     db.session.add(submission)
 
@@ -560,10 +560,10 @@ def update_user_info(usr: User, **kwargs):
         to_be_removed = old_assigned_role_ids - new_assigned_role_ids
 
         for role_id in to_be_added:
-            usr.assigned_roles.append(Role.query.get_or_404(role_id))
+            usr.assigned_roles.append(db.get_or_404(Role, role_id))
 
         for role_id in to_be_removed:
-            usr.assigned_roles.remove(Role.query.get_or_404(role_id))
+            usr.assigned_roles.remove(db.get_or_404(Role, role_id))
 
     db.session.add(usr)
     db.session.commit()
@@ -582,7 +582,7 @@ def clone_sub(
     - attachments are ignored
     """
     try:
-        old_sub = Submission.query.get_or_404(original_submission_id)
+        old_sub = db.get_or_404(Submission, original_submission_id)
         new_status = SubmissionStatusEnum.metadata_submission
         if old_sub.current_status == SubmissionStatusEnum.draft:
             new_status = SubmissionStatusEnum.draft

@@ -11,7 +11,7 @@ from elixir_dss.models.seed_data import seed_init_data
 
 migrate_instance = Migrate(app, db)
 
-cli = FlaskGroup(app)
+cli = FlaskGroup(create_app=lambda: app)
 
 
 @app.cli.command()

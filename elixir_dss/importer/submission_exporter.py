@@ -10,8 +10,10 @@ class SubmissionExporter:
         """
         objects would be Submission objects
         i.e.:
-        objects = Submission.query.all()
-        objects = Submission.query.filter(ref_name='ELX_LU_SUB-123')
+        objects = db.session.scalars(db.select(Submission)).all()
+        objects = db.session.scalars(
+            db.select(Submission).filter_by(ref_name="ELX_LU_SUB-123")
+        ).all()
         """
         if objects is not None:
             self.objects = objects
