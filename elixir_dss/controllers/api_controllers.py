@@ -2,7 +2,7 @@ from functools import wraps
 
 from flask import Blueprint, request, jsonify
 
-from elixir_dss import app
+from elixir_dss import app, db
 from elixir_dss.models.submission import (
     Submission,
     SubmissionStatusEnum,
@@ -60,7 +60,7 @@ def list_submissions():
 @dss_api.route("/submissions/<int:submission_id>/datasets", methods=["GET"])
 @require_api_key
 def get_submission_datasets(submission_id):
-    submission = Submission.query.get_or_404(submission_id)
+    submission = db.get_or_404(Submission, submission_id)
     if submission.current_status not in ALLOWED_STATUSES.values():
         return jsonify({"error": "Submission is not found"}), 404
     dataset_list = []
