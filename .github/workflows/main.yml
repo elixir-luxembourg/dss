@@ -49,8 +49,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --system -e .[test]
-          npm install -g less
+          uv sync --locked --extra test
           cd elixir_dss/static/vendor
           npm ci
           npm run build:css
