@@ -92,7 +92,7 @@ class ModelPersistenceTest(BaseTest):
         submission_rec = create_sub("ELU_I_77")
 
         self.assertEqual(1, len(Submission.query.all()))
-        sub = Submission.query.get_or_404(submission_rec.id)
+        sub = db.get_or_404(Submission, submission_rec.id)
         sub_id = sub.id
         self.assertEqual(sub.ref_name, "ELX_LU_SUB-1")
         self.assertEqual(sub.current_status, SubmissionStatusEnum.draft)
@@ -118,7 +118,7 @@ class ModelPersistenceTest(BaseTest):
         update_submission_basic_info(sub, provider_user_ids=[usr.id])
 
         self.assertEqual(
-            1, len(Submission.query.get_or_404(sub_id).submission_accesses)
+            1, len(db.get_or_404(Submission, sub_id).submission_accesses)
         )
 
         delete_sub(sub_id)
@@ -141,7 +141,7 @@ class ModelPersistenceTest(BaseTest):
         usr = UserFactory(
             first_name="Kavita", last_name="Rege", institution_accession="ELU_I_2"
         )
-        sub = Submission.query.get_or_404(sub_id)
+        sub = db.get_or_404(Submission, sub_id)
         update_submission_basic_info(sub, provider_user_ids=[usr.id])
 
         self.assertEqual(1, len(SubmissionAccess.query.all()))
@@ -149,7 +149,7 @@ class ModelPersistenceTest(BaseTest):
 
         # Steer to METADATA_SUBMISSION
         steer_sub(sub_id)
-        sub = Submission.query.get_or_404(sub_id)
+        sub = db.get_or_404(Submission, sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_submission)
 
         # Steer fails without Study/Dataset
@@ -163,27 +163,27 @@ class ModelPersistenceTest(BaseTest):
         db.session.commit()
 
         steer_sub(sub_id)
-        sub = Submission.query.get_or_404(sub_id)
+        sub = db.get_or_404(Submission, sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_approval)
 
         steer_sub(sub_id)
-        sub = Submission.query.get_or_404(sub_id)
+        sub = db.get_or_404(Submission, sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.data_upload)
 
         revert_sub(sub_id)
-        sub = Submission.query.get_or_404(sub_id)
+        sub = db.get_or_404(Submission, sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.metadata_approval)
 
         steer_sub(sub_id)
-        sub = Submission.query.get_or_404(sub_id)
+        sub = db.get_or_404(Submission, sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.data_upload)
 
         steer_sub(sub_id)
-        sub = Submission.query.get_or_404(sub_id)
+        sub = db.get_or_404(Submission, sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.data_approval)
 
         steer_sub(sub_id)
-        sub = Submission.query.get_or_404(sub_id)
+        sub = db.get_or_404(Submission, sub_id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.completed)
 
         # Steer fails when COMPLETED
@@ -278,7 +278,7 @@ class ModelPersistenceTest(BaseTest):
 
         study_rec = SubmissionStudyFactory(submission_id=submission_rec.id)
         c1 = ContactFactory()
-        c1.contact_category = ContactType.query.get_or_404(1)
+        c1.contact_category = db.get_or_404(ContactType, 1)
         study_rec.study_contacts = [c1]
 
         SubmissionDatasetFactory(
@@ -302,7 +302,7 @@ class ModelPersistenceTest(BaseTest):
         SubmissionAttachmentFactory(submission_id=submission_rec.id)
         SubmissionAttachmentFactory(submission_id=submission_rec.id)
 
-        submission_rec = Submission.query.get_or_404(submission_rec.id)
+        submission_rec = db.get_or_404(Submission, submission_rec.id)
         exporter = SubmissionExporter()
         exp = exporter.export_submission(submission_rec)
 
@@ -517,7 +517,7 @@ class ModelPersistenceTest(BaseTest):
                 clone_sub(original.id, clone_studies=True, clone_datasets=True)
 
         self.assertEqual(submissions_before, Submission.query.count())
-        self.assertIsNotNone(Submission.query.get(original.id))
+        self.assertIsNotNone(db.session.get(Submission, original.id))
 
     @patch("elixir_dss.models.services.send_invitations")
     def test_invite_submitters(self, mock_send_invitations):
@@ -630,7 +630,7 @@ class ModelPersistenceTest(BaseTest):
             addr_line2="Street 2",
         )
 
-        u = User.query.get(user.id)
+        u = db.session.get(User, user.id)
         self.assertEqual(u.first_name, "New")
         self.assertEqual(u.last_name, "User")
         self.assertEqual(u.email, "new@example.com")
@@ -644,7 +644,7 @@ class ModelPersistenceTest(BaseTest):
         reviewer = UserFactory()
         approve_metadata(sub.id, reviewer.id, feedback="Looks good")
 
-        sub = Submission.query.get(sub.id)
+        sub = db.session.get(Submission, sub.id)
         msg = SubmissionMessage.query.filter_by(submission_id=sub.id).first()
         assert sub.current_status == SubmissionStatusEnum.data_upload
         assert "Metadata approved" in msg.message_text
@@ -655,7 +655,7 @@ class ModelPersistenceTest(BaseTest):
         reviewer = UserFactory()
         reject_metadata(sub.id, reviewer.id, feedback="Missing fields")
 
-        sub = Submission.query.get(sub.id)
+        sub = db.session.get(Submission, sub.id)
         msg = SubmissionMessage.query.filter_by(submission_id=sub.id).first()
         assert sub.current_status == SubmissionStatusEnum.metadata_submission
         assert "Metadata rejected" in msg.message_text
@@ -666,7 +666,7 @@ class ModelPersistenceTest(BaseTest):
         reviewer = UserFactory()
         approve_data(sub.id, reviewer.id, feedback="Data good")
 
-        sub = Submission.query.get(sub.id)
+        sub = db.session.get(Submission, sub.id)
         msg = SubmissionMessage.query.filter_by(submission_id=sub.id).first()
         assert sub.current_status == SubmissionStatusEnum.completed
         assert "Data approved" in msg.message_text
@@ -677,7 +677,7 @@ class ModelPersistenceTest(BaseTest):
         reviewer = UserFactory()
         reject_data(sub.id, reviewer.id, feedback="Incorrect format")
 
-        sub = Submission.query.get(sub.id)
+        sub = db.session.get(Submission, sub.id)
         msg = SubmissionMessage.query.filter_by(submission_id=sub.id).first()
         assert sub.current_status == SubmissionStatusEnum.data_upload
         assert "Data rejected" in msg.message_text
