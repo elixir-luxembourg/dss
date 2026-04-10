@@ -117,9 +117,7 @@ class ModelPersistenceTest(BaseTest):
         usr = register_new_user(u1)
         update_submission_basic_info(sub, provider_user_ids=[usr.id])
 
-        self.assertEqual(
-            1, len(db.get_or_404(Submission, sub_id).submission_accesses)
-        )
+        self.assertEqual(1, len(db.get_or_404(Submission, sub_id).submission_accesses))
 
         delete_sub(sub_id)
         self.assertEqual(0, len(Submission.query.all()))
