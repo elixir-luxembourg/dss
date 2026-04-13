@@ -20,7 +20,7 @@
 
         document.getElementById('cloneModal').addEventListener('show.bs.modal', event => {
             const button = event.relatedTarget;
-            cloneSubmissionId = button.getAttribute('data-submission-id');
+            cloneSubmissionId = button.dataset.submissionId;
 
             const studiesCheckbox = document.getElementById('clone_studies');
             const datasetsCheckbox = document.getElementById('clone_datasets');
@@ -38,7 +38,7 @@
                 clone_datasets: cloneDatasets
             }).toString();
 
-            window.location.href = `/submission/clone/${cloneSubmissionId}?${query}`;
+            globalThis.location.href = `/submission/clone/${cloneSubmissionId}?${query}`;
         });
     </script>
 

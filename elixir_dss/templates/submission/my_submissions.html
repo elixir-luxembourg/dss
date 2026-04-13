@@ -13,7 +13,7 @@
 
         document.getElementById('cloneModal').addEventListener('show.bs.modal', event => {
             const button = event.relatedTarget;
-            submissionId = button.getAttribute('data-submission-id');
+            submissionId = button.dataset.submissionId;
 
             // initialise
             const studiesCheckbox = document.getElementById('clone_studies');
@@ -34,7 +34,7 @@
                 clone_datasets: cloneDatasets
             }).toString();
 
-            window.location.href = `/submission/clone/${submissionId}?${query}`;
+            globalThis.location.href = `/submission/clone/${submissionId}?${query}`;
         });
 
         $("#submission_cancel_modal").on('show.bs.modal', function (event) {
