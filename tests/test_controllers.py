@@ -633,9 +633,7 @@ class ControllersTest(BaseIntegrationTest):
         self.assert200(resp)
         self.assertIn("Test Notification Subject", resp.data.decode("utf-8"))
 
-        resp = self.client.get(
-            url_for("send_notification", notification_id=notif.id)
-        )
+        resp = self.client.get(url_for("send_notification", notification_id=notif.id))
         self.assertEqual(resp.status_code, 204)
         mock_send.assert_called_once()
 
@@ -644,9 +642,7 @@ class ControllersTest(BaseIntegrationTest):
         self.login("steward1@uni.lu", "steward1")
         sub = create_sub("ELU_I_9")
 
-        resp = self.client.get(
-            url_for("add_submission_message", sub_id=sub.id)
-        )
+        resp = self.client.get(url_for("add_submission_message", sub_id=sub.id))
         self.assert200(resp)
 
         steward = User.query.filter_by(email="steward1@uni.lu").first()
@@ -680,9 +676,7 @@ class ControllersTest(BaseIntegrationTest):
         mock_docx_cls.return_value = mock_doc
 
         with self.assertRaises(ValueError):
-            self.client.get(
-                url_for("generate_submission_docx", sub_id=sub.id)
-            )
+            self.client.get(url_for("generate_submission_docx", sub_id=sub.id))
 
     def test_edit_submission(self):
         self.login("steward1@uni.lu", "steward1")
@@ -723,9 +717,7 @@ class ControllersTest(BaseIntegrationTest):
         mock_doc = MagicMock()
         mock_docx_cls.return_value = mock_doc
 
-        resp = self.client.get(
-            url_for("generate_submission_docx", sub_id=sub.id)
-        )
+        resp = self.client.get(url_for("generate_submission_docx", sub_id=sub.id))
         self.assert200(resp)
         mock_doc.render.assert_called_once()
         mock_doc.save.assert_called_once()
@@ -742,9 +734,7 @@ class ControllersTest(BaseIntegrationTest):
         SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
         db.session.commit()
 
-        resp = self.client.get(
-            url_for("clone_submission", submission_id=sub.id)
-        )
+        resp = self.client.get(url_for("clone_submission", submission_id=sub.id))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(Submission.query.count(), 2)
 
@@ -796,9 +786,7 @@ class ControllersTest(BaseIntegrationTest):
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_approval)
         steward = User.query.filter_by(email="steward1@uni.lu").first()
         update_submission_basic_info(sub, provider_user_ids=[steward.id])
-        SubmissionStudyFactory(
-            submission_id=sub.id, study_contacts=[ContactFactory()]
-        )
+        SubmissionStudyFactory(submission_id=sub.id, study_contacts=[ContactFactory()])
         db.session.commit()
 
         resp = self.client.post(
@@ -833,16 +821,12 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_revert_submission(self):
         self.login("steward1@uni.lu", "steward1")
-        sub = SubmissionFactory(
-            current_status=SubmissionStatusEnum.metadata_approval
-        )
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_approval)
         steward = User.query.filter_by(email="steward1@uni.lu").first()
         update_submission_basic_info(sub, provider_user_ids=[steward.id])
         db.session.commit()
 
-        resp = self.client.get(
-            url_for("revert_submission", sub_id=sub.id)
-        )
+        resp = self.client.get(url_for("revert_submission", sub_id=sub.id))
         self.assertEqual(resp.status_code, 204)
 
         db.session.expire_all()
@@ -856,9 +840,7 @@ class ControllersTest(BaseIntegrationTest):
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
         user = User.query.filter_by(email="submitter1@some.edu").first()
         update_submission_basic_info(sub, provider_user_ids=[user.id])
-        resp = self.client.get(
-            url_for("add_submission_study", sub_id=sub.id)
-        )
+        resp = self.client.get(url_for("add_submission_study", sub_id=sub.id))
         self.assert200(resp)
 
     def test_edit_submission_study_get(self):
@@ -867,9 +849,7 @@ class ControllersTest(BaseIntegrationTest):
         user = User.query.filter_by(email="submitter1@some.edu").first()
         update_submission_basic_info(sub, provider_user_ids=[user.id])
         study = SubmissionStudyFactory(submission_id=sub.id)
-        resp = self.client.get(
-            url_for("edit_submission_study", study_id=study.id)
-        )
+        resp = self.client.get(url_for("edit_submission_study", study_id=study.id))
         self.assert200(resp)
 
     @patch("elixir_dss.models.services.send_metadata_rejected_notification")
@@ -908,9 +888,7 @@ class ControllersTest(BaseIntegrationTest):
 
         db.session.expire_all()
         updated = db.session.get(Submission, sub.id)
-        self.assertEqual(
-            updated.current_status, SubmissionStatusEnum.metadata_approval
-        )
+        self.assertEqual(updated.current_status, SubmissionStatusEnum.metadata_approval)
 
     def test_steer_submission_confirmed_no_ack(self):
         self.login("submitter1@some.edu", "submitter1")
@@ -1158,9 +1136,7 @@ class ControllersTest(BaseIntegrationTest):
         self.login("steward1@uni.lu", "steward1")
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
         db.session.commit()
-        resp = self.client.get(
-            url_for("add_submission_attachment", sub_id=sub.id)
-        )
+        resp = self.client.get(url_for("add_submission_attachment", sub_id=sub.id))
         self.assert200(resp)
 
     def test_add_attachment_post_success(self):
@@ -1168,8 +1144,10 @@ class ControllersTest(BaseIntegrationTest):
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
         db.session.commit()
 
-        with tempfile.TemporaryDirectory() as upload_dir, \
-             patch.dict(app.config, {"UPLOAD_FOLDER": upload_dir}):
+        with (
+            tempfile.TemporaryDirectory() as upload_dir,
+            patch.dict(app.config, {"UPLOAD_FOLDER": upload_dir}),
+        ):
             data = {
                 "note": "Test attachment",
                 "submission_id": str(sub.id),
@@ -1208,8 +1186,10 @@ class ControllersTest(BaseIntegrationTest):
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
         db.session.commit()
 
-        with tempfile.TemporaryDirectory() as upload_dir, \
-             patch.dict(app.config, {"UPLOAD_FOLDER": upload_dir}):
+        with (
+            tempfile.TemporaryDirectory() as upload_dir,
+            patch.dict(app.config, {"UPLOAD_FOLDER": upload_dir}),
+        ):
             folder = "test-folder-delete"
             att_path = os.path.join(upload_dir, folder)
             os.makedirs(att_path, exist_ok=True)
@@ -1235,8 +1215,10 @@ class ControllersTest(BaseIntegrationTest):
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
         db.session.commit()
 
-        with tempfile.TemporaryDirectory() as upload_dir, \
-             patch.dict(app.config, {"UPLOAD_FOLDER": upload_dir}):
+        with (
+            tempfile.TemporaryDirectory() as upload_dir,
+            patch.dict(app.config, {"UPLOAD_FOLDER": upload_dir}),
+        ):
             folder = "test-folder-download"
             att_path = os.path.join(upload_dir, folder)
             os.makedirs(att_path, exist_ok=True)
@@ -1319,9 +1301,7 @@ class ControllersTest(BaseIntegrationTest):
         user = User.query.filter_by(email="submitter1@some.edu").first()
         update_submission_basic_info(sub, provider_user_ids=[user.id])
         study = SubmissionStudyFactory(submission_id=sub.id)
-        dataset = SubmissionDatasetFactory(
-            submission_id=sub.id, study_id=study.id
-        )
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
         db.session.commit()
 
         resp = self.client.post(
@@ -1466,9 +1446,7 @@ class ControllersTest(BaseIntegrationTest):
         )
         db.session.add(notif)
         db.session.commit()
-        resp = self.client.get(
-            url_for("send_notification", notification_id=notif.id)
-        )
+        resp = self.client.get(url_for("send_notification", notification_id=notif.id))
         self.assertEqual(resp.status_code, 400)
 
     @patch.object(lft, "get_or_create_link")
@@ -1480,9 +1458,7 @@ class ControllersTest(BaseIntegrationTest):
         dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
         db.session.commit()
 
-        resp = self.client.get(
-            url_for("dataset_link", dataset_id=dataset.id)
-        )
+        resp = self.client.get(url_for("dataset_link", dataset_id=dataset.id))
         self.assert200(resp)
         self.assertIn(b"Upload link not available", resp.data)
         mock_get_or_create.assert_not_called()
@@ -1499,9 +1475,7 @@ class ControllersTest(BaseIntegrationTest):
         dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
         db.session.commit()
 
-        resp = self.client.get(
-            url_for("dataset_link", dataset_id=dataset.id)
-        )
+        resp = self.client.get(url_for("dataset_link", dataset_id=dataset.id))
         self.assert200(resp)
         self.assertIn(b"Upload link not available", resp.data)
         mock_get_or_create.assert_not_called()
@@ -1520,9 +1494,7 @@ class ControllersTest(BaseIntegrationTest):
         with patch.object(
             lft, "get_or_create_link", side_effect=Exception("LFT error")
         ) as mock_get_or_create:
-            resp = self.client.get(
-                url_for("dataset_link", dataset_id=dataset.id)
-            )
+            resp = self.client.get(url_for("dataset_link", dataset_id=dataset.id))
             self.assert200(resp)
             self.assertIn(b"Upload link not available", resp.data)
             mock_get_or_create.assert_called_once()
@@ -1607,8 +1579,10 @@ class ControllersTest(BaseIntegrationTest):
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
         db.session.commit()
 
-        with tempfile.TemporaryDirectory() as upload_dir, \
-             patch.dict(app.config, {"UPLOAD_FOLDER": upload_dir}):
+        with (
+            tempfile.TemporaryDirectory() as upload_dir,
+            patch.dict(app.config, {"UPLOAD_FOLDER": upload_dir}),
+        ):
             folder = "test-folder-missing"
             att_path = os.path.join(upload_dir, folder)
             os.makedirs(att_path, exist_ok=True)
@@ -1643,8 +1617,10 @@ class ControllersTest(BaseIntegrationTest):
         update_submission_basic_info(sub, provider_user_ids=[user.id])
         study = SubmissionStudyFactory(submission_id=sub.id)
         dataset = SubmissionDatasetFactory(
-            submission_id=sub.id, study_id=study.id,
-            title="Test Dataset NoID", internal_id=None,
+            submission_id=sub.id,
+            study_id=study.id,
+            title="Test Dataset NoID",
+            internal_id=None,
         )
         db.session.commit()
 
@@ -1694,9 +1670,7 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_dict_list_lookup_not_found(self):
         """Cover utils.py dict_list_lookup return None."""
-        result = dict_list_lookup(
-            [{"a": 1, "b": 2}], "a", "nonexistent", "b"
-        )
+        result = dict_list_lookup([{"a": 1, "b": 2}], "a", "nonexistent", "b")
         self.assertIsNone(result)
 
     def test_load_user(self):
@@ -1709,7 +1683,9 @@ class ControllersTest(BaseIntegrationTest):
 
     def test_load_user_db_error(self):
         """Cover load_user OperationalError path."""
-        with patch("elixir_dss.controllers.web_controllers.db.session.get",
-                   side_effect=OperationalError("", {}, Exception("db error"))):
+        with patch(
+            "elixir_dss.controllers.web_controllers.db.session.get",
+            side_effect=OperationalError("", {}, Exception("db error")),
+        ):
             result = load_user(1)
             self.assertIsNone(result)
