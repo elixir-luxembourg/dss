@@ -289,7 +289,7 @@ class ControllersTest(BaseIntegrationTest):
         )
 
         self.assert200(resp)
-        sub = Submission.query.get(sub.id)
+        sub = db.session.get(Submission, sub.id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.cancelled)
 
     def test_lft_links_deleted_on_submission_cancel(self):
@@ -358,7 +358,7 @@ class ControllersTest(BaseIntegrationTest):
         )
         self.assert200(cancel_resp)
 
-        sub = Submission.query.get(sub.id)
+        sub = db.session.get(Submission, sub.id)
         self.assertEqual(sub.current_status, SubmissionStatusEnum.cancelled)
 
         response = self.client.post(
