@@ -1,16 +1,13 @@
 ## Authentication
 
-The system supports two authentication methods (configured in `settings.py`):
+The system supports two authentication methods, selected via the `AUTHENTICATION_METHOD` environment variable:
 
-### CONFIG Mode 
+### CONFIG Mode
 
-Local user authentication with hardcoded credentials.
+Local authentication with hardcoded credentials in `settings.py`. Intended for development and demo environments only.
 
-### OIDC Mode 
+### AAI Mode
 
-LCSB SSO (Keycloak) authentication using OIDC.
+OIDC-based Single Sign-On via Keycloak (or any OIDC-compliant provider). Set `AUTHENTICATION_METHOD=AAI` and configure `OIDC_AUTHORITY`, `CLIENT_ID`, and `CLIENT_SECRET`.
 
-**Features:**
-- Single Sign-On (SSO)
-- First-time users complete signup form
-- User information pulled from OIDC token
+First-time users are automatically provisioned from the OIDC token claims (`sub`, `email`, `name`) and assigned the `user` role.
