@@ -51,13 +51,13 @@ nav:
       - Notifications: user-guide/notifications.md
   - Technical Documentation:
       - Authentication: technical-documentation/authentication.md
-      - UI: technical-documentation/ui.md
       - Architecture & Design:
           - System Data Model: technical-documentation/architecture-and-design/system-data-model.md
           - Use Cases: technical-documentation/architecture-and-design/use-cases/use-cases.md
           - Sequence Diagram: technical-documentation/architecture-and-design/sequence-diagram.md
           - Components: technical-documentation/architecture-and-design/components/components.md
           - Scenarios: technical-documentation/architecture-and-design/scenarios.md
+          - API: technical-documentation/architecture-and-design/api.md
   - Development:
       - Development Guide: development/development.md
   - Deployment:
