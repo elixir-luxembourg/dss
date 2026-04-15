@@ -104,7 +104,7 @@ class Config(object):
     LFT_LINK_VALIDITY_DAYS = int(os.environ.get("LFT_LINK_VALIDITY_DAYS") or "1")
 
     CACHE_CONFIG = {
-        "CACHE_TYPE": "filesystem",
+        "CACHE_TYPE": "FileSystemCache",
         "CACHE_DIR": "cache",
         "CACHE_THRESHOLD": 10000,
         "CACHE_DEFAULT_TIMEOUT": 300,
@@ -154,7 +154,7 @@ class TestConfig(Config):
 
     ASSETS_DEBUG = True
     TESTING = True
-    CACHE_CONFIG = {"CACHE_TYPE": "null"}
+    CACHE_CONFIG = {"CACHE_TYPE": "NullCache"}
     WTF_CSRF_ENABLED = False
 
     DAISY_USE = True
