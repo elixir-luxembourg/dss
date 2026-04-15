@@ -1,4 +1,8 @@
 
+# Common scenarios handled by submission system
+
+Following list covers scenarios experienced by LCSB data stewards. Each contain basic description of the scenario, reasoning and suggested workflow.
+
 ## Submission from a service clinicians / less involved parties
 
 The provider is willing to upload the data but **metadata submission is seen as annoying**. Provider is either not researcher or has provided data in-kind. Although agreement was concluded, the provider might not have real motivation to go through lengthy submission process.
@@ -24,7 +28,7 @@ Should a recipient (research in receiving organization) act as submitter?
 6. Recipient verifies the data and metadata is ok
 7. Recipient marks the submission as complete
 
-## Legal support involvement (Linda) - metadata collection and a contract negotiation phase
+## Legal support involvement - metadata collection and a contract negotiation phase
 Contracts are being negotiated and an Annex should describe data being submitted to LCSB. 
 
 ### A - metadata is collected before the contract is signed (default)
@@ -58,9 +62,9 @@ Contract should use a simplified DISH/table to cover basic description of the da
 4. Data upload link is generated
 (the submission export could be uploaded to Contract entity in DAISY)
 
-## Big data hosting projects - BIOMAP / Immniverse
+## Big data hosting projects with many submissions
 
-Data is to be provided before contract or after (see previous scenarios). **The metadata must be detailed.** Goal is to be able to build data catalog.
+Data is to be provided before contract or after (see previous scenarios). **The metadata must be detailed.** Goal is to be able to build data catalog increasing findability and allowing compliant redistribution of data.
 
 1. Postdoc creates submission
 2. Select receiving project and contract, putting themselves as recipients
@@ -74,13 +78,13 @@ Data is already present at LCSB and it needs to be "formalized" and enriched by 
 
 1. Submission is created by researcher.
 2. Provider institution is LCSB, recipient is also the submitter, receiving project is project of origin.
-3. Contract - none? MTA?
+3. Contract is usually not required as the data is already present at the institution. If covering contract can be recovered, it can be linked.
 4. Metadata is prefilled. What about Study? Project of origin? Its the same as receiving project :/ 
 5. DS approves metadata
 ...
 
-## ELIXIR hosting
-Same as big data hosting projects. 
+## ELIXIR sustainability service
+This service operates in similar way as big data hosting projects (see above)
 
 1. Submission is created by DS
 2. DS becomes recipient
