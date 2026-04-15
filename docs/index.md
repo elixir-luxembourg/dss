@@ -1,18 +1,10 @@
-
 # Welcome
 
-The Data Submission System is an open-source collaborative platform designed to streamline the submission of biomedical data and associated information to your infrastructure.
-It supports submitters, recipients, and data stewards through a guided multi-step workflow including metadata collection, file transfer, review and validation, communication, and completion.
+The **Data Submission System (DSS)** is an open-source platform designed to streamline the submission of biomedical data to your infrastructure. It guides submitters, recipients, and data stewards through a structured workflow covering metadata collection, review, secure file transfer, and completion.
 
-The Data Submission System is ideal for research organizations, biomedical facilities, and data stewards managing data transfers and facing challenges such as lack of provenance, incomplete metadata, and departmental misalignment.
+DSS is currently used by [ELIXIR Luxembourg](https://elixir-luxembourg.org) and the [Luxembourg Centre for Systems Biomedicine (LCSB)](https://www.uni.lu/lcsb-en/). The live instance is at [datasubmission.lcsb.uni.lu](https://datasubmission.lcsb.uni.lu).
 
-## Purpose & Goals
-
-The platform supports internal submissions as well as submissions from external collaborators and institutions, ensuring that data and associated metadata are captured in a structured, traceable, and harmonised manner.
-
-By incorporating validation mechanisms, the tool helps ensure that data and metadata are complete, accurate, and consistent while streamlining the overall process of data transfer. This strengthens data quality while providing full tracking of data provenance.
-
-## How it works (high level)
+## How it works
 
 1. Contact the Data Stewards to start a submission.
 2. A steward creates a tailored submission and invites you.
@@ -23,25 +15,10 @@ By incorporating validation mechanisms, the tool helps ensure that data and meta
 
 ## Key Features
 
-- **Guided Multi-Step Workflow** – Metadata and dataset submission through structured, easy-to-follow steps
-- **Secure Authentication and Access Control** – Protected access ensuring only authorized users can submit and review
-- **Collaborative Review Process** – Direct communication between submitters and data stewards throughout the lifecycle
-- **Standardised Metadata Collection** – Harmonised forms promoting consistency across all submissions
-- **Secure Data Transfer** – Integration with secure transfer channels to protect data integrity
-- **Automated Notifications** – Real-time updates and status notifications throughout the submission process
-- **Complete Audit Trail** – Full traceability and transparent documentation of all submission actions
-
-## Benefits
-
-**Security** – Data and metadata are protected through controlled and audited steps.
-**Collaboration** – Structured interaction between submitters and data stewards throughout the submission lifecycle.
-**Standardization** – Consistency through guided metadata collection and harmonised information capture.
-**Flexibility** – Customize metadata-capture forms to fit specific use cases, even beyond the biomedical domain.
-**Transparency** – Clear documentation and communication at every stage of the submission process.
-
-## Getting Started
-
-- **Browse docs:** Technical documentation, developer notes and user guides are available in this site.
-- **Deploy and get started:**  See our [User Guide](user-guide/getting-started.md) on your first steps with the system
-- **Source code:** View or contribute on GitHub — https://github.com/elixir-luxembourg/dss
-
+- **Guided multi-step workflow** — structured, easy-to-follow steps for metadata and dataset submission
+- **Access control** — protected access ensuring only authorised users can submit and review
+- **Collaborative review** — direct communication between submitters and stewards throughout the lifecycle
+- **Standardised metadata** — harmonised forms promoting consistency across all submissions
+- **Secure data transfer** — integration with secure transfer channels to protect data integrity
+- **Automated notifications** — real-time status updates at each transition
+- **Audit trail** — full traceability and documentation of all submission actions
