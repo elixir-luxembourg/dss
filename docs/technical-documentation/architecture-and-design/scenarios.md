@@ -20,7 +20,7 @@ LCSB is supporting the submitter as much as possible
 Should a recipient (research in receiving organization) act as submitter?
 - No. The metadata can be provided by recipient but submitter must login to the system and confirm its correct (accept the accountability).
 
-1. Researcher contacts data steward. Submission is inititated with project, submitter and recipient details.
+1. Researcher contacts data steward. Submission is inititated by the data steward, who will add the details about project, submitter and recipient.
 2. Researcher pre-fills the submission.
 3. Submitter will log into the platform and confirms the metadata is correct.
 4. DS approves the submission.
