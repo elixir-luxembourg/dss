@@ -40,4 +40,4 @@ This work was supported by [ELIXIR Luxembourg](https://elixir-luxembourg.org).
 
 ## License
 
-*(coming soon)*
+This software is licensed under the [GNU Affero General Public License v3.0 (AGPL‑3.0)](https://www.gnu.org/licenses/agpl-3.0.en.html).
