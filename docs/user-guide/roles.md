@@ -35,6 +35,12 @@ The Data Steward initiates submissions, reviews metadata and uploaded data, and 
 
 See [Submission States](submission-states.md) for the full state diagram and transition rules.
 
+## Recipient workflow
+
+Recipient is assinged to a submission with receiving project. They get notifications about the progress and can read all submission metadata. Lastly, they can add comments.
+
+Downstream ingestion pipeline (not part of the submission system) can use this information to inform user about failed ingestions or assign the recipient a dataset specific role (e.g. dataset custodian).
+
 ## Permissions
 
  ✅ Any internal user can create a submission and also become submitter.
