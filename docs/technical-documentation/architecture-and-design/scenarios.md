@@ -17,14 +17,14 @@ LCSB is supporting the submitter as much as possible
 - legal agreement template
 - sometimes even running the upload commands from provider's environment
 
-Should a recipient (research in receiving organization) act as submitter?
+Should a recipient (researcher in receiving organization) act as submitter?
 - No. The metadata can be provided by recipient but submitter must login to the system and confirm its correct (accept the accountability).
 
-1. Researcher contacts data steward. Submission is inititated by the data steward, who will add the details about project, submitter and recipient.
-2. Researcher pre-fills the submission.
+1. A local researcher contacts data steward. Submission is inititated by the data steward, who will add the details about project, submitter and assignes the researcher as recipient.
+2. Datasteward with the help of recipient pre-fills the submission.
 3. Submitter will log into the platform and confirms the metadata is correct.
 4. DS approves the submission.
-5. Data is uploaded by researcher or submitter (both have access to upload instructions)
+5. Data is uploaded by the recipient or submitter (both have access to upload instructions)
 6. Recipient verifies the data and metadata is ok
 7. Recipient marks the submission as complete
 
