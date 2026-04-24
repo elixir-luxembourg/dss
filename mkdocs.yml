@@ -15,11 +15,15 @@ theme:
         toggle:
           icon: material/weather-sunny
           name: Switch to light mode
+  logo: logos/ELIXIR_LU.png
+  favicon: logos/favicon.png
   features:
+    - navigation.top
     - navigation.footer
     - navigation.path
+    - search.highlight
   font:
-    text: Lato Regular
+    text: Lato
   language: en
 
 markdown_extensions:
