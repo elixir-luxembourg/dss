@@ -32,7 +32,7 @@ See the [Development Guide](https://elixir-luxembourg.github.io/dss/development/
 
 ## Documentation
 
-Full documentation is available at **https://elixir-luxembourg.github.io/dss/**
+Full documentation including user guide is available **[here](https://elixir-luxembourg.github.io/dss/)**
 
 ## Acknowledgements
 
