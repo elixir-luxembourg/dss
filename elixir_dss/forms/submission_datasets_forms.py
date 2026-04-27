@@ -31,14 +31,18 @@ from elixir_dss.models.submission import (
 from .validators import OptionalFieldValidator
 
 
+TEXT_FIELD_REGEX = r"^[\w\s,\-.]+$"
+TEXT_FIELD_REGEX_MSG = "Can only contain letters, digits, dash, comma and dot."
+
+
 class DatasetCreatorForm(FlaskForm):
     first_name = StringField(
         "Name",
         validators=[
             DataRequired(),
             Regexp(
-                r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             ),
         ],
         render_kw={"placeholder": "Name"},
@@ -48,8 +52,8 @@ class DatasetCreatorForm(FlaskForm):
         validators=[
             DataRequired(),
             Regexp(
-                r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             ),
         ],
         render_kw={"placeholder": "SURNAME"},
@@ -67,8 +71,8 @@ class DatasetCreatorForm(FlaskForm):
         validators=[
             DataRequired(),
             Regexp(
-                r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             ),
         ],
         render_kw={"placeholder": "University/Institution"},
@@ -79,8 +83,8 @@ class DatasetCreatorForm(FlaskForm):
         validators=[
             DataRequired(),
             Regexp(
-                r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             ),
         ],
         description="Please specify the role of the contact person (e.g., Principal Investigator, Researcher, Data Manager)",
@@ -103,8 +107,8 @@ class DatasetForm(FlaskForm):
         validators=[
             DataRequired(),
             Regexp(
-                r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             ),
         ],
     )
@@ -165,8 +169,8 @@ class DatasetForm(FlaskForm):
         render_kw={"rows": 3},
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -198,8 +202,8 @@ class DatasetForm(FlaskForm):
         render_kw={"rows": 3},
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -229,8 +233,8 @@ class DatasetForm(FlaskForm):
         render_kw={"rows": 3},
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -300,8 +304,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -319,8 +323,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -336,8 +340,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -352,8 +356,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -369,8 +373,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -385,8 +389,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -426,8 +430,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -443,8 +447,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -460,8 +464,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -472,8 +476,8 @@ class DatasetForm(FlaskForm):
         description="If applicable, in your description you may refer to GA4GH Data Use Category Codes, found at the below link.\nhttps://www.ga4gh.org/wp-content/uploads/DataUseBeacon_160209_tab_0.pdf",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )
@@ -493,8 +497,8 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[
             OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
+                regex_str=TEXT_FIELD_REGEX,
+                message=TEXT_FIELD_REGEX_MSG,
             )
         ],
     )

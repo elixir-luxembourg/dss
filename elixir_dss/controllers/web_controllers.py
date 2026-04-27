@@ -59,6 +59,10 @@ from elixir_dss.models.submission import (
 from . import protect
 
 
+SUBMISSION_FORM_TEMPLATE = "submission/submission_form.html"
+ERROR_LOG_MSG = "ERROR %s"
+
+
 def _split_semicolon_values(raw_value):
     if not raw_value:
         return []
@@ -144,13 +148,13 @@ def list_users():
 @protect(roles=["admin"])
 def edit_user(user_id):
     if request.method == "GET":
-        user_rec = User.query.get_or_404(int(user_id))
+        user_rec = db.get_or_404(User, int(user_id))
         usr_form = forms.UserForm(obj=user_rec)
         usr_form.assigned_role_ids.data = user_rec.assigned_role_ids()
         return render_template("security/user.html", user_form=usr_form)
     elif request.method == "POST":
         form = forms.UserForm(request.form)
-        user_rec = User.query.get_or_404(form.id.data)
+        user_rec = db.get_or_404(User, form.id.data)
         if form.validate_on_submit():
             update_user_info(user_rec, **form.data)
 
@@ -395,7 +399,7 @@ def delete_submission(sub_id):
         flash("Submission deleted!", "success")
         return "", 204
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to delete submission", "error")
         return "", 400
 
@@ -414,7 +418,7 @@ def steer_submission(sub_id):
         )
         return "", 204
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to transition submission to the next state", "error")
         return "", 400
 
@@ -433,7 +437,7 @@ def steer_submission_confirmed(sub_id):
             "success",
         )
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to transition submission to the next state", "error")
     return redirect(url_for("view_submission", sub_id=sub_id))
 
@@ -449,7 +453,7 @@ def revert_submission(sub_id):
         )
         return "", 204
     except exceptions.RecordLifecycleException as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to revert submission to the previous state", "error")
         return "", 400
 
@@ -529,7 +533,7 @@ def list_my_submissions():
 @app.route("/submission/<int:sub_id>", methods=["GET"])
 @protect(roles=["user", "data_steward"])
 def get_submission(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
+    submission_rec = db.get_or_404(Submission, sub_id)
     app.logger.info("INFO: Get submission SUB-ID: %s", sub_id)
     return render_template("submission/viewer.html", submission=submission_rec)
 
@@ -539,15 +543,13 @@ def get_submission(sub_id):
 def create_submission():
     if request.method == "GET":
         return render_template(
-            "submission/submission_form.html",
+            SUBMISSION_FORM_TEMPLATE,
             submsn_form=forms.SubmissionForm(formdata=None, obj=None),
         )
 
     posted_form = forms.SubmissionForm(request.form)
     if not posted_form.validate_on_submit():
-        return render_template(
-            "submission/submission_form.html", submsn_form=posted_form
-        ), 400
+        return render_template(SUBMISSION_FORM_TEMPLATE, submsn_form=posted_form), 400
 
     submission_rec = create_sub(posted_form.institution_accession.data)
     update_submission_basic_info(
@@ -566,8 +568,24 @@ def create_submission():
 @app.route("/submission/view/<int:sub_id>", methods=["GET"])
 @protect(roles=["user", "data_steward"])
 def view_submission(sub_id):
-    submission_rec = Submission.query.get_or_404(sub_id)
+    submission_rec = db.get_or_404(Submission, sub_id)
     return render_template("submission/submission.html", submission=submission_rec)
+
+
+def _build_submission_form(formdata=None, obj=None):
+    if current_user.is_data_steward():
+
+        class AdminSubmissionForm(forms.SubmissionForm):
+            pass
+
+        AdminSubmissionForm.submission_contacts = FieldList(
+            FormField(forms.ContactForm, default=lambda: Contact()),
+            min_entries=1,
+            description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
+            label="Submission contacts",
+        )
+        return AdminSubmissionForm(formdata=formdata, obj=obj)
+    return forms.SubmissionForm(formdata=formdata, obj=obj)
 
 
 @app.route("/submission/edit/<int:sub_id>", methods=["GET", "POST"])
@@ -575,45 +593,19 @@ def view_submission(sub_id):
 def edit_submission(sub_id):
     app.logger.info("INFO: Edit submission SUB-ID: %s", sub_id)
     if request.method == "GET":
-        submission_rec = Submission.query.get_or_404(sub_id)
+        submission_rec = db.get_or_404(Submission, sub_id)
         app.logger.info("Sub REC: %s", submission_rec)
 
-        if current_user.is_data_steward():
-
-            class AdminSubmissionForm(forms.SubmissionForm):
-                pass
-
-            AdminSubmissionForm.submission_contacts = FieldList(
-                FormField(forms.ContactForm, default=lambda: Contact()),
-                min_entries=1,
-                description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
-                label="Submission contacts",
-            )
-            sub_form = AdminSubmissionForm(obj=submission_rec)
-        else:
-            sub_form = forms.SubmissionForm(obj=submission_rec)
+        sub_form = _build_submission_form(obj=submission_rec)
         if submission_rec.local_custodians_json:
             sub_form.local_custodians.data = json.loads(
                 submission_rec.local_custodians_json
             )
         sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
-        return render_template("submission/submission_form.html", submsn_form=sub_form)
+        return render_template(SUBMISSION_FORM_TEMPLATE, submsn_form=sub_form)
     elif request.method == "POST":
-        if current_user.is_data_steward():
-
-            class AdminSubmissionForm(forms.SubmissionForm):
-                pass
-
-            AdminSubmissionForm.submission_contacts = FieldList(
-                FormField(forms.ContactForm, default=lambda: Contact()),
-                min_entries=1,
-                description="Please provide at least one main contact (the submitter). Additional contacts can be added as needed.",
-                label="Submission contacts",
-            )
-            form = AdminSubmissionForm(request.form)
-        else:
-            form = forms.SubmissionForm(request.form)
-        submission_rec = Submission.query.get_or_404(form.id.data)
+        form = _build_submission_form(formdata=request.form)
+        submission_rec = db.get_or_404(Submission, form.id.data)
         if form.validate_on_submit():
             form.populate_obj(submission_rec)
             update_submission_basic_info(
@@ -629,9 +621,7 @@ def edit_submission(sub_id):
             flash("Submission updated", "success")
             return redirect(url_for("view_submission", sub_id=submission_rec.id))
         else:
-            return render_template(
-                "submission/submission_form.html", submsn_form=form
-            ), 400
+            return render_template(SUBMISSION_FORM_TEMPLATE, submsn_form=form), 400
 
 
 @app.route("/submission/clone/<int:submission_id>")
@@ -647,7 +637,7 @@ def clone_submission(submission_id):
             clone_datasets=clone_datasets,
         )
     except Exception as e:
-        app.logger.error("ERROR %s", e)
+        app.logger.error(ERROR_LOG_MSG, e)
         flash("Unable to clone submission", "danger")
         return redirect(url_for("list_submissions"))
 
@@ -658,7 +648,7 @@ def clone_submission(submission_id):
 @app.route("/submission/cancel/<int:sub_id>", methods=["POST"])
 @protect(roles=["user", "data_steward"])
 def cancel_submission(sub_id):
-    submission = Submission.query.get_or_404(sub_id)
+    submission = db.get_or_404(Submission, sub_id)
 
     reason = request.form.get("cancellation_reason", "").strip()
     if not reason:
@@ -780,7 +770,7 @@ def add_submission_attachment(sub_id):
 @app.route("/submission_attachment_delete/<int:attach_id>", methods=["GET"])
 @protect(roles=["user", "data_steward"])
 def delete_submission_attachment(attach_id):
-    submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
+    submission_attachment = db.get_or_404(SubmissionAttachment, attach_id)
     path_on_server = os.path.join(
         app.config["UPLOAD_FOLDER"], submission_attachment.folder_name
     )
@@ -798,7 +788,7 @@ def delete_submission_attachment(attach_id):
 )
 @protect(roles=["user", "data_steward"])
 def download_submission_attachment(attach_id, filename):
-    submission_attachment = SubmissionAttachment.query.get_or_404(attach_id)
+    submission_attachment = db.get_or_404(SubmissionAttachment, attach_id)
     file_names = submission_attachment.file_names.strip(" \t\n\r").split(" ")
     if filename not in file_names:
         return "File not found", 404
@@ -898,7 +888,7 @@ def add_submission_dataset(sub_id):
 )
 def edit_submission_dataset(dataset_id):
     if request.method == "GET":
-        dataset = SubmissionDataset.query.get_or_404(dataset_id)
+        dataset = db.get_or_404(SubmissionDataset, dataset_id)
         result_form = forms.DatasetForm(obj=dataset)
         result_form.title.render_kw = {"readonly": True}
         if dataset.sci_datatypes_json:
@@ -917,7 +907,7 @@ def edit_submission_dataset(dataset_id):
             dataset_form=result_form,
         ), 200
     elif request.method == "POST":
-        dataset = SubmissionDataset.query.get_or_404(dataset_id)
+        dataset = db.get_or_404(SubmissionDataset, dataset_id)
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
             original_title = dataset.title
@@ -980,7 +970,7 @@ def edit_submission_dataset(dataset_id):
     roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
 )
 def delete_submission_dataset(dataset_id):
-    dataset = SubmissionDataset.query.get_or_404(dataset_id)
+    dataset = db.get_or_404(SubmissionDataset, dataset_id)
     db.session.delete(dataset)
     db.session.commit()
     flash("Dataset deleted", "success")
@@ -1044,7 +1034,7 @@ def add_submission_study(sub_id):
 )
 def edit_submission_study(study_id):
     if request.method == "GET":
-        study_rec = SubmissionStudy.query.get_or_404(study_id)
+        study_rec = db.get_or_404(SubmissionStudy, study_id)
         result_form = forms.StudyForm(obj=study_rec)
         _load_study_json_to_form(study_rec, result_form)
         return render_template(
@@ -1057,7 +1047,7 @@ def edit_submission_study(study_id):
             "submission/study_form.html", study_form=posted_form
         ), 400
 
-    study_rec = SubmissionStudy.query.get_or_404(study_id)
+    study_rec = db.get_or_404(SubmissionStudy, study_id)
     exclude_fields = {
         "external_identifiers",
         "species",
@@ -1087,7 +1077,7 @@ def edit_submission_study(study_id):
     roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
 )
 def delete_submission_study(study_id):
-    study = SubmissionStudy.query.get_or_404(study_id)
+    study = db.get_or_404(SubmissionStudy, study_id)
     db.session.delete(study)
     db.session.commit()
     flash("Study deleted", "success")
@@ -1139,7 +1129,7 @@ def add_submission_message(sub_id):
 @protect(roles=["data_steward"])
 def send_notification(notification_id):
     try:
-        notification_rec = EmailNotification.query.get_or_404(int(notification_id))
+        notification_rec = db.get_or_404(EmailNotification, int(notification_id))
         send_email_asynch(notification_rec)
         app.logger.info("INFO: Re-Sent email notification with ID: %s", notification_id)
         flash("Notification email sent!", "success")
@@ -1167,8 +1157,8 @@ def dataset_link(dataset_id):
         app.logger.warning("LFT client is not initialized. Skipping LFT link creation.")
         return render_template("submission/_lft_link_content.html", link=None)
 
-    dataset = SubmissionDataset.query.get_or_404(dataset_id)
-    submission = Submission.query.get_or_404(dataset.submission_id)
+    dataset = db.get_or_404(SubmissionDataset, dataset_id)
+    submission = db.get_or_404(Submission, dataset.submission_id)
     if submission.current_status not in [
         SubmissionStatusEnum.data_upload,
         SubmissionStatusEnum.data_approval,

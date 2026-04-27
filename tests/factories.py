@@ -64,6 +64,7 @@ class SubmissionDatasetFactory(SQLAlchemyModelFactory):
     legal_basis_sharing_std_code = "61a"
     is_special_category_data = False
     consent_status_code = "hm"
+    internal_id = factory.Faker("uuid4")
 
     @factory.post_generation
     def creators(self, create, extracted, **kwargs):
@@ -149,7 +150,7 @@ class ContactFactory(SQLAlchemyModelFactory):
     email = factory.Faker("email")
     institution = factory.Faker("company")
     is_main_contact = False
-    contact_category = factory.LazyFunction(lambda: ContactType.query.get_or_404(1))
+    contact_category = factory.LazyFunction(lambda: db.get_or_404(ContactType, 1))
     category_id = 1
 
 

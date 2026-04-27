@@ -6,7 +6,7 @@ from flask import (
     send_file,
 )
 
-from elixir_dss import app
+from elixir_dss import app, db
 from elixir_dss.controllers import protect
 from elixir_dss.importer.submission_exporter import SubmissionExporter
 from elixir_dss.models.submission import Submission
@@ -15,7 +15,7 @@ from elixir_dss.models.submission import Submission
 @app.route("/submission/generate_submission_docx/<int:sub_id>", methods=["GET"])
 @protect(roles=["user", "data_steward"])
 def generate_submission_docx(sub_id):
-    sub = Submission.query.get_or_404(sub_id)
+    sub = db.get_or_404(Submission, sub_id)
     template_path = os.path.join(
         app.root_path, "templates", "submission", "generate_submission_docx.docx"
     )

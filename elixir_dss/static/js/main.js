@@ -59,7 +59,7 @@ $.extend(
         }
     });
 
-window.setTimeout(function() {
+globalThis.setTimeout(function() {
     $(".alert").fadeTo(1000, 0).slideUp(1000, function(){
         let alertElement = document.querySelector(".alert-dismissible");
         if (alertElement) {
