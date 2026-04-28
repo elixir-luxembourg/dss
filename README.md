@@ -12,6 +12,10 @@ The system is currently used by [ELIXIR Luxembourg](https://elixir-luxembourg.or
 
 Currently, the software runs as a [single instance at LCSB](https://datasubmission.lcsb.uni.lu/).
 
+## Documentation
+
+Full documentation including user guide is available **[here](https://elixir-luxembourg.github.io/dss/)**
+
 ## Quick Start
 
 ```bash
@@ -29,10 +33,6 @@ Application runs at **http://127.0.0.1:5000**
 - Data Provider: `submitter1@some.edu` / `submitter1`
 
 See the [Development Guide](https://elixir-luxembourg.github.io/dss/development/development/) for manual setup, testing, migrations, and release instructions.
-
-## Documentation
-
-Full documentation including user guide is available **[here](https://elixir-luxembourg.github.io/dss/)**
 
 ## Acknowledgements
 
