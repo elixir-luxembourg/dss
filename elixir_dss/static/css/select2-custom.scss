@@ -1,0 +1,14 @@
+@import "../vendor/node_modules/bootstrap/scss/functions";
+
+@import "custom-colors";
+
+@import "../vendor/node_modules/bootstrap/scss/variables";
+@import "../vendor/node_modules/bootstrap/scss/mixins";
+
+$form-select-border-color: $gray-400;
+$form-select-focus-border-color: $primary;
+
+@import "../vendor/node_modules/select2/src/scss/core";
+
+@import "../vendor/node_modules/select2-bootstrap-5-theme/src/include-all";
+

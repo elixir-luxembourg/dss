@@ -1,0 +1,46 @@
+{% macro render_field_with_errors(field) %}
+    {% set clazz = kwargs.pop('clazz',"") %}
+    {% set fc_class = "form-control " +  clazz %}
+
+    {% if field.type == 'BooleanField' %}
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="{{ field.id }}" name="{{ field.name }}" {% if field.data %}checked{% endif %}>
+            <label class="form-check-label" for="{{ field.id }}">{{ field.label.text }}</label>
+            {% if field.description %}
+                <div class="form-text">{{ field.description }}</div>
+            {% endif %}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="mb-3">
+            <label for="{{ field.id }}" class="form-label">
+                {{ field.label.text }} {% if field.flags.required %}<span class="text-danger">*</span>{% endif %}
+            </label>
+            {% if field.description %}
+                <div class="form-text mb-2">{{ field.description }}</div>
+            {% endif %}
+            {{ field(class=fc_class + (' is-invalid' if field.errors else '')) }}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro render_field(field) %}
+    {% set clazz = kwargs.pop('clazz', "") %}
+    {% if field.type == 'SelectField' or field.type == 'SelectMultipleField' %}
+        {% set fc_class = "form-select " + clazz %}
+    {% elif field.type == 'BooleanField' %}
+        {% set fc_class = "form-check-input " + clazz %}
+    {% else %}
+        {% set fc_class = "form-control " + clazz %}
+    {% endif %}
+    {{ field(class=fc_class + (' is-invalid' if field.errors else ''), **kwargs)|safe }}
+{% endmacro %}

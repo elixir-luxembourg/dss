@@ -1,0 +1,269 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+    <!-- Hero -->
+    <div class="position-relative mb-5 overflow-hidden rounded-3 bg-primary">
+        <div class="position-relative p-5 text-white text-center" style="z-index: 1;">
+
+            <h1 class="display-5 fw-bold mb-3">About the {{ SYSTEM_NAME }}</h1>
+            <p class="lead mb-0 opacity-90" style="max-width: 600px; margin: 0 auto;">
+                Learn more about the goals, context, and features of LCSB’s secure data submission platform.
+            </p>
+
+        </div>
+    </div>
+
+    <!-- Section: Context -->
+    <div class="container mb-5">
+        <h2 class="h3 fw-bold mb-3">What is the {{ SYSTEM_NAME }}?</h2>
+        <p class="text-secondary" style="max-width: 800px;">
+            The {{ SYSTEM_NAME }} is a secure, collaborative platform designed to
+            streamline the submission of data and associated information to LCSB and ELIXIR-LU infrastructures.
+            It supports contributors and Data Stewards through a guided multi-step workflow covering metadata
+            collection, file transfer, review, communication, and final approval.
+        </p>
+    </div>
+
+    <!-- Section: Goals & Purpose -->
+    <div class="container mb-5">
+        <h2 class="h3 fw-bold mb-4">Purpose & Goals</h2>
+
+        <p class="text-secondary mb-4" style="max-width: 800px;">
+            The {{ SYSTEM_NAME }} enables the submission of data for multiple purposes, including use within
+            LCSB research projects and for data hosting and reuse under ELIXIR-Luxembourg (ELIXIR-LU). The platform
+            supports submissions from LCSB personnel as well as external collaborators and institutions, ensuring that data
+            and associated metadata are captured in a structured, traceable, and harmonised manner.
+        </p>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <i class="bi bi-shield-lock fs-1 mb-3"></i>
+                        <h3 class="h6 fw-bold mb-2">Secure Data Transfer</h3>
+                        <p class="text-secondary mb-0">Ensure that submitted data and metadata are protected through controlled and audited steps.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <i class="bi bi-people fs-1 mb-3"></i>
+                        <h3 class="h6 fw-bold mb-2">Collaborative Workflow</h3>
+                        <p class="text-secondary mb-0">Enable structured interaction between submitters and Data Stewards throughout the submission lifecycle.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 text-center">
+                        <i class="bi bi-list-check fs-1 mb-3"></i>
+                        <h3 class="h6 fw-bold mb-2">Standardised Metadata</h3>
+                        <p class="text-secondary mb-0">Promote consistency by guiding users through harmonised metadata forms.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Section: Key Features -->
+    <div class="container mb-5">
+        <h2 class="h3 fw-bold mb-4">Key Features</h2>
+
+        <ul class="list-group shadow-sm">
+            <li class="list-group-item py-3">
+                <i class="bi bi-diagram-3 me-2"></i>
+                Guided multi-step workflow for metadata and dataset submission
+            </li>
+            <li class="list-group-item py-3">
+                <i class="bi bi-person-check me-2"></i>
+                Integrated review and approval process with Data Stewards
+            </li>
+            <li class="list-group-item py-3">
+                <i class="bi bi-lock-fill me-2"></i>
+                Secure authentication and controlled access
+            </li>
+            <li class="list-group-item py-3">
+                <i class="bi bi-cloud-upload me-2"></i>
+                Integration with secure transfer channels
+            </li>
+            <li class="list-group-item py-3">
+                <i class="bi bi-envelope-paper me-2"></i>
+                Automated notifications and status updates
+            </li>
+        </ul>
+    </div>
+
+    <!-- Section: How the Submission Process Works -->
+    <div class="container mb-5">
+        <h2 class="h3 fw-bold mb-4">How the Submission Process Works</h2>
+
+        <p class="text-secondary mb-4" style="max-width: 800px;">
+            The {{ SYSTEM_NAME }} provides a clear, steward-led workflow for transferring data to the receiving institution.
+            To begin a submission, data providers first contact the LCSB Data Stewards, who initiate and manage the submission within the platform.
+            Each step of the workflow is designed to ensure clarity, security, and traceability.
+            Throughout the process, submitters and data stewards can communicate, exchange files, and receive notifications.
+        </p>
+
+        <div class="list-group shadow-sm">
+
+            <div class="list-group-item py-4">
+                <h3 class="h6 fw-bold mb-2">
+                    <i class="bi bi-envelope-fill me-2"></i>
+                    1. Contact the LCSB Data Stewards
+                </h3>
+                <p class="text-secondary mb-0">
+                    In order to initiate a data submission, the data provider must first contact the
+                    LCSB Data Stewards by email at
+                    <a href="mailto:lcsb-datastewards@uni.lu">lcsb-datastewards@uni.lu</a>.
+                    The Data Stewards will assess the request and guide the next steps.
+                </p>
+            </div>
+
+
+            <div class="list-group-item py-4">
+                <h3 class="h6 fw-bold mb-2">
+                    <i class="bi bi-person-check me-2"></i>
+                    2. Initiation by Data Steward
+                </h3>
+                <p class="text-secondary mb-0">
+                    Your assigned data steward begins the process by creating a submission tailored to your specific project.
+                    You will receive an email invitation with instructions and a link to access the submission form.
+                    This personalized approach ensures that all necessary information and requirements are included from the start.
+                </p>
+            </div>
+
+            <div class="list-group-item py-4">
+                <h3 class="h6 fw-bold mb-2">
+                    <i class="bi bi-ui-checks-grid me-2"></i>
+                    3. Metadata Entry
+                </h3>
+                <p class="text-secondary mb-0">
+                    Complete the guided forms with detailed information about your study, dataset, and related context.
+                    You can freely navigate between sections, update entries, and add attachments such as supplementary documents.<br>
+                    <strong>At this step, the submitter is fully accountable for the accuracy and completeness of the information provided.</strong>
+                    Ensure that all details are correct, as this information forms the basis for review, dataset approval, and downstream use.
+                </p>
+            </div>
+
+            <div class="list-group-item py-4">
+                <h3 class="h6 fw-bold mb-2">
+                    <i class="bi bi-check2-square me-2"></i>
+                    4. Metadata Review and Approval
+                </h3>
+                <p class="text-secondary mb-0">
+                    Once submitted, your metadata is reviewed by the data steward for completeness, accuracy, and adherence
+                    to platform standards. The data steward may request clarifications or suggest updates.
+                    You are notified of every review action and can communicate directly through the platform, exchanging messages
+                    and additional attachments as needed. This ensures a transparent, traceable discussion linked to your submission.
+                </p>
+            </div>
+
+            <div class="list-group-item py-4">
+                <h3 class="h6 fw-bold mb-2">
+                    <i class="bi bi-cloud-upload me-2"></i>
+                    5. Data Upload
+                </h3>
+                <p class="text-secondary mb-0">
+                    After metadata approval, securely upload your dataset files using one of the integrated data transfer channels.
+                    Uploaded files remain linked to your submission and are protected throughout transfer,
+                    ensuring both integrity and security. Notifications are sent when uploads are complete or if any issues arise.
+                </p>
+            </div>
+
+            <div class="list-group-item py-4">
+                <h3 class="h6 fw-bold mb-2">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    6. Final Data Verification and Approval
+                </h3>
+                <p class="text-secondary mb-0">
+                    The data steward performs a final verification of your uploaded files, checking for completeness and correctness.
+                    Once everything meets the platform’s standards, your submission is approved. You receive a final confirmation
+                    and notifications summarising all actions taken throughout the process, providing a full record of your submission journey.
+                </p>
+            </div>
+
+        </div>
+
+        <p class="text-secondary mt-4" style="max-width: 800px;">
+            This platform, developed at the <strong>LCSB</strong> and powered by <strong>ELIXIR-LU</strong>, offers a secure, transparent,
+            and collaborative submission experience for all users.
+        </p>
+    </div>
+
+
+    <!-- Section: Links -->
+    <div class="container mb-5">
+        <h2 class="h3 fw-bold mb-4">Learn More</h2>
+
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 text-center p-4">
+                    <i class="bi bi-github fs-1 mb-3"></i>
+                    <h3 class="h6 fw-bold mb-2">GitHub Repository</h3>
+                    <p class="text-secondary small mb-3">Explore the source code, report issues, or contribute.</p>
+                    <a href="https://github.com/elixir-luxembourg/dss"
+                       class="btn btn-outline-dark" target="_blank">Open GitHub</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 text-center p-4">
+                    <i class="bi bi-journal-bookmark fs-1 mb-3"></i>
+                    <h3 class="h6 fw-bold mb-2">Documentation</h3>
+                    <p class="text-secondary small mb-3">Technical documentation and user guide.</p>
+                    <a href="https://elixir-luxembourg.github.io/dss/">Documentation & User Guide</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 text-center p-4">
+                    <i class="bi bi-building fs-1 mb-3"></i>
+                    <h3 class="h6 fw-bold mb-2">Partners</h3>
+                    <p class="text-secondary small mb-3">Learn more about ELIXIR-LU & LCSB.</p>
+                    <a href="https://elixir-luxembourg.org" target="_blank" class="btn btn-outline-dark">ELIXIR-LU</a>
+                    <a href="https://www.uni.lu/lcsb-en/" target="_blank" class="btn btn-outline-dark mt-2">LCSB</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Section: Contact -->
+    <div class="container mb-5">
+        <h2 class="h3 fw-bold mb-4">Contact</h2>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-5 text-center">
+
+                <div class="mb-3">
+                    <i class="bi bi-envelope-paper-fill fs-1"></i>
+                </div>
+
+                <h3 class="h6 fw-bold mb-2">
+                    Contact the LCSB Data Stewards
+                </h3>
+
+                <p class="text-secondary mb-4" style="max-width: 600px; margin: 0 auto;">
+                    To initiate a new data submission, or if you have questions about eligibility,
+                    requirements, or support during the submission process, please contact the
+                    LCSB Data Stewards.
+                </p>
+
+                <a href="mailto:lcsb-datastewards@uni.lu"
+                   class="btn btn-primary btn-lg px-4">
+                    <i class="bi bi-envelope-fill me-2"></i>
+                    lcsb-datastewards@uni.lu
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

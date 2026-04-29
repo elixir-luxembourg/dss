@@ -1,0 +1,18 @@
+ELIXIR-LU / LCSB
+
+Dear Data Steward,
+
+A data provider has completed the metadata section for a submission. The submission is now ready for your review and approval in the {{ SYSTEM_NAME }}.
+
+Submission Ref: {{ submission.ref_name }}
+Approval Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+
+Please review the study details, data declarations, GDPR categories, ethics information, and contacts before approving the submission.
+
+If you have any questions or need assistance, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu.
+
+Thank you for your review and support,
+
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.

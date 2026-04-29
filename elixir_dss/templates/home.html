@@ -1,0 +1,230 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <div class="position-relative mb-5 overflow-hidden rounded-3 bg-primary">
+        <div class="position-relative p-5 text-white text-center" style="z-index: 1;">
+            <h1 class="display-4 fw-bold mb-3">{{ SYSTEM_NAME }}</h1>
+            <p class="lead mb-4 opacity-90" style="max-width: 650px; margin: 0 auto;">
+                Securely submit research data through our guided, collaborative workflow
+            </p>
+            {% if current_user.is_authenticated %}
+                {% set user_roles = current_user.assigned_roles | map(attribute='name') | list %}
+                {% if 'user' in user_roles %}
+                    <a href="{{ url_for('list_my_submissions') }}"
+                       class="btn btn-light btn-lg px-5 fw-semibold">
+                        View My Submissions
+                    </a>
+                {% elif 'data_steward' in user_roles %}
+                    <a href="{{ url_for('list_submissions') }}"
+                       class="btn btn-light btn-lg px-5 fw-semibold">
+                        View Submissions
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for(login_page) }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}"
+                   class="btn btn-light btn-lg px-5 fw-semibold">
+                    Sign In
+                </a>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- Process -->
+    <div class="mb-5">
+        <div class="text-center mb-4">
+            <h2 class="h3 fw-bold mb-2">Your Submission Journey</h2>
+            <p class="text-secondary">Follow our five-step collaborative process from initiation to completion</p>
+        </div>
+
+        <div class="position-relative home-process-timeline">
+
+            <div class="d-none d-md-block position-absolute start-50 translate-middle-x home-process-line"></div>
+
+            <!-- Step 1 -->
+            <div class="row home-process-step position-relative align-items-md-center">
+                <div class="col-md-6 pe-md-4 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100 home-process-card">
+                        <div class="card-body p-4 text-start">
+                            <div class="mb-2">
+                                <span class="badge bg-primary">Data Steward</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Initiation</h3>
+                            <p class="text-secondary mb-0">
+                                Our Data Steward creates a personalized submission form and sends you an email invitation to start the process.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
+                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center position-relative home-process-marker home-process-marker-left">
+                        1
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="row home-process-step position-relative align-items-md-center">
+                <div class="col-md-6 order-md-2 ps-md-4 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100 home-process-card">
+                        <div class="card-body p-4 text-start">
+                            <div class="mb-2">
+                                <span class="badge bg-secondary">Submitter</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Metadata Entry</h3>
+                            <p class="text-secondary mb-0">
+                                Describe your research by providing study information, dataset description, and related metadata using guided forms.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 order-md-1 d-flex align-items-center justify-content-md-end justify-content-center">
+                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center position-relative home-process-marker home-process-marker-right">
+                        2
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="row home-process-step position-relative align-items-md-center">
+                <div class="col-md-6 pe-md-4 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100 home-process-card">
+                        <div class="card-body p-4 text-start">
+                            <div class="mb-2">
+                                <span class="badge bg-primary">Data Steward</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Metadata Review</h3>
+                            <p class="text-secondary mb-0">
+                                Our Data Steward reviews submitted metadata for completeness and compliance before approval.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
+                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center position-relative home-process-marker home-process-marker-left">
+                        3
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="row home-process-step position-relative align-items-md-center">
+                <div class="col-md-6 order-md-2 ps-md-4 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100 home-process-card">
+                        <div class="card-body p-4 text-start">
+                            <div class="mb-2">
+                                <span class="badge bg-secondary">Submitter</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Data Upload</h3>
+                            <p class="text-secondary mb-0">
+                                Once approved, securely upload your dataset files to the provided upload zone.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 order-md-1 d-flex align-items-center justify-content-md-end justify-content-center">
+                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center position-relative home-process-marker home-process-marker-right">
+                        4
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="row home-process-step position-relative align-items-md-center">
+                <div class="col-md-6 pe-md-4 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100 home-process-card">
+                        <div class="card-body p-4 text-start">
+                            <div class="mb-2">
+                                <span class="badge bg-primary">Data Steward</span>
+                            </div>
+                            <h3 class="h5 fw-bold mb-2">Data Verification</h3>
+                            <p class="text-secondary mb-0">
+                                The Data Steward verifies uploaded files, ensuring integrity and correctness before final approval.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex align-items-center justify-content-md-start justify-content-center">
+                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center position-relative home-process-marker home-process-marker-left">
+                        5
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="row home-process-step position-relative align-items-md-center">
+                <div class="col-md-6 order-md-2 ps-md-4 mb-3 mb-md-0">
+                    <div class="card border-0 shadow-sm h-100 home-process-card">
+                        <div class="card-body p-4 text-start">
+                            <h3 class="h5 fw-bold mb-2">
+                                <i class="bi bi-check-circle-fill me-2"></i>
+                                Complete
+                            </h3>
+                            <p class="text-secondary mb-0">
+                                Your data has been successfully transferred and is now available within our research infrastructure.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 order-md-1 d-flex align-items-center justify-content-md-end justify-content-center">
+                    <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center position-relative home-process-marker home-process-marker-right home-process-marker-final">
+                        ✓
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <!-- Info boxes -->
+    <div class="row g-4 mb-5">
+        <!-- Quick Start -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow-sm border-0 text-center p-4">
+                <i class="bi bi-rocket-takeoff fs-1 mb-3"></i>
+                <h3 class="h6 fw-bold mb-2">Quick Start</h3>
+                <p class="text-secondary small mb-3">
+                    New to the system? Register now or contact our data steward.
+                </p>
+                <a href="{{ url_for(login_page) }}" class="btn btn-outline-dark mt-auto w-100">Register Now</a>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow-sm border-0 text-center p-4">
+                <i class="bi bi-chat-dots fs-1 mb-3"></i>
+                <h3 class="h6 fw-bold mb-2">Ready to Submit?</h3>
+                <p class="text-secondary small mb-3">
+                    Contact your LCSB collaborator or our Data Steward to initiate your submission.
+                </p>
+                <p class="mb-0 mt-auto">
+                    <a href="mailto:lcsb-datastewards@uni.lu" class="btn btn-outline-dark w-100 text-truncate">
+                        lcsb-datastewards@uni.lu
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Data Catalog -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow-sm border-0 text-center p-4">
+                <i class="bi bi-database fs-1 mb-3"></i>
+                <h3 class="h6 fw-bold mb-2">Browse Data</h3>
+                <p class="text-secondary small mb-3">
+                    Explore existing datasets in the ELIXIR Luxembourg Repository and discover research opportunities.
+                </p>
+                <a href="https://datacatalog.elixir-luxembourg.org"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn btn-outline-dark mt-auto w-100">
+                    View Catalog
+                </a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

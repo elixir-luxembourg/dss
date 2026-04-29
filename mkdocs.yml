@@ -1,0 +1,73 @@
+site_name: Data Submission System (DSS)
+theme:
+  name: material
+  custom_dir: custom_theme
+  palette:
+      - scheme: default
+        primary: custom
+        accent: indigo
+        toggle:
+          icon: material/weather-night
+          name: Switch to dark mode
+      - scheme: slate
+        primary: orange
+        accent: blue
+        toggle:
+          icon: material/weather-sunny
+          name: Switch to light mode
+  logo: logos/ELIXIR_LU.png
+  favicon: logos/favicon.png
+  features:
+    - navigation.top
+    - navigation.footer
+    - navigation.path
+    - search.highlight
+  font:
+    text: Lato
+  language: en
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details  
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  - search
+  - mermaid2
+
+extra_css:
+  - css/extra.css
+
+copyright: Copyright © ELIXIR 2025 |  ELIXIR Luxembourg, Luxembourg Centre for Systems Biomedicine, Campus Belval, Biotech II, 6 avenue du Swing, L-4367 Belvaux
+
+
+nav:
+  - Home: index.md
+  - User Guide:
+      - Getting Started: user-guide/getting-started.md
+      - Managing Submissions: user-guide/managing-submissions.md
+      - Roles & Permissions: user-guide/roles.md
+      - Submission States: user-guide/submission-states.md
+      - Notifications: user-guide/notifications.md
+  - Technical Documentation:
+      - Authentication: technical-documentation/authentication.md
+      - Architecture & Design:
+          - System Data Model: technical-documentation/architecture-and-design/system-data-model.md
+          - Use Cases: technical-documentation/architecture-and-design/use-cases/use-cases.md
+          - Sequence Diagram: technical-documentation/architecture-and-design/sequence-diagram.md
+          - Components: technical-documentation/architecture-and-design/components/components.md
+          - Scenarios: technical-documentation/architecture-and-design/scenarios.md
+          - API: technical-documentation/architecture-and-design/api.md
+  - Development:
+      - Development Guide: development/development.md
+  - Deployment:
+      - Deployment Guide: deployment/deployment.md
+  - Known Issues: known-issues.md
+  - Metadata:
+      - Form Metadata Model: form-metadata-model/form-metadata-model.md
+
+

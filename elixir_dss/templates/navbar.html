@@ -1,0 +1,89 @@
+{% set menu_bar_items = config.get('APP_MENU_BAR_ITEMS') -%}
+{% set active_page = active_page|default('home') -%}
+
+<a href="#main-content" class="visually-hidden-focusable position-absolute top-0 start-0 bg-dark text-white px-3 py-2 m-2 rounded text-decoration-none z-3">
+    Skip to main content
+</a>
+
+<nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom mb-4" aria-label="Main navigation">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-semibold text-dark" href="{{ url_for('home') }}">
+            <span class="d-none d-sm-inline">{{ SYSTEM_NAME }}</span>
+            <span class="d-inline d-sm-none">DSS</span>
+        </a>
+
+        <button class="navbar-toggler border-0 shadow-none text-dark" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false"
+                aria-label="Toggle navigation menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1">
+                {% for name, link, sub_items, role in menu_bar_items %}
+                    {% if (current_user.is_authenticated and current_user.assigned_roles|selectattr("name", "equalto", role)|list|count > 0) or role == 'public' %}
+                        {% if link %}
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded
+                               {% if request.endpoint == link %}active bg-body-secondary text-dark fw-medium{% else %}text-secondary{% endif %}"
+                                   href="{{ url_for(link) }}"
+                                   {% if request.endpoint == link %}aria-current="page"{% endif %}>
+                                    <i class="bi bi-grid"></i>
+                                    {{ name|e }}
+                                </a>
+                            </li>
+                        {% else %}
+                            {% for sub_item_name, sub_item_link in sub_items %}
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded
+                                   {% if request.endpoint == sub_item_link %}active bg-body-secondary text-dark fw-medium{% else %}text-secondary{% endif %}"
+                                       href="{{ url_for(sub_item_link) }}"
+                                       {% if request.endpoint == sub_item_link %}aria-current="page"{% endif %}>
+                                        {% if 'Submission' in sub_item_name or 'submission' in sub_item_name %}
+                                            <i class="bi bi-file-earmark-text"></i>
+                                        {% elif 'User' in sub_item_name or 'user' in sub_item_name %}
+                                            <i class="bi bi-people"></i>
+                                        {% elif 'Export' in sub_item_name or 'export' in sub_item_name %}
+                                            <i class="bi bi-download"></i>
+                                        {% elif 'Settings' in sub_item_name or 'settings' in sub_item_name or 'Config' in sub_item_name %}
+                                            <i class="bi bi-gear"></i>
+                                        {% else %}
+                                            <i class="bi bi-list-ul"></i>
+                                        {% endif %}
+                                        {{ sub_item_name }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+
+            <div class="d-flex align-items-center gap-2">
+                {% if current_user.is_authenticated %}
+                    {# Authenticated: Show user name (links to profile) and logout #}
+                    <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded text-dark"
+                       href="{{ url_for('profile') }}"
+                       aria-label="View profile">
+                        <i class="bi bi-person-circle fs-5"></i>
+                        <span class="d-none d-md-inline fw-medium">{{ current_user.display_name() }}</span>
+                    </a>
+                    <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded text-danger fw-medium"
+                       href="{{ url_for('logout') }}"
+                       aria-label="Log out">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Log out</span>
+                    </a>
+                {% else %}
+                    {# Not authenticated: Show direct sign in link #}
+                    <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded text-primary fw-medium"
+                       href="{{ url_for(login_page) }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}"
+                       aria-label="Sign in to your account">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        <span>Sign In</span>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>

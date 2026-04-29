@@ -1,0 +1,17 @@
+ELIXIR-LU / LCSB
+
+Dear Data Steward,
+
+A data provider has completed the data upload in the LFT application for the following submission. The submission is now ready for your review and approval.
+
+Submission Ref: {{ submission.ref_name }}
+Approval Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+
+Please log in the LFT application to verify the uploaded data for submission reference {{ submission.ref_name }}. Once verified, return to the approval page above to approve or reject the submission.
+
+If you have any questions or need further assistance, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu or visit our website: {{ url_for('home', _external=True) }}
+
+Thank you,
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.

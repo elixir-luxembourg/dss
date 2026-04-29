@@ -1,0 +1,21 @@
+ELIXIR-LU / LCSB
+
+Dear Data Provider,
+
+Your metadata submission has been reviewed by a data steward and requires some changes before it can be approved. Please review the feedback below carefully and make the necessary corrections.
+
+Submission Ref: {{ submission.ref_name }}
+Submission Page: {{ url_for('view_submission', sub_id=submission.id, _external=True) }}
+
+Required Changes:
+{{ feedback }}
+
+Once you have made the necessary corrections, please click "Proceed" in the {{ SYSTEM_NAME }} to resubmit your metadata for review.
+
+If you have any questions or need assistance while making these changes, please contact the LCSB Data Stewards at lcsb-datastewards@uni.lu. You can also visit the {{ SYSTEM_NAME }} at {{ url_for('home', _external=True) }} for guidance.
+
+Thank you for your collaboration,
+
+LCSB Data Stewards (ELIXIR-LU)
+
+This is an auto-generated e-mail, please do not reply.

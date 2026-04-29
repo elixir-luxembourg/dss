@@ -1,0 +1,56 @@
+{% set sorted_messages = submission.messages|sort(attribute='created_on', reverse=True) %}
+{% if sorted_messages %}
+<div class="d-flex flex-column gap-3">
+    {% for message in sorted_messages %}
+    {# Determine if this is a review message and its type #}
+    {% set is_approval = message.message_type and 'approval' in message.message_type %}
+    {% set is_rejection = message.message_type and 'rejection' in message.message_type %}
+    {% set is_cancellation = message.message_type and 'cancellation' in message.message_type %}
+    {% set is_system = is_approval or is_rejection or is_cancellation %}
+
+    <div class="card border {% if is_approval %}border-success border-2{% elif is_rejection %}border-danger border-2{% elif is_cancellation %}border-warning border-2{% endif %}">
+        <div class="card-body p-3 {% if is_approval %}bg-success-subtle{% elif is_rejection %}bg-danger-subtle{% elif is_cancellation %}bg-warning-subtle{% endif %}">
+            <!-- Message Header -->
+            <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Sender Avatar -->
+                    <div class="{% if is_approval %}bg-success{% elif is_rejection %}bg-danger{% elif is_cancellation %}bg-warning{% else %}bg-primary{% endif %} text-white rounded-circle d-flex align-items-center justify-content-center"
+                         style="width: 32px; height: 32px; flex-shrink: 0;">
+                        {% if is_approval %}
+                            <i class="bi bi-check-circle-fill"></i>
+                        {% elif is_rejection %}
+                            <i class="bi bi-x-circle-fill"></i>
+                        {% else %}
+                            <i class="bi bi-person-fill"></i>
+                        {% endif %}
+                    </div>
+                    <!-- Sender Info -->
+                    <div>
+                        <div class="fw-semibold text-dark small">{{ message.sender_user.display_name() }}</div>
+                        {% if is_approval %}
+                            <span class="badge bg-success text-white small">Approved</span>
+                        {% elif is_rejection %}
+                            <span class="badge bg-danger text-white small">Changes Required</span>
+                        {% elif is_cancellation %}
+                            <span class="badge bg-warning text-white small">Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- Timestamp -->
+                <small class="text-muted">{{ message.created_on.strftime('%b %d, %Y at %I:%M %p') if message.created_on.strftime else message.created_on }}</small>
+            </div>
+
+            <!-- Message Content -->
+            <div class="message-content {% if is_system %}fw-medium{% endif %}">
+                {{ message.message_text|safe }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-5">
+    <h5 class="text-secondary">No messages found</h5>
+</div>
+{% endif %}

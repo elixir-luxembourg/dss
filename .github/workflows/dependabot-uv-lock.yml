@@ -1,0 +1,45 @@
+name: Regenerate uv.lock for Dependabot PRs
+
+on:
+  pull_request:
+    paths:
+      - pyproject.toml
+
+permissions:
+  contents: write
+
+jobs:
+  uv-lock:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    env:
+      HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.HEAD_REF }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Regenerate uv.lock
+        run: uv lock
+
+      - name: Commit and push if changed
+        run: |
+          if ! git diff --quiet uv.lock; then
+            git config user.name "dependabot[bot]"
+            git config user.email "49699333+dependabot[bot]@users.noreply.github.com"
+            git add uv.lock
+            git commit -m "chore: regenerate uv.lock"
+            git push
+          fi
