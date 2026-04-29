@@ -1,0 +1,2857 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../known-issues/">
+      
+      
+      
+      <link rel="icon" href="../../logos/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+    
+    
+      
+        <title>Form Metadata Model - Data Submission System (DSS)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Lato";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#metadata-schema-for-the-data-submission-system-form-v01" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Data Submission System (DSS)" class="md-header__button md-logo" aria-label="Data Submission System (DSS)" data-md-component="logo">
+      
+  <img src="../../logos/ELIXIR_LU.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Data Submission System (DSS)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Form Metadata Model
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="orange" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Data Submission System (DSS)" class="md-nav__button md-logo" aria-label="Data Submission System (DSS)" data-md-component="logo">
+      
+  <img src="../../logos/ELIXIR_LU.png" alt="logo">
+
+    </a>
+    Data Submission System (DSS)
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/managing-submissions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Managing Submissions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/roles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roles & Permissions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/submission-states/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Submission States
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Notifications
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Technical Documentation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Technical Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture & Design
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture & Design
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/system-data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    System Data Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/use-cases/use-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Use Cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/sequence-diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sequence Diagram
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/components/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Components
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scenarios
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Deployment
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Deployment
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Deployment Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Known Issues
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Metadata
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Metadata
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Form Metadata Model
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Form Metadata Model
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Introduction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-methodology" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Methodology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-main-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Main Entities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Main Entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1. Dataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1. Dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#411-mandatory-properties-in-class-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1.1. Mandatory Properties in Class 'Dataset'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#412-recommended-properties-in-class-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1.2. Recommended Properties in Class 'Dataset'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2. Distribution
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.2. Distribution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#421-recommended-properties-in-class-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2.1. Recommended Properties in Class 'Distribution'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-person" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3. Person
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.3. Person">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#431-mandatory-properties-in-parent-class-person" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.1. Mandatory Properties in Parent Class 'Person'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#432-subclass-datasetcreator" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.2. Subclass: 'DatasetCreator'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#433-subclass-studycontact" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.3. Subclass: 'StudyContact'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#434-subclass-submissioncontact" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.4. Subclass: 'SubmissionContact'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4. Study
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4. Study">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#441-mandatory-properties-in-class-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4.1. Mandatory Properties in Class 'Study'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#442-recommended-properties-in-class-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4.2. Recommended Properties in Class 'Study'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.5. Submission
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5. Submission">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#451-mandatory-properties-in-class-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.5.1. Mandatory Properties in Class 'Submission'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#452-recommended-properties-in-class-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.5.2. Recommended Properties in Class 'Submission'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-supporting-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Supporting Entities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Supporting Entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-data-type-date" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1. Data Type: 'Date'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-enumeration-consentstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2. Enumeration: 'ConsentStatus'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-enumeration-datatype" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3. Enumeration: 'DataType'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-enumeration-de-identificationtype" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4. Enumeration: 'De-identificationType'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-enumeration-legalbasis" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.5. Enumeration: 'LegalBasis'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-enumeration-personaldata" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.6. Enumeration: 'PersonalData'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#57-enumeration-receivingproject" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.7. Enumeration: 'ReceivingProject'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#58-enumeration-recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.8. Enumeration: 'Recipient'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#59-enumeration-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.9. Enumeration: 'Role'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contents
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Introduction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-methodology" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Methodology
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-main-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Main Entities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Main Entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1. Dataset
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1. Dataset">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#411-mandatory-properties-in-class-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1.1. Mandatory Properties in Class 'Dataset'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#412-recommended-properties-in-class-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1.2. Recommended Properties in Class 'Dataset'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2. Distribution
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.2. Distribution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#421-recommended-properties-in-class-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2.1. Recommended Properties in Class 'Distribution'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-person" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3. Person
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.3. Person">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#431-mandatory-properties-in-parent-class-person" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.1. Mandatory Properties in Parent Class 'Person'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#432-subclass-datasetcreator" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.2. Subclass: 'DatasetCreator'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#433-subclass-studycontact" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.3. Subclass: 'StudyContact'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#434-subclass-submissioncontact" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3.4. Subclass: 'SubmissionContact'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4. Study
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4. Study">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#441-mandatory-properties-in-class-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4.1. Mandatory Properties in Class 'Study'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#442-recommended-properties-in-class-study" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4.2. Recommended Properties in Class 'Study'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.5. Submission
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5. Submission">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#451-mandatory-properties-in-class-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.5.1. Mandatory Properties in Class 'Submission'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#452-recommended-properties-in-class-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.5.2. Recommended Properties in Class 'Submission'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-supporting-entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Supporting Entities
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Supporting Entities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-data-type-date" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.1. Data Type: 'Date'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-enumeration-consentstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.2. Enumeration: 'ConsentStatus'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-enumeration-datatype" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.3. Enumeration: 'DataType'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-enumeration-de-identificationtype" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.4. Enumeration: 'De-identificationType'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-enumeration-legalbasis" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.5. Enumeration: 'LegalBasis'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-enumeration-personaldata" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.6. Enumeration: 'PersonalData'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#57-enumeration-receivingproject" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.7. Enumeration: 'ReceivingProject'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#58-enumeration-recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.8. Enumeration: 'Recipient'
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#59-enumeration-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.9. Enumeration: 'Role'
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="metadata-schema-for-the-data-submission-system-form-v01">Metadata Schema for the Data Submission System form (v0.1)</h1>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-introduction">Introduction</a><br></li>
+<li><a href="#2-methodology">Methodology</a><br></li>
+<li><a href="#3-overview">Overview</a><br></li>
+<li><a href="#4-main-entities">Main Entities</a><br>
+    4.1. <a href="#41-dataset">Dataset</a> <br>
+        - 4.1.1. <a href="#411-mandatory-properties-in-class-dataset">Mandatory Properties in Class 'Dataset'</a> <br>
+        - 4.1.2. <a href="#412-recommended-properties-in-class-dataset">Recommended Properties in Class 'Dataset'</a>   <br />
+    4.2. <a href="#42-distribution">Distribution</a> <br>
+        - 4.2.1. <a href="#421-recommended-properties-in-class-distribution">Recommended Properties in Class 'Distribution'</a> <br>
+    4.3. <a href="#43-person">Person</a> <br>
+        - 4.3.1. <a href="#431-mandatory-properties-in-parent-class-person">Mandatory Properties in Parent Class 'Person'</a> <br>
+        - 4.3.2. <a href="#432-subclass-datasetcreator">Subclass: 'DatasetCreator'</a> <br>
+        - 4.3.3. <a href="#433-subclass-studycontact">Subclass: 'StudyContact'</a> <br>
+        - 4.3.4. <a href="#434-subclass-submissioncontact">Subclass: 'SubmissionContact'</a> <br>
+    4.4. <a href="#44-study">Study</a><br>
+        - 4.4.1. <a href="#441-mandatory-properties-in-class-study">Mandatory Properties in Class 'Study'</a> <br>
+        - 4.4.2. <a href="#442-recommended-properties-in-class-study">Recommended Properties in Class 'Study'</a><br>
+    4.5. <a href="#45-submission">Submission</a><br>
+        - 4.5.1. <a href="#451-mandatory-properties-in-class-submission">Mandatory Properties in Class 'Submission'</a> <br>
+        - 4.5.2. <a href="#452-recommended-properties-in-class-submission">Recommended Properties in Class 'Submission'</a><br></li>
+<li><a href="#5-supporting-entities">Supporting Entities</a><br>
+    5.1. <a href="#51-data-type-date">Data Type: 'Date'</a><br>
+    5.2. <a href="#52-enumeration-consentstatus">Enumeration: 'ConsentStatus'</a><br>
+    5.3. <a href="#53-enumeration-datatype">Enumeration: 'DataType'</a><br>
+    5.4. <a href="#54-enumeration-de-identificationtype">Enumeration: 'De-identificationType'</a><br>
+    5.5. <a href="#55-enumeration-legalbasis">Enumeration: 'LegalBasis'</a><br>
+    5.6. <a href="#56-enumeration-personaldata">Enumeration: 'PersonalData'</a><br>
+    5.7. <a href="#57-enumeration-receivingproject">Enumeration: 'ReceivingProject'</a><br>
+    5.8. <a href="#58-enumeration-recipient">Enumeration: 'Recipient'</a><br>
+    5.9. <a href="#59-enumeration-role">Enumeration: 'Role'</a><br></li>
+</ol>
+<h2 id="1-introduction">1. Introduction</h2>
+<p>The data submission system (DSS) aims at allowing the submission of data to be used in research projects from or for data hosting and reuse purposes, depending on the use case.</p>
+<p>When a submission is initiated in the system, the submitter is required to provide metadata describing the data intended for submission. In this context, the purpose of this document is to present and explain the metadata schema that forms the basis of the DSS form design. This metadata schema has been developed by the Luxembourg Centre for Systems Biomedicine (LCSB), which hosts <a href="https://elixir-luxembourg.org/">ELIXIR Luxembourg (ELIXIR-LU)</a>.</p>
+<h2 id="2-methodology">2. Methodology</h2>
+<p>Metadata items included in the metadata schema for the DSS form have been selected from two main sources: </p>
+<ul>
+<li><strong>Data information sheet <a href="https://zenodo.org/records/7371006">(DISH)</a>:</strong> Tool for metadata collection developed by ELIXIR-LU. Information collected in DISH focuses on data use restrictions and documentation related to the General Data Protection Regulation (GDPR).</li>
+<li><strong>DAta Tag Suite <a href="https://doi.org/10.1038/sdata.2017.59">(DATS)</a>:</strong> Metadata model aiming at enhancing discoverability of datasets. Elements in DATS address the scientific dimension of metadata.</li>
+</ul>
+<p>To support future alignment with the European Health Data Space (EHDS), the selected items have been mapped to the <a href="https://healthdataeu.pages.code.europa.eu/healthdcat-ap/releases/release-5/#abstract">HealthDCAT Application Profile (HealthDCAT-AP)</a>, a metadata model designed to facilitate the reuse of health data for secondary purposes. Specifically, this mapping has been done using HealthDCAT-AP Release 5 (22 September 2025), considering the restricted access level model.</p>
+<p><strong>Kindly note that the current version (v0.1) of the metadata schema for the Data Submission System (DSS) is currently under active development and may be subject to further revisions and improvements.</strong></p>
+<h2 id="3-overview">3. Overview</h2>
+<p>Figure 1 illustrates the UML class diagram that defines the metadata schema for the DSS form. This schema consists of five core classes (<a href="#41-dataset">Dataset</a>, <a href="#42-distribution">Distribution</a>, <a href="#43-person">Person</a>, <a href="#45-submission">Submission</a>, and <a href="#44-study">Study</a>), along with four subclassess derived from class 'Person' (<a href="#432-subclass-datasetcreator">DatasetCreator</a>, <a href="#433-subclass-studycontact">StudyContact</a> with subclasses MainStudyContact and StudyAdditionalContact, and <a href="(#434-subclass-submissioncontact)">SubmissionContact</a> with subclasses SubmittingUser and AdditionalContact). In addition, it includes nine supporting entities: one custom <a href="#51-data-type-date">data type (Date)</a> and eight enumerations (<a href="#52-enumeration-consentstatus">ConsentStatus</a>, <a href="#53-enumeration-datatype">DataType</a>, <a href="#54-enumeration-de-identificationtype">De-identificationType</a>, <a href="#55-enumeration-legalbasis">LegalBasis</a>, <a href="#56-enumeration-personaldata">PersonalData</a>, <a href="#57-enumeration-receivingproject">ReceivingProject</a>, <a href="#58-enumeration-recipient">Recipient</a>, and <a href="#59-enumeration-role">Role</a>).</p>
+<p>According to the metadata schema, a submission must always be linked to at least one study and one dataset, and may be linked to multiple studies and multiple datasets. However, each study and dataset can only be linked to a single submission. Furthermore, a dataset must always be linked to a study, as the study represents the origin of the data. Conversely, a dataset may be associated with zero or more distributions, each representing a physical expression of the dataset in a specific format.</p>
+<p><a href="#4-main-entities">Section 4</a> provides an overview of the main entities in the diagram, including the core classes and their subclasses. For each class, details about its properties are presented, such as name, definition, range, cardinality, usage notes, suggested controlled vocabularies (where applicable), and examples. While specific controlled vocabularies are recommended for some properties, alternative vocabularies are also acceptable. <a href="#5-supporting-entities">Section 5</a> describes includes the supporting entities (i.e., data types and enumerations). </p>
+<p><img alt="UML class diagram representing the metadata schema for the DSS form" src="../2026-02_UML_DSS_metadata_schema.drawio.svg" title="Figure 1. UML class diagram of the DSS form metadata schema" />
+<em>Figure 1. UML class diagram of the DSS form metadata schema</em></p>
+<h2 id="4-main-entities">4. Main Entities</h2>
+<p>This section provides detailed descriptions of the core classes in the diagram, along with their properties.</p>
+<h3 id="41-dataset">4.1. Dataset</h3>
+<p>"Dataset" is a unit of data that originates from one study and has distinct characteristics in terms of  licensing, use restrictions and legal grounds of processing. A dataset is a unit for which an access request can be made. One dataset can contain multiple datatypes. There is no need to declare a new dataset (sheet) for each datatype, unless these datatypes will have different use restrictions or will be subject to access request applications individually.</p>
+<h4 id="411-mandatory-properties-in-class-dataset">4.1.1. Mandatory Properties in Class 'Dataset'</h4>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>identifier</td>
+<td>Internal unique identifier for dataset</td>
+<td>String</td>
+<td>1</td>
+<td>Unique dataset identifier generated by the system.</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>title</td>
+<td>Dataset title</td>
+<td>String</td>
+<td>1</td>
+<td>Provide a short descriptive title for the data.</td>
+<td>NA</td>
+<td>OncoDataset</td>
+</tr>
+<tr>
+<td>description</td>
+<td>Dataset description</td>
+<td>String</td>
+<td>1</td>
+<td>Provide a brief description of the dataset.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>data types</td>
+<td>Data types included in the dataset</td>
+<td>DataType (enumeration)</td>
+<td>1..*</td>
+<td>This property accepts one or more values from the enumeration 'DataType'.</td>
+<td>NA</td>
+<td>whole genome sequencing, proteomics, RNAseq</td>
+</tr>
+<tr>
+<td>creator</td>
+<td>Person(s) who contributed to the creation of the dataset</td>
+<td>DatasetCreator (class)</td>
+<td>1..*</td>
+<td>Values for this property are instances of class 'DatasetCreator' (a subcass of 'Person').</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>generated by</td>
+<td>Study/Cohort that is the source of the data</td>
+<td>Study (class)</td>
+<td>1</td>
+<td>It is mandatory to link a dataset with one study, as the study is the source of the data. Thus, the value of this property is an instance of class 'Study'.</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+</tbody>
+</table>
+<h4 id="412-recommended-properties-in-class-dataset">4.1.2. Recommended Properties in Class 'Dataset'</h4>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>distribution</td>
+<td>Physical representation of the Dataset in a particular format.</td>
+<td>Distribution (class)</td>
+<td>0..*</td>
+<td>Values for this property are instances of class 'Distribution'</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>external identifier</td>
+<td>External identifers/links, such as DOIs, accession numbers, or registry IDs</td>
+<td>String</td>
+<td>0..*</td>
+<td>Provide additional identifiers or links from external sources, if any.</td>
+<td>NA</td>
+<td>EGAD00000000001</td>
+</tr>
+<tr>
+<td>data types remarks</td>
+<td>Remarks on data types included in the dataset</td>
+<td>String</td>
+<td>0..1</td>
+<td>In case of selecting "other" types of data in property 'data types', please describe those data types.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>sample types</td>
+<td>Types of samples analyzed</td>
+<td>String</td>
+<td>0..*</td>
+<td>Controlled vocabularies are suggested in this property.</td>
+<td>UBERON, FMA</td>
+<td>blood, skin, tumor tissue</td>
+</tr>
+<tr>
+<td>personal data</td>
+<td>Does the dataset contain personal data?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>Personal data is any information relating to an identified or identifiable natural person (data subject). This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>de-identification</td>
+<td>Is the data anonymised, pseudonymised, or contains direct identfiers?</td>
+<td>De-identificationType (enumeration)</td>
+<td>0..1</td>
+<td>In case of selecting "yes" in property 'personal data', please select the de-identification process applied, if any. A dataset is considered anonymised if no stakeholder is holding a mapping from the Subject ID in the data to the identifying personal information e.g. name, surname, date of birth, address of the human subject supplying the data. A dataset is considered pseudonymised if there exists some cohort owner/coordinator holding the mapping from the Subject ID to the human subject identifying personal information.</td>
+<td>NA</td>
+<td>Anonymized</td>
+</tr>
+<tr>
+<td>personal data categories</td>
+<td>Categories and types of personal data included in the dataset, if applicable.</td>
+<td>PersonalData (enumeration)</td>
+<td>0..*</td>
+<td>This property accepts one or more values from the enumeration 'PersonalData'. The definitions for these categories of data are sourced in the GDPR. In biomedical projects with pseudonymised cohort data, the options  would likely fall under  “Special category, i.e. sensitive, personal data” e.g. “Genetic data”, “Data concerning health” and "Other special categories of data”. <br> You may get assistance from your institute’s DPO or legal team in filling out this section.</td>
+<td>NA</td>
+<td>Genetic data, Data concerning health</td>
+</tr>
+<tr>
+<td>personal data remarks</td>
+<td>Remarks on categories of personal data</td>
+<td>String</td>
+<td>0..1</td>
+<td>In case of selecting "other special categories of data", please provide a brief description.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>collection legal basis</td>
+<td>Legal basis according to Art. 6.1 GDPR for the collection of personal data</td>
+<td>LegalBasis (enumeration)</td>
+<td>0..1</td>
+<td>This property accepts none or one value from the enumeration 'LegalBasis'. These values come from GDPR Article 6. You may get assistance from your institute’s DPO or legal team in filling out this section.</td>
+<td>NA</td>
+<td>Consent (6.1(a))</td>
+</tr>
+<tr>
+<td>sharing legal basis</td>
+<td>Legal basis according to Art. 6.1 GDPR for the sharing and, where applicable, the subsequent processing of personal data</td>
+<td>LegalBasis (enumeration)</td>
+<td>0..1</td>
+<td>This property accepts none or one value from the enumeration 'LegalBasis'. These values come from GDPR Article 6. You may get assistance from your institute’s DPO or legal team in filling out this section.</td>
+<td>NA</td>
+<td>Public interest (6.1(e))</td>
+</tr>
+<tr>
+<td>sensitive personal data</td>
+<td>Is data classified as special category (sensitive) personal data according to Art 9.2 GDPR?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>legitimation sensitive data</td>
+<td>For the processing of special category (sensitive) personal data, do you have a  legitimation under Art. 9.2 GDPR that provides specific derogation from the general prohibition to process such data?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>data subjects scope</td>
+<td>Scope of data subjects</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the scope of data subjects.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>special data subjects</td>
+<td>Does the dataset contain data from special subjects?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>"Special subjects" refers to minors or subjects unable to give consent e.g. mentally impaired subjects. This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>special data subjects description</td>
+<td>Description of special data subjects</td>
+<td>String</td>
+<td>0..1</td>
+<td>Provide a brief description of special data subjects, if any.</td>
+<td>NA</td>
+<td>Children</td>
+</tr>
+<tr>
+<td>research limited scope</td>
+<td>Limited scope of research (i.e., research/disease area)</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This field answers the question whether the data is consented to be used only in specific research/disease areas. This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>research limited scope description</td>
+<td>Description of the research/disease areas restriction on data</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the restrictions on data about specific research/disease areas, if any.</td>
+<td>NA</td>
+<td>Use only in Biomedical Research</td>
+</tr>
+<tr>
+<td>geographical restrictions</td>
+<td>Does consent contain clauses that put geographical restrictions to the sharing of data?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This field answers the question whether the consent contain clauses that put geographical restrictions to the sharing of data. This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>geographical restrictions description</td>
+<td>Description of geographical restrictions on data</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the geographical restrictions on data, if any.</td>
+<td>NA</td>
+<td>Not to be shared outside Country A, B, or EU/EEA</td>
+</tr>
+<tr>
+<td>restricted recipients</td>
+<td>Does the consent limit the type of recipients?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This field indicates whether the consent limits the type of recipient(s). This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>restricted recipients description</td>
+<td>Description of the recipient restrictions on data</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the recipient restrictions on data, if any.</td>
+<td>NA</td>
+<td>Data can be sent only to a specific type of institution such as private research institutions or public research institutions or to a named list of  institutions.</td>
+</tr>
+<tr>
+<td>retention time</td>
+<td>Does the consent contain clauses that put time-limits on the use of data?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This field indicates whether the consent contains clauses that establish time limitations on the use of data. This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>retention time description</td>
+<td>Description of the time-limit restrictions on data</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the time-limit restrictions on data, if any.</td>
+<td>NA</td>
+<td>10 years from end of the project</td>
+</tr>
+<tr>
+<td>consent form</td>
+<td>Are the consents heterogeneous or homogeneous?</td>
+<td>ConsentStatus (enumeration)</td>
+<td>0..1</td>
+<td>If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous. If the consent form has stayed the same over the course of the study but it has options so that different subjects can create different restrictions on their data, then this case is also considered heterogeneous. <br> This property accepts none or one value from the enumeration 'ConsentStatus'.</td>
+<td>NA</td>
+<td>Heterogeneous</td>
+</tr>
+<tr>
+<td>consent form description</td>
+<td>Data dictionary item (column) that specifies consent groups in data.</td>
+<td>String</td>
+<td>0..1</td>
+<td>This information should be provided in cases where the consent is heterogeneous.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>time limit storage</td>
+<td>Is the data being sent to ELIXIR-LU/LCSB for a limited duration?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>time limit storage date</td>
+<td>Agreed end date or criteria for data's residence at ELIXIR-LU/LCSB</td>
+<td>Date (data type)</td>
+<td>0..1</td>
+<td>Indicate end date (YYYY-MM-DD) of permitted storage at ELIXIR-LU/LCSB.</td>
+<td>NA</td>
+<td>2030-04-25</td>
+</tr>
+<tr>
+<td>publication requirements</td>
+<td>Are there any requirements in case of publications based on the data?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>publication requirements description</td>
+<td>Publication requirements for the dataset.</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the publication requirements, if any.</td>
+<td>NA</td>
+<td>Papers should cite the cohort study.</td>
+</tr>
+<tr>
+<td>data return requirements</td>
+<td>Is there a requirement to return data or documents to the database/resource?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>data return requirements description</td>
+<td>Return requirements for the dataset.</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the publication requirements, if any.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>user specific restrictions</td>
+<td>Is the use limited to approved users/groups/institutions?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>user specific restrictions description</td>
+<td>Specific users/groups/institutions to which ELIXIR-LU/LCSB is instructed to give access to the data upon request</td>
+<td>String</td>
+<td>0..1</td>
+<td>List the specific users/groups/institutions.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>IP conditions</td>
+<td>Are there any conditions/restrictions regarding the Intellectual Property (IP) of the data?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>IP conditions description</td>
+<td>IP conditions/restrictions on the data.</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the IP conditions/restrictions on the data, if any.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>other restrictions</td>
+<td>Description of other restrictions on data</td>
+<td>String</td>
+<td>0..1</td>
+<td>If applicable, in your description you may refer to <a href="https://www.ga4gh.org/document/archived-data-use-categories-and-requirements-consent-codes/">GA4GH Data Use Category Codes</a></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>access request form</td>
+<td>Will all researchers accessing the data need to sign an access request form?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.If an access request form is needed, please make sure you provide the form template as a supporting document to the submission.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>DAC approval</td>
+<td>Will access require Data Access Committee (DAC) approval?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>DAC approval procedure</td>
+<td>Required procedure when a DAC approval is needed.</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the required procedure.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>number of records</td>
+<td>Number of records in the dataset</td>
+<td>UnlimitedNatural</td>
+<td>0..1</td>
+<td>Value must be a non-negative integer.</td>
+<td>NA</td>
+<td>45</td>
+</tr>
+<tr>
+<td>version</td>
+<td>Dataset version</td>
+<td>String</td>
+<td>0..1</td>
+<td>Use semantic versioning (e.g., v1.0, v2.1) or a date-based versioning scheme, if applicable.</td>
+<td>NA</td>
+<td>v1.5</td>
+</tr>
+<tr>
+<td>creation date</td>
+<td>Creation date of the dataset</td>
+<td>Date (data type)</td>
+<td>0..1</td>
+<td>Indicate creation date (YYYY-MM-DD).</td>
+<td>NA</td>
+<td>2019-11-17</td>
+</tr>
+<tr>
+<td>last update date</td>
+<td>Last update date of the dataset</td>
+<td>Date</td>
+<td>0..1</td>
+<td>Indicate last update date (YYYY-MM-DD).</td>
+<td>NA</td>
+<td>2020-12-08</td>
+</tr>
+<tr>
+<td>data standards</td>
+<td>Standard or guideline used for structuring or annotating the dataset.</td>
+<td>String</td>
+<td>0..*</td>
+<td>Controlled vocabularies are suggested in this property.</td>
+<td>EDAM, NCIt</td>
+<td>CDISC, MINSEQE</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-distribution">4.2. Distribution</h3>
+<p>"Distribution" refers to the physical representation of the Dataset in a particular format.</p>
+<p>Class 'Distribution' does not contain any mandatory property. </p>
+<h4 id="421-recommended-properties-in-class-distribution">4.2.1. Recommended Properties in Class 'Distribution'</h4>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>file type</td>
+<td>Type of file(s) included in the dataset</td>
+<td>String</td>
+<td>0..*</td>
+<td>Format identifiers should be included, when applicable. If not provided, it will be obtained from the submitted dataset. Controlled vocabularies are suggested in this property.</td>
+<td>EDAM, NCIt</td>
+<td>CSV (format:3752), FASTQ (format:1930), JSON, XML, TXT, BAM, VCF, etc.</td>
+</tr>
+<tr>
+<td>byte size</td>
+<td>Total size of the dataset</td>
+<td>String</td>
+<td>0..1</td>
+<td>Use appropriate units such as KB, MB, GB, or TB.</td>
+<td>NA</td>
+<td>2 GB</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-person">4.3. Person</h3>
+<p>"Person" represents an individual involved in the data creation and/or submission process. This is a parent class for 'DatasetCreator' and 'SubmissionContact'. 'SubmissionContact' acts as a parent class for subclasses 'SubmittingUser' and 'AdditionalContact'.</p>
+<p>All properties belonging to class 'Person' are mandatory. </p>
+<p><strong>Note:</strong> All subclasses inherit the properties of their respective parent classes.</p>
+<h4 id="431-mandatory-properties-in-parent-class-person">4.3.1. Mandatory Properties in Parent Class 'Person'</h4>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>name</td>
+<td>Person's name</td>
+<td>String</td>
+<td>1</td>
+<td>It is mandatory to provide the name of a person.</td>
+<td>NA</td>
+<td>John</td>
+</tr>
+<tr>
+<td>surname</td>
+<td>Person's surname(s)</td>
+<td>String</td>
+<td>1</td>
+<td>It is mandatory to provide the surname(s) of a person.</td>
+<td>NA</td>
+<td>Doe</td>
+</tr>
+<tr>
+<td>email</td>
+<td>Person's email address</td>
+<td>String</td>
+<td>1</td>
+<td>It is mandatory to provide the email address of a person.</td>
+<td>NA</td>
+<td>John.Doe@email.com</td>
+</tr>
+<tr>
+<td>affiliation</td>
+<td>Institution to which the person is affiliated</td>
+<td>String</td>
+<td>1</td>
+<td>It is mandatory to provide the affiliation of a person.</td>
+<td>NA</td>
+<td>University of Luxembourg</td>
+</tr>
+</tbody>
+</table>
+<h4 id="432-subclass-datasetcreator">4.3.2. Subclass: 'DatasetCreator'</h4>
+<p>"DatasetCreator" represents the person(s) who contributed to the creation of the dataset. </p>
+<p>This subclass inherits all properties from class 'Person', with no additional properties required. </p>
+<h4 id="433-subclass-studycontact">4.3.3. Subclass: 'StudyContact'</h4>
+<p>"StudyContact" represents the contact point(s) associated with the study. </p>
+<p>This subclass inherits all properties from class 'Person', and has an additional mandatory property: </p>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>role</td>
+<td>Contact's role</td>
+<td>Role (enumeration)</td>
+<td>1</td>
+<td>A value from the enumeration 'Role' must be selected for each person.</td>
+<td>NA</td>
+<td>Principal Investigator</td>
+</tr>
+</tbody>
+</table>
+<p>'StudyContact' acts as a parent class for 'MainStudyContact' and 'StudyAdditionalContact'. Both subclasses inherit all properties from class 'SubmissionContact', with no additional properties required.</p>
+<h4 id="434-subclass-submissioncontact">4.3.4. Subclass: 'SubmissionContact'</h4>
+<p>"SubmissionContact" represents the contact point(s) associated with the submission. </p>
+<p>This subclass inherits all properties from class 'Person', and has an additional mandatory property: </p>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>role</td>
+<td>Contact's role</td>
+<td>Role (enumeration)</td>
+<td>1</td>
+<td>A value from the enumeration 'Role' must be selected for each person.</td>
+<td>NA</td>
+<td>Principal Investigator</td>
+</tr>
+</tbody>
+</table>
+<p>'SubmissionContact' acts as a parent class for 'SubmittingUser' and 'SubmissionAdditionalContact'. Both subclasses inherit all properties from class 'SubmissionContact', with no additional properties required.</p>
+<h3 id="44-study">4.4. Study</h3>
+<p>"Study" represents a scientific study spanning a certain period of time with designated Principal Investigators and supporting legal and ethical documentation. When submitting data from a large study with sub-studies keep in mind the following: if all sub-studies have the same properties; i.e. same PIs, same start/end dates and the same ethics approval, then they can be declared as a single study. The differences i.e. different sub-studies can be stated in dataset names.  </p>
+<h4 id="441-mandatory-properties-in-class-study">4.4.1. Mandatory Properties in Class 'Study'</h4>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>identifier</td>
+<td>Internal unique study identifier</td>
+<td>String</td>
+<td>1</td>
+<td>Unique study identifier generated by the system in each submission.</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>title</td>
+<td>Study title</td>
+<td>String</td>
+<td>1</td>
+<td>Every study must have a descriptive title.</td>
+<td>NA</td>
+<td>Biomarker discovery and valdiation</td>
+</tr>
+<tr>
+<td>description</td>
+<td>Dataset description</td>
+<td>String</td>
+<td>1</td>
+<td>Provide a brief textual description about the study.</td>
+<td>NA</td>
+<td>CoolStudy attempts to address some seriously awesome stuff that will be very helpful</td>
+</tr>
+<tr>
+<td>mainStudyContact</td>
+<td>Main contact point for the study</td>
+<td>MainStudyContact (class)</td>
+<td>1</td>
+<td>This is typically the Study PI, who might be, but is not necessarily, identical to the main contact in the Submission. Values for this property are instances of class 'MainStudyContact', which is a subclass of 'StudyContact' (itself a subclass of 'Person').</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+</tbody>
+</table>
+<h4 id="442-recommended-properties-in-class-study">4.4.2. Recommended Properties in Class 'Study'</h4>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>acronym</td>
+<td>Study acronym</td>
+<td>String</td>
+<td>0..1</td>
+<td>Provide an acronym for the study, if possible.</td>
+<td>NA</td>
+<td>CoolStudy</td>
+</tr>
+<tr>
+<td>external identifier</td>
+<td>External identifer(s) for the study</td>
+<td>String</td>
+<td>0..*</td>
+<td>Provide additional identifiers or links from external sources, if any.</td>
+<td>NA</td>
+<td>EGAS00000000009</td>
+</tr>
+<tr>
+<td>website's URL</td>
+<td>Study's website</td>
+<td>String</td>
+<td>0..1</td>
+<td>Provide the URL to the website of the study, if any.</td>
+<td>NA</td>
+<td>https://www.coolstudy.cool</td>
+</tr>
+<tr>
+<td>ethics approval</td>
+<td>Confirmation that an ethics approval exists for the data collection as well as the data sharing for the purposes as foreseen in the agreement</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>ethics approval ID</td>
+<td>Identifier for the ethics/IRB approval document</td>
+<td>String</td>
+<td>0..1</td>
+<td>In case of ethics approval, provide the identifier.</td>
+<td>NA</td>
+<td>X00.000</td>
+</tr>
+<tr>
+<td>study type</td>
+<td>Study type(s)</td>
+<td>String</td>
+<td>0..1</td>
+<td>Indicate the type of study. This property contains suggested controlled vocabularies.</td>
+<td>EDAM, EFO, NCIt</td>
+<td>observational study (NCIT:C16084), drug discovery (NCIT:C15802)</td>
+</tr>
+<tr>
+<td>multi-center study</td>
+<td>Is it a multi-center study?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>No</td>
+</tr>
+<tr>
+<td>study characteristics</td>
+<td>Description of the study using gene, disease, phenotype terms and study types</td>
+<td>String</td>
+<td>0..1</td>
+<td>Provide a brief description of the study using gene, disease, phenotype terms and study types.</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+<tr>
+<td>number of subjects</td>
+<td>Number of subjects/specimen</td>
+<td>UnlimitedNatural</td>
+<td>0..1</td>
+<td>Value must be a non-negative integer.</td>
+<td>NA</td>
+<td>524</td>
+</tr>
+<tr>
+<td>age range</td>
+<td>Age range of subjects in the study</td>
+<td>String</td>
+<td>0..1</td>
+<td>Provide an age range.</td>
+<td>NA</td>
+<td>18-99 years</td>
+</tr>
+<tr>
+<td>species</td>
+<td>Species of origin of the samples/data</td>
+<td>String</td>
+<td>0..*</td>
+<td>This property contains suggested controlled vocabularies.</td>
+<td>NCBITaxon</td>
+<td>Homo sapiens</td>
+</tr>
+<tr>
+<td>diseases</td>
+<td>Disease of data subjects or the focus disease of the study</td>
+<td>String</td>
+<td>0..*</td>
+<td>This property contains suggested controlled vocabularies.</td>
+<td>MONDO</td>
+<td>Crohn's disease, type II diabetes mellitus</td>
+</tr>
+<tr>
+<td>sample source</td>
+<td>Biological or material source(s) of the samples</td>
+<td>String</td>
+<td>0..*</td>
+<td>This property contains suggested controlled vocabularies.</td>
+<td>NCIt, EFO, UBERON</td>
+<td>tissue sample, cell line</td>
+</tr>
+<tr>
+<td>cohort description</td>
+<td>Description of cohorts</td>
+<td>String</td>
+<td>0..1</td>
+<td>Describe the data subjects in the study.</td>
+<td>NA</td>
+<td>250 patients (132 male, 118 female) with type II diabetes, 400 healthy controls (174 male, 226 female)</td>
+</tr>
+<tr>
+<td>informed consent given</td>
+<td>Has informed consent been given?</td>
+<td>Boolean</td>
+<td>0..1</td>
+<td>This property accepts a 'Yes/No' value.</td>
+<td>NA</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>other subject characteristics</td>
+<td>Other subject characteristics</td>
+<td>String</td>
+<td>0..*</td>
+<td>Describe other subject characteristics, if any.</td>
+<td>NA</td>
+<td>sex: 57 male / 85 female, diabetes status: 103 type II diabetes / 39 non-diabetic</td>
+</tr>
+<tr>
+<td>additionalStudyContact</td>
+<td>Additional contact point(s) for the study</td>
+<td>StudyAdditionalContact (class)</td>
+<td>0..*</td>
+<td>Values for this property are instances of class 'StudyAdditionalContact', which is a subclass of 'StudyContact' (itself a subclass of 'Person').</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>studyContactRemarks</td>
+<td>Remarks about the contact point(s) for the study</td>
+<td>String</td>
+<td>0..1</td>
+<td>Provide any necessary additional information about the study contact(s).</td>
+<td>NA</td>
+<td><em>TBD</em></td>
+</tr>
+</tbody>
+</table>
+<h3 id="45-submission">4.5. Submission</h3>
+<p>"Submission" represents the process of submitting data to the system. It contains metadata describing that process. </p>
+<h4 id="451-mandatory-properties-in-class-submission">4.5.1. Mandatory Properties in Class 'Submission'</h4>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>date</td>
+<td>Submission date</td>
+<td>Date (data type)</td>
+<td>1</td>
+<td>The submission date is generated by the system automatically.</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>identifier</td>
+<td>Submission reference id</td>
+<td>String</td>
+<td>1</td>
+<td>Every submission has a unique reference identifier, which is generated by the system.</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>receiving research project</td>
+<td>Research project/service receving the data.</td>
+<td>String</td>
+<td>1</td>
+<td>Information about the receiving project will be taken from Daisy.</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>submitting institution</td>
+<td>Submitting institution's name</td>
+<td>String</td>
+<td>1</td>
+<td>The submitting institution must be indicated in each submission.</td>
+<td>NA</td>
+<td>University of Luxembourg</td>
+</tr>
+<tr>
+<td>submitting user</td>
+<td>Submitting user</td>
+<td>SubmittingUser (class)</td>
+<td>1..*</td>
+<td>Values for this property are instances of class 'SubmittingUser', which is a subclass of 'SubmissionContact' (itself a subclass of 'Person').</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>study</td>
+<td>Study/Cohort that is the source of the data</td>
+<td>Study (class)</td>
+<td>1..*</td>
+<td>A submission must be linked to at least one study, with no upper limit for the number of studies linked. The value of this property is an instance of class 'Study'.</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>dataset</td>
+<td>Unit of data originated from a study.</td>
+<td>Dataset (class)</td>
+<td>1..*</td>
+<td>A submission must contain at least one dataset, with no upper limit for the number of datasets submitted. The value of this property is an instance of class 'Dataset'.</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+</tbody>
+</table>
+<h4 id="452-recommended-properties-in-class-submission">4.5.2. Recommended Properties in Class 'Submission'</h4>
+<table>
+<thead>
+<tr>
+<th>Property name</th>
+<th>Definition</th>
+<th>Range</th>
+<th>Cardinality</th>
+<th>Usage note</th>
+<th>Suggested controlled<br>vocabularies</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>recipient</td>
+<td>Principal Investigator/Researcher that is the recipient of data.</td>
+<td>String</td>
+<td>0..*</td>
+<td>Information about the recipient (name and surname) will be taken from Daisy.</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>additional contact</td>
+<td>Any additional contact point in the submission (different from the main contact point).</td>
+<td>AdditionalContact (class)</td>
+<td>0..*</td>
+<td>Provide additional contacts for the submission, if any. Values for this property are instances of class 'AdditionalContact', which is a subclass of 'SubmissionContact' (itself a subclass of 'Person').</td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-supporting-entities">5. Supporting Entities</h2>
+<p>This section describes the enumerations and custom data types that support the core classes in the schema.</p>
+<h3 id="51-data-type-date">5.1. Data Type: 'Date'</h3>
+<p><strong>Description:</strong> Represents a calendar date.</p>
+<p><strong>Note:</strong> All dates in the system must follow the format 'YYYY-MM-DD'.</p>
+<p><strong>Properties:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Property Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>day</td>
+<td>Integer</td>
+<td>Day of the month</td>
+</tr>
+<tr>
+<td>month</td>
+<td>Integer</td>
+<td>Month of the year</td>
+</tr>
+<tr>
+<td>year</td>
+<td>Integer</td>
+<td>Calendar year</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-enumeration-consentstatus">5.2. Enumeration: 'ConsentStatus'</h3>
+<p><strong>Description:</strong> This enumeration contains the values to specify whether the consent is heterogeneous or homogeneous. It is used as a value range for property 'consent status' in class <a href="#41-dataset">'Dataset'</a>.</p>
+<p><strong>Values:</strong>
+- Heterogeneous: If the consent form has changed throughout the course of the study in a way that changes the usage restrictions on data then this case is considered heterogeneous.
+- Homogeneus: If the consent form has stayed the same over the course of the study but it has options so that different subjects can create different restrictions on their data, then this case is also considered heterogeneous.
+- Don't_know</p>
+<h3 id="53-enumeration-datatype">5.3. Enumeration: 'DataType'</h3>
+<p><strong>Description:</strong> This enumeration includes the possible values to indicate the data types included in the dataset. It is used as a value range for property 'data types' in class <a href="#41-dataset">'Dataset'</a>.</p>
+<p><strong>Note:</strong> For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (<em>in italics</em>) and user-selectable items in the list. </p>
+<p><strong>Values:</strong>
+- <em>Omics data</em>
+    - <em>Genotype data</em>
+        - Whole_genome_sequencing
+        - Exome_sequencing
+        - Genomics_variant_array
+        - RNASeq
+        - Single Cell RNAseq
+    - <em>Genetic and derived genetic data</em>
+        - Transcriptome_array
+        - Methylation_array
+        - MicroRNA_array
+        - ChIP-seq
+        - Metabolomics
+        - Metagenomics
+        - Metaproteomics
+        - Metatranscriptomics
+        - Proteomics
+    - Other omics data
+- <em>Imaging data</em>
+    - Clinical imaging
+    - Cell imaging
+    - Other imaging data
+- <em>Human subject data</em>
+    - Clinical data
+    - Lifestyle data
+    - Socio Economic data
+    - Environmental data
+    - Ethnic origin
+    - Biometric data
+    - Other phenotype data
+- Other</p>
+<h3 id="54-enumeration-de-identificationtype">5.4. Enumeration: 'De-identificationType'</h3>
+<p><strong>Description:</strong> This enumeration includes the possible values to indicate whether the data has been anonymized or pseudonymized, if applicable. It is used as a value range for property 'anonymized or pseudonimized' in class <a href="#41-dataset">'Dataset'</a>.</p>
+<p><strong>Values:</strong>
+- Anonymized (not personal data): A dataset is considered anonymised if no stakeholder is holding a mapping from the Subject ID in the data to the identifying personal information e.g. name, surname, date of birth, address of the human subject supplying the data.
+- Pseudonimized: A dataset is considered pseudonymised if there exists some cohort owner/coordinator holding the mapping from the Subject ID to the human subject identifying personal information.
+- Contains direct identifiers</p>
+<h3 id="55-enumeration-legalbasis">5.5. Enumeration: 'LegalBasis'</h3>
+<p><strong>Description:</strong> This enumeration includes the possible values to indicate to indicate the legal bases for the collection, sharing, and subsequent processing of personal data according to <a href="https://gdpr-info.eu/art-6-gdpr/">Art.6.1 from the GDPR</a>. It is used as a value range for property 'collection legal basis' and 'sharing legal basis' in class <a href="#41-dataset">'Dataset'</a>, respectively.</p>
+<p><strong>Values:</strong>
+- Consent_(6.1(a))
+- Performance_contract_(6.1(b)): Performance of a contract to which the data subject is party (6.1(b))
+- Legal_obligation_(6.1(c)): Compliance with a legal obligation to which the controller is subject (6.1(c))
+- Vital_interests_(6.1(d)): Protection the vital interests of the data subject (6.1(d))
+- Public_interest_(6.1(e))
+- Legitimate_interest_(6.1(f))</p>
+<h3 id="56-enumeration-personaldata">5.6. Enumeration: 'PersonalData'</h3>
+<p><strong>Description:</strong> This enumeration includes the possible values to indicate the personal data types included in the dataset according to <a href="https://gdpr-info.eu/art-9-gdpr/">Art. 9.1</a> and <a href="https://gdpr-info.eu/art-10-gdpr/">Art. 10</a> from the GDPR, if applicable. It is used as a value range for property 'personal data' in class <a href="#41-dataset">'Dataset'</a>.</p>
+<p><strong>Note:</strong> For simplicity, only user-selectable items are shown in the diagram. Umbrella categories for those items are omitted. The section below contains both umbrella (<em>in italics</em>) and user-selectable items in the list. </p>
+<p><strong>Values:</strong>
+- Standard personal data
+- <em>Special category, i.e. sensitive, personal data</em>
+   - Racial or ethnic origin
+   - Genetic data
+   - Biometric data for the purpose of uniquely identifying a natural person
+   - Data concerning health
+   - Data concerning a natural person's sex life or sexual orientation
+   - Data relating to criminal convictions and offences
+   - Other special categories of data (e.g., molecular data that can give indication of a person's health)</p>
+<h3 id="57-enumeration-receivingproject">5.7. Enumeration: 'ReceivingProject'</h3>
+<p><strong>Description:</strong> This enumeration provides a list with the names of the projects of origin of both studies and datasets belonging to the studies. It is used as a value range for property 'receiving research project in class <a href="#45-submission">'Submission'</a>.</p>
+<p><strong>Values:</strong>
+Values for projects are not shown in the diagram since the list of projects is retrieved from the <a href="https://github.com/elixir-luxembourg/daisy/">Data Information Syystem (DAISY)</a> used at the LCSB and the ELIXIR-LU data hub. </p>
+<h3 id="58-enumeration-recipient">5.8. Enumeration: 'Recipient'</h3>
+<p><strong>Description:</strong> This enumeration provides a list with the names and surnames of principal investigators/researchers that can be recipient of data. It is used as a value range for property 'recipient' in class <a href="#45-submission">'Submission'</a>.</p>
+<p><strong>Values:</strong>
+Values for projects are not shown in the diagram since the list of projects is retrieved from the <a href="https://github.com/elixir-luxembourg/daisy/">Data Information Syystem (DAISY)</a> used at the LCSB and the ELIXIR-LU data hub.</p>
+<h3 id="59-enumeration-role">5.9. Enumeration: 'Role'</h3>
+<p><strong>Description:</strong> This enumeration contains the values to specify the job role of the submission contacts in the system.</p>
+<p><strong>Values:</strong>
+- Principal_Investigator
+- Researcher
+- Data_Manager
+- Data_Protection_Officer
+- Legal_Representative
+- Other</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../known-issues/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Known Issues">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Known Issues
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      
+<div class="md-copyright">
+    
+    <div class="md-copyright__highlight">
+        Copyright © ELIXIR 2025 |  ELIXIR Luxembourg, Luxembourg Centre for Systems Biomedicine, Campus Belval, Biotech II, 6 avenue du Swing, L-4367 Belvaux
+        
+    </div>
+    
+    
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+        Material for MkDocs
+    </a>
+    
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.footer", "navigation.path", "search.highlight"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

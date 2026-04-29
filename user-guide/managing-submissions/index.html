@@ -1,0 +1,1605 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../getting-started/">
+      
+      
+        <link rel="next" href="../roles/">
+      
+      
+      <link rel="icon" href="../../logos/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+    
+    
+      
+        <title>Managing Submissions - Data Submission System (DSS)</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Lato";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#managing-submissions" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Data Submission System (DSS)" class="md-header__button md-logo" aria-label="Data Submission System (DSS)" data-md-component="logo">
+      
+  <img src="../../logos/ELIXIR_LU.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Data Submission System (DSS)
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Managing Submissions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="orange" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Data Submission System (DSS)" class="md-nav__button md-logo" aria-label="Data Submission System (DSS)" data-md-component="logo">
+      
+  <img src="../../logos/ELIXIR_LU.png" alt="logo">
+
+    </a>
+    Data Submission System (DSS)
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Managing Submissions
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Managing Submissions
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#viewing-submissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing Submissions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Viewing Submissions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#all-submissions-data-steward" class="md-nav__link">
+    <span class="md-ellipsis">
+      All submissions (Data Steward)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#my-submissions-submitter-recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      My submissions (Submitter / Recipient)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Submission
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-basic-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Editing Basic Info
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-studies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Studies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Datasets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-attachments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Attachments
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#messaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Messaging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steering-the-submission-forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      Steering the Submission Forward
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#approving-and-rejecting-data-steward-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Approving and Rejecting (Data Steward only)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Approving and Rejecting (Data Steward only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadata-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metadata Review
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Verification
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reverting-to-the-previous-state-data-steward-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reverting to the Previous State (Data Steward only)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cancelling-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cancelling a Submission
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleting-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deleting a Submission
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duplicating-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Duplicating a Submission
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exporting-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exporting a Submission
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roles & Permissions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../submission-states/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Submission States
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notifications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Notifications
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Technical Documentation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Technical Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Authentication
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture & Design
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture & Design
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/system-data-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    System Data Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/use-cases/use-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Use Cases
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/sequence-diagram/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Sequence Diagram
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/components/components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Components
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/scenarios/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Scenarios
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../technical-documentation/architecture-and-design/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Deployment
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Deployment
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Deployment Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../known-issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Known Issues
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Metadata
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Metadata
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../form-metadata-model/form-metadata-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Form Metadata Model
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#viewing-submissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing Submissions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Viewing Submissions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#all-submissions-data-steward" class="md-nav__link">
+    <span class="md-ellipsis">
+      All submissions (Data Steward)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#my-submissions-submitter-recipient" class="md-nav__link">
+    <span class="md-ellipsis">
+      My submissions (Submitter / Recipient)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Creating a Submission
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-basic-info" class="md-nav__link">
+    <span class="md-ellipsis">
+      Editing Basic Info
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-studies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Studies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-datasets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Datasets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-attachments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adding Attachments
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#messaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Messaging
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steering-the-submission-forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      Steering the Submission Forward
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#approving-and-rejecting-data-steward-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Approving and Rejecting (Data Steward only)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Approving and Rejecting (Data Steward only)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#metadata-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metadata Review
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Verification
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reverting-to-the-previous-state-data-steward-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reverting to the Previous State (Data Steward only)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cancelling-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cancelling a Submission
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deleting-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deleting a Submission
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#duplicating-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Duplicating a Submission
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exporting-a-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exporting a Submission
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="managing-submissions">Managing Submissions</h1>
+<p>This guide covers the full lifecycle of a submission: creating it, filling in metadata, uploading data, and all the actions available to you along the way.</p>
+<p>For a quick reference of which actions are available in each state, see <a href="../submission-states/">Submission States</a>.
+For a summary of who can do what, see <a href="../roles/">Roles</a>.</p>
+<hr />
+<h2 id="overview">Overview</h2>
+<p>A submission is the primary unit of work in DSS. It collects:</p>
+<ul>
+<li><strong>Basic info</strong> — the submitting institution, project, local custodians, and contacts</li>
+<li><strong>Studies</strong> — one or more studies describing the research</li>
+<li><strong>Datasets</strong> — one or more datasets linked to studies, with GDPR and scientific metadata</li>
+<li><strong>Attachments</strong> — supporting files (PDF, TXT, PNG)</li>
+<li><strong>Messages</strong> — an internal message thread between submitters and Data Stewards</li>
+</ul>
+<hr />
+<h2 id="viewing-submissions">Viewing Submissions</h2>
+<h3 id="all-submissions-data-steward">All submissions (Data Steward)</h3>
+<p>Data Stewards can see every submission in the system via <strong>Submissions</strong> in the navigation menu (<code>/submissions</code>).</p>
+<h3 id="my-submissions-submitter-recipient">My submissions (Submitter / Recipient)</h3>
+<p>Regular users see only the submissions they are assigned to, via <strong>My Submissions</strong> (<code>/my_submissions</code>).</p>
+<hr />
+<h2 id="creating-a-submission">Creating a Submission</h2>
+<p>Only <strong>Data Stewards</strong> can create new submissions from scratch.</p>
+<ol>
+<li>Navigate to <strong>Submissions → New Submission</strong>.</li>
+<li>Fill in the form:</li>
+<li><strong>Institution</strong> — the data provider's institution</li>
+<li><strong>Local project name</strong> — the internal project this submission belongs to</li>
+<li><strong>Local custodians</strong> — the internal staff responsible for this data</li>
+<li><strong>Contacts</strong> — at least one contact (the submitter). Additional contacts can be added.</li>
+<li>Click <strong>Save</strong>. The submission is created in <strong>Initiation</strong> state and a notification is sent to the submitter.</li>
+</ol>
+<blockquote>
+<p>Any internal user (including submitters) can create a copy of an existing submission — see <a href="#duplicating-a-submission">Duplicating a Submission</a>.</p>
+</blockquote>
+<hr />
+<h2 id="editing-basic-info">Editing Basic Info</h2>
+<p>While in <strong>Initiation</strong> or <strong>Metadata Entry</strong> state, the submission's basic info (institution, project, custodians, contacts) can be edited by the Data Steward via the <strong>Edit</strong> button on the submission page.</p>
+<hr />
+<h2 id="adding-studies">Adding Studies</h2>
+<p>Studies are required before the submission can move to Metadata Review. A submission must have at least one study.</p>
+<ol>
+<li>Open the submission and click <strong>Add Study</strong>.</li>
+<li>Fill in the study form:</li>
+<li>Name, acronym, description</li>
+<li>Study type(s), species, diseases, sample sources</li>
+<li>Ethics approval details</li>
+<li>Number of subjects, age range, cohort descriptions</li>
+<li>Study contacts</li>
+<li>Save. Repeat to add more studies.</li>
+</ol>
+<p>Studies can be edited or deleted while the submission is in <strong>Metadata Entry</strong> state.</p>
+<hr />
+<h2 id="adding-datasets">Adding Datasets</h2>
+<p>Each dataset is linked to one of the submission's studies. At least one dataset is required.</p>
+<ol>
+<li>On the submission page, click <strong>Add Dataset</strong>.</li>
+<li>Fill in the dataset form:</li>
+<li>Title and description</li>
+<li>Scientific data types (e.g. genomics, clinical)</li>
+<li>GDPR data types (e.g. health, genetic) and whether the data contains personal data</li>
+<li>Legal basis for collection and sharing</li>
+<li>Consent status and notes</li>
+<li>Use restrictions (research scope, geographic, user-specific, publication, etc.)</li>
+<li>Technical metadata: number of records, file types, data standards, byte size, version</li>
+<li>Save. Repeat to add more datasets.</li>
+</ol>
+<p>Datasets can be edited or deleted while in <strong>Metadata Entry</strong> state. Once the submission moves beyond Metadata Review, datasets become read-only.</p>
+<hr />
+<h2 id="adding-attachments">Adding Attachments</h2>
+<p>Supporting documents (PDF, TXT, PNG) can be attached at any point while the submission is in an editable state.</p>
+<ol>
+<li>On the submission page, click <strong>Add Attachment</strong>.</li>
+<li>Enter a note describing the attachment.</li>
+<li>Select one or more files (PDF, TXT, or PNG — other types are rejected).</li>
+<li>Save.</li>
+</ol>
+<p>Attachments can be downloaded by any user with access to the submission, and deleted by the Data Steward or Submitter.</p>
+<hr />
+<h2 id="messaging">Messaging</h2>
+<p>Any user with access to a submission can add messages to its internal thread. This is the primary communication channel between submitters and Data Stewards.</p>
+<ol>
+<li>On the submission page, click <strong>Add Message</strong>.</li>
+<li>Write your message and save.</li>
+</ol>
+<p>When a message is added to an in-progress submission, a notification email is sent to the other parties.</p>
+<hr />
+<h2 id="steering-the-submission-forward">Steering the Submission Forward</h2>
+<p>Each phase must be explicitly advanced to the next state. This is called "steering".</p>
+<table>
+<thead>
+<tr>
+<th>From state</th>
+<th>Who can steer</th>
+<th>Requirements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Initiation</td>
+<td>Data Steward or Submitter</td>
+<td>At least one submitter (contact) assigned</td>
+</tr>
+<tr>
+<td>Metadata Entry</td>
+<td>Data Steward or Submitter</td>
+<td>At least one study and one dataset present</td>
+</tr>
+<tr>
+<td>Data Upload</td>
+<td>Data Steward or Submitter</td>
+<td>Submitter confirms data has been uploaded</td>
+</tr>
+</tbody>
+</table>
+<p>Click the <strong>Steer forward</strong> button on the submission page. Some transitions require confirming a responsibility acknowledgement.</p>
+<hr />
+<h2 id="approving-and-rejecting-data-steward-only">Approving and Rejecting (Data Steward only)</h2>
+<h3 id="metadata-review">Metadata Review</h3>
+<p>After the submission reaches <strong>Metadata Review</strong>, the Data Steward reviews it and either:</p>
+<ul>
+<li><strong>Approves</strong> — optionally adds a feedback message; submission moves to <strong>Data Upload</strong>.</li>
+<li><strong>Rejects</strong> — feedback message is required; submission returns to <strong>Metadata Entry</strong>.</li>
+</ul>
+<h3 id="data-verification">Data Verification</h3>
+<p>After the submitter confirms data upload, the Data Steward either:</p>
+<ul>
+<li><strong>Approves</strong> — optionally adds a feedback message; submission moves to <strong>Complete</strong>.</li>
+<li><strong>Rejects</strong> — feedback message is required; submission returns to <strong>Data Upload</strong>.</li>
+</ul>
+<hr />
+<h2 id="reverting-to-the-previous-state-data-steward-only">Reverting to the Previous State (Data Steward only)</h2>
+<p>A Data Steward can revert a submission to its previous state at any point (except from <strong>Initiation</strong>, which has no previous state).</p>
+<p>Use the <strong>Revert</strong> action on the submission page. Reverting from <strong>Metadata Review</strong> sends the submission back to <strong>Metadata Entry</strong>, and so on.</p>
+<hr />
+<h2 id="cancelling-a-submission">Cancelling a Submission</h2>
+<p>Active submissions (in Metadata Entry, Metadata Review, Data Upload, or Data Verification) can be cancelled.</p>
+<ul>
+<li><strong>Who can cancel:</strong> Data Steward or the submission owner (Submitter).</li>
+<li><strong>A cancellation reason is required.</strong></li>
+</ul>
+<p>On the submission list page, use the <strong>Cancel</strong> action and enter the reason. The submission moves to <strong>Cancelled</strong> state and a notification is sent to the submitter and recipient. Cancelled submissions cannot be reactivated — create a copy instead.</p>
+<hr />
+<h2 id="deleting-a-submission">Deleting a Submission</h2>
+<p>Submissions can only be deleted while in <strong>Initiation</strong> state (before being steered forward).</p>
+<ul>
+<li><strong>Who can delete:</strong> Data Steward or Submitter.</li>
+</ul>
+<p>Once a submission has been steered past Initiation, use <strong>Cancel</strong> to terminate it instead.</p>
+<hr />
+<h2 id="duplicating-a-submission">Duplicating a Submission</h2>
+<p>Any user with access to a submission can create a copy of it via <strong>Create copy</strong> (also called "Clone"). The copy is created in <strong>Initiation</strong> state and includes the basic info, studies, datasets, and contacts from the original. Messages and attachments are not copied.</p>
+<p>This is useful when submitting a follow-up study with similar metadata.</p>
+<hr />
+<h2 id="exporting-a-submission">Exporting a Submission</h2>
+<p>A submission can be exported as a <strong>DOCX report</strong> at any stage.</p>
+<p>Click <strong>Export DOCX</strong> on the submission page. The file is named <code>Submission_&lt;ref_name&gt;.docx</code> and contains all metadata: basic info, contacts, studies, datasets, and use restrictions.</p>
+<blockquote>
+<p>Export is available to Data Stewards, Submitters, and Recipients.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../getting-started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Getting Started
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../roles/" class="md-footer__link md-footer__link--next" aria-label="Next: Roles &amp; Permissions">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Roles & Permissions
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      
+<div class="md-copyright">
+    
+    <div class="md-copyright__highlight">
+        Copyright © ELIXIR 2025 |  ELIXIR Luxembourg, Luxembourg Centre for Systems Biomedicine, Campus Belval, Biotech II, 6 avenue du Swing, L-4367 Belvaux
+        
+    </div>
+    
+    
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+        Material for MkDocs
+    </a>
+    
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "navigation.footer", "navigation.path", "search.highlight"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>
