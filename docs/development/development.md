@@ -12,7 +12,7 @@ For most contributors, this is all you need:
 ./run_dev.sh
 ```
 
-Application runs at **http://127.0.0.1:5000**
+Application runs at **http://127.0.0.1:8000**
 
 **Demo Login Credentials:**
 
