@@ -106,10 +106,6 @@ class DatasetForm(FlaskForm):
         render_kw={"rows": 4},
         validators=[
             DataRequired(),
-            Regexp(
-                TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            ),
         ],
     )
     external_identifiers = StringField(
