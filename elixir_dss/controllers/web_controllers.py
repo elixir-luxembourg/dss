@@ -890,7 +890,6 @@ def edit_submission_dataset(dataset_id):
     if request.method == "GET":
         dataset = db.get_or_404(SubmissionDataset, dataset_id)
         result_form = forms.DatasetForm(obj=dataset)
-        result_form.title.render_kw = {"readonly": True}
         if dataset.sci_datatypes_json:
             result_form.sci_datatypes.data = json.loads(dataset.sci_datatypes_json)
         if dataset.gdpr_datatypes_json:
@@ -910,9 +909,7 @@ def edit_submission_dataset(dataset_id):
         dataset = db.get_or_404(SubmissionDataset, dataset_id)
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
-            original_title = dataset.title
             populate_except(posted_form, dataset, exclude={"creators"})
-            dataset.title = original_title
             # --- creators ---
             dataset.creators.clear()
             for creator_form in posted_form.creators.entries:

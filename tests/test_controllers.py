@@ -1272,9 +1272,9 @@ class ControllersTest(BaseIntegrationTest):
             data={
                 "id": dataset.id,
                 "submission_id": sub.id,
-                "title": "Test Dataset Edit",
+                "title": "Updated Dataset Title",
                 "study_id": study.id,
-                "description": "Updated dataset description",
+                "description": "Updated dataset description: !@#$%^&*() [] {} / \\ ? + = : ; ' \" , . < > ~`|",
                 "contains_personal_data": "y",
                 "data_processing_type": "pseudonymised",
                 "sci_datatypes": ["Whole_genome_sequencing"],
@@ -1294,6 +1294,14 @@ class ControllersTest(BaseIntegrationTest):
             follow_redirects=True,
         )
         self.assert200(resp)
+
+        updated_dataset = db.session.get(SubmissionDataset, dataset.id)
+        self.assertEqual(updated_dataset.title, "Updated Dataset Title")
+        self.assertEqual(updated_dataset.internal_id, dataset.internal_id)
+        self.assertEqual(
+            updated_dataset.description,
+            "Updated dataset description: !@#$%^&*() [] {} / \\ ? + = : ; ' \" , . < > ~`|",
+        )
 
     def test_edit_submission_dataset_post_invalid(self):
         self.login("submitter1@some.edu", "submitter1")
