@@ -106,7 +106,7 @@
                             <i class="bi bi-pencil-square me-2"></i>
                             Metadata Entry
                         </h5>
-                        <p class="mb-0 text-white-50 small">Add your research studies and declare your datasets</p>
+                        <p class="mb-0 text-white-50 small">Add your research studies and datasets</p>
                     </div>
                 </div>
 
@@ -127,7 +127,7 @@
                                         <i class="bi bi-check-circle-fill text-success ms-1"></i>
                                     {% endif %}
                                 </h5>
-                                <p class="mb-0 text-muted small">Describe your research studies with ethics approval details</p>
+                                <p class="mb-0 text-muted small">Describe each study with its design, subjects characterization, ethics, and contacts</p>
                             </div>
                             {% if can_edit %}
                                 <a href="{{ url_for('add_submission_study', sub_id=submission.id) }}"
@@ -143,7 +143,7 @@
                                 <i class="bi bi-journal-text text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
                                 <h6 class="text-dark mb-2">No studies added yet</h6>
                                 <p class="text-muted small mb-3 mx-auto" style="max-width: 400px;">
-                                    Add your first study to describe your research, including ethics approval and study details.
+                                    Add your first study.
                                 </p>
                                 {% if can_edit %}
                                     <a href="{{ url_for('add_submission_study', sub_id=submission.id) }}"
@@ -175,7 +175,7 @@
                                         <i class="bi bi-check-circle-fill text-success ms-1"></i>
                                     {% endif %}
                                 </h5>
-                                <p class="mb-0 text-muted small">Declare what data you're submitting with GDPR categories</p>
+                                <p class="mb-0 text-muted small">Describe each dataset with its general, scientific and technical metadata, GDPR categories and data-use conditions</p>
                             </div>
                             {% if can_edit %}
                                 <a href="{{ url_for('add_submission_dataset', sub_id=submission.id) }}"
@@ -191,7 +191,7 @@
                                 <i class="bi bi-database text-muted mb-3" style="font-size: 3rem; opacity: 0.3;"></i>
                                 <h6 class="text-dark mb-2">No datasets added yet</h6>
                                 <p class="text-muted small mb-3 mx-auto" style="max-width: 400px;">
-                                    Add dataset declarations including GDPR categories and de-identification information.
+                                    Add your first dataset.
                                 </p>
                                 {% if can_edit %}
                                     <a href="{{ url_for('add_submission_dataset', sub_id=submission.id) }}"
@@ -249,7 +249,7 @@
                         </h5>
                         <p class="mb-0 text-white-50 small">
                             {% if current_user.is_data_steward() %}
-                                Review the study details and data declarations
+                                Review the study and dataset metadata
                             {% else %}
                                 Your submission is being reviewed by the data steward
                             {% endif %}
