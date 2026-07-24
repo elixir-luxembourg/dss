@@ -11,7 +11,6 @@ def get_elu_partners():
 @app.cache.cached(timeout=1800, key_prefix="elu_projects")
 def get_elu_projects():
     return [p for p in get_elu_entities("projects") if p.get("external_id")]
-    # return get_elu_entities("projects")
 
 
 def _get_default_elu_entities(entity_name):
