@@ -572,6 +572,7 @@ def create_submission():
 def get_local_custodians(external_id):
     return jsonify(get_elu_lcsb_pis(external_id))
 
+
 @app.route("/submission/view/<int:sub_id>", methods=["GET"])
 @protect(roles=["user", "data_steward"])
 def view_submission(sub_id):

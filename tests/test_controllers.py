@@ -1078,9 +1078,7 @@ class ControllersTest(BaseIntegrationTest):
         mock_get_elu_lcsb_pis.return_value = ["Jane Doe"]
         self.login("steward1@uni.lu", "steward1")
 
-        resp = self.client.get(
-            url_for("get_local_custodians", external_id="ELU_P_1")
-        )
+        resp = self.client.get(url_for("get_local_custodians", external_id="ELU_P_1"))
 
         self.assert200(resp)
         self.assertEqual(resp.get_json(), ["Jane Doe"])

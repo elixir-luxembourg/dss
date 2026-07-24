@@ -20,7 +20,11 @@ from wtforms.validators import (
 from wtforms_components import SelectField, SelectMultipleField
 
 from elixir_dss import app
-from elixir_dss.clients.daisy import get_elu_lcsb_pis, get_elu_partners, get_elu_projects
+from elixir_dss.clients.daisy import (
+    get_elu_lcsb_pis,
+    get_elu_partners,
+    get_elu_projects,
+)
 from elixir_dss.models.services import get_active_users
 from elixir_dss.models.submission import Contact, ContactType
 
