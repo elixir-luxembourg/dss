@@ -10,7 +10,8 @@ def get_elu_partners():
 
 @app.cache.cached(timeout=1800, key_prefix="elu_projects")
 def get_elu_projects():
-    return get_elu_entities("projects")
+    return [p for p in get_elu_entities("projects") if p.get("external_id")]
+    # return get_elu_entities("projects")
 
 
 def _get_default_elu_entities(entity_name):
@@ -18,7 +19,7 @@ def _get_default_elu_entities(entity_name):
     return app.config.get("DATA_INIT", {}).get(entity_name, [])
 
 
-def get_elu_entities(entity_name):
+def get_elu_entities(entity_name: str, fields: str = "external_id,acronym,name"):
     if not app.config.get("DAISY_USE"):
         return _get_default_elu_entities(entity_name)
 
@@ -29,7 +30,7 @@ def get_elu_entities(entity_name):
             f"{daisy_url}/api/{entity_name}",
             params={
                 "API_KEY": api_key,
-                "fields": "external_id,acronym,name",
+                "fields": fields,
                 "published": "true",
             },
             timeout=10,
@@ -41,3 +42,27 @@ def get_elu_entities(entity_name):
     except (requests.RequestException, ValueError):
         app.logger.error("Error fetching ELU entities: %s", entity_name)
         return _get_default_elu_entities(entity_name)
+
+
+def get_elu_lcsb_pis(project_id: str = None):
+    if not project_id or project_id == "None":
+        app.logger.warning("Project ID is None")
+        return []
+
+    projects = get_elu_entities("projects", fields="external_id,contacts")
+
+    current_project = None
+    for project in projects:
+        if project.get("external_id") == project_id:
+            current_project = project
+            break
+    if not current_project:
+        app.logger.warning("Project ID %s not found in ELU projects", project_id)
+        return []
+
+    contacts = current_project.get("contacts", [])
+    return [
+        f"{contact.get('first_name')} {contact.get('last_name')}"
+        for contact in contacts
+        # if contact.get("role") == "Principal_Investigator" # all roles
+    ]

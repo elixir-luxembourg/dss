@@ -27,8 +27,10 @@
             <fieldset>
                 {{ submsn_form.hidden_tag() }}
                 {{ fmacros.render_field_with_errors(submsn_form.institution_accession, clazz="elx-select") }}
-                {{ fmacros.render_field_with_errors(submsn_form.local_custodians, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(submsn_form.local_project_name, clazz="elx-multi-select") }}
+                <div id="local-custodians-container" data-url="{{ url_for('get_local_custodians', external_id='__project_id__') }}">
+                    {{ fmacros.render_field_with_errors(submsn_form.local_custodians, clazz="elx-multi-select") }}
+                </div>
                 <div class="mb-3">
                     <label for="contacts-fieldset" class="form-label fw-medium">
                         {{submsn_form.submission_contacts.label.text}}<span class="text-danger">*</span>

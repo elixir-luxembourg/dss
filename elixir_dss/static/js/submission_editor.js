@@ -147,6 +147,32 @@ $(document).ready(function () {
 
     bind_widgets();
 
+    function updateLocalCustodians(projectId) {
+        const custodians = $('#local_custodians');
+        const urlTemplate = $('#local-custodians-container').data('url');
+        if (!custodians.length || !urlTemplate) {
+            return;
+        }
+        const selectedCustodians = new Set(custodians.val() || []);
+        custodians.empty().trigger('change');
+        if (!projectId) {
+            return;
+        }
+        $.getJSON(urlTemplate.replace('__project_id__', encodeURIComponent(projectId)))
+            .done(function (values) {
+                if (!Array.isArray(values) || projectId !== $('#local_project_name').val()) {
+                    return;
+                }
+                custodians
+                    .append(values.map(value => new Option(value, value, selectedCustodians.has(value), selectedCustodians.has(value))))
+                    .trigger('change');
+            });
+    }
+
+    $('#local_project_name').on('change', function () {
+        updateLocalCustodians(this.value);
+    });
+
     function toggleNotesField(checkboxId, notesFieldId) {
         const checkbox = $('#' + checkboxId);
         const notesField = $('#' + notesFieldId);
