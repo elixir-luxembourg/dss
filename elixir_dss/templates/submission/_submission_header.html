@@ -11,7 +11,7 @@
 </div>
 
 {% if details %}
-<!-- Submitter Information -->
+<!-- Submitting Information -->
 <div class="border-top pt-4 mb-4">
     <div class="row g-4">
         <div class="col-md-4">
@@ -32,7 +32,7 @@
 </div>
 
 <!-- Recipient Information -->
-<div class="border-top pt-4">
+<div class="border-top pt-4 mb-4">
     <div class="row g-4">
         <div class="col-md-4">
             <p class="form-label text-muted small mb-1">Recipient</p>
@@ -50,4 +50,33 @@
         </div>
     </div>
 </div>
+
+<!-- Submission Contacts -->
+{% if submission.submission_contacts %}
+<div class="border-top pt-4">
+    <label class="form-label text-muted small mb-2">Additional Contacts</label>
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Institution</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contact in submission.submission_contacts %}
+                <tr>
+                    <td>{{ contact.fullname() }}</td>
+                    <td>{{ contact.email }}</td>
+                    <td>{{ contact.contact_category.name if contact.contact_category else '-' }}</td>
+                    <td>{{ contact.institution or '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
 {% endif %}
