@@ -1073,6 +1073,17 @@ class ControllersTest(BaseIntegrationTest):
         resp = self.client.get(url_for("edit_submission", sub_id=sub.id))
         self.assert200(resp)
 
+    @patch("elixir_dss.controllers.web_controllers.get_elu_lcsb_pis")
+    def test_get_local_custodians(self, mock_get_elu_lcsb_pis):
+        mock_get_elu_lcsb_pis.return_value = ["Jane Doe"]
+        self.login("steward1@uni.lu", "steward1")
+
+        resp = self.client.get(url_for("get_local_custodians", external_id="ELU_P_1"))
+
+        self.assert200(resp)
+        self.assertEqual(resp.get_json(), ["Jane Doe"])
+        mock_get_elu_lcsb_pis.assert_called_once_with("ELU_P_1")
+
     @patch("elixir_dss.controllers.web_controllers.clone_sub")
     def test_clone_submission_error(self, mock_clone):
         mock_clone.side_effect = Exception("Clone failed")

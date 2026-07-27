@@ -6,6 +6,7 @@ from datetime import date, datetime, UTC, timezone
 
 from flask import (
     flash,
+    jsonify,
     make_response,
     redirect,
     render_template,
@@ -20,6 +21,7 @@ from werkzeug.utils import secure_filename
 from wtforms import FieldList, FormField
 
 from elixir_dss import app, db, lft, login_manager, oauth
+from elixir_dss.clients.daisy import get_elu_lcsb_pis
 from elixir_dss.clients.idservice import IDServiceError, generate_id
 import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
@@ -563,6 +565,12 @@ def create_submission():
     invite_submitters(submission_rec, submission_rec.submission_contacts)
     flash(f"New submission {submission_rec.ref_name} created", "success")
     return redirect(url_for("view_submission", sub_id=submission_rec.id))
+
+
+@app.route("/submission/local-custodians/<string:external_id>", methods=["GET"])
+@protect(roles=["data_steward"])
+def get_local_custodians(external_id):
+    return jsonify(get_elu_lcsb_pis(external_id))
 
 
 @app.route("/submission/view/<int:sub_id>", methods=["GET"])
