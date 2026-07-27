@@ -658,6 +658,13 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(u.first_name, "New")
         self.assertEqual(list(u.assigned_roles), roles_before)
 
+    def test_user_and_contact_emails_are_normalized(self):
+        user = UserFactory(email=" User.Name@Example.COM ")
+        contact = ContactFactory(email=" Contact.Name@Example.COM ")
+
+        self.assertEqual(user.email, "user.name@example.com")
+        self.assertEqual(contact.email, "contact.name@example.com")
+
     @patch("elixir_dss.models.services.persist_and_send_notification")
     def test_approve_metadata(self, _mock_notify):
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)

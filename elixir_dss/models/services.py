@@ -8,7 +8,7 @@ from sqlalchemy import and_, select
 
 from elixir_dss import app, db, mail, lft
 from elixir_dss.exceptions import RecordLifecycleException, RecordNotExistsException
-from elixir_dss.models.security import Role, User, UsersRoles
+from elixir_dss.models.security import Role, User, UsersRoles, normalize_email
 from elixir_dss.models.submission import (
     EmailNotification,
     Submission,
@@ -545,7 +545,7 @@ def update_user_info(usr: User, **kwargs):
     if "institution_division" in kwargs:
         usr.institution_division = kwargs.pop("institution_division")
     if "email" in kwargs:
-        usr.email = kwargs.pop("email")
+        usr.email = normalize_email(kwargs.pop("email"))
     if "addr_line1" in kwargs:
         usr.addr_line1 = kwargs.pop("addr_line1")
     if "addr_line2" in kwargs:
@@ -734,13 +734,14 @@ def invite_submitters(submission: Submission, contacts: list[Contact]):
     for contact in contacts:
         if contact.send_invite is False:
             continue
-        user = User.query.filter_by(email=contact.email).first()
+        contact_email = normalize_email(contact.email)
+        user = User.query.filter_by(email=contact_email).first()
         if not user:
             user = User(
                 first_name=contact.first_name,
                 last_name=contact.last_name,
-                email=contact.email,
-                elixir_sub_id=contact.email,
+                email=contact_email,
+                elixir_sub_id=contact_email,
                 active_user=True,
             )
             db.session.add(user)

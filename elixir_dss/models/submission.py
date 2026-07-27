@@ -4,12 +4,13 @@ from datetime import datetime, timezone
 
 from flask import url_for
 from sqlalchemy import Sequence
-from sqlalchemy.orm import object_mapper
+from sqlalchemy.orm import object_mapper, validates
 
 from elixir_dss import db
 from elixir_dss.clients.daisy import get_elu_partners
 from elixir_dss.clients.idservice import generate_id
 from elixir_dss.controllers.utils import dict_list_lookup
+from elixir_dss.models.security import normalize_email
 
 
 class ContactType(db.Model):
@@ -278,6 +279,10 @@ class Contact(db.Model):
     submission = db.relationship("Submission", back_populates="submission_contacts")
 
     send_invite = db.Column(db.Boolean, nullable=False, default=False)
+
+    @validates("email")
+    def normalize_user_email(self, key, value):
+        return normalize_email(value)
 
     def fullname(self):
         return self.first_name + " " + self.last_name.upper()
