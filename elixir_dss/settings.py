@@ -21,6 +21,8 @@ class Config(object):
     TITLE = os.environ.get("APP_TITLE")
     SECRET_KEY = os.environ.get("SECRET_KEY")
 
+    BASE_URL = os.environ.get("BASE_URL")
+
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -149,6 +151,7 @@ class TestConfig(Config):
     DEBUG = True
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "test-elixir-dss.db")
+    BASE_URL = "https://dss.example.com"
 
     PRESERVE_CONTEXT_ON_EXCEPTION = False
 

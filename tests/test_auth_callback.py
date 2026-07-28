@@ -1,7 +1,9 @@
 from unittest.mock import patch
 
 from flask import url_for
+from sqlalchemy import text
 
+from elixir_dss import db
 from elixir_dss.models.security import User
 from tests import BaseIntegrationTest
 from tests.factories import (
@@ -58,6 +60,22 @@ class AuthCallbackTest(BaseIntegrationTest):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(invited_user.elixir_sub_id, "new-oidc-sub")
+        self.assertIn(f"/submission/view/{submission.id}", response.location)
+
+    @patch("elixir_dss.controllers.web_controllers.oauth")
+    def test_with_mixed_case_invited_email(self, mock_oauth):
+        submission = SubmissionFactory()
+        invited_user = UserFactory(
+            elixir_sub_id="InviteE@example.com", email="InviteE@example.com"
+        )
+        SubmissionAccessFactory(submission_id=submission.id, user_id=invited_user.id)
+
+        self._mock_oauth(mock_oauth, sub="new-oidc-sub", email="invitee@example.com")
+        response = self.client.get(url_for("auth_callback"), follow_redirects=False)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(invited_user.elixir_sub_id, "new-oidc-sub")
+        self.assertEqual(invited_user.email, "invitee@example.com")
         self.assertIn(f"/submission/view/{submission.id}", response.location)
 
     @patch("elixir_dss.controllers.web_controllers.oauth")

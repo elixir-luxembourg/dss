@@ -346,15 +346,23 @@ def send_invitations(submission: Submission, users: list[User]):
     for user in users:
         recipients.append(user.email)
     recipients = recipients + app.config.get("DATA_STEWARDS_MAILS")
+    invitation_url = (
+        f"{app.config['BASE_URL'].rstrip('/')}/submission/view/{submission.id}"
+    )
 
     persist_and_send_notification(
         "Invitation to collaborate on Submission [%s]" % submission.ref_name,
         "noreply@uni.lu",
         recipients,
-        render_template("email/submission_invitation.txt", submission=submission),
+        render_template(
+            "email/submission_invitation.txt",
+            submission=submission,
+            invitation_url=invitation_url,
+        ),
         render_template(
             "email/submission_invitation.html",
             submission=submission,
+            invitation_url=invitation_url,
         ),
     )
 

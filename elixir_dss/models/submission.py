@@ -281,7 +281,7 @@ class Contact(db.Model):
     send_invite = db.Column(db.Boolean, nullable=False, default=False)
 
     @validates("email")
-    def normalize_user_email(self, key, value):
+    def normalize_contact_email(self, key, value):
         return normalize_email(value)
 
     def fullname(self):
