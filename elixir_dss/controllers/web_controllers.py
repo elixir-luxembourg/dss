@@ -51,6 +51,7 @@ from elixir_dss.models.submission import (
     SubmissionAttachment,
     SubmissionDataset,
     SubmissionMessage,
+    SubmissionAccess,
     SubmissionStatusEnum,
     SubmissionStudy,
     SubmissionDatasetCreator,
@@ -142,6 +143,26 @@ def about():
 def list_users():
     users = User.query.all()
     return render_template("security/users.html", users=users)
+
+
+@app.route("/user-accesses", methods=["GET"])
+@protect(roles=["data_steward"])
+def list_user_accesses():
+    users = User.query.order_by(User.last_name, User.first_name, User.email).all()
+    accesses = SubmissionAccess.query.all()
+    submissions = {
+        submission.id: submission
+        for submission in Submission.query.all()
+    }
+    return render_template(
+        "security/user_accesses.html",
+        users=users,
+        accesses_by_user={
+            user.id: [access for access in accesses if access.user_id == user.id]
+            for user in users
+        },
+        submissions=submissions,
+    )
 
 
 @app.route("/user/edit/<int:user_id>", methods=["GET", "POST"])

@@ -33,27 +33,43 @@
                                 </a>
                             </li>
                         {% else %}
-                            {% for sub_item_name, sub_item_link in sub_items %}
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 rounded
-                                   {% if request.endpoint == sub_item_link %}active bg-body-secondary text-dark fw-medium{% else %}text-secondary{% endif %}"
-                                       href="{{ url_for(sub_item_link) }}"
-                                       {% if request.endpoint == sub_item_link %}aria-current="page"{% endif %}>
-                                        {% if 'Submission' in sub_item_name or 'submission' in sub_item_name %}
-                                            <i class="bi bi-file-earmark-text"></i>
-                                        {% elif 'User' in sub_item_name or 'user' in sub_item_name %}
-                                            <i class="bi bi-people"></i>
-                                        {% elif 'Export' in sub_item_name or 'export' in sub_item_name %}
-                                            <i class="bi bi-download"></i>
-                                        {% elif 'Settings' in sub_item_name or 'settings' in sub_item_name or 'Config' in sub_item_name %}
-                                            <i class="bi bi-gear"></i>
+                                {% set group_is_active = sub_items | selectattr(1, 'equalto', request.endpoint) | list | length > 0 %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 px-3 py-2 rounded
+                                       {% if group_is_active %}active bg-body-secondary text-dark fw-medium{% else %}text-secondary{% endif %}"
+                                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {% if name == 'Data Steward' %}
+                                            <i class="bi bi-shield-check"></i>
+                                        {% elif name == 'Admin' %}
+                                            <i class="bi bi-person-gear"></i>
                                         {% else %}
                                             <i class="bi bi-list-ul"></i>
                                         {% endif %}
-                                        {{ sub_item_name }}
+                                        {{ name|e }}
                                     </a>
+                                    <ul class="dropdown-menu shadow-sm">
+                                        {% for sub_item_name, sub_item_link in sub_items %}
+                                            <li>
+                                                <a class="dropdown-item d-flex align-items-center gap-2 {% if request.endpoint == sub_item_link %}active{% endif %}"
+                                                   href="{{ url_for(sub_item_link) }}"
+                                                   {% if request.endpoint == sub_item_link %}aria-current="page"{% endif %}>
+                                                    {% if 'Submission' in sub_item_name or 'submission' in sub_item_name %}
+                                                        <i class="bi bi-file-earmark-text"></i>
+                                                    {% elif 'User' in sub_item_name or 'user' in sub_item_name %}
+                                                        <i class="bi bi-people"></i>
+                                                    {% elif 'Export' in sub_item_name or 'export' in sub_item_name %}
+                                                        <i class="bi bi-download"></i>
+                                                    {% elif 'Settings' in sub_item_name or 'settings' in sub_item_name or 'Config' in sub_item_name %}
+                                                        <i class="bi bi-gear"></i>
+                                                    {% else %}
+                                                        <i class="bi bi-list-ul"></i>
+                                                    {% endif %}
+                                                    {{ sub_item_name }}
+                                                </a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
                                 </li>
-                            {% endfor %}
                         {% endif %}
                     {% endif %}
                 {% endfor %}

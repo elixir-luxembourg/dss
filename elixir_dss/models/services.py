@@ -349,6 +349,8 @@ def send_invitations(submission: Submission, users: list[User]):
     invitation_url = (
         f"{app.config['BASE_URL'].rstrip('/')}/submission/view/{submission.id}"
     )
+    from flask import url_for
+    test_url = url_for("view_submission", sub_id=submission.id, _external=True)
 
     persist_and_send_notification(
         "Invitation to collaborate on Submission [%s]" % submission.ref_name,
