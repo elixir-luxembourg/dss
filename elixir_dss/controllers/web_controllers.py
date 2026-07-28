@@ -150,10 +150,7 @@ def list_users():
 def list_user_accesses():
     users = User.query.order_by(User.last_name, User.first_name, User.email).all()
     accesses = SubmissionAccess.query.all()
-    submissions = {
-        submission.id: submission
-        for submission in Submission.query.all()
-    }
+    submissions = {submission.id: submission for submission in Submission.query.all()}
     return render_template(
         "security/user_accesses.html",
         users=users,
