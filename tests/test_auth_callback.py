@@ -1,9 +1,7 @@
 from unittest.mock import patch
 
 from flask import url_for
-from sqlalchemy import text
 
-from elixir_dss import db
 from elixir_dss.models.security import User
 from tests import BaseIntegrationTest
 from tests.factories import (
