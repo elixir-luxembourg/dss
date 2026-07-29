@@ -28,9 +28,6 @@ from elixir_dss.models.submission import (
     SubmissionStudy,
 )
 
-from .validators import OptionalFieldValidator
-
-
 TEXT_FIELD_REGEX = r"^[\w\s,\-.]+$"
 TEXT_FIELD_REGEX_MSG = "Can only contain letters, digits, dash, comma and dot."
 
