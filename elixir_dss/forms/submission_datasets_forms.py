@@ -118,11 +118,7 @@ class DatasetForm(FlaskForm):
         description="Please provide a short descriptive title for the data.",
         validators=[
             DataRequired(),
-            Regexp(
-                r"^[\w\s\-]+$",
-                message="Title must contain only letters, digits, underscore or dash",
-            ),
-            Length(min=5, max=50, message="Title must be between 5 & 50 characters"),
+            Length(min=5, max=200, message="Title must be between 5 & 200 characters"),
         ],
     )
     study_id = SelectField(
@@ -163,12 +159,7 @@ class DatasetForm(FlaskForm):
         "Personal data remarks",
         description='In case of "other special categories of data", please specify.',
         render_kw={"rows": 3},
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     is_special_category_data = BooleanField(
@@ -196,12 +187,7 @@ class DatasetForm(FlaskForm):
         "Data types - Remarks",
         description="In case of 'Other' types of data, please specify.",
         render_kw={"rows": 3},
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     # Data protection (GDPR)
@@ -227,12 +213,7 @@ class DatasetForm(FlaskForm):
         "Please provide a brief description of these Special Data Subjects.",
         description="",
         render_kw={"rows": 3},
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     # Technical Metadata Section
@@ -298,12 +279,7 @@ class DatasetForm(FlaskForm):
         "If the consent is heterogeneous, please specify the data dictionary item (column) that specifies consent groups in data.",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     # Consent and ethics
@@ -317,12 +293,7 @@ class DatasetForm(FlaskForm):
         "Please describe research/disease areas restriction on data",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     restriction_gs = BooleanField(
@@ -334,12 +305,7 @@ class DatasetForm(FlaskForm):
         "Please describe geographical restrictions on data",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
     restriction_user_specific = BooleanField(
         "Restricted type of recipients.\nDoes the consent limit the type of recipients?",
@@ -350,12 +316,7 @@ class DatasetForm(FlaskForm):
         "Please describe the recipient restrictions on data.",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     restriction_pub = BooleanField(
@@ -367,12 +328,7 @@ class DatasetForm(FlaskForm):
         "Please describe the publication requirements.",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
     restriction_ts = BooleanField(
         "Retention time.\nDoes the consent contain clauses that put time-limits on the use of data?",
@@ -383,12 +339,7 @@ class DatasetForm(FlaskForm):
         "Please describe the time-limit restrictions on data.",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
     # Specific data use conditions
 
@@ -424,12 +375,7 @@ class DatasetForm(FlaskForm):
         "Please describe the return requirements.",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     restriction_us = BooleanField(
@@ -441,12 +387,7 @@ class DatasetForm(FlaskForm):
         "Please list the specific users/groups/institutions to which ELIXIR-LU/LCSB is instructed to give access to the data upon request.",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     restriction_ip = BooleanField(
@@ -458,24 +399,14 @@ class DatasetForm(FlaskForm):
         "Please describe the IP conditions/restrictions",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     restriction_other_notes = TextAreaField(
         "If there are any other restrictions on data, please describe them here.",
         render_kw={"rows": 3},
         description="If applicable, in your description you may refer to GA4GH Data Use Category Codes, found at the below link.\nhttps://www.ga4gh.org/wp-content/uploads/DataUseBeacon_160209_tab_0.pdf",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
     access_form_required = BooleanField(
         "Will all researchers accessing the data need to sign an access request form?",
@@ -491,12 +422,7 @@ class DatasetForm(FlaskForm):
         "If a DAC Approval is needed please describe the required procedure.",
         render_kw={"rows": 3},
         description="",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            )
-        ],
+        validators=[Optional()],
     )
 
     def __init__(self, *args, **kwargs):

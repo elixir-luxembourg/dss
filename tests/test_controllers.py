@@ -1278,18 +1278,32 @@ class ControllersTest(BaseIntegrationTest):
         )
         db.session.commit()
 
+        dataset_title = "Updated Title (v2.0) / final with very-very-very-very-very-very-very-very-very-very-very-very-very-very-long-title!"
         resp = self.client.post(
             url_for("edit_submission_dataset", dataset_id=dataset.id),
             data={
                 "id": dataset.id,
                 "submission_id": sub.id,
-                "title": "Updated Dataset Title",
+                "title": dataset_title,
                 "study_id": study.id,
                 "description": "Updated dataset description: !@#$%^&*() [] {} / \\ ? + = : ; ' \" , . < > ~`|",
                 "contains_personal_data": "y",
                 "data_processing_type": "pseudonymised",
                 "sci_datatypes": ["Whole_genome_sequencing"],
+                "sci_datatypes_notes": "sci_datatypes_notes: a&b (c/d) 100%!",
                 "gdpr_datatypes": ["genetic"],
+                "gdpr_datatypes_notes": "gdpr_datatypes_notes: a&b (c/d) 100%!",
+                "consent_notes": "consent_notes: a&b (c/d) 100%!",
+                "restriction_rs_notes": "restriction_rs_notes: a&b (c/d) 100%!",
+                "restriction_gs_notes": "restriction_gs_notes: a&b (c/d) 100%!",
+                "restriction_user_specific_notes": "restriction_user_specific_notes: a&b (c/d) 100%!",
+                "restriction_ts_notes": "restriction_ts_notes: a&b (c/d) 100%!",
+                "restriction_pub_notes": "restriction_pub_notes: a&b (c/d) 100%!",
+                "restriction_rtn_notes": "restriction_rtn_notes: a&b (c/d) 100%!",
+                "restriction_us_notes": "restriction_us_notes: a&b (c/d) 100%!",
+                "restriction_ip_notes": "restriction_ip_notes: a&b (c/d) 100%!",
+                "restriction_other_notes": "restriction_other_notes: a&b (c/d) 100%!",
+                "dac_approval_notes": "dac_approval_notes: a&b (c/d) 100%!",
                 "data_standards": ["CDISC"],
                 "file_types": ["CSV (format:3752)"],
                 "sample_types": ["blood"],
@@ -1307,12 +1321,31 @@ class ControllersTest(BaseIntegrationTest):
         self.assert200(resp)
 
         updated_dataset = db.session.get(SubmissionDataset, dataset.id)
-        self.assertEqual(updated_dataset.title, "Updated Dataset Title")
+        self.assertEqual(updated_dataset.title, dataset_title)
         self.assertEqual(updated_dataset.internal_id, dataset.internal_id)
         self.assertEqual(
             updated_dataset.description,
             "Updated dataset description: !@#$%^&*() [] {} / \\ ? + = : ; ' \" , . < > ~`|",
         )
+        for field in (
+            "sci_datatypes_notes",
+            "gdpr_datatypes_notes",
+            "consent_notes",
+            "restriction_rs_notes",
+            "restriction_gs_notes",
+            "restriction_user_specific_notes",
+            "restriction_ts_notes",
+            "restriction_pub_notes",
+            "restriction_rtn_notes",
+            "restriction_us_notes",
+            "restriction_ip_notes",
+            "restriction_other_notes",
+            "dac_approval_notes",
+        ):
+            self.assertEqual(
+                getattr(updated_dataset, field),
+                f"{field}: a&b (c/d) 100%!",
+            )
 
     def test_edit_submission_dataset_post_invalid(self):
         self.login("submitter1@some.edu", "submitter1")
