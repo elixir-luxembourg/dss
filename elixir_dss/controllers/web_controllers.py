@@ -148,16 +148,28 @@ def list_users():
 @app.route("/user-accesses", methods=["GET"])
 @protect(roles=["data_steward"])
 def list_user_accesses():
-    users = User.query.order_by(User.last_name, User.first_name, User.email).all()
-    accesses = SubmissionAccess.query.all()
-    submissions = {submission.id: submission for submission in Submission.query.all()}
+    rows = (
+        db.session.query(User, SubmissionAccess, Submission)
+        .outerjoin(SubmissionAccess, User.id == SubmissionAccess.user_id)
+        .outerjoin(Submission, Submission.id == SubmissionAccess.submission_id)
+        .all()
+    )
+    users = []
+    accesses_by_user = {}
+    submissions = {}
+    for user, access, submission in rows:
+        if user.id not in accesses_by_user:
+            users.append(user)
+            accesses_by_user[user.id] = []
+        if access is not None:
+            accesses_by_user[user.id].append(access)
+        if submission is not None:
+            submissions[submission.id] = submission
+
     return render_template(
         "security/user_accesses.html",
         users=users,
-        accesses_by_user={
-            user.id: [access for access in accesses if access.user_id == user.id]
-            for user in users
-        },
+        accesses_by_user=accesses_by_user,
         submissions=submissions,
     )
 
