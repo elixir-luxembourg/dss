@@ -25,7 +25,7 @@ from elixir_dss.clients.daisy import get_elu_lcsb_pis
 from elixir_dss.clients.idservice import IDServiceError, generate_id
 import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
-from elixir_dss.models.security import User
+from elixir_dss.models.security import User, normalize_email
 from elixir_dss.models.services import (
     approve_data,
     approve_metadata,
@@ -220,7 +220,7 @@ def auth_callback():
         return redirect(url_for("home"))
 
     sub = userinfo.get("sub")
-    email = userinfo.get("email")
+    email = normalize_email(userinfo.get("email"))
     name = userinfo.get("name", "")
     first_name, last_name = (name.split(" ", 1) + [""])[:2]
 
@@ -361,7 +361,7 @@ def login():
 
     form = forms.LoginForm()
     if form.validate_on_submit():
-        email = form.username.data
+        email = normalize_email(form.username.data)
         password = form.password.data
 
         expected_password = app.config.get("AUTHENTICATION_DICT").get(email)

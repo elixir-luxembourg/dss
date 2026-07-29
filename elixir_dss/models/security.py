@@ -1,6 +1,11 @@
 from flask_login import UserMixin
+from sqlalchemy.orm import validates
 
 from elixir_dss import db
+
+
+def normalize_email(value):
+    return value.strip().lower() if value else value
 
 
 class User(UserMixin, db.Model):
@@ -21,6 +26,10 @@ class User(UserMixin, db.Model):
     active_user = db.Column(db.Boolean, nullable=False)
 
     submission_accesses = db.relationship("SubmissionAccess", back_populates="user")
+
+    @validates("email")
+    def normalize_user_email(self, key, value):
+        return normalize_email(value)
 
     @property
     def is_active(self):
