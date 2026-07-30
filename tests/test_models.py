@@ -658,6 +658,13 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(u.first_name, "New")
         self.assertEqual(list(u.assigned_roles), roles_before)
 
+    def test_user_and_contact_emails_are_normalized(self):
+        user = UserFactory(email=" User.Name@Example.COM ")
+        contact = ContactFactory(email=" Contact.Name@Example.COM ")
+
+        self.assertEqual(user.email, "user.name@example.com")
+        self.assertEqual(contact.email, "contact.name@example.com")
+
     @patch("elixir_dss.models.services.persist_and_send_notification")
     def test_approve_metadata(self, _mock_notify):
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
@@ -1156,6 +1163,11 @@ class ModelPersistenceTest(BaseTest):
         ) as mock_persist:
             invite_submitters(sub, [contact])
             mock_persist.assert_called_once()
+            text_email = mock_persist.call_args.args[3]
+            html_email = mock_persist.call_args.args[4]
+            expected_url = f"https://dss.example.com/submission/view/{sub.id}"
+            self.assertIn(expected_url, text_email)
+            self.assertIn(expected_url, html_email)
             invited_user = User.query.filter_by(email="newinvitee@example.com").first()
             self.assertIsNotNone(invited_user)
 

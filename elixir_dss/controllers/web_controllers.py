@@ -6,6 +6,7 @@ from datetime import date, datetime, UTC, timezone
 
 from flask import (
     flash,
+    jsonify,
     make_response,
     redirect,
     render_template,
@@ -20,10 +21,11 @@ from werkzeug.utils import secure_filename
 from wtforms import FieldList, FormField
 
 from elixir_dss import app, db, lft, login_manager, oauth
+from elixir_dss.clients.daisy import get_elu_lcsb_pis
 from elixir_dss.clients.idservice import IDServiceError, generate_id
 import elixir_dss.exceptions as exceptions
 import elixir_dss.forms as forms
-from elixir_dss.models.security import User
+from elixir_dss.models.security import User, normalize_email
 from elixir_dss.models.services import (
     approve_data,
     approve_metadata,
@@ -51,6 +53,7 @@ from elixir_dss.models.submission import (
     SubmissionAttachment,
     SubmissionDataset,
     SubmissionMessage,
+    SubmissionAccess,
     SubmissionStatusEnum,
     SubmissionStudy,
     SubmissionDatasetCreator,
@@ -144,6 +147,35 @@ def list_users():
     return render_template("security/users.html", users=users)
 
 
+@app.route("/user-accesses", methods=["GET"])
+@protect(roles=["data_steward"])
+def list_user_accesses():
+    rows = (
+        db.session.query(User, SubmissionAccess, Submission)
+        .outerjoin(SubmissionAccess, User.id == SubmissionAccess.user_id)
+        .outerjoin(Submission, Submission.id == SubmissionAccess.submission_id)
+        .all()
+    )
+    users = []
+    accesses_by_user = {}
+    submissions = {}
+    for user, access, submission in rows:
+        if user.id not in accesses_by_user:
+            users.append(user)
+            accesses_by_user[user.id] = []
+        if access is not None:
+            accesses_by_user[user.id].append(access)
+        if submission is not None:
+            submissions[submission.id] = submission
+
+    return render_template(
+        "security/user_accesses.html",
+        users=users,
+        accesses_by_user=accesses_by_user,
+        submissions=submissions,
+    )
+
+
 @app.route("/user/edit/<int:user_id>", methods=["GET", "POST"])
 @protect(roles=["admin"])
 def edit_user(user_id):
@@ -218,7 +250,7 @@ def auth_callback():
         return redirect(url_for("home"))
 
     sub = userinfo.get("sub")
-    email = userinfo.get("email")
+    email = normalize_email(userinfo.get("email"))
     name = userinfo.get("name", "")
     first_name, last_name = (name.split(" ", 1) + [""])[:2]
 
@@ -359,7 +391,7 @@ def login():
 
     form = forms.LoginForm()
     if form.validate_on_submit():
-        email = form.username.data
+        email = normalize_email(form.username.data)
         password = form.password.data
 
         expected_password = app.config.get("AUTHENTICATION_DICT").get(email)
@@ -563,6 +595,12 @@ def create_submission():
     invite_submitters(submission_rec, submission_rec.submission_contacts)
     flash(f"New submission {submission_rec.ref_name} created", "success")
     return redirect(url_for("view_submission", sub_id=submission_rec.id))
+
+
+@app.route("/submission/local-custodians/<string:external_id>", methods=["GET"])
+@protect(roles=["data_steward"])
+def get_local_custodians(external_id):
+    return jsonify(get_elu_lcsb_pis(external_id))
 
 
 @app.route("/submission/view/<int:sub_id>", methods=["GET"])

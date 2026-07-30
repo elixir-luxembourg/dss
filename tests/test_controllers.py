@@ -914,6 +914,24 @@ class ControllersTest(BaseIntegrationTest):
         resp = self.client.get(url_for("list_users"))
         self.assert200(resp)
 
+    def test_data_steward_can_list_user_accesses(self):
+        submission = create_sub("ELU_I_77")
+        submitter = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(submission, provider_user_ids=[submitter.id])
+
+        self.login("steward1@uni.lu", "steward1")
+        resp = self.client.get(url_for("list_user_accesses"))
+
+        self.assert200(resp)
+        response_text = resp.data.decode("utf-8")
+        self.assertIn(submitter.email, response_text)
+        self.assertIn(submission.ref_name, response_text)
+
+        self.logout()
+        self.login("submitter1@some.edu", "submitter1")
+        resp = self.client.get(url_for("list_user_accesses"))
+        self.assert403(resp)
+
     def test_edit_user_get(self):
         self.login("admin@uni.lu", "admin")
         user = User.query.filter_by(email="submitter1@some.edu").first()
@@ -1072,6 +1090,17 @@ class ControllersTest(BaseIntegrationTest):
         db.session.commit()
         resp = self.client.get(url_for("edit_submission", sub_id=sub.id))
         self.assert200(resp)
+
+    @patch("elixir_dss.controllers.web_controllers.get_elu_lcsb_pis")
+    def test_get_local_custodians(self, mock_get_elu_lcsb_pis):
+        mock_get_elu_lcsb_pis.return_value = ["Jane Doe"]
+        self.login("steward1@uni.lu", "steward1")
+
+        resp = self.client.get(url_for("get_local_custodians", external_id="ELU_P_1"))
+
+        self.assert200(resp)
+        self.assertEqual(resp.get_json(), ["Jane Doe"])
+        mock_get_elu_lcsb_pis.assert_called_once_with("ELU_P_1")
 
     @patch("elixir_dss.controllers.web_controllers.clone_sub")
     def test_clone_submission_error(self, mock_clone):
@@ -1267,18 +1296,32 @@ class ControllersTest(BaseIntegrationTest):
         )
         db.session.commit()
 
+        dataset_title = "Updated Title (v2.0) / final with very-very-very-very-very-very-very-very-very-very-very-very-very-very-long-title!"
         resp = self.client.post(
             url_for("edit_submission_dataset", dataset_id=dataset.id),
             data={
                 "id": dataset.id,
                 "submission_id": sub.id,
-                "title": "Updated Dataset Title",
+                "title": dataset_title,
                 "study_id": study.id,
                 "description": "Updated dataset description: !@#$%^&*() [] {} / \\ ? + = : ; ' \" , . < > ~`|",
                 "contains_personal_data": "y",
                 "data_processing_type": "pseudonymised",
                 "sci_datatypes": ["Whole_genome_sequencing"],
+                "sci_datatypes_notes": "sci_datatypes_notes: a&b (c/d) 100%!",
                 "gdpr_datatypes": ["genetic"],
+                "gdpr_datatypes_notes": "gdpr_datatypes_notes: a&b (c/d) 100%!",
+                "consent_notes": "consent_notes: a&b (c/d) 100%!",
+                "restriction_rs_notes": "restriction_rs_notes: a&b (c/d) 100%!",
+                "restriction_gs_notes": "restriction_gs_notes: a&b (c/d) 100%!",
+                "restriction_user_specific_notes": "restriction_user_specific_notes: a&b (c/d) 100%!",
+                "restriction_ts_notes": "restriction_ts_notes: a&b (c/d) 100%!",
+                "restriction_pub_notes": "restriction_pub_notes: a&b (c/d) 100%!",
+                "restriction_rtn_notes": "restriction_rtn_notes: a&b (c/d) 100%!",
+                "restriction_us_notes": "restriction_us_notes: a&b (c/d) 100%!",
+                "restriction_ip_notes": "restriction_ip_notes: a&b (c/d) 100%!",
+                "restriction_other_notes": "restriction_other_notes: a&b (c/d) 100%!",
+                "dac_approval_notes": "dac_approval_notes: a&b (c/d) 100%!",
                 "data_standards": ["CDISC"],
                 "file_types": ["CSV (format:3752)"],
                 "sample_types": ["blood"],
@@ -1296,12 +1339,31 @@ class ControllersTest(BaseIntegrationTest):
         self.assert200(resp)
 
         updated_dataset = db.session.get(SubmissionDataset, dataset.id)
-        self.assertEqual(updated_dataset.title, "Updated Dataset Title")
+        self.assertEqual(updated_dataset.title, dataset_title)
         self.assertEqual(updated_dataset.internal_id, dataset.internal_id)
         self.assertEqual(
             updated_dataset.description,
             "Updated dataset description: !@#$%^&*() [] {} / \\ ? + = : ; ' \" , . < > ~`|",
         )
+        for field in (
+            "sci_datatypes_notes",
+            "gdpr_datatypes_notes",
+            "consent_notes",
+            "restriction_rs_notes",
+            "restriction_gs_notes",
+            "restriction_user_specific_notes",
+            "restriction_ts_notes",
+            "restriction_pub_notes",
+            "restriction_rtn_notes",
+            "restriction_us_notes",
+            "restriction_ip_notes",
+            "restriction_other_notes",
+            "dac_approval_notes",
+        ):
+            self.assertEqual(
+                getattr(updated_dataset, field),
+                f"{field}: a&b (c/d) 100%!",
+            )
 
     def test_edit_submission_dataset_post_invalid(self):
         self.login("submitter1@some.edu", "submitter1")

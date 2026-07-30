@@ -20,7 +20,11 @@ from wtforms.validators import (
 from wtforms_components import SelectField, SelectMultipleField
 
 from elixir_dss import app
-from elixir_dss.clients.daisy import get_elu_partners, get_elu_projects
+from elixir_dss.clients.daisy import (
+    get_elu_lcsb_pis,
+    get_elu_partners,
+    get_elu_projects,
+)
 from elixir_dss.models.services import get_active_users
 from elixir_dss.models.submission import Contact, ContactType
 
@@ -359,9 +363,6 @@ class SubmissionForm(FlaskForm):
         self.provider_user_ids.choices = [
             (usr.id, usr.display_name()) for usr in get_active_users()
         ]
-        self.local_custodians.choices = [("", "")] + [
-            (c, c) for c in app.config.get("DATA_INIT")["lcsb_pis"]
-        ]
         self.institution_accession.choices = [
             (
                 c["external_id"],
@@ -387,4 +388,8 @@ class SubmissionForm(FlaskForm):
                 ),
             )
             for c in get_elu_projects()
+        ]
+        self.local_custodians.choices = [("", "")] + [
+            (custodian, custodian)
+            for custodian in get_elu_lcsb_pis(self.local_project_name.data)
         ]
