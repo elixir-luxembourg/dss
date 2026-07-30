@@ -914,6 +914,24 @@ class ControllersTest(BaseIntegrationTest):
         resp = self.client.get(url_for("list_users"))
         self.assert200(resp)
 
+    def test_data_steward_can_list_user_accesses(self):
+        submission = create_sub("ELU_I_77")
+        submitter = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(submission, provider_user_ids=[submitter.id])
+
+        self.login("steward1@uni.lu", "steward1")
+        resp = self.client.get(url_for("list_user_accesses"))
+
+        self.assert200(resp)
+        response_text = resp.data.decode("utf-8")
+        self.assertIn(submitter.email, response_text)
+        self.assertIn(submission.ref_name, response_text)
+
+        self.logout()
+        self.login("submitter1@some.edu", "submitter1")
+        resp = self.client.get(url_for("list_user_accesses"))
+        self.assert403(resp)
+
     def test_edit_user_get(self):
         self.login("admin@uni.lu", "admin")
         user = User.query.filter_by(email="submitter1@some.edu").first()

@@ -37,6 +37,7 @@ class Config(object):
             [
                 ("Submissions", "list_submissions"),
                 ("Email Notifications", "list_notifications"),
+                ("User Accesses", "list_user_accesses"),
             ],
             "data_steward",
         ),
