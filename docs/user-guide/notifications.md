@@ -1,6 +1,6 @@
 ## Email Notifications
 
-The system automatically sends email notifications at key workflow transitions, messages and data upload status updates. See the [information on state transition rules](submission-states.md#state-transition-rules) to get more details.
+The system automatically sends email notifications at key workflow transitions, messages and data upload status updates. See the [information on state transition rules](submission-states.md#transitions) to get more details.
 
 ### Notification Types
 
