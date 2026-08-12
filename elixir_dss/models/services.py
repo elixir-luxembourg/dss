@@ -179,7 +179,7 @@ def register_new_user(user: User) -> User:
 
 def submitter_emails(submission: Submission):
     """Emails of the users with submitter access. Recipients are excluded
-    because these notifications ask for a submitter action."""
+    because these emails are addressed to the data providers."""
     return [
         access.user.email
         for access in submission.submission_accesses
@@ -188,9 +188,7 @@ def submitter_emails(submission: Submission):
 
 
 def send_submission_steer_step1_notification(submission: Submission):
-    recipients = []
-    for access in submission.submission_accesses:
-        recipients.append(access.user.email)
+    recipients = submitter_emails(submission)
     persist_and_send_notification(
         "Submission [%s] initiated" % submission.ref_name,
         "noreply@uni.lu",
@@ -257,9 +255,7 @@ def send_metadata_approval_request_notification(submission: Submission):
 
 
 def send_metadata_approved_notification(submission: Submission, feedback=None):
-    recipients = []
-    for access in submission.submission_accesses:
-        recipients.append(access.user.email)
+    recipients = submitter_emails(submission)
     persist_and_send_notification(
         "Submission [%s] metadata approved" % submission.ref_name,
         "noreply@uni.lu",
@@ -311,9 +307,7 @@ def send_data_approval_request_notification(submission: Submission):
 
 
 def send_data_approved_notification(submission: Submission, feedback=None):
-    recipients = []
-    for access in submission.submission_accesses:
-        recipients.append(access.user.email)
+    recipients = submitter_emails(submission)
     persist_and_send_notification(
         "Submission [%s] data upload approved" % submission.ref_name,
         "noreply@uni.lu",

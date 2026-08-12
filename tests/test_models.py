@@ -1479,7 +1479,7 @@ class RecipientInvitationTest(BaseTest):
         self.assertIn("provider@uni.lu", recipients)
         self.assertNotIn("recipient@uni.lu", recipients)
 
-    def test_approved_notifications_include_recipients(self):
+    def test_approved_notifications_exclude_recipients(self):
         provider_user = UserFactory(email="provider@uni.lu")
         sub = self._make_submission(
             {"name": "Recipient User", "email": "recipient@uni.lu"}
@@ -1496,4 +1496,4 @@ class RecipientInvitationTest(BaseTest):
 
         recipients = mock_notify.call_args[0][2]
         self.assertIn("provider@uni.lu", recipients)
-        self.assertIn("recipient@uni.lu", recipients)
+        self.assertNotIn("recipient@uni.lu", recipients)
