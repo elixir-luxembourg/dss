@@ -10,7 +10,7 @@ There are two primary groups of roles in the system based on the context in whic
 User roles assigned within the scope of the submission.
 
 - **Submitter**: Submitter is defined in the draft stage by user creating the submission.
-- **Recipient**: Person receiving data on our side. It can be same user as submitter. The recipient must be defined as project member.
+- **Recipient**: Person receiving data on our side. It can be same user as submitter. The recipient must be defined as project member in Daisy.
 
 If regular user creates a submission, they get submitter role.
 
@@ -54,12 +54,12 @@ Downstream ingestion pipeline (not part of the submission system) can use this i
 | View all submissions                       |  ✅   |      ✅      |    ❌     |    ❌     |
 | View assigned submissions                  |  ❌   |      ✅      |    ✅     |    ✅     |
 | Create submission (including "Create copy")|  ❌   |      ✅      |    ✅      |   ✅     |
-| Edit submission (Draft/MetadataSubmission) |  ❌   |      ✅      |    ✅     |    ❌     |
-| Export submission as PDF / JSON            | ❌    |      ✅      |    ✅.    |    ✅.    |
+| Edit submission (Draft/MetadataSubmission) |  ❌   |      ✅      |    ❌     |    ❌     |
+| Export submission as PDF / JSON            | ❌    |      ✅      |    ✅    |    ✅    |
 | Delete submission (Draft only)             |  ❌   |      ✅      |    ✅     |    ❌     |
-| Steer submission forward                   |  ❌   |      ✅      |   from Draft and MetadataSubmission     |    ❌     |
+| Steer submission forward                   |  ❌   |      ✅      |   from MetadataSubmission and DataSubmission     |    ❌     |
 | Revert submission to previous state        |  ❌   |      ✅      |    ❌     |    ❌     |
-| Assign recipient to submission.            |  ❌   |      ✅      |    ✅     |    ❌     |
+| Assign recipient to submission            |  ❌   |      ✅      |    ❌     |    ❌     |
 | Add/edit/delete metadata                   |  ❌   |      Draft, MetadataSubmission      |   Draft,MetadataSubmission     |    ❌     |
 | Add/delete attachments                     |  ❌   |      ✅      |    Draft,MetadataSubmission     |    ❌     |
 | Add/edit/delete upload info                |  ❌   |      Data Upload      |    Data Upload     |    ❌     |
