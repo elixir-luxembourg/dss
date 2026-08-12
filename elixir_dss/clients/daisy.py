@@ -60,8 +60,16 @@ def get_elu_lcsb_pis(project_id: str = None):
         return []
 
     contacts = current_project.get("contacts", [])
-    return [
-        f"{contact.get('first_name')} {contact.get('last_name')}"
-        for contact in contacts
+    result = []
+    seen = set()
+    for contact in contacts:
         # if contact.get("role") == "Principal_Investigator" # all roles
-    ]
+        entry = {
+            "name": f"{contact.get('first_name')} {contact.get('last_name')}",
+            "email": contact.get("email"),
+        }
+        key = (entry["name"], entry["email"])
+        if key not in seen:
+            seen.add(key)
+            result.append(entry)
+    return result

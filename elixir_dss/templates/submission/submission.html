@@ -25,8 +25,9 @@
     {% set data_count = submission.datasets|length %}
     {% set attachments_count = submission.attachments|length %}
     {% set messages_count = submission.messages|length %}
-    {% set can_edit = (current_user.is_data_steward() or stp == 1 or stp == 3) and not submission.is_cancelled()%}
-    {% set can_edit_other = (current_user.is_data_steward() or stp != 5) and not submission.is_cancelled() %}
+    {% set viewer_is_recipient = (not current_user.is_data_steward()) and submission.access_role_for(current_user.id) == 'recipient' %}
+    {% set can_edit = (current_user.is_data_steward() or ((stp == 1 or stp == 3) and not viewer_is_recipient)) and not submission.is_cancelled()%}
+    {% set can_edit_other = (current_user.is_data_steward() or (stp != 5 and not viewer_is_recipient)) and not submission.is_cancelled() %}
 
 
     <!-- Progress Bar - Always at Top -->
@@ -55,7 +56,7 @@
                                     <p class="mb-0 text-white-50 small">You will get a notification soon when they are done.</p>
                                 {% endif %}
                             </div>
-                            {% if current_user.is_data_steward() or stp == 1 or stp == 3 %}
+                            {% if can_edit %}
                                 <a href="{{ url_for('edit_submission',sub_id=submission.id) }}"
                                    class="btn btn-light btn-sm">
                                     <i class="bi bi-pencil me-1"></i>Edit
@@ -215,7 +216,7 @@
                             <span class="small">You must add at least one Study and one Dataset before proceeding to the next step.</span>
                         </div>
                     </div>
-                {% else %}
+                {% elif can_edit %}
                     <div class="d-flex justify-content-end mt-4 mb-2">
                         <button class="btn btn-primary btn-lg shadow-sm px-4"
                            data-bs-toggle="modal"
@@ -394,6 +395,7 @@
                             </div>
                         </div>
                         <!-- Proceed Button -->
+                        {% if can_edit %}
                         <div class="d-flex justify-content-end mt-4 mb-2">
                             <button type="button"
                                     class="btn btn-primary btn-lg shadow-sm px-4"
@@ -403,6 +405,7 @@
                                 <i class="bi bi-arrow-right ms-2"></i>
                             </button>
                         </div>
+                        {% endif %}
 
                     </div>
                 </div>
@@ -703,9 +706,11 @@
                             Attachments
                             <span class="badge bg-secondary rounded-pill ms-1">{{ attachments_count }}</span>
                         </h6>
-                        <small class="text-light opacity-50 fw-normal" style="font-size: .72rem;">
-                            You can add attachments at any point of the process.
-                        </small>
+                        {% if can_edit_other %}
+                            <small class="text-light opacity-50 fw-normal" style="font-size: .72rem;">
+                                You can add attachments at any point of the process.
+                            </small>
+                        {% endif %}
                     </div>
                         {% if can_edit_other %}
                             <a href="{{ url_for('add_submission_attachment', sub_id=submission.id) }}"
@@ -742,9 +747,11 @@
                                 Messages
                                 <span class="badge bg-secondary rounded-pill ms-1">{{ messages_count }}</span>
                             </h6>
-                            <small class="text-light opacity-50 fw-normal" style="font-size: .72rem;">
-                                You can add messages at any point of the process.
-                            </small>
+                            {% if can_edit_other %}
+                                <small class="text-light opacity-50 fw-normal" style="font-size: .72rem;">
+                                    You can add messages at any point of the process.
+                                </small>
+                            {% endif %}
                         </div>
                         {% if can_edit_other %}
                             <a href="{{ url_for('add_submission_message', sub_id=submission.id) }}"

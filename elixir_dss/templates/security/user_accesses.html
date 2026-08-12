@@ -54,6 +54,7 @@
                                                 {% else %}
                                                     Submission {{ access.submission_id }}
                                                 {% endif %}
+                                                <span class="badge {% if access.role == 'recipient' %}bg-info text-dark{% else %}bg-primary{% endif %} ms-1">{{ access.role }}</span>
                                             </li>
                                         {% endfor %}
                                         </ul>

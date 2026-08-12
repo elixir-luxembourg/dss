@@ -104,7 +104,7 @@ Attachments can be downloaded by any user with access to the submission, and del
 
 ## Messaging
 
-Any user with access to a submission can add messages to its internal thread. This is the primary communication channel between submitters and Data Stewards.
+Submitters and Data Stewards can add messages to the internal thread. This is the primary communication channel between them. Recipients can read the thread but cannot add messages.
 
 1. On the submission page, click **Add Message**.
 2. Write your message and save.

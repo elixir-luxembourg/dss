@@ -4,9 +4,10 @@ from flask import abort, render_template, request
 from flask_login import current_user, login_required
 
 from elixir_dss import db
-from ..models.services import has_access
+from ..models.services import get_access
 from ..models.submission import (
     Submission,
+    SubmissionAccess,
     SubmissionAttachment,
     SubmissionDataset,
     SubmissionStudy,
@@ -51,9 +52,12 @@ def _check_roles(roles):
 
 def _check_submission_access(submission):
     is_steward = current_user.is_data_steward()
-    if not is_steward and not has_access(current_user.get_id(), submission.id):
+    if is_steward:
+        return is_steward, None
+    access = get_access(current_user.get_id(), submission.id)
+    if access is None:
         abort(404)
-    return is_steward
+    return is_steward, access.role
 
 
 def _check_submission_state(submission, states, is_steward):
@@ -68,7 +72,7 @@ def _check_submission_state(submission, states, is_steward):
     return None
 
 
-def protect(roles=None, states=None, public=False):
+def protect(roles=None, states=None, public=False, recipient_allowed=False):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -82,7 +86,12 @@ def protect(roles=None, states=None, public=False):
                 return error
 
             if submission:
-                is_steward = _check_submission_access(submission)
+                is_steward, access_role = _check_submission_access(submission)
+                if (
+                    access_role == SubmissionAccess.ROLE_RECIPIENT
+                    and not recipient_allowed
+                ):
+                    return _forbidden("You have read-only access to this submission.")
                 error = _check_submission_state(submission, states, is_steward)
                 if error:
                     return error

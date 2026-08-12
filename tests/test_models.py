@@ -29,6 +29,7 @@ from elixir_dss.models.services import (
     revert_sub,
     steer_sub,
     cancel_sub,
+    invite_recipients,
     invite_submitters,
     update_user_info,
     approve_metadata,
@@ -44,6 +45,8 @@ from elixir_dss.models.submission import (
     SubmissionStatusEnum,
     SubmissionDatasetCreator,
     SubmissionMessage,
+    format_local_custodian,
+    parse_local_custodian,
 )
 from tests import BaseTest
 from tests.factories import (
@@ -1306,3 +1309,191 @@ class ModelPersistenceTest(BaseTest):
         # Must start with [ and end with ] to pass bracket check, but be invalid JSON
         result = _parse_json_string("[not valid json]")
         self.assertIsNone(result)
+
+
+class RecipientInvitationTest(BaseTest):
+    def _make_submission(self, *entries):
+        return SubmissionFactory(
+            current_status=SubmissionStatusEnum.draft,
+            local_custodians_json=json.dumps(list(entries)),
+        )
+
+    def _invite(self, submission):
+        with patch(
+            "elixir_dss.models.services.persist_and_send_notification"
+        ) as notification:
+            invite_recipients(submission)
+        return notification
+
+    def test_local_custodian_serialization(self):
+        entry = {"name": "Jane Doe", "email": "jane@uni.lu"}
+        formatted = format_local_custodian(entry)
+        self.assertEqual(formatted, "Jane Doe <jane@uni.lu>")
+        self.assertEqual(parse_local_custodian(formatted), entry)
+
+        sub = self._make_submission("Legacy Name", entry)
+        self.assertEqual(
+            sub.local_custodian_entries(),
+            [
+                {"name": "Legacy Name", "email": None},
+                entry,
+            ],
+        )
+        self.assertEqual(sub.local_custodians(), ["Legacy Name", "Jane Doe"])
+
+    def test_invite_recipients_creates_access_and_notification(self):
+        sub = self._make_submission({"name": "Jane Doe", "email": "jane.doe@uni.lu"})
+        notification = self._invite(sub)
+
+        user = User.query.filter_by(email="jane.doe@uni.lu").one()
+        self.assertTrue(user.has_role_from(["user"]))
+        access = SubmissionAccess.query.filter_by(
+            submission_id=sub.id, user_id=user.id
+        ).one()
+        self.assertEqual(access.role, SubmissionAccess.ROLE_RECIPIENT)
+
+        notification.assert_called_once()
+        subject, _, recipients, text_email, _ = notification.call_args.args
+        self.assertIn("you have been assigned as Recipient", subject)
+        self.assertIn("jane.doe@uni.lu", recipients)
+        self.assertIn(f"https://dss.example.com/submission/view/{sub.id}", text_email)
+
+    def test_invite_recipients_does_not_downgrade_submitter(self):
+        submitter = UserFactory(email="submitter@uni.lu")
+        sub = self._make_submission(
+            {"name": "Submitter User", "email": "submitter@uni.lu"}
+        )
+        update_submission_basic_info(sub, provider_user_ids=[submitter.id])
+        notification = self._invite(sub)
+
+        access = SubmissionAccess.query.filter_by(
+            submission_id=sub.id, user_id=submitter.id
+        ).one()
+        self.assertEqual(access.role, SubmissionAccess.ROLE_SUBMITTER)
+        notification.assert_not_called()
+
+    def test_invite_recipients_skips_deactivated_accounts(self):
+        inactive_user = deactivate_user(UserFactory(email="inactive@uni.lu"))
+        sub = self._make_submission(
+            {"name": "Inactive User", "email": "inactive@uni.lu"}
+        )
+
+        with (
+            patch(
+                "elixir_dss.models.services.persist_and_send_notification"
+            ) as mock_persist,
+            patch("elixir_dss.models.services.flash") as mock_flash,
+        ):
+            invite_recipients(sub)
+
+        self.assertIsNone(
+            SubmissionAccess.query.filter_by(user_id=inactive_user.id).first()
+        )
+        mock_persist.assert_not_called()
+        mock_flash.assert_called_once()
+        self.assertIn("deactivated", mock_flash.call_args.args[0])
+
+    def test_invite_recipients_warns_for_names_without_email(self):
+        sub = self._make_submission({"name": "No Email", "email": None})
+
+        with (
+            patch(
+                "elixir_dss.models.services.persist_and_send_notification"
+            ) as mock_persist,
+            patch("elixir_dss.models.services.flash") as mock_flash,
+        ):
+            invite_recipients(sub)
+
+        self.assertEqual(SubmissionAccess.query.count(), 0)
+        mock_persist.assert_not_called()
+        mock_flash.assert_called_once()
+        self.assertIn("No Email", mock_flash.call_args.args[0])
+
+    def test_invite_recipients_synchronizes_access(self):
+        sub = self._make_submission({"name": "Jane Doe", "email": "jane.doe@uni.lu"})
+        with patch("elixir_dss.models.services.persist_and_send_notification"):
+            invite_recipients(sub)
+            invite_recipients(sub)
+        self.assertEqual(SubmissionAccess.query.count(), 1)
+
+        sub.local_custodians_json = json.dumps(
+            [{"name": "John Roe", "email": "john.roe@uni.lu"}]
+        )
+        db.session.commit()
+        with patch("elixir_dss.models.services.persist_and_send_notification"):
+            invite_recipients(sub)
+
+        remaining = SubmissionAccess.query.filter_by(submission_id=sub.id).all()
+        self.assertEqual(len(remaining), 1)
+        self.assertEqual(remaining[0].user.email, "john.roe@uni.lu")
+
+    def test_provider_sync_respects_recipient_role(self):
+        recipient_user = UserFactory(email="recipient@uni.lu")
+        provider_user = UserFactory(email="provider@uni.lu")
+        sub = self._make_submission(
+            {"name": "Recipient User", "email": "recipient@uni.lu"}
+        )
+        self._invite(sub)
+
+        update_submission_basic_info(sub, provider_user_ids=[provider_user.id])
+        access = SubmissionAccess.query.filter_by(
+            submission_id=sub.id, user_id=recipient_user.id
+        ).one()
+        self.assertEqual(access.role, SubmissionAccess.ROLE_RECIPIENT)
+
+        update_submission_basic_info(
+            sub, provider_user_ids=[provider_user.id, recipient_user.id]
+        )
+        self.assertEqual(access.role, SubmissionAccess.ROLE_SUBMITTER)
+
+    def test_clone_preserves_access_roles(self):
+        provider_user = UserFactory(email="provider@uni.lu")
+        sub = self._make_submission(
+            {"name": "Recipient User", "email": "recipient@uni.lu"}
+        )
+        update_submission_basic_info(sub, provider_user_ids=[provider_user.id])
+        self._invite(sub)
+
+        clone = clone_sub(sub.id, clone_studies=False, clone_datasets=False)
+
+        roles = {access.user.email: access.role for access in clone.submission_accesses}
+        self.assertEqual(roles["provider@uni.lu"], SubmissionAccess.ROLE_SUBMITTER)
+        self.assertEqual(roles["recipient@uni.lu"], SubmissionAccess.ROLE_RECIPIENT)
+
+    def test_rejected_notifications_exclude_recipients(self):
+        provider_user = UserFactory(email="provider@uni.lu")
+        sub = self._make_submission(
+            {"name": "Recipient User", "email": "recipient@uni.lu"}
+        )
+        sub.current_status = SubmissionStatusEnum.metadata_approval
+        update_submission_basic_info(sub, provider_user_ids=[provider_user.id])
+        self._invite(sub)
+
+        reviewer = UserFactory()
+        with patch(
+            "elixir_dss.models.services.persist_and_send_notification"
+        ) as mock_notify:
+            reject_metadata(sub.id, reviewer.id, feedback="Fix data")
+
+        recipients = mock_notify.call_args[0][2]
+        self.assertIn("provider@uni.lu", recipients)
+        self.assertNotIn("recipient@uni.lu", recipients)
+
+    def test_approved_notifications_include_recipients(self):
+        provider_user = UserFactory(email="provider@uni.lu")
+        sub = self._make_submission(
+            {"name": "Recipient User", "email": "recipient@uni.lu"}
+        )
+        sub.current_status = SubmissionStatusEnum.metadata_approval
+        update_submission_basic_info(sub, provider_user_ids=[provider_user.id])
+        self._invite(sub)
+
+        reviewer = UserFactory()
+        with patch(
+            "elixir_dss.models.services.persist_and_send_notification"
+        ) as mock_notify:
+            approve_metadata(sub.id, reviewer.id)
+
+        recipients = mock_notify.call_args[0][2]
+        self.assertIn("provider@uni.lu", recipients)
+        self.assertIn("recipient@uni.lu", recipients)

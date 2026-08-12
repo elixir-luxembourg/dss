@@ -26,7 +26,7 @@ from elixir_dss.clients.daisy import (
     get_elu_projects,
 )
 from elixir_dss.models.services import get_active_users
-from elixir_dss.models.submission import Contact, ContactType
+from elixir_dss.models.submission import Contact, ContactType, format_local_custodian
 
 from .validators import OptionalFieldValidator
 
@@ -390,6 +390,6 @@ class SubmissionForm(FlaskForm):
             for c in get_elu_projects()
         ]
         self.local_custodians.choices = [("", "")] + [
-            (custodian, custodian)
+            (format_local_custodian(custodian), format_local_custodian(custodian))
             for custodian in get_elu_lcsb_pis(self.local_project_name.data)
         ]
