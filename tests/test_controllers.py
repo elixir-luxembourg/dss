@@ -1799,6 +1799,7 @@ class RecipientAccessTest(BaseIntegrationTest):
             with self.subTest(write_url=write_url):
                 self.assertNotIn(write_url, data)
         self.assertIn(url_for("add_submission_message", sub_id=sub.id), data)
+        self.assertIn(url_for("generate_submission_docx", sub_id=sub.id), data)
 
     def test_recipient_can_use_read_routes(self):
         sub = self._make_submission_with_recipient()
