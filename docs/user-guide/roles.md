@@ -37,7 +37,7 @@ See [Submission States](submission-states.md) for the full state diagram and tra
 
 ## Recipient workflow
 
-Recipient is assinged to a submission with receiving project. They get notifications about the progress, can read all submission metadata and download the attachments.
+Recipient is assinged to a submission with receiving project. They get notifications about the progress, can read all submission metadata and download the attachments. Lastly, they can add messages.
 
 Downstream ingestion pipeline (not part of the submission system) can use this information to inform user about failed ingestions or assign the recipient a dataset specific role (e.g. dataset custodian).
 
@@ -64,6 +64,6 @@ Downstream ingestion pipeline (not part of the submission system) can use this i
 | Add/edit/delete metadata                   |  ❌   |      Draft, MetadataSubmission      |   Draft,MetadataSubmission     |    ❌     |
 | Add/delete attachments                     |  ❌   |      ✅      |    Draft,MetadataSubmission     |    ❌     |
 | Add/edit/delete upload info                |  ❌   |      Data Upload      |    Data Upload     |    ❌     |
-| Add messages                               |  ❌   |      ✅      |    ✅     |    ❌     |
+| Add messages                               |  ❌   |      ✅      |    ✅     |    ✅     |
 | View notifications                         |  ✅   |      ✅      |    ❌     |    ❌     |
 | Resend notifications                       |  ✅   |      ✅      |    ❌     |    ❌     |

@@ -1143,7 +1143,7 @@ def delete_submission_study(study_id):
 
 
 @app.route("/submission_message_add/<int:sub_id>", methods=["GET", "POST"])
-@protect(roles=["user", "data_steward"])
+@protect(roles=["user", "data_steward"], recipient_allowed=True)
 def add_submission_message(sub_id):
     if request.method == "GET":
         return render_template(

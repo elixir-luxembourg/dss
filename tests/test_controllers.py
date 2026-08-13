@@ -1794,11 +1794,11 @@ class RecipientAccessTest(BaseIntegrationTest):
         write_urls = [
             url_for("edit_submission", sub_id=sub.id),
             url_for("add_submission_attachment", sub_id=sub.id),
-            url_for("add_submission_message", sub_id=sub.id),
         ]
         for write_url in write_urls:
             with self.subTest(write_url=write_url):
                 self.assertNotIn(write_url, data)
+        self.assertIn(url_for("add_submission_message", sub_id=sub.id), data)
 
     def test_recipient_can_use_read_routes(self):
         sub = self._make_submission_with_recipient()
@@ -1836,6 +1836,18 @@ class RecipientAccessTest(BaseIntegrationTest):
                 with self.subTest(read_url=read_url):
                     self.assert200(self.client.get(read_url))
 
+    def test_recipient_can_add_message(self):
+        sub = self._make_submission_with_recipient()
+        self.login("submitter2@some.edu", "submitter2")
+
+        resp = self.client.post(
+            url_for("add_submission_message", sub_id=sub.id),
+            data={"submission_id": sub.id, "message_text": "A recipient question"},
+            follow_redirects=True,
+        )
+        self.assert200(resp)
+        self.assertEqual(1, SubmissionMessage.query.count())
+
     def test_recipient_cannot_use_write_routes(self):
         sub = self._make_submission_with_recipient()
         study = SubmissionStudyFactory(submission_id=sub.id)
@@ -1852,7 +1864,6 @@ class RecipientAccessTest(BaseIntegrationTest):
 
         blocked_urls = [
             url_for("add_submission_attachment", sub_id=sub.id),
-            url_for("add_submission_message", sub_id=sub.id),
             url_for("add_submission_dataset", sub_id=sub.id),
             url_for("add_submission_study", sub_id=sub.id),
             url_for("edit_submission_study", study_id=study.id),

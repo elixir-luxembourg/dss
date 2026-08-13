@@ -28,6 +28,7 @@
     {% set viewer_is_recipient = (not current_user.is_data_steward()) and submission.access_role_for(current_user.id) == 'recipient' %}
     {% set can_edit = (current_user.is_data_steward() or ((stp == 1 or stp == 3) and not viewer_is_recipient)) and not submission.is_cancelled()%}
     {% set can_edit_other = (current_user.is_data_steward() or (stp != 5 and not viewer_is_recipient)) and not submission.is_cancelled() %}
+    {% set can_add_message = (current_user.is_data_steward() or stp != 5) and not submission.is_cancelled() %}
 
 
     <!-- Progress Bar - Always at Top -->
@@ -747,13 +748,13 @@
                                 Messages
                                 <span class="badge bg-secondary rounded-pill ms-1">{{ messages_count }}</span>
                             </h6>
-                            {% if can_edit_other %}
+                            {% if can_add_message %}
                                 <small class="text-light opacity-50 fw-normal" style="font-size: .72rem;">
                                     You can add messages at any point of the process.
                                 </small>
                             {% endif %}
                         </div>
-                        {% if can_edit_other %}
+                        {% if can_add_message %}
                             <a href="{{ url_for('add_submission_message', sub_id=submission.id) }}"
                                class="btn btn-sm btn-outline-light"
                                data-bs-toggle="tooltip"

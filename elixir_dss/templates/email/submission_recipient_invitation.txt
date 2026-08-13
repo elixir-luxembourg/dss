@@ -4,7 +4,7 @@ Dear Colleague,
 
 You have been assigned as the recipient of submission {{ submission.ref_name }} in the {{ SYSTEM_NAME }}.
 
-This means you have read-only access to the submission. You can view the submission metadata and download the attached files.
+This means you have read-only access to the submission. You can view the submission metadata and download the attached files. You can also add messages on the submission page.
 
 To access the submission, click the link below:
 {{ invitation_url }}
