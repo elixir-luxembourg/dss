@@ -64,6 +64,7 @@ class Config(object):
         "steward1@uni.lu": "steward1",
         "submitter1@some.edu": "submitter1",
         "submitter2@some.edu": "submitter2",
+        "recipient1@uni.lu": "recipient1",
         "admin@uni.lu": "admin",
     }
 

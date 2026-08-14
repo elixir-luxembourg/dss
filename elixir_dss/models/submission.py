@@ -13,6 +13,22 @@ from elixir_dss.controllers.utils import dict_list_lookup
 from elixir_dss.models.security import normalize_email
 
 
+def format_local_custodian(entry: dict) -> str:
+    """Format a custodian entry as "Name <email>", or "Name" without an email."""
+    if entry.get("email"):
+        return f"{entry['name']} <{entry['email']}>"
+    return entry["name"]
+
+
+def parse_local_custodian(value: str) -> dict:
+    """Parse a "Name <email>" or plain name string into {"name", "email"}."""
+    value = value.strip()
+    if value.endswith(">") and "<" in value:
+        name, _, email = value[:-1].rpartition("<")
+        return {"name": name.strip(), "email": email.strip() or None}
+    return {"name": value, "email": None}
+
+
 class ContactType(db.Model):
     __tablename__ = "contact_types"
 
@@ -186,17 +202,30 @@ class Submission(db.Model):
     def is_cancellable(self):
         return self.current_status.value not in ["Completion", "Cancelled", "Draft"]
 
+    def provider_accesses(self):
+        return [
+            access
+            for access in self.submission_accesses
+            if access.role == SubmissionAccess.ROLE_SUBMITTER
+        ]
+
     def provider_user_ids(self):
         result = []
-        for access in self.submission_accesses:
+        for access in self.provider_accesses():
             result.append(access.user_id)
         return result
 
     def provider_user_names(self):
         result = []
-        for access in self.submission_accesses:
+        for access in self.provider_accesses():
             result.append(access.user.first_name + " " + access.user.last_name.upper())
         return result
+
+    def access_role_for(self, user_id):
+        for access in self.submission_accesses:
+            if access.user_id == int(user_id):
+                return access.role
+        return None
 
     def provider_institute_name(self):
         if self.institution_accession:
@@ -216,14 +245,26 @@ class Submission(db.Model):
         else:
             return None
 
-    def local_custodians(self):
-        if self.local_custodians_json:
-            return json.loads(self.local_custodians_json)
-        else:
+    def local_custodian_entries(self):
+        """Return the recipients as dicts {"name", "email"}.
+
+        Handles both the stored dict format and the legacy plain-name format.
+        """
+        if not self.local_custodians_json:
             return []
+        entries = []
+        for value in json.loads(self.local_custodians_json):
+            if isinstance(value, dict):
+                entries.append({"name": value.get("name"), "email": value.get("email")})
+            else:
+                entries.append(parse_local_custodian(value))
+        return entries
+
+    def local_custodians(self):
+        return [entry["name"] for entry in self.local_custodian_entries()]
 
     def has_providers(self):
-        if not self.submission_accesses:
+        if not self.provider_accesses():
             return False
         else:
             return True
@@ -632,13 +673,28 @@ class SubmissionDataset(db.Model):
 class SubmissionAccess(db.Model):
     __tablename__ = "submission_access"
 
+    ROLE_SUBMITTER = "submitter"
+    ROLE_RECIPIENT = "recipient"
+
     id = db.Column(db.Integer, primary_key=True)
     submission_id = db.Column(
         db.Integer, db.ForeignKey("submissions.id"), nullable=False
     )
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     access_granted_on = db.Column(db.DateTime, nullable=False)
+    role = db.Column(
+        db.String(20),
+        nullable=False,
+        default=ROLE_SUBMITTER,
+        server_default=ROLE_SUBMITTER,
+    )
     user = db.relationship("User")
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "submission_id", "user_id", name="uq_submission_access_submission_user"
+        ),
+    )
 
 
 class SubmissionDatasetCreator(db.Model):

@@ -44,6 +44,7 @@ from elixir_dss.models.services import (
     update_user_info,
     clone_sub,
     cancel_sub,
+    invite_recipients,
     invite_submitters,
 )
 from elixir_dss.models.submission import (
@@ -57,6 +58,8 @@ from elixir_dss.models.submission import (
     SubmissionStatusEnum,
     SubmissionStudy,
     SubmissionDatasetCreator,
+    format_local_custodian,
+    parse_local_custodian,
 )
 
 from . import protect
@@ -586,13 +589,19 @@ def create_submission():
     submission_rec = create_sub(posted_form.institution_accession.data)
     update_submission_basic_info(
         submission_rec,
-        local_custodians_json=json.dumps(posted_form.local_custodians.data),
+        local_custodians_json=json.dumps(
+            [
+                parse_local_custodian(value)
+                for value in posted_form.local_custodians.data
+            ]
+        ),
         local_project_name=posted_form.local_project_name.data,
         institution_accession=posted_form.institution_accession.data,
         provider_user_ids=posted_form.provider_user_ids.data,
         submission_contacts=posted_form.submission_contacts.data,
     )
     invite_submitters(submission_rec, submission_rec.submission_contacts)
+    invite_recipients(submission_rec)
     flash(f"New submission {submission_rec.ref_name} created", "success")
     return redirect(url_for("view_submission", sub_id=submission_rec.id))
 
@@ -600,11 +609,13 @@ def create_submission():
 @app.route("/submission/local-custodians/<string:external_id>", methods=["GET"])
 @protect(roles=["data_steward"])
 def get_local_custodians(external_id):
-    return jsonify(get_elu_lcsb_pis(external_id))
+    return jsonify(
+        [format_local_custodian(entry) for entry in get_elu_lcsb_pis(external_id)]
+    )
 
 
 @app.route("/submission/view/<int:sub_id>", methods=["GET"])
-@protect(roles=["user", "data_steward"])
+@protect(roles=["user", "data_steward"], recipient_allowed=True)
 def view_submission(sub_id):
     submission_rec = db.get_or_404(Submission, sub_id)
     return render_template("submission/submission.html", submission=submission_rec)
@@ -636,9 +647,10 @@ def edit_submission(sub_id):
 
         sub_form = _build_submission_form(obj=submission_rec)
         if submission_rec.local_custodians_json:
-            sub_form.local_custodians.data = json.loads(
-                submission_rec.local_custodians_json
-            )
+            sub_form.local_custodians.data = [
+                format_local_custodian(entry)
+                for entry in submission_rec.local_custodian_entries()
+            ]
         sub_form.provider_user_ids.data = submission_rec.provider_user_ids()
         return render_template(SUBMISSION_FORM_TEMPLATE, submsn_form=sub_form)
     elif request.method == "POST":
@@ -648,7 +660,12 @@ def edit_submission(sub_id):
             form.populate_obj(submission_rec)
             update_submission_basic_info(
                 submission_rec,
-                local_custodians_json=json.dumps(form.local_custodians.data),
+                local_custodians_json=json.dumps(
+                    [
+                        parse_local_custodian(value)
+                        for value in form.local_custodians.data
+                    ]
+                ),
                 local_project_name=form.local_project_name.data,
                 institution_accession=form.institution_accession.data,
                 provider_user_ids=form.provider_user_ids.data,
@@ -656,6 +673,7 @@ def edit_submission(sub_id):
 
             if current_user.is_data_steward():
                 invite_submitters(submission_rec, submission_rec.submission_contacts)
+            invite_recipients(submission_rec)
             flash("Submission updated", "success")
             return redirect(url_for("view_submission", sub_id=submission_rec.id))
         else:
@@ -824,7 +842,7 @@ def delete_submission_attachment(attach_id):
 @app.route(
     "/submission_attachment_download/<int:attach_id>/<filename>", methods=["GET"]
 )
-@protect(roles=["user", "data_steward"])
+@protect(roles=["user", "data_steward"], recipient_allowed=True)
 def download_submission_attachment(attach_id, filename):
     submission_attachment = db.get_or_404(SubmissionAttachment, attach_id)
     file_names = submission_attachment.file_names.strip(" \t\n\r").split(" ")
@@ -1125,7 +1143,7 @@ def delete_submission_study(study_id):
 
 
 @app.route("/submission_message_add/<int:sub_id>", methods=["GET", "POST"])
-@protect(roles=["user", "data_steward"])
+@protect(roles=["user", "data_steward"], recipient_allowed=True)
 def add_submission_message(sub_id):
     if request.method == "GET":
         return render_template(
@@ -1134,7 +1152,10 @@ def add_submission_message(sub_id):
         ), 200
     elif request.method == "POST":
         posted_form = forms.MessageForm(request.form)
-        if posted_form.validate_on_submit():
+        if (
+            posted_form.validate_on_submit()
+            and int(posted_form.submission_id.data) == sub_id
+        ):
             message_rec = SubmissionMessage()
             posted_form.populate_obj(message_rec)
             message_rec.id = None
