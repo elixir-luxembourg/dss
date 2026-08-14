@@ -527,6 +527,7 @@ def update_submission_basic_info(submission: Submission, **kwargs):
                     if access.role != SubmissionAccess.ROLE_SUBMITTER:
                         access.role = SubmissionAccess.ROLE_SUBMITTER
                         db.session.add(access)
+                        newly_shared_user_ids.append(user_id)
                 else:
                     new_access = SubmissionAccess()
                     new_access.submission_id = submission.id
@@ -547,9 +548,9 @@ def update_submission_basic_info(submission: Submission, **kwargs):
                 db.session.delete(rev_acc)
             db.session.commit()
 
-            if submission.is_in_progress():
+            if submission.is_in_progress() and newly_shared_user_ids:
+                send_submission_steer_step1_notification(submission)
                 for user_id in newly_shared_user_ids:
-                    send_submission_steer_step1_notification(submission)
                     usr = User.query.filter_by(id=user_id).one_or_none()
                     flash("Submission shared with %s" % usr.display_name(), "info")
 

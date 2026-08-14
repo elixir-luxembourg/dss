@@ -1446,6 +1446,34 @@ class RecipientInvitationTest(BaseTest):
         )
         self.assertEqual(access.role, SubmissionAccess.ROLE_SUBMITTER)
 
+    def test_provider_sync_notifies_once_for_new_and_upgraded_users(self):
+        provider_user = UserFactory(email="provider@uni.lu")
+        other_user = UserFactory(email="other@uni.lu")
+        sub = self._make_submission(
+            {"name": "Recipient User", "email": "recipient@uni.lu"}
+        )
+        sub.current_status = SubmissionStatusEnum.metadata_submission
+        update_submission_basic_info(sub, provider_user_ids=[provider_user.id])
+        self._invite(sub)
+        recipient_user = User.query.filter_by(email="recipient@uni.lu").one()
+
+        # one save adding a new provider and upgrading the recipient
+        with patch(
+            "elixir_dss.models.services.persist_and_send_notification"
+        ) as mock_notify:
+            update_submission_basic_info(
+                sub,
+                provider_user_ids=[
+                    provider_user.id,
+                    other_user.id,
+                    recipient_user.id,
+                ],
+            )
+
+        mock_notify.assert_called_once()
+        recipients = mock_notify.call_args[0][2]
+        self.assertIn("recipient@uni.lu", recipients)
+
     def test_clone_preserves_access_roles(self):
         provider_user = UserFactory(email="provider@uni.lu")
         sub = self._make_submission(
