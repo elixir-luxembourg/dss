@@ -7,6 +7,7 @@ The system automatically sends email notifications at key workflow transitions, 
 | Trigger | Recipients | Subject | Purpose |
 |---------|-----------|---------|---------|
 | Assigned to submission | (new) Submitter | "Submission [REF] you have been assigned as [ROLE]" | Submitter is notified about new permissions and responsabilities |
+| Assigned as recipient | (new) Recipient | "Submission [REF] you have been assigned as Recipient" | Recipient is notified about read-only access to the submission |
 | Submission phase change | see submission transition rules | "Submission [REF] [ACTION] | Involved users are notified about progress |
 | New Message Added | Submitter, Recipient | "Submission [REF] - new message" | Notify about non-standard action or inquiry on the submission level |
 | Ingestion failed | Submitter, Recipient | "Submission [REF] - data ingestion failed for dataset [REF]" | Notify submitter the ingestion process ended with errors -> need to re-upload |

@@ -66,11 +66,13 @@
                         <th>Receiving Project</th>
                         <th>Created On</th>
                         <th>Status</th>
+                        <th>My Role</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for submission in my_submissions %}
+                        {% set viewer_is_recipient = submission.access_role_for(current_user.id) == 'recipient' %}
                         <tr class="border-bottom border-secondary border-opacity-10">
                             <td>
                                 <a href="{{ url_for('view_submission', sub_id=submission.id) }}" class="text-primary text-decoration-none fw-medium">
@@ -100,8 +102,15 @@
                                 {% endif %}
                             </td>
                             <td>
+                                {% if viewer_is_recipient %}
+                                    <span class="badge bg-info text-dark">Recipient</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Submitter</span>
+                                {% endif %}
+                            </td>
+                            <td>
                                 <div class="d-flex align-items-center justify-content-end gap-2">
-                                    {% if submission.is_cancellable() %}
+                                    {% if submission.is_cancellable() and not viewer_is_recipient %}
                                         <button type="button"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#submission_cancel_modal"
@@ -118,12 +127,14 @@
                                         <i class="bi bi-download"></i>
                                         <span>Export</span>
                                     </a>
-                                    <a href="#" class="btn btn-outline-primary btn-sm"
-                                       data-bs-toggle="modal"
-                                       data-bs-target="#cloneModal"
-                                       data-submission-id="{{ submission.id }}">
-                                        <i class="bi bi-files"></i> Clone
-                                    </a>
+                                    {% if not viewer_is_recipient %}
+                                        <a href="#" class="btn btn-outline-primary btn-sm"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#cloneModal"
+                                           data-submission-id="{{ submission.id }}">
+                                            <i class="bi bi-files"></i> Clone
+                                        </a>
+                                    {% endif %}
 
                                 </div>
                             </td>

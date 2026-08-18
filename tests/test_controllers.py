@@ -17,6 +17,7 @@ from elixir_dss.models.services import (
 )
 from elixir_dss.models.submission import (
     EmailNotification,
+    SubmissionAccess,
     SubmissionAttachment,
     SubmissionDataset,
     SubmissionMessage,
@@ -1093,13 +1094,16 @@ class ControllersTest(BaseIntegrationTest):
 
     @patch("elixir_dss.controllers.web_controllers.get_elu_lcsb_pis")
     def test_get_local_custodians(self, mock_get_elu_lcsb_pis):
-        mock_get_elu_lcsb_pis.return_value = ["Jane Doe"]
+        mock_get_elu_lcsb_pis.return_value = [
+            {"name": "Jane Doe", "email": "jane.doe@uni.lu"},
+            {"name": "John Roe", "email": None},
+        ]
         self.login("steward1@uni.lu", "steward1")
 
         resp = self.client.get(url_for("get_local_custodians", external_id="ELU_P_1"))
 
         self.assert200(resp)
-        self.assertEqual(resp.get_json(), ["Jane Doe"])
+        self.assertEqual(resp.get_json(), ["Jane Doe <jane.doe@uni.lu>", "John Roe"])
         mock_get_elu_lcsb_pis.assert_called_once_with("ELU_P_1")
 
     @patch("elixir_dss.controllers.web_controllers.clone_sub")
@@ -1759,3 +1763,178 @@ class ControllersTest(BaseIntegrationTest):
         ):
             result = load_user(1)
             self.assertIsNone(result)
+
+
+class RecipientAccessTest(BaseIntegrationTest):
+    def _make_submission_with_recipient(
+        self, status=SubmissionStatusEnum.metadata_submission
+    ):
+        sub = SubmissionFactory(current_status=status)
+        recipient = User.query.filter_by(email="submitter2@some.edu").first()
+        db.session.add(
+            SubmissionAccess(
+                submission_id=sub.id,
+                user_id=recipient.id,
+                role=SubmissionAccess.ROLE_RECIPIENT,
+                access_granted_on=datetime.now(),
+            )
+        )
+        db.session.commit()
+        return sub
+
+    def test_recipient_view_is_read_only(self):
+        sub = self._make_submission_with_recipient()
+        SubmissionStudyFactory(submission_id=sub.id)
+        db.session.commit()
+        self.login("submitter2@some.edu", "submitter2")
+
+        resp = self.client.get(url_for("view_submission", sub_id=sub.id))
+        self.assert200(resp)
+        data = resp.data.decode("utf-8")
+        write_urls = [
+            url_for("edit_submission", sub_id=sub.id),
+            url_for("add_submission_attachment", sub_id=sub.id),
+        ]
+        for write_url in write_urls:
+            with self.subTest(write_url=write_url):
+                self.assertNotIn(write_url, data)
+        self.assertIn(url_for("add_submission_message", sub_id=sub.id), data)
+        self.assertIn(url_for("generate_submission_docx", sub_id=sub.id), data)
+
+    def test_recipient_can_use_read_routes(self):
+        sub = self._make_submission_with_recipient()
+        self.login("submitter2@some.edu", "submitter2")
+
+        with (
+            tempfile.TemporaryDirectory() as upload_dir,
+            patch.dict(app.config, {"UPLOAD_FOLDER": upload_dir}),
+        ):
+            folder = "recipient-download"
+            att_path = os.path.join(upload_dir, folder)
+            os.makedirs(att_path, exist_ok=True)
+            with open(os.path.join(att_path, "test.txt"), "w") as f:
+                f.write("test content")
+
+            att = SubmissionAttachment(
+                submission_id=sub.id,
+                note="To download",
+                folder_name=folder,
+                file_names="test.txt",
+            )
+            db.session.add(att)
+            db.session.commit()
+
+            read_urls = [
+                url_for("view_submission", sub_id=sub.id),
+                url_for("generate_submission_docx", sub_id=sub.id),
+                url_for(
+                    "download_submission_attachment",
+                    attach_id=att.id,
+                    filename="test.txt",
+                ),
+            ]
+            for read_url in read_urls:
+                with self.subTest(read_url=read_url):
+                    self.assert200(self.client.get(read_url))
+
+    def test_recipient_can_add_message(self):
+        sub = self._make_submission_with_recipient()
+        self.login("submitter2@some.edu", "submitter2")
+
+        resp = self.client.post(
+            url_for("add_submission_message", sub_id=sub.id),
+            data={"submission_id": sub.id, "message_text": "A recipient question"},
+            follow_redirects=True,
+        )
+        self.assert200(resp)
+        self.assertEqual(1, SubmissionMessage.query.count())
+
+    def test_recipient_cannot_use_write_routes(self):
+        sub = self._make_submission_with_recipient()
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
+        attachment = SubmissionAttachment(
+            submission_id=sub.id,
+            note="Protected",
+            folder_name="unused",
+            file_names="test.txt",
+        )
+        db.session.add(attachment)
+        db.session.commit()
+        self.login("submitter2@some.edu", "submitter2")
+
+        blocked_urls = [
+            url_for("add_submission_attachment", sub_id=sub.id),
+            url_for("add_submission_dataset", sub_id=sub.id),
+            url_for("add_submission_study", sub_id=sub.id),
+            url_for("edit_submission_study", study_id=study.id),
+            url_for("edit_submission_dataset", dataset_id=dataset.id),
+            url_for("delete_submission_study", study_id=study.id),
+            url_for("delete_submission_dataset", dataset_id=dataset.id),
+            url_for("steer_submission", sub_id=sub.id),
+            url_for("clone_submission", submission_id=sub.id),
+            url_for("dataset_link", dataset_id=dataset.id),
+            url_for("delete_submission_attachment", attach_id=attachment.id),
+        ]
+        for blocked_url in blocked_urls:
+            with self.subTest(blocked_url=blocked_url):
+                self.assert403(self.client.get(blocked_url))
+
+        self.assert403(
+            self.client.post(
+                url_for("cancel_submission", sub_id=sub.id),
+                data={"cancellation_reason": "Recipient tries to cancel"},
+            )
+        )
+
+    def test_message_submission_id_must_match_url(self):
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        submitter = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[submitter.id])
+        other_sub = SubmissionFactory(
+            current_status=SubmissionStatusEnum.metadata_submission
+        )
+        self.login("submitter1@some.edu", "submitter1")
+
+        resp = self.client.post(
+            url_for("add_submission_message", sub_id=sub.id),
+            data={"submission_id": other_sub.id, "message_text": "Cross post"},
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(0, SubmissionMessage.query.count())
+
+    @patch("elixir_dss.forms.submissions_forms.get_elu_lcsb_pis")
+    def test_create_submission_assigns_recipient(self, mock_get_elu_lcsb_pis):
+        mock_get_elu_lcsb_pis.return_value = [
+            {"name": "Jane Doe", "email": "jane.doe@uni.lu"}
+        ]
+        self.login("steward1@uni.lu", "steward1")
+        steward = User.query.filter_by(email="steward1@uni.lu").first()
+
+        resp = self.client.post(
+            url_for("create_submission"),
+            data={
+                "institution_accession": "ELU_I_9",
+                "local_project_name": "ELU_P_1",
+                "local_custodians": ["Jane Doe <jane.doe@uni.lu>"],
+                "provider_user_ids": [steward.id],
+                "submission_contacts-0-first_name": "John",
+                "submission_contacts-0-last_name": "Doe",
+                "submission_contacts-0-email": "john.doe@example.com",
+                "submission_contacts-0-category_id": "1",
+            },
+            follow_redirects=True,
+        )
+        self.assert200(resp)
+
+        sub = Submission.query.first()
+        recipient = User.query.filter_by(email="jane.doe@uni.lu").one()
+        access = SubmissionAccess.query.filter_by(
+            submission_id=sub.id, user_id=recipient.id
+        ).one()
+        self.assertEqual(access.role, SubmissionAccess.ROLE_RECIPIENT)
+        self.assertTrue(
+            EmailNotification.query.filter(
+                EmailNotification.subject.contains("assigned as Recipient")
+            ).one_or_none()
+        )

@@ -33,11 +33,14 @@ def delete_sub(submission_id: str):
         raise RecordLifecycleException("Submission cannot be deleted")
 
 
-def has_access(user_id: str, submission_id: str):
-    access = SubmissionAccess.query.filter_by(
+def get_access(user_id: str, submission_id: str):
+    return SubmissionAccess.query.filter_by(
         submission_id=submission_id, user_id=user_id
     ).one_or_none()
-    if access is not None:
+
+
+def has_access(user_id: str, submission_id: str):
+    if get_access(user_id, submission_id) is not None:
         return True
     else:
         return False
@@ -174,10 +177,18 @@ def register_new_user(user: User) -> User:
     return user
 
 
+def submitter_emails(submission: Submission):
+    """Emails of the users with submitter access. Recipients are excluded
+    because these emails are addressed to the data providers."""
+    return [
+        access.user.email
+        for access in submission.submission_accesses
+        if access.role == SubmissionAccess.ROLE_SUBMITTER
+    ]
+
+
 def send_submission_steer_step1_notification(submission: Submission):
-    recipients = []
-    for access in submission.submission_accesses:
-        recipients.append(access.user.email)
+    recipients = submitter_emails(submission)
     persist_and_send_notification(
         "Submission [%s] initiated" % submission.ref_name,
         "noreply@uni.lu",
@@ -244,9 +255,7 @@ def send_metadata_approval_request_notification(submission: Submission):
 
 
 def send_metadata_approved_notification(submission: Submission, feedback=None):
-    recipients = []
-    for access in submission.submission_accesses:
-        recipients.append(access.user.email)
+    recipients = submitter_emails(submission)
     persist_and_send_notification(
         "Submission [%s] metadata approved" % submission.ref_name,
         "noreply@uni.lu",
@@ -265,9 +274,7 @@ def send_metadata_approved_notification(submission: Submission, feedback=None):
 
 
 def send_metadata_rejected_notification(submission: Submission, feedback):
-    recipients = []
-    for access in submission.submission_accesses:
-        recipients.append(access.user.email)
+    recipients = submitter_emails(submission)
     persist_and_send_notification(
         "Submission [%s] metadata requires changes" % submission.ref_name,
         "noreply@uni.lu",
@@ -300,9 +307,7 @@ def send_data_approval_request_notification(submission: Submission):
 
 
 def send_data_approved_notification(submission: Submission, feedback=None):
-    recipients = []
-    for access in submission.submission_accesses:
-        recipients.append(access.user.email)
+    recipients = submitter_emails(submission)
     persist_and_send_notification(
         "Submission [%s] data upload approved" % submission.ref_name,
         "noreply@uni.lu",
@@ -321,9 +326,7 @@ def send_data_approved_notification(submission: Submission, feedback=None):
 
 
 def send_data_rejected_notification(submission: Submission, feedback):
-    recipients = []
-    for access in submission.submission_accesses:
-        recipients.append(access.user.email)
+    recipients = submitter_emails(submission)
     persist_and_send_notification(
         "Submission [%s] data upload requires changes" % submission.ref_name,
         "noreply@uni.lu",
@@ -516,31 +519,40 @@ def update_submission_basic_info(submission: Submission, **kwargs):
     if "provider_user_ids" in kwargs:
         new_shared_user_ids = kwargs.get("provider_user_ids")
         if new_shared_user_ids is not None:
+            newly_shared_user_ids = []
             for user_id in new_shared_user_ids:
-                if not has_access(user_id, submission.id):
+                access = get_access(user_id, submission.id)
+                if access is not None:
+                    # a recipient added as provider becomes a submitter
+                    if access.role != SubmissionAccess.ROLE_SUBMITTER:
+                        access.role = SubmissionAccess.ROLE_SUBMITTER
+                        db.session.add(access)
+                        newly_shared_user_ids.append(user_id)
+                else:
                     new_access = SubmissionAccess()
                     new_access.submission_id = submission.id
                     new_access.user_id = user_id
+                    new_access.role = SubmissionAccess.ROLE_SUBMITTER
                     new_access.access_granted_on = datetime.now()
                     db.session.add(new_access)
-                    db.session.commit()
-
-                    if submission.is_in_progress():
-                        send_submission_steer_step1_notification(submission)
-                        usr = User.query.filter_by(id=user_id).one_or_none()
-                        flash("Submission shared with %s" % usr.display_name(), "info")
+                    newly_shared_user_ids.append(user_id)
 
             stmt = select(SubmissionAccess).filter(
                 and_(
                     SubmissionAccess.submission_id == submission.id,
+                    SubmissionAccess.role == SubmissionAccess.ROLE_SUBMITTER,
                     SubmissionAccess.user_id.notin_(new_shared_user_ids),
                 )
             )
-            revoked_acesses = db.session.execute(stmt).scalars().all()
-            if revoked_acesses is not None:
-                for rev_acc in revoked_acesses:
-                    db.session.delete(rev_acc)
-                    db.session.commit()
+            for rev_acc in db.session.execute(stmt).scalars():
+                db.session.delete(rev_acc)
+            db.session.commit()
+
+            if submission.is_in_progress() and newly_shared_user_ids:
+                send_submission_steer_step1_notification(submission)
+                for user_id in newly_shared_user_ids:
+                    usr = User.query.filter_by(id=user_id).one_or_none()
+                    flash("Submission shared with %s" % usr.display_name(), "info")
 
 
 def update_user_info(usr: User, **kwargs):
@@ -652,13 +664,14 @@ def clone_sub(
                     )
                 )
 
-        # clone access (users)
+        # clone access (users), keeping each user's role
         for access in old_sub.submission_accesses:
             if not has_access(access.user_id, new_sub.id):
                 db.session.add(
                     SubmissionAccess(
                         submission_id=new_sub.id,
                         user_id=access.user_id,
+                        role=access.role,
                         access_granted_on=datetime.now(),
                     )
                 )
@@ -734,6 +747,101 @@ def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
     send_submission_cancellation_notification(submission, cancelled_by_user)
 
     return submission
+
+
+def send_recipient_invitations(submission: Submission, users: list[User]):
+    recipients = []
+    for user in users:
+        recipients.append(user.email)
+    recipients = recipients + app.config.get("DATA_STEWARDS_MAILS")
+    invitation_url = (
+        f"{app.config['BASE_URL'].rstrip('/')}/submission/view/{submission.id}"
+    )
+
+    persist_and_send_notification(
+        "Submission [%s] you have been assigned as Recipient" % submission.ref_name,
+        "noreply@uni.lu",
+        recipients,
+        render_template(
+            "email/submission_recipient_invitation.txt",
+            submission=submission,
+            invitation_url=invitation_url,
+        ),
+        render_template(
+            "email/submission_recipient_invitation.html",
+            submission=submission,
+            invitation_url=invitation_url,
+        ),
+    )
+
+
+def invite_recipients(submission: Submission):
+    """Grant read-only access to the recipients of the submission.
+
+    The recipients come from the submission's local custodians. Each recipient
+    with an email gets a user account, a recipient access row and one
+    invitation email. Recipient rows for removed recipients are deleted.
+    Recipients without an email in DAISY get a warning flash instead.
+    """
+    users_for_invitation = []
+    recipient_emails = set()
+
+    for entry in submission.local_custodian_entries():
+        email = normalize_email(entry.get("email"))
+        if not email:
+            flash(
+                f'Recipient "{entry["name"]}" has no email address in DAISY, '
+                "so no invitation was sent. Add the address in DAISY, "
+                "then save this submission again.",
+                "warning",
+            )
+            continue
+        recipient_emails.add(email)
+
+        user = User.query.filter_by(email=email).first()
+        if user and not user.active_user:
+            flash(
+                f'Recipient "{entry["name"]}" has a deactivated account, '
+                "so no invitation was sent. "
+                "Ask an administrator to reactivate the account.",
+                "warning",
+            )
+            continue
+        if not user:
+            first_name, _, last_name = entry["name"].rpartition(" ")
+            user = User(
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                elixir_sub_id=email,
+                active_user=True,
+            )
+            db.session.add(user)
+            db.session.flush()
+        assign_role_to_user(user, "user")
+
+        access = get_access(user.id, submission.id)
+        if access is None:
+            db.session.add(
+                SubmissionAccess(
+                    submission_id=submission.id,
+                    user_id=user.id,
+                    role=SubmissionAccess.ROLE_RECIPIENT,
+                    access_granted_on=datetime.now(),
+                )
+            )
+            users_for_invitation.append(user)
+
+    for access in list(submission.submission_accesses):
+        if (
+            access.role == SubmissionAccess.ROLE_RECIPIENT
+            and normalize_email(access.user.email) not in recipient_emails
+        ):
+            db.session.delete(access)
+
+    db.session.commit()
+    if users_for_invitation:
+        send_recipient_invitations(submission, users_for_invitation)
 
 
 def invite_submitters(submission: Submission, contacts: list[Contact]):

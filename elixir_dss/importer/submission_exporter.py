@@ -71,7 +71,7 @@ class SubmissionExporter:
                     sub.current_status.value if sub.current_status else None
                 ),
                 "local_project_name": normalize(sub.local_project_name),
-                "local_custodians_json": normalize(sub.local_custodians_json),
+                "local_custodians_json": normalize(sub.local_custodians()),
                 "institution_accession": normalize(sub.institution_accession),
                 "providers": normalize(sub.provider_user_names()),
             },
