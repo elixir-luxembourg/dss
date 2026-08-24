@@ -37,9 +37,9 @@ Only **Data Stewards** can create new submissions from scratch.
 
 1. Navigate to **Submissions → New Submission**.
 2. Fill in the form:
-   - **Institution** — the data provider's institution
-   - **Local project name** — the internal project this submission belongs to
-   - **Local custodians** — the internal staff responsible for this data
+   - **Institution** — the data provider's institution.
+   - **Receiving project** — the internal project receiving the data from this submission.
+   - **Recipients** — the internal staff responsible for this data within the receiving project.
    - **Contacts** — at least one contact (the submitter). Additional contacts can be added.
 3. Click **Save**. The submission is created in **Initiation** state and a notification is sent to the submitter.
 
