@@ -965,7 +965,7 @@ def edit_submission_dataset(dataset_id):
         dataset = db.get_or_404(SubmissionDataset, dataset_id)
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
-            populate_except(posted_form, dataset, exclude={"creators"})
+            populate_except(posted_form, dataset, exclude={"creators", "internal_id"})
             # --- creators ---
             dataset.creators.clear()
             for creator_form in posted_form.creators.entries:
