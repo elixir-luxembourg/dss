@@ -56,7 +56,6 @@ nav:
   - Technical Documentation:
       - Authentication: technical-documentation/authentication.md
       - Architecture & Design:
-          - System Data Model: technical-documentation/architecture-and-design/system-data-model.md
           - Use Cases: technical-documentation/architecture-and-design/use-cases/use-cases.md
           - Sequence Diagram: technical-documentation/architecture-and-design/sequence-diagram.md
           - Components: technical-documentation/architecture-and-design/components/components.md
