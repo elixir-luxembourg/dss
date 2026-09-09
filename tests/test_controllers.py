@@ -1299,6 +1299,7 @@ class ControllersTest(BaseIntegrationTest):
             submission_id=sub.id, study_id=study.id, title="Test Dataset Edit"
         )
         db.session.commit()
+        original_internal_id = dataset.internal_id
 
         dataset_title = "Updated Title (v2.0) / final with very-very-very-very-very-very-very-very-very-very-very-very-very-very-long-title!"
         resp = self.client.post(
@@ -1342,9 +1343,10 @@ class ControllersTest(BaseIntegrationTest):
         )
         self.assert200(resp)
 
+        db.session.expire_all()
         updated_dataset = db.session.get(SubmissionDataset, dataset.id)
         self.assertEqual(updated_dataset.title, dataset_title)
-        self.assertEqual(updated_dataset.internal_id, dataset.internal_id)
+        self.assertEqual(updated_dataset.internal_id, original_internal_id)
         self.assertEqual(
             updated_dataset.description,
             "Updated dataset description: !@#$%^&*() [] {} / \\ ? + = : ; ' \" , . < > ~`|",
