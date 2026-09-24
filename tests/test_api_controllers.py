@@ -2,9 +2,12 @@ from elixir_dss.models.submission import SubmissionStatusEnum
 
 from tests import BaseTest
 from tests.factories import (
+    SubmissionAccessFactory,
+    SubmissionAttachmentFactory,
     SubmissionFactory,
     SubmissionStudyFactory,
     SubmissionDatasetFactory,
+    UserFactory,
 )
 
 
@@ -121,3 +124,77 @@ class ApiControllersTest(BaseTest):
         self.assertEqual(response.status_code, 401)
         data = response.get_json()
         self.assertEqual(data["error"], "Invalid or missing API key")
+
+    def test_list_submissions_with_status_filter(self):
+        verification = SubmissionFactory(
+            ref_name="sub-verification",
+            current_status=SubmissionStatusEnum.data_approval,
+        )
+        completed = SubmissionFactory(
+            ref_name="sub-done", current_status=SubmissionStatusEnum.completed
+        )
+        response = self.client.get(
+            "/api/v1/submissions?status=data_approval,completed",
+            headers=self.api_key_header,
+        )
+
+        self.assert200(response)
+        data = response.get_json()
+        submission_ids = {s["id"] for s in data["data"]}
+        self.assertIn(verification.id, submission_ids)
+        self.assertIn(completed.id, submission_ids)
+
+    def test_list_submissions_default_is_completed_only(self):
+        SubmissionFactory(
+            ref_name="sub-verification-hidden",
+            current_status=SubmissionStatusEnum.data_approval,
+        )
+        response = self.client.get("/api/v1/submissions", headers=self.api_key_header)
+
+        self.assert200(response)
+        self.assertEqual(response.get_json()["count"], 0)
+
+    def test_list_submissions_with_unknown_status(self):
+        response = self.client.get(
+            "/api/v1/submissions?status=nonsense", headers=self.api_key_header
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_submission_returns_placement_metadata(self):
+        submission = SubmissionFactory(
+            ref_name="sub-metadata",
+            current_status=SubmissionStatusEnum.completed,
+            local_project_name="TEST-PROJECT",
+            local_custodians_json='["Jane Roe <jane.roe@example.org>"]',
+        )
+        user = UserFactory()
+        SubmissionAccessFactory(
+            submission_id=submission.id, user_id=user.id, role="recipient"
+        )
+        SubmissionAttachmentFactory(
+            submission_id=submission.id, file_names="consent.pdf dmp.pdf"
+        )
+        response = self.client.get(
+            f"/api/v1/submissions/{submission.id}", headers=self.api_key_header
+        )
+
+        self.assert200(response)
+        data = response.get_json()["data"]
+        self.assertEqual(data["local_project_name"], "TEST-PROJECT")
+        self.assertEqual(data["local_custodians"][0]["name"], "Jane Roe")
+        self.assertEqual(data["access"][0]["role"], "recipient")
+        self.assertEqual(
+            data["attachments"][0]["file_names"], ["consent.pdf", "dmp.pdf"]
+        )
+
+    def test_get_submission_readable_at_any_status(self):
+        submission = SubmissionFactory(
+            ref_name="sub-cancelled", current_status=SubmissionStatusEnum.cancelled
+        )
+        response = self.client.get(
+            f"/api/v1/submissions/{submission.id}", headers=self.api_key_header
+        )
+
+        self.assert200(response)
+        self.assertEqual(response.get_json()["data"]["status_code"], "cancelled")
