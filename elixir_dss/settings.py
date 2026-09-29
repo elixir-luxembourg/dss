@@ -117,6 +117,7 @@ class Config(object):
     IDSERVICE_ENDPOINT = os.environ.get("IDSERVICE_ENDPOINT")
 
     SERVICE_API_KEY = os.environ.get("SERVICE_API_KEY")
+    API_PAGE_SIZE = int(os.environ.get("API_PAGE_SIZE", 100))
 
 
 class ProdConfig(Config):
@@ -178,3 +179,4 @@ class TestConfig(Config):
     IDSERVICE_ENDPOINT = "https://test-idservice.com/v1/api/id"
 
     SERVICE_API_KEY = "test-secret-key"
+    API_PAGE_SIZE = 5
