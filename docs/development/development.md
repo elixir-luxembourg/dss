@@ -31,7 +31,7 @@ Only needed if you want to customize the setup process.
 ### Requirements
 
 - Python 3.12+
-- Node.js and npm
+- Node.js 22 and npm
 - OpenJDK 21+
 - **Optional:** [lftpythonclient](https://gitlab.com/uniluxembourg/lcsb/elixir/lft/lftpythonclient) — required for LFT integration to generate upload links
 
