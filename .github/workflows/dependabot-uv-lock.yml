@@ -16,7 +16,7 @@ jobs:
       HEAD_REF: ${{ github.head_ref }}
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ env.HEAD_REF }}
           token: ${{ secrets.GITHUB_TOKEN }}
