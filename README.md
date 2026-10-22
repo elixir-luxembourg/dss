@@ -26,7 +26,7 @@ Full documentation including user guide is available **[here](https://elixir-lux
 ./run_dev.sh
 ```
 
-Application runs at **http://127.0.0.1:5000**
+Application runs at **http://127.0.0.1:8000**
 
 **Demo Login Credentials:**
 - Admin: `steward1@uni.lu` / `steward1`

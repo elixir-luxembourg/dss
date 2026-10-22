@@ -12,7 +12,7 @@ For most contributors, this is all you need:
 ./run_dev.sh
 ```
 
-Application runs at **http://127.0.0.1:5000**
+Application runs at **http://127.0.0.1:8000**
 
 **Demo Login Credentials:**
 
@@ -95,7 +95,7 @@ os.urandom(24)
 ```bash
 source ./project_venv/bin/activate
 export FLASK_APP=elixir_dss
-flask run --debug --port 5000
+flask run --debug --port 8000
 ```
 
 ---
