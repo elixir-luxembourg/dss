@@ -37,12 +37,20 @@ class LFTHandler:
         else:
             self._logger = app.logger
 
+        lft_host = app.config.get("LFT_HOST")
+
         if LFTClient is None:
             self.client = None
-            app.logger.warning("lftclient not installed")
+            if lft_host:
+                app.logger.warning("LFT_HOST is set but lftclient is not installed")
+            else:
+                app.logger.debug("lftclient not installed, LFT disabled")
             return
 
-        lft_host = app.config.get("LFT_HOST")
+        if not lft_host:
+            app.logger.debug("LFT_HOST not set, LFT disabled")
+            return
+
         lft_port = app.config.get("LFT_PORT")
         lft_scheme = app.config.get("LFT_SCHEME")
         lft_username = app.config.get("LFT_USERNAME")
@@ -71,7 +79,7 @@ class LFTHandler:
             self.link_validity_days = app.config.get("LFT_LINK_VALIDITY_DAYS", 1)
             app.logger.info("LFT client initialised")
         else:
-            app.logger.warning("LFT not configured")
+            app.logger.warning("LFT_HOST is set but LFT is not fully configured")
 
     def get_or_create_link(self, dataset: "Dataset", sub: str) -> LFTLink:  # noqa: F821
         if not self.client:

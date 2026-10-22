@@ -17,6 +17,43 @@ class TestLFTHandler(BaseTest):
         with self.assertRaises(RuntimeError):
             handler.get_or_create_link(Mock(id="ds3", internal_id="EXT_003"), "SUB_003")
 
+    @patch("elixir_dss.clients.lft.LFTClient", None)
+    def test_without_lftclient_and_without_lft_host_does_not_warn(self):
+        app = Flask(__name__)
+        with patch.object(app, "logger") as logger:
+            LFTHandler(app)
+        logger.warning.assert_not_called()
+        logger.debug.assert_called_once_with("lftclient not installed, LFT disabled")
+
+    @patch("elixir_dss.clients.lft.LFTClient", None)
+    def test_without_lftclient_and_with_lft_host_warns(self):
+        app = Flask(__name__)
+        app.config["LFT_HOST"] = "lft.example.com"
+        with patch.object(app, "logger") as logger:
+            LFTHandler(app)
+        logger.warning.assert_called_once_with(
+            "LFT_HOST is set but lftclient is not installed"
+        )
+
+    @patch("elixir_dss.clients.lft.LFTClient", Mock())
+    def test_without_lft_host_does_not_warn(self):
+        app = Flask(__name__)
+        with patch.object(app, "logger") as logger:
+            handler = LFTHandler(app)
+        self.assertIsNone(handler.client)
+        logger.warning.assert_not_called()
+
+    @patch("elixir_dss.clients.lft.LFTClient", Mock())
+    def test_partial_config_warns(self):
+        app = Flask(__name__)
+        app.config["LFT_HOST"] = "lft.example.com"
+        with patch.object(app, "logger") as logger:
+            handler = LFTHandler(app)
+        self.assertIsNone(handler.client)
+        logger.warning.assert_called_once_with(
+            "LFT_HOST is set but LFT is not fully configured"
+        )
+
     def test_init_missing_config(self):
         app = Flask(__name__)
         app.config["LFT_HOST"] = "lft.example.com"
