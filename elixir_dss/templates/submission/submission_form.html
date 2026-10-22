@@ -32,12 +32,12 @@
                     {{ fmacros.render_field_with_errors(submsn_form.local_custodians, clazz="elx-multi-select") }}
                 </div>
                 <div class="mb-3">
-                    <label for="contacts-fieldset" class="form-label fw-medium">
+                    <span id="contacts-fieldset-label" class="form-label fw-medium d-inline-block">
                         {{submsn_form.submission_contacts.label.text}}<span class="text-danger">*</span>
-                    </label>
+                    </span>
                     <small class="form-text text-muted d-block">{{submsn_form.submission_contacts.description}}</small>
                 </div>
-                <fieldset id="contacts-fieldset">
+                <fieldset id="contacts-fieldset" aria-labelledby="contacts-fieldset-label">
                     <div class="mb-3 {% if submsn_form.submission_contacts.errors %}is-invalid{% endif %}">
                         <div data-toggle="fieldset" id="submsn-contacts-fieldset">
                             <div class="table-responsive">

@@ -755,6 +755,40 @@ class ControllersTest(BaseIntegrationTest):
         resp = self.client.get(url_for("create_submission"))
         self.assert200(resp)
 
+    def test_create_submission_form_labels_point_to_form_controls(self):
+        """Every label[for] must reference a labelable element (issue #189)."""
+        from html.parser import HTMLParser
+
+        labelable_tags = {"input", "select", "textarea", "button", "meter", "output", "progress"}
+
+        class LabelCollector(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.label_targets = []
+                self.tag_by_id = {}
+
+            def handle_starttag(self, tag, attributes):
+                attributes = dict(attributes)
+                if attributes.get("id"):
+                    self.tag_by_id[attributes["id"]] = tag
+                if tag == "label" and attributes.get("for"):
+                    self.label_targets.append(attributes["for"])
+
+        self.login("steward1@uni.lu", "steward1")
+        resp = self.client.get(url_for("create_submission"))
+        self.assert200(resp)
+        collector = LabelCollector()
+        collector.feed(resp.data.decode())
+        self.assertIn("institution_accession", collector.label_targets)
+        for target in collector.label_targets:
+            self.assertIn(
+                collector.tag_by_id.get(target),
+                labelable_tags,
+                f"label for='{target}' does not point to a form control",
+            )
+        self.assertIn('aria-labelledby="contacts-fieldset-label"', resp.data.decode())
+        self.assertIn('id="contacts-fieldset-label"', resp.data.decode())
+
     def test_view_submission(self):
         self.login("steward1@uni.lu", "steward1")
         sub = create_sub("ELU_I_9")
