@@ -54,15 +54,15 @@ Downstream ingestion pipeline (not part of the submission system) can use this i
 | View all submissions                       |  ✅   |      ✅      |    ❌     |    ❌     |
 | View assigned submissions                  |  ❌   |      ✅      |    ✅     |    ✅     |
 | Create submission (including "Create copy")|  ❌   |      ✅      |    ✅      |   ❌     |
-| Edit submission (Draft/MetadataSubmission) |  ❌   |      ✅      |    ❌     |    ❌     |
+| Edit submission (Initiation/Metadata Entry) |  ❌   |      ✅      |    ❌     |    ❌     |
 | Export submission as PDF / JSON            | ❌    |      ✅      |    ✅    |    ✅    |
 | Download attachments                       |  ❌   |      ✅      |    ✅     |    ✅     |
-| Delete submission (Draft only)             |  ❌   |      ✅      |    ✅     |    ❌     |
-| Steer submission forward                   |  ❌   |      ✅      |   from MetadataSubmission and DataSubmission     |    ❌     |
+| Delete submission (Initiation only)        |  ❌   |      ✅      |    ❌     |    ❌     |
+| Steer submission forward                   |  ❌   |      ✅      |   from Metadata Entry and Data Upload     |    ❌     |
 | Revert submission to previous state        |  ❌   |      ✅      |    ❌     |    ❌     |
 | Assign recipient to submission            |  ❌   |      ✅      |    ❌     |    ❌     |
-| Add/edit/delete metadata                   |  ❌   |      Draft, MetadataSubmission      |   Draft,MetadataSubmission     |    ❌     |
-| Add/delete attachments                     |  ❌   |      ✅      |    Draft,MetadataSubmission     |    ❌     |
+| Add/edit/delete metadata                   |  ❌   |      Initiation, Metadata Entry      |   Metadata Entry     |    ❌     |
+| Add/delete attachments                     |  ❌   |      ✅      |    Initiation, Metadata Entry     |    ❌     |
 | Add/edit/delete upload info                |  ❌   |      Data Upload      |    Data Upload     |    ❌     |
 | Add messages                               |  ❌   |      ✅      |    ✅     |    ✅     |
 | View notifications                         |  ✅   |      ✅      |    ❌     |    ❌     |
