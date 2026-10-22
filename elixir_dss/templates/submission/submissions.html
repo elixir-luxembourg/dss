@@ -1,5 +1,6 @@
 {% extends 'layout.html' %}
 {% import "forms_macros.html" as fmacros %}
+{% import "macros.html" as macros %}
 {% set active_page = 'submissions' %}
 
 {% block title %}Submissions List{% endblock %}
@@ -71,11 +72,11 @@
                 <table class="table table-hover align-middle mb-0" id="submission_list_table">
                     <thead class="bg-body-tertiary">
                     <tr>
-                        <th class="fw-semibold">Reference No</th>
-                        <th class="fw-semibold">Receiving Project</th>
-                        <th class="fw-semibold">Created On</th>
+                        <th class="fw-semibold">Reference nº</th>
+                        <th class="fw-semibold">Receiving project</th>
+                        <th class="fw-semibold">Created on</th>
                         <th class="fw-semibold">Status</th>
-                        <th class="fw-semibold">Data Provider(s)</th>
+                        <th class="fw-semibold">Data provider(s)</th>
                         <th class="fw-semibold text-end">Actions</th>
                     </tr>
                     </thead>
@@ -87,7 +88,7 @@
                                     {{ submission.ref_name }}
                                 </a>
                             </td>
-                            <td>{{ submission.local_project_name | default('-', true) }}</td>
+                            <td>{{ macros.entity_name(submission.local_project_title(), submission.local_project_name) }}</td>
                             <td>{{ submission.created_on }}</td>
                             <td>
                                 {% if submission.current_status.value == 'Initiation' %}

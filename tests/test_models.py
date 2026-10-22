@@ -1029,6 +1029,32 @@ class ModelPersistenceTest(BaseTest):
         sub.institution_accession = None
         self.assertIsNone(sub.provider_institute_address())
 
+    def test_entity_labels(self):
+        """Institution and project read as "name (ID)", the ID alone when unknown."""
+        sub = SubmissionFactory(
+            institution_accession="ELU_I_77", local_project_name="ELU_P_1"
+        )
+        with (
+            patch("elixir_dss.models.submission.get_elu_partners") as mock_partners,
+            patch("elixir_dss.models.submission.get_elu_projects") as mock_projects,
+        ):
+            mock_partners.return_value = [
+                {"external_id": "ELU_I_77", "name": "Test Uni"}
+            ]
+            mock_projects.return_value = [
+                {"external_id": "ELU_P_1", "name": "Test Project"}
+            ]
+            self.assertEqual(sub.provider_institute_label(), "Test Uni (ELU_I_77)")
+            self.assertEqual(sub.local_project_title(), "Test Project")
+            self.assertEqual(sub.local_project_label(), "Test Project (ELU_P_1)")
+
+            mock_projects.return_value = []
+            self.assertEqual(sub.local_project_label(), "ELU_P_1")
+
+        sub.local_project_name = None
+        self.assertIsNone(sub.local_project_title())
+        self.assertIsNone(sub.local_project_label())
+
     def test_is_detail_info_complete(self):
         """Cover Submission.is_detail_info_complete()."""
         sub = SubmissionFactory()

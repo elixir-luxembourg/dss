@@ -316,13 +316,13 @@ class SubmissionForm(FlaskForm):
     id = HiddenField("Submission_Id")
 
     provider_user_ids = SelectMultipleField(
-        "Submitting users",
+        "Submitting user(s)",
         description="Please select the list of users who will be able to view and update the submission.",
         coerce=int,
     )
 
     local_custodians = SelectMultipleField(
-        "Recipient",
+        "Recipient user(s)",
         description="If known please specify the Principal Investigator/Researcher that is the recipient of data.",
     )
 
