@@ -95,7 +95,7 @@ os.urandom(24)
 ```bash
 source ./project_venv/bin/activate
 export FLASK_APP=elixir_dss
-flask run --debug --port 5000
+flask run --debug --port 8000
 ```
 
 ---
