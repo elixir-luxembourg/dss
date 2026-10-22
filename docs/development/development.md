@@ -139,6 +139,14 @@ uvx ruff check .
 uvx ruff format .
 ```
 
+To run the same checks as CI before every commit, install the git hook once per clone
+(`pre-commit` comes with the `dev` extra; `uvx pre-commit install` works too):
+
+```bash
+pre-commit install
+pre-commit run --all-files   # optional: check the whole tree
+```
+
 ---
 
 ## Code Quality (SonarQube)
