@@ -1,3 +1,4 @@
+{% import "macros.html" as macros %}
 {% with %}
     {% set stp = submission.current_status.step_num() %}
     {% set viewer_is_recipient = (not current_user.is_data_steward()) and submission.access_role_for(current_user.id) == 'recipient' %}
@@ -45,45 +46,27 @@
                 </div>
             {% endif %}
 
-            <!-- 2-column info -->
+            <!-- Same fields as the "Submission" table of the DOCX export -->
+            {% macro summary_item(label, truncate=False, tooltip=None) -%}
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="text-muted text-nowrap">{{ label }}:</span>
+                    <span class="fw-medium{% if truncate %} text-truncate{% endif %}"{% if tooltip is not none %} data-bs-toggle="tooltip" title="{{ tooltip }}"{% endif %}>{{ caller() }}</span>
+                </div>
+            {%- endmacro %}
             <div class="row g-2 small mb-2">
-                <div class="col-md-4 mb-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted">Institution:</span>
-                        <span class="fw-medium text-truncate">{{ submission.institution_accession | default('-', true) }}</span>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted">Created:</span>
-                        <span>{{ submission.created_on.strftime('%Y-%m-%d') }}</span>
-                    </div>
+                <div class="col-md-4">
+                    {% call summary_item("Submitting institution", truncate=True, tooltip=submission.provider_institute_label() or '') %}{{ macros.entity_name(submission.provider_institute_name(), submission.institution_accession) }}{% endcall %}
+                    {% call summary_item("Submitting user(s)", truncate=True) %}{{ submission.provider_user_names() | join(', ') if submission.provider_user_names() else '-' }}{% endcall %}
                 </div>
 
                 <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted">Project:</span>
-                        <span class="fw-medium text-truncate">{{ submission.local_project_name | default('-', true) }}</span>
-                    </div>
+                    {% call summary_item("Receiving project", truncate=True, tooltip=submission.local_project_label() or '') %}{{ macros.entity_name(submission.local_project_title(), submission.local_project_name) }}{% endcall %}
+                    {% call summary_item("Recipient user(s)", truncate=True) %}{{ submission.local_custodians() | join(', ') if submission.local_custodians() else '-' }}{% endcall %}
                 </div>
 
                 <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted">Submitter:</span>
-                        <span class="fw-medium text-truncate">
-        {{ submission.provider_user_names() | join(', ') if submission.provider_user_names() else '-' }}
-      </span>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted">Recipient:</span>
-                        <span class="fw-medium text-truncate">
-        {{ submission.local_custodians() | join(', ') if submission.local_custodians() else '-' }}
-      </span>
-                    </div>
+                    {% call summary_item("Status") %}{{ submission.current_status.value }}{% endcall %}
+                    {% call summary_item("Creation date") %}{{ submission.created_on.strftime('%Y-%m-%d') }}{% endcall %}
                 </div>
             </div>
 

@@ -1,11 +1,12 @@
+{% import "macros.html" as macros %}
 <!-- Basic Information -->
 <div class="row g-4 mb-4">
     <div class="col-md-4">
-        <p class="form-label text-muted small mb-1">Reference Number</p>
+        <p class="form-label text-muted small mb-1">Reference number</p>
         <div class="fw-semibold fs-5">{{ submission.ref_name }}</div>
     </div>
     <div class="col-md-4">
-        <p class="form-label text-muted small mb-1">Created On</p>
+        <p class="form-label text-muted small mb-1">Created on</p>
         <div class="fw-semibold fs-5">{{ submission.created_on }}</div>
     </div>
 </div>
@@ -15,11 +16,11 @@
 <div class="border-top pt-4 mb-4">
     <div class="row g-4">
         <div class="col-md-4">
-            <p class="form-label text-muted small mb-1">Submitting Institute</p>
-            <div class="fw-semibold">{{ submission.provider_institute_name() | default('-', true)}}</div>
+            <p class="form-label text-muted small mb-1">Submitting institution</p>
+            <div class="fw-semibold">{{ macros.entity_name(submission.provider_institute_name(), submission.institution_accession) }}</div>
         </div>
         <div class="col-md-8">
-            <p class="form-label text-muted small mb-1">Submitting Users</p>
+            <p class="form-label text-muted small mb-1">Submitting user(s)</p>
             <div class="fw-semibold">
                 {% if submission.provider_user_names() %}
                     {{ submission.provider_user_names() | join(', ') }}
@@ -35,7 +36,7 @@
 <div class="border-top pt-4">
     <div class="row g-4">
         <div class="col-md-4">
-            <p class="form-label text-muted small mb-1">Recipient</p>
+            <p class="form-label text-muted small mb-1">Recipient user(s)</p>
             <div class="fw-semibold">
                 {% if submission.local_custodians() %}
                     {{ submission.local_custodians() | join(', ') }}
@@ -45,8 +46,8 @@
             </div>
         </div>
         <div class="col-md-4">
-            <p class="form-label text-muted small mb-1">Receiving Project</p>
-            <div class="fw-semibold">{{ submission.local_project_name | default('-', true)}}</div>
+            <p class="form-label text-muted small mb-1">Receiving project</p>
+            <div class="fw-semibold">{{ macros.entity_name(submission.local_project_title(), submission.local_project_name) }}</div>
         </div>
     </div>
 </div>
