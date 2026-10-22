@@ -2,10 +2,8 @@ __author__ = "Valentin Grouès"
 
 from flask_assets import Bundle
 
-typeahead_js = Bundle("vendor/node_modules/typeahead.js/dist/typeahead.bundle.js")
-handlebars_js = Bundle("vendor/node_modules/handlebars/dist/handlebars.js")
-jqueryui_css = Bundle("vendor/node_modules/jquery-ui-dist/jquery-ui.css")
-jqueryui_js = Bundle("vendor/node_modules/jquery-ui-dist/jquery-ui.js")
+jqueryui_css = Bundle("vendor/node_modules/jquery-ui/dist/themes/base/jquery-ui.css")
+jqueryui_js = Bundle("vendor/node_modules/jquery-ui/dist/jquery-ui.js")
 tm_editor_js = Bundle("vendor/node_modules/tinymce/tinymce.min.js")
 
 datatables_css = (
@@ -43,8 +41,6 @@ common_js = Bundle(
     jqueryui_js,
     select2_js,
     datatables_js,
-    handlebars_js,
-    typeahead_js,
     "js/main.js",
     output="public/js/common.min.js",
     debug=False,
