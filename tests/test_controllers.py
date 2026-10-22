@@ -759,7 +759,15 @@ class ControllersTest(BaseIntegrationTest):
         """Every label[for] must reference a labelable element (issue #189)."""
         from html.parser import HTMLParser
 
-        labelable_tags = {"input", "select", "textarea", "button", "meter", "output", "progress"}
+        labelable_tags = {
+            "input",
+            "select",
+            "textarea",
+            "button",
+            "meter",
+            "output",
+            "progress",
+        }
 
         class LabelCollector(HTMLParser):
             def __init__(self):
