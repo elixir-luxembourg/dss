@@ -14,3 +14,12 @@
         {% endif %}
     {% endwith %}
 {% endmacro %}
+
+{# An entity (institution, project) as its name with its ID in muted text; only the ID when the name is unknown. #}
+{% macro entity_name(name, external_id) -%}
+    {%- if name and external_id and name != external_id -%}
+        {{ name }} <span class="text-muted fw-normal">({{ external_id }})</span>
+    {%- else -%}
+        {{ name or external_id or '-' }}
+    {%- endif -%}
+{%- endmacro %}

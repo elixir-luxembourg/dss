@@ -5,6 +5,7 @@ import tempfile
 from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, call, patch
 
+import docx
 import pytest
 from flask import url_for
 from flask_wtf.csrf import CSRFError
@@ -802,6 +803,66 @@ class ControllersTest(BaseIntegrationTest):
         sub = create_sub("ELU_I_9")
         resp = self.client.get(url_for("view_submission", sub_id=sub.id))
         self.assert200(resp)
+
+    @patch("elixir_dss.models.submission.get_elu_projects")
+    @patch("elixir_dss.models.submission.get_elu_partners")
+    def test_view_submission_shows_entity_names(self, mock_partners, mock_projects):
+        mock_partners.return_value = [{"external_id": "ELU_I_9", "name": "Test Uni"}]
+        mock_projects.return_value = [
+            {"external_id": "ELU_P_1", "name": "Test Project"}
+        ]
+        self.login("steward1@uni.lu", "steward1")
+        sub = create_sub("ELU_I_9")
+        update_submission_basic_info(sub, local_project_name="ELU_P_1")
+        resp = self.client.get(url_for("view_submission", sub_id=sub.id))
+        self.assert200(resp)
+        data = resp.data.decode()
+        for label in (
+            "Submitting institution",
+            "Receiving project",
+            "Submitters",
+            "Recipients",
+            "Status:",
+            "Creation date:",
+        ):
+            self.assertIn(label, data)
+        self.assertNotIn("Date of finalisation", data)
+        self.assertIn(sub.current_status.value, data)
+        self.assertNotIn("Receiving Project", data)
+        self.assertIn(
+            'Test Uni <span class="text-muted fw-normal">(ELU_I_9)</span>', data
+        )
+        self.assertIn(
+            'Test Project <span class="text-muted fw-normal">(ELU_P_1)</span>', data
+        )
+        self.assertIn('title="Test Uni (ELU_I_9)"', data)
+        self.assertIn('title="Test Project (ELU_P_1)"', data)
+
+    @patch("elixir_dss.models.submission.get_elu_projects")
+    @patch("elixir_dss.models.submission.get_elu_partners")
+    def test_generate_submission_docx_shows_entity_names(
+        self, mock_partners, mock_projects
+    ):
+        mock_partners.return_value = [{"external_id": "ELU_I_9", "name": "Test Uni"}]
+        mock_projects.return_value = [
+            {"external_id": "ELU_P_1", "name": "Test Project"}
+        ]
+        self.login("steward1@uni.lu", "steward1")
+        sub = create_sub("ELU_I_9")
+        update_submission_basic_info(sub, local_project_name="ELU_P_1")
+        resp = self.client.get(url_for("generate_submission_docx", sub_id=sub.id))
+        self.assert200(resp)
+        document = docx.Document(io.BytesIO(resp.data))
+        cells = [
+            cell.text.strip()
+            for table in document.tables
+            for row in table.rows
+            for cell in row.cells
+        ]
+        self.assertIn("Test Uni (ELU_I_9)", cells)
+        self.assertIn("Test Project (ELU_P_1)", cells)
+        self.assertIn("Receiving project:", cells)
+        self.assertNotIn("ELU_P_1", cells)
 
     def test_edit_submission_dataset_get(self):
         self.login("submitter1@some.edu", "submitter1")

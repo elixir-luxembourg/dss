@@ -7,7 +7,7 @@ from sqlalchemy import Sequence
 from sqlalchemy.orm import object_mapper, validates
 
 from elixir_dss import db
-from elixir_dss.clients.daisy import get_elu_partners
+from elixir_dss.clients.daisy import get_elu_partners, get_elu_projects
 from elixir_dss.clients.idservice import generate_id
 from elixir_dss.controllers.utils import dict_list_lookup
 from elixir_dss.models.security import normalize_email
@@ -159,6 +159,13 @@ def uniqid():
     return hex(int(time() * 10000000))[2:]
 
 
+def entity_label(name, external_id):
+    """Format an entity as "name (ID)", falling back to whichever part is known."""
+    if name and external_id and name != external_id:
+        return f"{name} ({external_id})"
+    return name or external_id or None
+
+
 class Submission(db.Model):
     __tablename__ = "submissions"
     id = db.Column(db.Integer, Sequence("submission_id_seq"), primary_key=True)
@@ -244,6 +251,21 @@ class Submission(db.Model):
             )
         else:
             return None
+
+    def provider_institute_label(self):
+        """The institution as "name (ID)", or just its ID when the name is unknown."""
+        return entity_label(self.provider_institute_name(), self.institution_accession)
+
+    def local_project_title(self):
+        if self.local_project_name:
+            return dict_list_lookup(
+                get_elu_projects(), "external_id", self.local_project_name, "name"
+            )
+        return None
+
+    def local_project_label(self):
+        """The project as "name (ID)", or just its ID when the name is unknown."""
+        return entity_label(self.local_project_title(), self.local_project_name)
 
     def provider_institute_address(self):
         if self.institution_accession:

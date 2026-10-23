@@ -1,5 +1,6 @@
 {% extends 'layout.html' %}
 {% import "forms_macros.html" as fmacros %}
+{% import "macros.html" as macros %}
 {% set active_page = 'my_submissions' %}
 {% block title %} My Submissions{% endblock %}
 {% block js %}
@@ -62,11 +63,11 @@
                 <table class="table table-hover table-borderless align-middle" id="submission_list_table">
                     <thead class="table-light border-bottom border-secondary border-opacity-25">
                     <tr>
-                        <th>Reference No</th>
-                        <th>Receiving Project</th>
-                        <th>Created On</th>
+                        <th>Reference nº</th>
+                        <th>Receiving project</th>
+                        <th>Created on</th>
                         <th>Status</th>
-                        <th>My Role</th>
+                        <th>My role</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -79,16 +80,7 @@
                                     {{ submission.ref_name }}
                                 </a>
                             </td>
-                            <td>
-                                {% if submission.local_project_name %}
-                                    {{ submission.local_project_name }}
-                                    {% if submission.institution_accession %}
-                                        <small class="text-muted">({{ submission.institution_accession }})</small>
-                                    {% endif %}
-                                {% else %}
-                                    {{ submission.institution_accession | default('-', true) }}
-                                {% endif %}
-                            </td>
+                            <td>{{ macros.entity_name(submission.local_project_title(), submission.local_project_name) }}</td>
                             <td>{{ submission.created_on }}</td>
                             <td>
                                 {% if submission.current_status.value == 'Initiation' %}
