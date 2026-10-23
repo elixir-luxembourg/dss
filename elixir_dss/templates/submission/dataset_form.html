@@ -64,7 +64,7 @@
                     </button>
 
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-top mb-0">
                             <thead class="bg-body-tertiary">
                             <tr>
                                 <th>Name</th>
@@ -72,6 +72,7 @@
                                 <th>Email</th>
                                 <th>Institution</th>
                                 <th>Role</th>
+                                <th>ORCID iD</th>
                                 <th class="text-end">Actions</th>
                             </tr>
                             </thead>
@@ -83,6 +84,12 @@
                                     <td>{{ fmacros.render_field(creator_form.email, clazz="form-control-sm") }}</td>
                                     <td>{{ fmacros.render_field(creator_form.institution, clazz="form-control-sm") }}</td>
                                     <td>{{ fmacros.render_field(creator_form.role, clazz="form-control-sm") }}</td>
+                                    <td>
+                                        {{ fmacros.render_field(creator_form.orcid, clazz="form-control-sm") }}
+                                        {% for error in creator_form.orcid.errors %}
+                                            <div class="invalid-feedback d-block">{{ error }}</div>
+                                        {% endfor %}
+                                    </td>
                                     <td class="text-end">
                                         <button type="button"
                                                 class="btn btn-danger btn-sm"

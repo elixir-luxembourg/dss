@@ -434,6 +434,7 @@ class ModelPersistenceTest(BaseTest):
             "uc_access_form_required",
             "uc_access_form_notes",
             "uc_other_notes",
+            "creators",
         }
 
         self.assertSetEqual(set(dataset.keys()), expected_dataset_keys)
@@ -516,6 +517,98 @@ class ModelPersistenceTest(BaseTest):
         self.assertIn(["No", "There is no restriction"], cells)
         self.assertIn(["No", "Open to approved users"], cells)
 
+    def _creators_dataset(self, institution):
+        submission_rec = create_sub(institution)
+        study_rec = SubmissionStudyFactory(submission_id=submission_rec.id)
+        SubmissionDatasetFactory(
+            submission_id=submission_rec.id,
+            study_id=study_rec.id,
+            creators=[
+                SubmissionDatasetCreator(
+                    first_name="Josiah",
+                    last_name="Carberry",
+                    email="josiah@example.com",
+                    institution="Brown University",
+                    role="PI",
+                    orcid="0000-0001-9235-8496",
+                ),
+                SubmissionDatasetCreator(
+                    first_name="Jane",
+                    last_name="Doe",
+                    email="jane@example.com",
+                    institution="Uni",
+                    role="Data Manager",
+                ),
+            ],
+        )
+        return submission_rec
+
+    def test_export_creators(self):
+        """Each dataset exports its creators, with their ORCID iD."""
+        exp = SubmissionExporter().export_submission(self._creators_dataset("ELU_I_7"))
+        creators = exp["studies"][0]["datasets"][0]["creators"]
+        self.assertEqual(
+            creators,
+            [
+                {
+                    "first_name": "Josiah",
+                    "last_name": "Carberry",
+                    "email": "josiah@example.com",
+                    "institution": "Brown University",
+                    "role": "PI",
+                    "orcid": "0000-0001-9235-8496",
+                },
+                {
+                    "first_name": "Jane",
+                    "last_name": "Doe",
+                    "email": "jane@example.com",
+                    "institution": "Uni",
+                    "role": "Data Manager",
+                    "orcid": "-",
+                },
+            ],
+        )
+
+    def test_docx_creators(self):
+        """The DOCX report lists each creator on its own line, with the ORCID iD."""
+        import io
+        import os
+
+        from docx import Document
+        from docxtpl import DocxTemplate
+
+        doc = DocxTemplate(
+            os.path.join(
+                app.root_path,
+                "templates",
+                "submission",
+                "generate_submission_docx.docx",
+            )
+        )
+        doc.render(
+            SubmissionExporter().export_submission(self._creators_dataset("ELU_I_8")),
+            app.jinja_env,
+        )
+        out = io.BytesIO()
+        doc.save(out)
+        out.seek(0)
+        rows = [
+            [[p.text for p in cell.paragraphs] for cell in row.cells]
+            for table in Document(out).tables
+            for row in table.rows
+        ]
+        creators_row = next(row for row in rows if row[0] == ["Creators"])
+        self.assertEqual(
+            creators_row[1],
+            [
+                (
+                    "Josiah Carberry, josiah@example.com, Brown University, PI, "
+                    "ORCID iD 0000-0001-9235-8496"
+                ),
+                "Jane Doe, jane@example.com, Uni, Data Manager",
+            ],
+        )
+
     def test_normalize(self):
         self.assertEqual(normalize(None), "-")
         self.assertEqual(normalize(""), "-")
@@ -576,6 +669,7 @@ class ModelPersistenceTest(BaseTest):
                     email="john@example.com",
                     institution="Uni",
                     role="PI",
+                    orcid="0000-0001-9235-8496",
                 )
             ],
             description="Sample dataset description",
@@ -589,6 +683,7 @@ class ModelPersistenceTest(BaseTest):
         self.assertEqual(len(clone.datasets), 1)
         self.assertEqual(clone.datasets[0].title, "Dataset 1")
         self.assertEqual(clone.datasets[0].internal_id, "TEST_DATASET_ID_001")
+        self.assertEqual(clone.datasets[0].creators[0].orcid, "0000-0001-9235-8496")
         self.assertNotEqual(clone.datasets[0].id, dataset.id)
         self.assertNotEqual(clone.studies[0].id, study.id)
 

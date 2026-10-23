@@ -894,6 +894,7 @@ def add_submission_dataset(sub_id):
                         email=creator_form.email.data,
                         institution=creator_form.institution.data,
                         role=creator_form.role.data,
+                        orcid=creator_form.orcid.data or None,
                     )
                 )
             dataset.sci_datatypes_json = json.dumps(
@@ -973,6 +974,7 @@ def edit_submission_dataset(dataset_id):
                         email=creator_form.email.data,
                         institution=creator_form.institution.data,
                         role=creator_form.role.data,
+                        orcid=creator_form.orcid.data or None,
                     )
                 )
 

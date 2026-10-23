@@ -1484,6 +1484,21 @@ class ControllersTest(BaseIntegrationTest):
         self.assertIsNone(dataset.restriction_ip)
         self.assertIsNone(dataset.dac_approval_required)
 
+    def test_edit_submission_dataset_creator_orcid(self):
+        resp, dataset = self._post_dataset_use_conditions(
+            {"creators-0-orcid": "https://orcid.org/0000-0001-9235-8496"}
+        )
+        self.assert200(resp)
+        self.assertEqual(dataset.creators[0].orcid, "0000-0001-9235-8496")
+
+    def test_edit_submission_dataset_creator_orcid_invalid(self):
+        resp, dataset = self._post_dataset_use_conditions(
+            {"creators-0-orcid": "0000-0002-1825-0098"}
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn(b"Not a valid ORCID iD", resp.data)
+        self.assertNotEqual(dataset.title, "Dataset")
+
     def test_edit_submission_dataset_use_condition_invalid(self):
         resp, dataset = self._post_dataset_use_conditions({"restriction_rs": "maybe"})
         self.assertEqual(resp.status_code, 400)
