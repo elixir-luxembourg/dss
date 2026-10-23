@@ -260,6 +260,8 @@ class ControllersTest(BaseIntegrationTest):
                 "legal_basis_sharing_spec_code": "61a",
                 "subject_category_code": "ca",
                 "consent_status_code": "hm",
+                # answered, then hidden by turning special category data off
+                "has_art92_derogation": "y",
             },
             follow_redirects=True,
         )
@@ -269,6 +271,7 @@ class ControllersTest(BaseIntegrationTest):
         self.assertIsNotNone(dataset)
         self.assertEqual(dataset.internal_id, "TEST_DATASET_ID_001")
         self.assertEqual("Test_Dataset", dataset.title)
+        self.assertFalse(dataset.has_art92_derogation)
 
     def test_delete_submission(self):
         self.login("steward1@uni.lu", "steward1")
@@ -1448,6 +1451,24 @@ class ControllersTest(BaseIntegrationTest):
         )
         db.session.expire_all()
         return resp, db.session.get(SubmissionDataset, dataset.id)
+
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
+    def test_edit_submission_dataset_keeps_art92_derogation_for_special_category(self):
+        resp, dataset = self._post_dataset_use_conditions(
+            {"is_special_category_data": "y", "has_art92_derogation": "y"}
+        )
+        self.assert200(resp)
+        self.assertTrue(dataset.is_special_category_data)
+        self.assertTrue(dataset.has_art92_derogation)
+
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
+    def test_edit_submission_dataset_drops_art92_derogation_without_special_category(
+        self,
+    ):
+        resp, dataset = self._post_dataset_use_conditions({"has_art92_derogation": "y"})
+        self.assert200(resp)
+        self.assertFalse(dataset.is_special_category_data)
+        self.assertFalse(dataset.has_art92_derogation)
 
     @pytest.mark.usefixtures("mock_idservice_requests_post")
     def test_edit_submission_dataset_use_conditions(self):

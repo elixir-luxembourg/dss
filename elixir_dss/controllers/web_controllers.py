@@ -128,6 +128,12 @@ def populate_except(form, obj, exclude):
         field.populate_obj(obj, name)
 
 
+def _clear_hidden_dataset_answers(dataset):
+    """Drop answers the form hides: the Art. 9.2 derogation only applies to special category data."""
+    if not dataset.is_special_category_data:
+        dataset.has_art92_derogation = False
+
+
 @app.route("/", methods=["GET"])
 @protect(public=True)
 def home():
@@ -883,6 +889,7 @@ def add_submission_dataset(sub_id):
                 dataset,
                 exclude={"creators", "data_type_bg_or_result"},
             )
+            _clear_hidden_dataset_answers(dataset)
             dataset.id = None
             # creators
             dataset.creators = []
@@ -963,6 +970,7 @@ def edit_submission_dataset(dataset_id):
         posted_form = forms.DatasetForm(request.form)
         if posted_form.validate_on_submit():
             populate_except(posted_form, dataset, exclude={"creators", "internal_id"})
+            _clear_hidden_dataset_answers(dataset)
             # --- creators ---
             dataset.creators.clear()
             for creator_form in posted_form.creators.entries:
