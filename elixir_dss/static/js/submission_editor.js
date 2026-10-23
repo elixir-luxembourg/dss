@@ -42,11 +42,13 @@ $(document).ready(function () {
 
         $('.elx-select').select2({
             theme: 'bootstrap-5',
+            width: '100%',
             minimumResultsForSearch: -1
         });
 
         $('.elx-multi-select').select2({
             theme: 'bootstrap-5',
+            width: '100%',
             columns: 2,
             search: true,
             selectAll: true
@@ -214,6 +216,27 @@ $(document).ready(function () {
     toggleNotesField('dac_approval_required', 'dac_approval_notes');
     toggleNotesField('has_special_subjects', 'special_subjects_notes');
 
+    // The Art. 9.2 derogation question only applies to special category data: shown while
+    // that answer is on, and unchecked when it is turned off so no hidden yes is saved.
+    function toggleArt92Derogation() {
+        const specialCategory = $('#is_special_category_data');
+        const derogation = $('#has_art92_derogation');
+        if (specialCategory.length && derogation.length) {
+            const wrapper = derogation.closest('.mb-3');
+            function updateVisibility() {
+                if (specialCategory.is(':checked')) {
+                    wrapper.show();
+                } else {
+                    wrapper.hide();
+                    derogation.prop('checked', false);
+                }
+            }
+            updateVisibility();
+            specialCategory.on('change', updateVisibility);
+        }
+    }
+    toggleArt92Derogation();
+
     function toggleNotesForMultiSelectFields(selectId, notesFieldId, triggerValue) {
         const select = $('#' + selectId);
         const notesField = $('#' + notesFieldId);
@@ -270,6 +293,7 @@ $(document).ready(function () {
     $('#submission_create_modal').on('shown.bs.modal', function () {
         $(this).find('.elx-select').select2({
             theme: 'bootstrap-5',
+            width: '100%',
             minimumResultsForSearch: -1,
             dropdownParent: $('#submission_create_modal')
         });
