@@ -105,10 +105,7 @@ class DatasetCreatorForm(FlaskForm):
         "Institution",
         validators=[
             DataRequired(),
-            Regexp(
-                TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            ),
+            Length(max=255, message="Must be at most 255 characters long."),
         ],
         render_kw={"placeholder": "University/Institution"},
         description="Main institutional affiliation",
@@ -117,10 +114,7 @@ class DatasetCreatorForm(FlaskForm):
         "Role",
         validators=[
             DataRequired(),
-            Regexp(
-                TEXT_FIELD_REGEX,
-                message=TEXT_FIELD_REGEX_MSG,
-            ),
+            Length(max=255, message="Must be at most 255 characters long."),
         ],
         description="Please specify the role of the contact person (e.g., Principal Investigator, Researcher, Data Manager)",
     )
