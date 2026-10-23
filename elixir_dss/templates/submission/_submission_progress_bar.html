@@ -56,12 +56,12 @@
             <div class="row g-2 small mb-2">
                 <div class="col-md-4">
                     {% call summary_item("Submitting institution", truncate=True, tooltip=submission.provider_institute_label() or '') %}{{ macros.entity_name(submission.provider_institute_name(), submission.institution_accession) }}{% endcall %}
-                    {% call summary_item("Submitting user(s)", truncate=True) %}{{ submission.provider_user_names() | join(', ') if submission.provider_user_names() else '-' }}{% endcall %}
+                    {% call summary_item("Submitters", truncate=True) %}{{ submission.provider_user_names() | join(', ') if submission.provider_user_names() else '-' }}{% endcall %}
                 </div>
 
                 <div class="col-md-4">
                     {% call summary_item("Receiving project", truncate=True, tooltip=submission.local_project_label() or '') %}{{ macros.entity_name(submission.local_project_title(), submission.local_project_name) }}{% endcall %}
-                    {% call summary_item("Recipient user(s)", truncate=True) %}{{ submission.local_custodians() | join(', ') if submission.local_custodians() else '-' }}{% endcall %}
+                    {% call summary_item("Recipients", truncate=True) %}{{ submission.local_custodians() | join(', ') if submission.local_custodians() else '-' }}{% endcall %}
                 </div>
 
                 <div class="col-md-4">
