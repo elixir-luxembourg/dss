@@ -1,3 +1,5 @@
+import re
+
 from flask_wtf import FlaskForm
 from wtforms import (
     BooleanField,
@@ -34,6 +36,38 @@ from elixir_dss.models.submission import (
 
 TEXT_FIELD_REGEX = r"^[\w\s,\-.]+$"
 TEXT_FIELD_REGEX_MSG = "Can only contain letters, digits, dash, comma and dot."
+
+ORCID_REGEX = re.compile(r"^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$")
+ORCID_URL_PREFIXES = ("https://orcid.org/", "http://orcid.org/", "orcid.org/")
+
+
+def strip_orcid(value):
+    """Keep the bare ORCID iD of a pasted ORCID URL, upper case, no blanks."""
+    if not value:
+        return value
+    value = value.strip()
+    for prefix in ORCID_URL_PREFIXES:
+        if value.lower().startswith(prefix):
+            value = value[len(prefix) :]
+            break
+    return value.upper()
+
+
+def orcid_checksum_ok(orcid):
+    """ISO 7064 MOD 11-2 check digit, as ORCID computes it."""
+    digits = orcid.replace("-", "")
+    total = 0
+    for char in digits[:-1]:
+        total = (total + int(char)) * 2
+    check = (12 - total % 11) % 11
+    return digits[-1] == ("X" if check == 10 else str(check))
+
+
+def validate_orcid(form, field):
+    if not field.data:
+        return
+    if not ORCID_REGEX.match(field.data) or not orcid_checksum_ok(field.data):
+        raise ValidationError("Not a valid ORCID iD (e.g. 0000-0001-9235-8496).")
 
 
 class DatasetCreatorForm(FlaskForm):
@@ -89,6 +123,13 @@ class DatasetCreatorForm(FlaskForm):
             ),
         ],
         description="Please specify the role of the contact person (e.g., Principal Investigator, Researcher, Data Manager)",
+    )
+    orcid = StringField(
+        "ORCID iD",
+        filters=[strip_orcid],
+        validators=[Optional(), validate_orcid],
+        render_kw={"placeholder": "0000-0000-0000-0000"},
+        description="Optional ORCID iD of the creator",
     )
 
 

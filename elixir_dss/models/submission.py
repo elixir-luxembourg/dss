@@ -715,6 +715,7 @@ class SubmissionDatasetCreator(db.Model):
     email = db.Column(db.String, nullable=False)
     institution = db.Column(db.String, nullable=False)
     role = db.Column(db.String, nullable=False)
+    orcid = db.Column(db.String(19), nullable=True)
 
     dataset = db.relationship("SubmissionDataset", back_populates="creators")
 
@@ -728,6 +729,7 @@ class SubmissionDatasetCreator(db.Model):
             "email": self.email,
             "institution": self.institution,
             "role": self.role,
+            "orcid": self.orcid,
         }
 
     def clone(self, **overrides):
@@ -737,5 +739,6 @@ class SubmissionDatasetCreator(db.Model):
             email=self.email,
             institution=self.institution,
             role=self.role,
+            orcid=self.orcid,
             **overrides,
         )
