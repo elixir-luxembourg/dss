@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import uuid
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
 
 from flask import (
     flash,
@@ -924,8 +924,6 @@ def add_submission_dataset(sub_id):
                     "submission/dataset_form.html",
                     dataset_form=posted_form,
                 ), 503
-            dataset.creation_date = date.today()
-            dataset.last_update_date = date.today()
             db.session.add(dataset)
             db.session.commit()
             flash("Dataset added", "success")
@@ -1006,7 +1004,6 @@ def edit_submission_dataset(dataset_id):
                         "submission/dataset_form.html",
                         dataset_form=posted_form,
                     ), 503
-            dataset.last_update_date = date.today()
             db.session.add(dataset)
             db.session.commit()
             flash("Dataset updated", "success")

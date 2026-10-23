@@ -290,14 +290,14 @@ class DatasetForm(FlaskForm):
 
     creation_date = DateField(
         "Creation date",
-        description="This date is set automatically when the dataset is created.",
+        description="Please specify the date the dataset was created, if known.",
         format="%Y-%m-%d",
         validators=[Optional()],
     )
 
     last_update_date = DateField(
         "Last update date",
-        description="This date is updated automatically when the dataset is saved.",
+        description="Please specify the date the dataset was last updated, if known.",
         format="%Y-%m-%d",
         validators=[Optional()],
     )
