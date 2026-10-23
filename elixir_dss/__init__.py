@@ -101,6 +101,7 @@ def _jinja2_filter_date(date, fmt=None):
 def inject_now():
     return {
         "version": __VERSION__,
+        "commit": app.config.get("COMMIT_ID"),
         "SYSTEM_NAME": app.config.get("TITLE", "LCSB Data Submission System"),
     }
 

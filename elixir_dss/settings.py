@@ -22,6 +22,8 @@ ELIXIR_DSS_ENV = os.environ.get("ELIXIR_DSS_ENV")
 class Config:
     # name of the application
     TITLE = os.environ.get("APP_TITLE")
+    # commit deployed, shown next to the version (written to .env by update_app.sh)
+    COMMIT_ID = os.environ.get("APP_COMMIT") or None
     SECRET_KEY = os.environ.get("SECRET_KEY")
 
     BASE_URL = os.environ.get("BASE_URL")

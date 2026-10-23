@@ -166,6 +166,10 @@ sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh
 sudo bash /home/elixirdss/app-src/elixir-dss/update_app.sh v0.1.2
 ```
 
+The script also writes the deployed commit to `.env` as `APP_COMMIT`: the About page and the footer show it
+next to the release version (`__VERSION__` in `elixir_dss/__init__.py`). After a manual update, set it yourself
+(`APP_COMMIT=$(git rev-parse --short HEAD)` in `.env`) or leave it empty to show the version alone.
+
 ### View Logs
 ```bash
 # Application logs

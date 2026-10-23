@@ -952,6 +952,20 @@ class ControllersTest(BaseIntegrationTest):
         resp = self.client.get(url_for("about"))
         self.assert200(resp)
 
+    def test_about_page_shows_version_and_commit(self):
+        from elixir_dss import __VERSION__
+
+        with patch.dict(app.config, {"COMMIT_ID": None}):
+            page = self.client.get(url_for("about")).data.decode()
+        self.assertIn(f"<strong>{__VERSION__}</strong>", page)
+        self.assertIn(f"Version {__VERSION__}", page)
+        self.assertNotIn("commit <code>", page)
+
+        with patch.dict(app.config, {"COMMIT_ID": "abc1234"}):
+            page = self.client.get(url_for("about")).data.decode()
+        self.assertIn("commit <code>abc1234</code>", page)
+        self.assertIn(f"Version {__VERSION__} (abc1234)", page)
+
     def test_list_users(self):
         self.login("admin@uni.lu", "admin")
         resp = self.client.get(url_for("list_users"))

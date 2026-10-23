@@ -45,6 +45,14 @@ if ! git checkout "$VERSION"; then
     exit 1
 fi
 
+echo "Recording the deployed commit..."
+COMMIT=$(git rev-parse --short HEAD)
+if [ -f .env ] && grep -q '^APP_COMMIT=' .env; then
+    sed -i "s/^APP_COMMIT=.*/APP_COMMIT=$COMMIT/" .env
+else
+    echo "APP_COMMIT=$COMMIT" >> .env
+fi
+
 echo "Updating Python dependencies..."
 source project_venv/bin/activate
 pip install -e . --upgrade
