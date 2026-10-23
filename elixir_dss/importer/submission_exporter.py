@@ -2,7 +2,7 @@ import json
 from io import StringIO
 
 from elixir_dss import app, db
-from elixir_dss.models.submission import Submission
+from elixir_dss.models.submission import USE_CONDITION_LABELS, Submission
 
 
 class SubmissionExporter:
@@ -116,53 +116,39 @@ class SubmissionExporter:
                 "data_standards": normalize(ds.data_standard_names()),
                 "size_bytes": normalize(ds.byte_size),
                 # Use conditions
-                "uc_project_limited": normalize(ds.use_restriction_project),
-                "uc_research_use_limited": normalize(ds.use_restriction_research_use),
-                "uc_research_area_restriction": normalize(ds.restriction_rs),
-                "uc_research_area_notes": "| " + normalize(ds.restriction_rs_notes)
-                if ds.restriction_rs_notes
-                else "",
-                "uc_geographic_restriction": normalize(ds.restriction_gs),
-                "uc_geographic_notes": "| " + normalize(ds.restriction_gs_notes)
-                if ds.restriction_gs_notes
-                else "",
-                "uc_recipient_type_restriction": normalize(
+                "uc_project_limited": use_condition(ds.use_restriction_project),
+                "uc_project_notes": notes(ds.use_restriction_project_notes),
+                "uc_research_use_limited": use_condition(
+                    ds.use_restriction_research_use
+                ),
+                "uc_research_use_notes": notes(ds.use_restriction_research_use_notes),
+                "uc_research_area_restriction": use_condition(ds.restriction_rs),
+                "uc_research_area_notes": notes(ds.restriction_rs_notes),
+                "uc_geographic_restriction": use_condition(ds.restriction_gs),
+                "uc_geographic_notes": notes(ds.restriction_gs_notes),
+                "uc_recipient_type_restriction": use_condition(
                     ds.restriction_user_specific
                 ),
-                "uc_recipient_type_notes": "| "
-                + normalize(ds.restriction_user_specific_notes)
-                if ds.restriction_user_specific_notes
-                else "",
-                "uc_user_restriction": normalize(ds.restriction_us),
-                "uc_user_notes": "| " + normalize(ds.restriction_us_notes)
-                if ds.restriction_us_notes
-                else "",
-                "uc_publication_restriction": normalize(ds.restriction_pub),
-                "uc_publication_notes": "| " + normalize(ds.restriction_pub_notes)
-                if ds.restriction_pub_notes
-                else "",
-                "uc_time_restriction": normalize(ds.restriction_ts),
-                "uc_time_notes": "| " + normalize(ds.restriction_ts_notes)
-                if ds.restriction_ts_notes
-                else "",
-                "uc_lcsb_time_restriction": normalize(ds.restriction_ts_lcsb),
-                "uc_lcsb_time_date": "| Until: "
-                + normalize(ds.restriction_ts_lcsb_date)
+                "uc_recipient_type_notes": notes(ds.restriction_user_specific_notes),
+                "uc_user_restriction": use_condition(ds.restriction_us),
+                "uc_user_notes": notes(ds.restriction_us_notes),
+                "uc_publication_restriction": use_condition(ds.restriction_pub),
+                "uc_publication_notes": notes(ds.restriction_pub_notes),
+                "uc_time_restriction": use_condition(ds.restriction_ts),
+                "uc_time_notes": notes(ds.restriction_ts_notes),
+                "uc_lcsb_time_restriction": use_condition(ds.restriction_ts_lcsb),
+                "uc_lcsb_time_date": "Until: " + normalize(ds.restriction_ts_lcsb_date)
                 if ds.restriction_ts_lcsb_date
                 else "",
-                "uc_return_requirement": normalize(ds.restriction_rtn),
-                "uc_return_notes": "| " + normalize(ds.restriction_rtn_notes)
-                if ds.restriction_rtn_notes
-                else "",
-                "uc_ip_restriction": normalize(ds.restriction_ip),
-                "uc_ip_notes": "| " + normalize(ds.restriction_ip_notes)
-                if ds.restriction_ip_notes
-                else "",
-                "uc_dac_required": normalize(ds.dac_approval_required),
-                "uc_dac_notes": "| " + normalize(ds.dac_approval_notes)
-                if ds.dac_approval_notes
-                else "",
-                "uc_access_form_required": normalize(ds.access_form_required),
+                "uc_lcsb_time_notes": notes(ds.restriction_ts_lcsb_notes),
+                "uc_return_requirement": use_condition(ds.restriction_rtn),
+                "uc_return_notes": notes(ds.restriction_rtn_notes),
+                "uc_ip_restriction": use_condition(ds.restriction_ip),
+                "uc_ip_notes": notes(ds.restriction_ip_notes),
+                "uc_dac_required": use_condition(ds.dac_approval_required),
+                "uc_dac_notes": notes(ds.dac_approval_notes),
+                "uc_access_form_required": use_condition(ds.access_form_required),
+                "uc_access_form_notes": notes(ds.access_form_notes),
                 "uc_other_notes": normalize(ds.restriction_other_notes),
             }
 
@@ -213,6 +199,16 @@ def _parse_json_string(value: str):
         return ", ".join(f"{k}: {v}" for k, v in parsed.items()) if parsed else "-"
 
     return None
+
+
+def use_condition(value):
+    """The label of a use condition's answer, "-" when it is not answered."""
+    return USE_CONDITION_LABELS.get(value, "-")
+
+
+def notes(value):
+    """A free-text remark, exported on its own ("" when there is none)."""
+    return normalize(value) if value else ""
 
 
 def normalize(value):

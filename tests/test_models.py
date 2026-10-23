@@ -407,7 +407,9 @@ class ModelPersistenceTest(BaseTest):
             "data_standards",
             "size_bytes",
             "uc_project_limited",
+            "uc_project_notes",
             "uc_research_use_limited",
+            "uc_research_use_notes",
             "uc_research_area_restriction",
             "uc_research_area_notes",
             "uc_geographic_restriction",
@@ -422,6 +424,7 @@ class ModelPersistenceTest(BaseTest):
             "uc_time_notes",
             "uc_lcsb_time_restriction",
             "uc_lcsb_time_date",
+            "uc_lcsb_time_notes",
             "uc_return_requirement",
             "uc_return_notes",
             "uc_ip_restriction",
@@ -429,10 +432,89 @@ class ModelPersistenceTest(BaseTest):
             "uc_dac_required",
             "uc_dac_notes",
             "uc_access_form_required",
+            "uc_access_form_notes",
             "uc_other_notes",
         }
 
         self.assertSetEqual(set(dataset.keys()), expected_dataset_keys)
+
+    def test_export_use_conditions(self):
+        submission_rec = create_sub("ELU_I_5")
+        study_rec = SubmissionStudyFactory(submission_id=submission_rec.id)
+        SubmissionDatasetFactory(
+            submission_id=submission_rec.id,
+            study_id=study_rec.id,
+            restriction_rs="no",
+            restriction_rs_notes="There is no restriction",
+            restriction_gs="yes",
+            restriction_gs_notes="EU only",
+            restriction_ip="not_applicable",
+            restriction_us="not_available",
+            use_restriction_project="no",
+            use_restriction_project_notes="Any project of the consortium",
+            access_form_required="no",
+            access_form_notes="Open to approved users",
+        )
+
+        exp = SubmissionExporter().export_submission(submission_rec)
+        dataset = exp["studies"][0]["datasets"][0]
+
+        self.assertEqual(dataset["uc_research_area_restriction"], "No")
+        self.assertEqual(dataset["uc_research_area_notes"], "There is no restriction")
+        self.assertEqual(dataset["uc_geographic_restriction"], "Yes")
+        self.assertEqual(dataset["uc_geographic_notes"], "EU only")
+        self.assertEqual(dataset["uc_ip_restriction"], "Not applicable")
+        self.assertEqual(dataset["uc_user_restriction"], "Not available")
+        self.assertEqual(dataset["uc_project_limited"], "No")
+        self.assertEqual(dataset["uc_project_notes"], "Any project of the consortium")
+        self.assertEqual(dataset["uc_access_form_required"], "No")
+        self.assertEqual(dataset["uc_access_form_notes"], "Open to approved users")
+        # Never answered: exported as a missing value, not as "No".
+        self.assertEqual(dataset["uc_research_use_limited"], "-")
+        self.assertEqual(dataset["uc_research_use_notes"], "")
+        self.assertEqual(dataset["uc_dac_required"], "-")
+        self.assertEqual(dataset["uc_dac_notes"], "")
+
+    def test_docx_use_condition_remarks(self):
+        """The DOCX report puts each use condition's remark under its answer."""
+        import io
+        import os
+
+        from docx import Document
+        from docxtpl import DocxTemplate
+
+        submission_rec = create_sub("ELU_I_6")
+        study_rec = SubmissionStudyFactory(submission_id=submission_rec.id)
+        SubmissionDatasetFactory(
+            submission_id=submission_rec.id,
+            study_id=study_rec.id,
+            restriction_rs="no",
+            restriction_rs_notes="There is no restriction",
+            access_form_required="no",
+            access_form_notes="Open to approved users",
+        )
+        doc = DocxTemplate(
+            os.path.join(
+                app.root_path,
+                "templates",
+                "submission",
+                "generate_submission_docx.docx",
+            )
+        )
+        doc.render(
+            SubmissionExporter().export_submission(submission_rec), app.jinja_env
+        )
+        out = io.BytesIO()
+        doc.save(out)
+        out.seek(0)
+        cells = [
+            [p.text for p in cell.paragraphs]
+            for table in Document(out).tables
+            for row in table.rows
+            for cell in row.cells
+        ]
+        self.assertIn(["No", "There is no restriction"], cells)
+        self.assertIn(["No", "Open to approved users"], cells)
 
     def test_normalize(self):
         self.assertEqual(normalize(None), "-")

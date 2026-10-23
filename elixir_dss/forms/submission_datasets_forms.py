@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import (
     BooleanField,
+    SelectField as PlainSelectField,
     DateField,
     EmailField,
     HiddenField,
@@ -26,6 +27,7 @@ from elixir_dss.models.submission import (
     ConsentStatus,
     LegalBasisType,
     SubmissionStudy,
+    USE_CONDITION_CHOICES,
 )
 
 TEXT_FIELD_REGEX = r"^[\w\s,\-.]+$"
@@ -86,6 +88,22 @@ class DatasetCreatorForm(FlaskForm):
         ],
         description="Please specify the role of the contact person (e.g., Principal Investigator, Researcher, Data Manager)",
     )
+
+
+class UseConditionField(PlainSelectField):
+    """Yes / No / Not applicable / Not available, or unset (stored as NULL)."""
+
+    def __init__(self, label=None, validators=None, **kwargs):
+        kwargs.setdefault("choices", [("", "----"), *USE_CONDITION_CHOICES])
+        super().__init__(label, validators or [Optional()], **kwargs)
+
+    def pre_validate(self, form):
+        # Unset (or missing from the post) is a valid answer.
+        if self.data:
+            super().pre_validate(form)
+
+    def populate_obj(self, obj, name):
+        setattr(obj, name, self.data or None)
 
 
 class DatasetForm(FlaskForm):
@@ -281,10 +299,9 @@ class DatasetForm(FlaskForm):
 
     # Consent and ethics
 
-    restriction_rs = BooleanField(
+    restriction_rs = UseConditionField(
         "Limited scope of research. \nIs data consented to be used only in specific research/disease areas?",
         description="",
-        default=False,
     )
     restriction_rs_notes = TextAreaField(
         "Please describe research/disease areas restriction on data",
@@ -293,10 +310,9 @@ class DatasetForm(FlaskForm):
         validators=[Optional()],
     )
 
-    restriction_gs = BooleanField(
+    restriction_gs = UseConditionField(
         "Geographical restriction.\nDoes consent contain clauses that put geographical restrictions to the sharing of data?",
         description="",
-        default=False,
     )
     restriction_gs_notes = TextAreaField(
         "Please describe geographical restrictions on data",
@@ -304,10 +320,9 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[Optional()],
     )
-    restriction_user_specific = BooleanField(
+    restriction_user_specific = UseConditionField(
         "Restricted type of recipients.\nDoes the consent limit the type of recipients?",
         description="",
-        default=False,
     )
     restriction_user_specific_notes = TextAreaField(
         "Please describe the recipient restrictions on data.",
@@ -316,10 +331,9 @@ class DatasetForm(FlaskForm):
         validators=[Optional()],
     )
 
-    restriction_pub = BooleanField(
+    restriction_pub = UseConditionField(
         "Are there any requirements in case of publications based on the data?",
         description="",
-        default=False,
     )
     restriction_pub_notes = TextAreaField(
         "Please describe the publication requirements.",
@@ -327,10 +341,9 @@ class DatasetForm(FlaskForm):
         description="",
         validators=[Optional()],
     )
-    restriction_ts = BooleanField(
+    restriction_ts = UseConditionField(
         "Retention time.\nDoes the consent contain clauses that put time-limits on the use of data?",
         description="",
-        default=False,
     )
     restriction_ts_notes = TextAreaField(
         "Please describe the time-limit restrictions on data.",
@@ -340,21 +353,30 @@ class DatasetForm(FlaskForm):
     )
     # Specific data use conditions
 
-    use_restriction_project = BooleanField(
+    use_restriction_project = UseConditionField(
         "Is the use of data limited to the project named in the Submission sheet?",
         description="",
-        default=False,
     )
-    use_restriction_research_use = BooleanField(
+    use_restriction_project_notes = TextAreaField(
+        "Remarks on the limitation to the project",
+        render_kw={"rows": 3},
+        description="",
+        validators=[Optional()],
+    )
+    use_restriction_research_use = UseConditionField(
         "Does the limitation to the RESEARCH PROJECT include the RESEARCH USE (as defined in the Consortium Agreement)?",
         description="",
-        default=False,
+    )
+    use_restriction_research_use_notes = TextAreaField(
+        "Remarks on the research use",
+        render_kw={"rows": 3},
+        description="",
+        validators=[Optional()],
     )
 
-    restriction_ts_lcsb = BooleanField(
+    restriction_ts_lcsb = UseConditionField(
         "Is the data being sent to ELIXIR-LU/LCSB for a limited duration?",
         description="",
-        default=False,
     )
     restriction_ts_lcsb_date = DateField(
         "Please state the agreed end date for data's residence at ELIXIR-LU/LCSB",
@@ -362,11 +384,16 @@ class DatasetForm(FlaskForm):
         format="%Y-%m-%d",
         validators=[Optional()],
     )
+    restriction_ts_lcsb_notes = TextAreaField(
+        "Remarks on the duration of storage at ELIXIR-LU/LCSB",
+        render_kw={"rows": 3},
+        description="",
+        validators=[Optional()],
+    )
 
-    restriction_rtn = BooleanField(
+    restriction_rtn = UseConditionField(
         "Is there a requirement to return data or documents to the database/resource?",
         description="",
-        default=False,
     )
     restriction_rtn_notes = TextAreaField(
         "Please describe the return requirements.",
@@ -375,10 +402,9 @@ class DatasetForm(FlaskForm):
         validators=[Optional()],
     )
 
-    restriction_us = BooleanField(
+    restriction_us = UseConditionField(
         "Is the use limited to approved users/groups/institutions?",
         description="",
-        default=False,
     )
     restriction_us_notes = TextAreaField(
         "Please list the specific users/groups/institutions to which ELIXIR-LU/LCSB is instructed to give access to the data upon request.",
@@ -387,10 +413,9 @@ class DatasetForm(FlaskForm):
         validators=[Optional()],
     )
 
-    restriction_ip = BooleanField(
+    restriction_ip = UseConditionField(
         "Are there any conditions/restrictions regarding the Intellectual Property (IP) of the data?",
         description="",
-        default=False,
     )
     restriction_ip_notes = TextAreaField(
         "Please describe the IP conditions/restrictions",
@@ -405,15 +430,19 @@ class DatasetForm(FlaskForm):
         description="If applicable, in your description you may refer to GA4GH Data Use Category Codes, found at the below link.\nhttps://www.ga4gh.org/wp-content/uploads/DataUseBeacon_160209_tab_0.pdf",
         validators=[Optional()],
     )
-    access_form_required = BooleanField(
+    access_form_required = UseConditionField(
         "Will all researchers accessing the data need to sign an access request form?",
         description="If an access request form is needed, please make sure you provide the form template as a supporting document to the submission.",
-        default=False,
     )
-    dac_approval_required = BooleanField(
+    access_form_notes = TextAreaField(
+        "Remarks on the access request form",
+        render_kw={"rows": 3},
+        description="",
+        validators=[Optional()],
+    )
+    dac_approval_required = UseConditionField(
         "Will access require Data Access Committee (DAC) approval?",
         description="",
-        default=False,
     )
     dac_approval_notes = TextAreaField(
         "If a DAC Approval is needed please describe the required procedure.",

@@ -13,6 +13,16 @@ from elixir_dss.controllers.utils import dict_list_lookup
 from elixir_dss.models.security import normalize_email
 
 
+# Answers to a dataset's use conditions; NULL means not answered yet.
+USE_CONDITION_CHOICES = (
+    ("yes", "Yes"),
+    ("no", "No"),
+    ("not_applicable", "Not applicable"),
+    ("not_available", "Not available"),
+)
+USE_CONDITION_LABELS = dict(USE_CONDITION_CHOICES)
+
+
 def format_local_custodian(entry: dict) -> str:
     """Format a custodian entry as "Name <email>", or "Name" without an email."""
     if entry.get("email"):
@@ -515,32 +525,36 @@ class SubmissionDataset(db.Model):
     # GDPR Art 9.2 legitimation
     has_art92_derogation = db.Column(db.Boolean, nullable=False, default=False)
 
-    use_restriction_project = db.Column(db.Boolean, nullable=False, default=False)
-    use_restriction_research_use = db.Column(db.Boolean, nullable=False, default=False)
+    use_restriction_project = db.Column(db.String(20), nullable=True)
+    use_restriction_project_notes = db.Column(db.String, nullable=True)
+    use_restriction_research_use = db.Column(db.String(20), nullable=True)
+    use_restriction_research_use_notes = db.Column(db.String, nullable=True)
 
-    restriction_rs = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_rs = db.Column(db.String(20), nullable=True)
     restriction_rs_notes = db.Column(db.String, nullable=True)
-    restriction_gs = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_gs = db.Column(db.String(20), nullable=True)
     restriction_gs_notes = db.Column(db.String, nullable=True)
-    restriction_user_specific = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_user_specific = db.Column(db.String(20), nullable=True)
     restriction_user_specific_notes = db.Column(db.String, nullable=True)
-    restriction_us = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_us = db.Column(db.String(20), nullable=True)
     restriction_us_notes = db.Column(db.String, nullable=True)
-    restriction_pub = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_pub = db.Column(db.String(20), nullable=True)
     restriction_pub_notes = db.Column(db.String, nullable=True)
-    restriction_ts = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_ts = db.Column(db.String(20), nullable=True)
     restriction_ts_notes = db.Column(db.String, nullable=True)
 
-    restriction_ts_lcsb = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_ts_lcsb = db.Column(db.String(20), nullable=True)
     restriction_ts_lcsb_date = db.Column(db.Date, nullable=True)
+    restriction_ts_lcsb_notes = db.Column(db.String, nullable=True)
 
-    restriction_rtn = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_rtn = db.Column(db.String(20), nullable=True)
     restriction_rtn_notes = db.Column(db.String, nullable=True)
     restriction_other_notes = db.Column(db.String, nullable=True)
-    access_form_required = db.Column(db.Boolean, nullable=False, default=False)
-    dac_approval_required = db.Column(db.Boolean, nullable=False, default=False)
+    access_form_required = db.Column(db.String(20), nullable=True)
+    access_form_notes = db.Column(db.String, nullable=True)
+    dac_approval_required = db.Column(db.String(20), nullable=True)
     dac_approval_notes = db.Column(db.String, nullable=True)
-    restriction_ip = db.Column(db.Boolean, nullable=False, default=False)
+    restriction_ip = db.Column(db.String(20), nullable=True)
     restriction_ip_notes = db.Column(db.String, nullable=True)
 
     # Technical metadata

@@ -1413,6 +1413,82 @@ class ControllersTest(BaseIntegrationTest):
                 f"{field}: a&b (c/d) 100%!",
             )
 
+    def _post_dataset_use_conditions(self, use_conditions):
+        self.login("submitter1@some.edu", "submitter1")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(
+            submission_id=sub.id, study_id=study.id, restriction_ip="yes"
+        )
+        db.session.commit()
+        resp = self.client.post(
+            url_for("edit_submission_dataset", dataset_id=dataset.id),
+            data={
+                "id": dataset.id,
+                "submission_id": sub.id,
+                "title": "Dataset",
+                "study_id": study.id,
+                "description": "Description",
+                "data_processing_type": "pseudonymised",
+                "sci_datatypes": ["Whole_genome_sequencing"],
+                "gdpr_datatypes": ["genetic"],
+                "legal_basis_collection_std_code": "61a",
+                "legal_basis_sharing_std_code": "61a",
+                "consent_status_code": "hm",
+                "creators-0-first_name": "John",
+                "creators-0-last_name": "Doe",
+                "creators-0-email": "john@example.com",
+                "creators-0-institution": "Test Uni",
+                "creators-0-role": "Principal Investigator",
+                **use_conditions,
+            },
+            follow_redirects=True,
+        )
+        db.session.expire_all()
+        return resp, db.session.get(SubmissionDataset, dataset.id)
+
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
+    def test_edit_submission_dataset_use_conditions(self):
+        resp, dataset = self._post_dataset_use_conditions(
+            {
+                "restriction_rs": "no",
+                "restriction_rs_notes": "There is no restriction",
+                "restriction_gs": "not_applicable",
+                "restriction_us": "not_available",
+                "use_restriction_project": "no",
+                "use_restriction_project_notes": "Any project of the consortium",
+                "use_restriction_research_use": "no",
+                "use_restriction_research_use_notes": "Not limited",
+                "restriction_ts_lcsb": "no",
+                "restriction_ts_lcsb_notes": "Kept indefinitely",
+                "access_form_required": "no",
+                "access_form_notes": "Open to approved users",
+                "restriction_ip": "",
+            }
+        )
+        self.assert200(resp)
+        self.assertEqual(dataset.restriction_rs, "no")
+        self.assertEqual(dataset.restriction_rs_notes, "There is no restriction")
+        self.assertEqual(dataset.restriction_gs, "not_applicable")
+        self.assertEqual(dataset.restriction_us, "not_available")
+        self.assertEqual(dataset.use_restriction_project, "no")
+        self.assertEqual(
+            dataset.use_restriction_project_notes, "Any project of the consortium"
+        )
+        self.assertEqual(dataset.use_restriction_research_use_notes, "Not limited")
+        self.assertEqual(dataset.restriction_ts_lcsb_notes, "Kept indefinitely")
+        self.assertEqual(dataset.access_form_notes, "Open to approved users")
+        # "----" clears an answer; a condition left out of the post stays unset.
+        self.assertIsNone(dataset.restriction_ip)
+        self.assertIsNone(dataset.dac_approval_required)
+
+    def test_edit_submission_dataset_use_condition_invalid(self):
+        resp, dataset = self._post_dataset_use_conditions({"restriction_rs": "maybe"})
+        self.assertEqual(resp.status_code, 400)
+        self.assertIsNone(dataset.restriction_rs)
+
     def test_edit_submission_dataset_post_invalid(self):
         self.login("submitter1@some.edu", "submitter1")
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
