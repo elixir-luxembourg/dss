@@ -21,7 +21,7 @@ def generate_submission_docx(sub_id):
     )
     doc = DocxTemplate(template_path)
     exporter = SubmissionExporter()
-    context = exporter.export_submission(sub)
+    context = exporter.export_submission(sub, gdpr_labels=True)
     # the JSON export keeps the raw IDs; the report shows "name (ID)"
     context["submission"]["institution_label"] = sub.provider_institute_label() or "-"
     context["submission"]["local_project_label"] = sub.local_project_label() or "-"

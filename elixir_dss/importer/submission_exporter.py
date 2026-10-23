@@ -54,9 +54,11 @@ class SubmissionExporter:
             db.session.commit()
         return buffer
 
-    def export_submission(self, sub: Submission) -> dict:
+    def export_submission(self, sub: Submission, gdpr_labels=False) -> dict:
+        """The submission as a dict. With gdpr_labels, the GDPR data types are
+        their labels (for the DOCX report) instead of their codes (for DAISY)."""
         studies = self.export_studies(sub)
-        datasets = self.export_datasets(sub)
+        datasets = self.export_datasets(sub, gdpr_labels=gdpr_labels)
 
         for study in studies:
             study["datasets"] = [ds for ds in datasets if ds["study"] == study["title"]]
@@ -78,10 +80,13 @@ class SubmissionExporter:
         }
 
     @staticmethod
-    def export_datasets(sub: Submission):
+    def export_datasets(sub: Submission, gdpr_labels=False):
         dataset_list = []
 
         for ds in sub.datasets:
+            gdpr_types = ds.gdpr_data_type_names()
+            if gdpr_labels:
+                gdpr_types = gdpr_data_type_labels(gdpr_types)
             dataset_info = {
                 "dataset_id": normalize(ds.internal_id),
                 "title": normalize(ds.title),
@@ -99,7 +104,7 @@ class SubmissionExporter:
                     }
                     for c in ds.creators
                 ],
-                "gdpr_data_types": normalize(ds.gdpr_data_type_names()),
+                "gdpr_data_types": normalize(gdpr_types),
                 "scientific_data_types": normalize(ds.sci_data_type_names()),
                 "contains_personal_data": normalize(ds.contains_personal_data),
                 "data_processing_type": normalize(ds.data_processing_type),
@@ -209,6 +214,18 @@ def _parse_json_string(value: str):
         return ", ".join(f"{k}: {v}" for k, v in parsed.items()) if parsed else "-"
 
     return None
+
+
+def gdpr_data_type_labels(codes):
+    """The labels of GDPR data type codes, as the dataset form shows them (the
+    code itself when it is unknown)."""
+    labels = {}
+    for code, label in app.config["DATA_INIT"]["gdpr_datatypes"]:
+        if isinstance(label, (list, tuple)):
+            labels.update(dict(label))
+        else:
+            labels[code] = label
+    return [labels.get(code, code) for code in codes]
 
 
 def use_condition(value):
