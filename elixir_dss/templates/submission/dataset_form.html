@@ -130,13 +130,13 @@
             <!-- Consent and Ethics Section -->
             <div class="mb-4">
                 <h2 class="h5 fw-semibold mb-3">Consent and ethics</h2>
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_rs) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rs, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rs_notes) }}
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_gs) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_gs, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_gs_notes) }}
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_user_specific) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_user_specific, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_user_specific_notes) }}
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_notes) }}
                 {{ fmacros.render_field_with_errors(dataset_form.consent_status_code, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.consent_notes) }}
@@ -146,33 +146,37 @@
             <div class="mb-4">
                 <h2 class="h5 fw-semibold mb-3">Specific data use conditions</h2>
                 <div class="mb-2 mt-4">Use of DATA is limited to the RESEARCH PROJECT</div>
-                {{ fmacros.render_field_with_errors(dataset_form.use_restriction_project) }}
-                {{ fmacros.render_field_with_errors(dataset_form.use_restriction_research_use) }}
+                {{ fmacros.render_field_with_errors(dataset_form.use_restriction_project, clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.use_restriction_project_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.use_restriction_research_use, clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.use_restriction_research_use_notes) }}
                 <div class="mb-2 mt-4">Time limit of storage at LCSB</div>
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb_date) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ts_lcsb_notes) }}
                 <div class="mb-2 mt-4">Publication requirements</div>
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_pub) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_pub, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_pub_notes) }}
                 <div class="mb-2 mt-4">Data return requirements</div>
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_rtn_notes) }}
                 <div class="mb-2 mt-4">User specific restrictions</div>
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_us) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_us, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_us_notes) }}
                 <div class="mb-2 mt-4">IP-related conditions/restrictions</div>
-                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip) }}
+                {{ fmacros.render_field_with_errors(dataset_form.restriction_ip, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_ip_notes) }}
                 <div class="mb-2 mt-4">Other restrictions</div>
                 {{ fmacros.render_field_with_errors(dataset_form.restriction_other_notes) }}
-                {{ fmacros.render_field_with_errors(dataset_form.access_form_required) }}
+                {{ fmacros.render_field_with_errors(dataset_form.access_form_required, clazz="elx-select") }}
+                {{ fmacros.render_field_with_errors(dataset_form.access_form_notes) }}
 
                 <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
                     <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
                     <div>If an access request form is needed, please make sure you upload the form template as an attachment to this submission.</div>
                 </div>
 
-                {{ fmacros.render_field_with_errors(dataset_form.dac_approval_required) }}
+                {{ fmacros.render_field_with_errors(dataset_form.dac_approval_required, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.dac_approval_notes) }}
             </div>
 

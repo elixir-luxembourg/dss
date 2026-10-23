@@ -173,27 +173,40 @@ $(document).ready(function () {
         updateLocalCustodians(this.value);
     });
 
-    function toggleNotesField(checkboxId, notesFieldId) {
-        const checkbox = $('#' + checkboxId);
+    // Shows a notes field while its checkbox is checked, or while its select holds an
+    // answer (any answer, or one of showWhenValues when given).
+    function toggleNotesField(controlId, notesFieldId, showWhenValues) {
+        const control = $('#' + controlId);
         const notesField = $('#' + notesFieldId);
-        if (checkbox.length && notesField.length) {
+        if (control.length && notesField.length) {
             const notesWrapper = notesField.closest('.mb-3');
+            function isOn() {
+                if (control.is(':checkbox')) {
+                    return control.is(':checked');
+                }
+                const value = control.val();
+                return showWhenValues ? showWhenValues.includes(value) : Boolean(value);
+            }
             function updateVisibility() {
-                if (checkbox.is(':checked')) {
+                if (isOn()) {
                     notesWrapper.show();
                 } else {
                     notesWrapper.hide();
                 }
             }
             updateVisibility();
-            checkbox.on('change', updateVisibility);
+            control.on('change', updateVisibility);
         }
     }
     toggleNotesField('restriction_rs', 'restriction_rs_notes');
     toggleNotesField('restriction_gs', 'restriction_gs_notes');
     toggleNotesField('restriction_user_specific', 'restriction_user_specific_notes');
     toggleNotesField('restriction_ts', 'restriction_ts_notes');
-    toggleNotesField('restriction_ts_lcsb', 'restriction_ts_lcsb_date');
+    toggleNotesField('restriction_ts_lcsb', 'restriction_ts_lcsb_date', ['yes']);
+    toggleNotesField('restriction_ts_lcsb', 'restriction_ts_lcsb_notes');
+    toggleNotesField('use_restriction_project', 'use_restriction_project_notes');
+    toggleNotesField('use_restriction_research_use', 'use_restriction_research_use_notes');
+    toggleNotesField('access_form_required', 'access_form_notes');
     toggleNotesField('restriction_pub', 'restriction_pub_notes');
     toggleNotesField('restriction_rtn', 'restriction_rtn_notes');
     toggleNotesField('restriction_us', 'restriction_us_notes');
