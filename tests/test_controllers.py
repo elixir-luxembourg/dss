@@ -1733,6 +1733,18 @@ class ControllersTest(BaseIntegrationTest):
         )
         self.assertEqual(resp.status_code, 400)
 
+    def test_add_dataset_form_sample_types_in_overview(self):
+        self.login("steward1@uni.lu", "steward1")
+        sub = create_sub("ELU_I_9")
+        resp = self.client.get(url_for("add_submission_dataset", sub_id=sub.id))
+        self.assert200(resp)
+        page = resp.data.decode()
+        notes = page.index('id="sci_datatypes_notes"')
+        sample_types = page.index('id="sample_types"')
+        creators = page.index("Dataset Creators")
+        self.assertLess(notes, sample_types)
+        self.assertLess(sample_types, creators)
+
     def test_profile_post_steward(self):
         self.login("steward1@uni.lu", "steward1")
         user = User.query.filter_by(email="steward1@uni.lu").first()

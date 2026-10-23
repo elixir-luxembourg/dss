@@ -42,6 +42,7 @@
                 {{ fmacros.render_field_with_errors(dataset_form.external_identifiers) }}
                 {{ fmacros.render_field_with_errors(dataset_form.sci_datatypes, clazz="elx-multi-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.sci_datatypes_notes) }}
+                {{ fmacros.render_field_with_errors(dataset_form.sample_types, clazz="elx-multi-select") }}
             </div>
 
             <!-- Creator Section -->
@@ -206,7 +207,6 @@
                         {{ fmacros.render_field_with_errors(dataset_form.byte_size) }}
                     </div>
                 </div>
-                {{ fmacros.render_field_with_errors(dataset_form.sample_types, clazz="elx-multi-select") }}
             </div>
 
             <!-- Form Actions -->
