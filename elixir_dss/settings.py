@@ -1,5 +1,8 @@
 import os
+from typing import ClassVar
+
 from dotenv import load_dotenv
+
 from elixir_dss.constants import CONFIG_DATA
 
 # Load environment variables at module import
@@ -16,7 +19,7 @@ ELIXIR_DSS_ENV = os.environ.get("ELIXIR_DSS_ENV")
 # APP_DATA_BASE_DIR = '/home/elixirdss/app-data'
 
 
-class Config(object):
+class Config:
     # name of the application
     TITLE = os.environ.get("APP_TITLE")
     SECRET_KEY = os.environ.get("SECRET_KEY")
@@ -30,7 +33,7 @@ class Config(object):
     SUBMISSION_EXPORT_FOLDER = os.path.join(APP_DATA_BASE_DIR, "exports")
 
     # Menu Bar Items a list of  (Name, Link, Sub item list, role)
-    APP_MENU_BAR_ITEMS = [
+    APP_MENU_BAR_ITEMS: ClassVar[list] = [
         (
             "Data Steward",
             None,
@@ -60,7 +63,7 @@ class Config(object):
 
     AUTHENTICATION_METHOD = os.environ.get("AUTHENTICATION_METHOD")
     # a dict containing user and password items for CONFIG based authentication
-    AUTHENTICATION_DICT = {
+    AUTHENTICATION_DICT: ClassVar[dict] = {
         "steward1@uni.lu": "steward1",
         "submitter1@some.edu": "submitter1",
         "submitter2@some.edu": "submitter2",
@@ -107,7 +110,7 @@ class Config(object):
     LFT_LINKS_BASE_URL = os.environ.get("LFT_LINKS_BASE_URL")
     LFT_LINK_VALIDITY_DAYS = int(os.environ.get("LFT_LINK_VALIDITY_DAYS") or "1")
 
-    CACHE_CONFIG = {
+    CACHE_CONFIG: ClassVar[dict] = {
         "CACHE_TYPE": "FileSystemCache",
         "CACHE_DIR": "cache",
         "CACHE_THRESHOLD": 10000,
@@ -117,7 +120,7 @@ class Config(object):
     IDSERVICE_ENDPOINT = os.environ.get("IDSERVICE_ENDPOINT")
 
     SERVICE_API_KEY = os.environ.get("SERVICE_API_KEY")
-    API_PAGE_SIZE = int(os.environ.get("API_PAGE_SIZE", 100))
+    API_PAGE_SIZE = int(os.environ.get("API_PAGE_SIZE", "100"))
 
 
 class ProdConfig(Config):
@@ -160,7 +163,7 @@ class TestConfig(Config):
 
     ASSETS_DEBUG = True
     TESTING = True
-    CACHE_CONFIG = {"CACHE_TYPE": "NullCache"}
+    CACHE_CONFIG: ClassVar[dict] = {"CACHE_TYPE": "NullCache"}
     WTF_CSRF_ENABLED = False
 
     DAISY_USE = True

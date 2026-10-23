@@ -2,13 +2,21 @@ import io
 import json
 import os
 import tempfile
-from unittest.mock import MagicMock, patch, call
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
+from unittest.mock import MagicMock, call, patch
 
-from flask import url_for
 import pytest
-from elixir_dss import app, db, lft
+from flask import url_for
+from flask_wtf.csrf import CSRFError
+from sqlalchemy.exc import OperationalError
 
+from elixir_dss import app, db, lft
+from elixir_dss.clients.idservice import IDServiceError
+from elixir_dss.clients.lft import LFTLink
+from elixir_dss.controllers.errors import csrf_error
+from elixir_dss.controllers.utils import dict_list_lookup
+from elixir_dss.controllers.web_controllers import load_user
+from elixir_dss.exceptions import RecordLifecycleException
 from elixir_dss.models.security import User
 from elixir_dss.models.services import (
     create_sub,
@@ -17,28 +25,20 @@ from elixir_dss.models.services import (
 )
 from elixir_dss.models.submission import (
     EmailNotification,
+    Submission,
     SubmissionAccess,
     SubmissionAttachment,
     SubmissionDataset,
     SubmissionMessage,
     SubmissionStatusEnum,
     SubmissionStudy,
-    Submission,
 )
-from elixir_dss.clients.lft import LFTLink
-from elixir_dss.clients.idservice import IDServiceError
-from elixir_dss.exceptions import RecordLifecycleException
-from elixir_dss.controllers.errors import csrf_error
-from elixir_dss.controllers.utils import dict_list_lookup
-from elixir_dss.controllers.web_controllers import load_user
-from flask_wtf.csrf import CSRFError
-from sqlalchemy.exc import OperationalError
 from tests import BaseIntegrationTest
 from tests.factories import (
+    ContactFactory,
     SubmissionDatasetFactory,
     SubmissionFactory,
     SubmissionStudyFactory,
-    ContactFactory,
 )
 
 __author__ = "Pinar Alper"
@@ -625,7 +625,7 @@ class ControllersTest(BaseIntegrationTest):
             recipients_json=json.dumps(["test@example.com"]),
             text_body="body",
             html_body="<p>body</p>",
-            created_on=datetime.today(),
+            created_on=datetime.now(UTC),
         )
         db.session.add(notif)
         db.session.commit()
@@ -1636,7 +1636,7 @@ class ControllersTest(BaseIntegrationTest):
             recipients_json=json.dumps(["test@example.com"]),
             text_body="body",
             html_body="<p>body</p>",
-            created_on=datetime.today(),
+            created_on=datetime.now(UTC),
         )
         db.session.add(notif)
         db.session.commit()
@@ -1853,7 +1853,7 @@ class ControllersTest(BaseIntegrationTest):
     def test_csrf_error_handler(self):
         """Cover errors.py csrf_error handler."""
         with app.test_request_context():
-            response, status_code = csrf_error(CSRFError("CSRF token missing"))
+            _response, status_code = csrf_error(CSRFError("CSRF token missing"))
             self.assertEqual(status_code, 400)
 
     def test_enforce_auth_unauthenticated(self):

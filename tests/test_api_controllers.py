@@ -1,12 +1,11 @@
 from elixir_dss.models.submission import SubmissionStatusEnum
-
 from tests import BaseTest
 from tests.factories import (
     SubmissionAccessFactory,
     SubmissionAttachmentFactory,
+    SubmissionDatasetFactory,
     SubmissionFactory,
     SubmissionStudyFactory,
-    SubmissionDatasetFactory,
     UserFactory,
 )
 

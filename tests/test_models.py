@@ -2,60 +2,60 @@ import json
 import logging
 from datetime import date, datetime
 from io import StringIO
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from elixir_dss import app, db, lft
 from elixir_dss.clients.daisy import get_elu_entities
-from elixir_dss.clients.idservice import generate_id, IDServiceError
+from elixir_dss.clients.idservice import IDServiceError, generate_id
 from elixir_dss.clients.lft import LFTHandler
 from elixir_dss.exceptions import RecordLifecycleException, RecordNotExistsException
 from elixir_dss.importer.submission_exporter import (
     SubmissionExporter,
-    normalize,
     _parse_json_string,
+    normalize,
 )
 from elixir_dss.models.security import Role, User
 from elixir_dss.models.services import (
+    approve_data,
+    approve_metadata,
     assign_role_to_user,
+    cancel_sub,
+    clone_sub,
     create_sub,
     deactivate_user,
     delete_sub,
-    register_new_user,
-    send_new_message_notification,
-    update_submission_basic_info,
-    clone_sub,
-    revert_sub,
-    steer_sub,
-    cancel_sub,
     invite_recipients,
     invite_submitters,
-    update_user_info,
-    approve_metadata,
-    reject_metadata,
-    approve_data,
+    register_new_user,
     reject_data,
+    reject_metadata,
+    revert_sub,
+    send_new_message_notification,
+    steer_sub,
+    update_submission_basic_info,
+    update_user_info,
 )
 from elixir_dss.models.submission import (
     ContactType,
     Submission,
     SubmissionAccess,
     SubmissionAttachment,
-    SubmissionStatusEnum,
     SubmissionDatasetCreator,
     SubmissionMessage,
+    SubmissionStatusEnum,
     format_local_custodian,
     parse_local_custodian,
 )
 from tests import BaseTest
 from tests.factories import (
-    SubmissionAttachmentFactory,
-    SubmissionStudyFactory,
-    SubmissionDatasetFactory,
-    UserFactory,
-    SubmissionFactory,
     ContactFactory,
+    SubmissionAttachmentFactory,
+    SubmissionDatasetFactory,
+    SubmissionFactory,
+    SubmissionStudyFactory,
+    UserFactory,
 )
 
 __author__ = "Pinar Alper"
@@ -597,6 +597,7 @@ class ModelPersistenceTest(BaseTest):
         with self.assertRaises(RecordLifecycleException, msg=reason):
             steer_sub(sub_id)
 
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
     def test_clone_submission_rollback_on_error(self):
         original = SubmissionFactory()
         study = SubmissionStudyFactory(submission_id=original.id)
@@ -604,9 +605,11 @@ class ModelPersistenceTest(BaseTest):
 
         submissions_before = Submission.query.count()
 
-        with patch.object(db.session, "commit", side_effect=Exception("DB error")):
-            with self.assertRaises(Exception):
-                clone_sub(original.id, clone_studies=True, clone_datasets=True)
+        with (
+            patch.object(db.session, "commit", side_effect=RuntimeError("DB error")),
+            self.assertRaises(RuntimeError),
+        ):
+            clone_sub(original.id, clone_studies=True, clone_datasets=True)
 
         self.assertEqual(submissions_before, Submission.query.count())
         self.assertIsNotNone(db.session.get(Submission, original.id))
@@ -873,8 +876,8 @@ class ModelPersistenceTest(BaseTest):
         handler.client.login.assert_called_once_with("u", "p")
         handler.client.delete_share.assert_not_called()
         handler.client.links_list.assert_not_called()
-        handler._logger.error.assert_called_once()
-        self.assertIn("login failed", handler._logger.error.call_args[0][0])
+        handler._logger.exception.assert_called_once()
+        self.assertIn("login failed", handler._logger.exception.call_args[0][0])
 
     def test_lft_handler_invalidate_no_internal_id(self):
         handler = LFTHandler()
@@ -941,7 +944,7 @@ class ModelPersistenceTest(BaseTest):
         handler.invalidate_links_for_submission(sub.id)
 
         self.assertEqual(handler.client.delete_share.call_count, 2)
-        self.assertEqual(handler._logger.error.call_count, 2)
+        self.assertEqual(handler._logger.exception.call_count, 2)
 
     def test_lft_handler_get_or_create_login_failed(self):
         handler = LFTHandler()
@@ -1380,11 +1383,13 @@ class ModelPersistenceTest(BaseTest):
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.completed)
         exporter = SubmissionExporter([sub])
 
-        with patch.object(
-            exporter, "export_submission", side_effect=Exception("export fail")
+        with (
+            patch.object(
+                exporter, "export_submission", side_effect=Exception("export fail")
+            ),
+            self.assertRaisesRegex(Exception, "export fail"),
         ):
-            with self.assertRaisesRegex(Exception, "export fail"):
-                exporter.export_to_buffer(StringIO())
+            exporter.export_to_buffer(StringIO())
 
     def test_parse_json_string_invalid_json(self):
         """Cover _parse_json_string json.loads exception."""

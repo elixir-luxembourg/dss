@@ -82,3 +82,7 @@ zip-safe = false
 
 [tool.setuptools.package-data]
 elixir_dss = ["resources/*"]
+
+[tool.ruff.lint]
+# the Flask logger: ruff then sees its .exception() calls in the catch-all handlers (BLE001)
+logger-objects = ["elixir_dss.app.logger"]

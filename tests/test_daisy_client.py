@@ -3,8 +3,9 @@ from unittest.mock import Mock, patch
 import requests
 
 from elixir_dss.clients.daisy import get_elu_entities
-from .factories import ProjectFactory, PartnerFactory
 from tests import BaseTest
+
+from .factories import PartnerFactory, ProjectFactory
 
 
 class TestGetEluEntities(BaseTest):

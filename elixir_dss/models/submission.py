@@ -1,6 +1,6 @@
 import enum
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from flask import url_for
 from sqlalchemy import Sequence
@@ -11,7 +11,6 @@ from elixir_dss.clients.daisy import get_elu_partners
 from elixir_dss.clients.idservice import generate_id
 from elixir_dss.controllers.utils import dict_list_lookup
 from elixir_dss.models.security import normalize_email
-
 
 # Answers to a dataset's use conditions; NULL means not answered yet.
 USE_CONDITION_CHOICES = (
@@ -274,22 +273,13 @@ class Submission(db.Model):
         return [entry["name"] for entry in self.local_custodian_entries()]
 
     def has_providers(self):
-        if not self.provider_accesses():
-            return False
-        else:
-            return True
+        return bool(self.provider_accesses())
 
     def has_study(self):
-        if not self.studies:
-            return False
-        else:
-            return True
+        return bool(self.studies)
 
     def has_dataset(self):
-        if not self.datasets:
-            return False
-        else:
-            return True
+        return bool(self.datasets)
 
     def is_overview_info_complete(self):
         return self.submission_contacts
@@ -371,7 +361,7 @@ class SubmissionMessage(db.Model):
     created_on = db.Column(
         db.DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
     )
     sender_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     sender_user = db.relationship("User")

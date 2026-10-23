@@ -109,19 +109,18 @@ class ContactForm(FlaskForm):
 
     def validate(self, extra_validators=None):
         """institution required if is_main_contact is True."""
-        if not super(ContactForm, self).validate(extra_validators):
+        if not super().validate(extra_validators):
             return False
 
         # If main contact, institution is required
-        if self.is_main_contact.data:
-            if not self.institution.data or not self.institution.data.strip():
-                self.institution.errors = (
-                    list(self.institution.errors) if self.institution.errors else []
-                )
-                self.institution.errors.append(
-                    "Institution is required for main contact"
-                )
-                return False
+        if self.is_main_contact.data and (
+            not self.institution.data or not self.institution.data.strip()
+        ):
+            self.institution.errors = (
+                list(self.institution.errors) if self.institution.errors else []
+            )
+            self.institution.errors.append("Institution is required for main contact")
+            return False
 
         return True
 
@@ -247,7 +246,7 @@ class StudyForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         sub_id = kwargs.pop("sub_id", None)
-        super(StudyForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.study_types.choices = [
             (c, c) for c in app.config.get("DATA_INIT")["study_types"]
@@ -258,7 +257,7 @@ class StudyForm(FlaskForm):
 
     def validate(self, extra_validators=None):
         """ensure at least one contact is designated as main contact."""
-        if not super(StudyForm, self).validate(extra_validators):
+        if not super().validate(extra_validators):
             return False
 
         has_main_contact = any(
@@ -369,9 +368,7 @@ class SubmissionForm(FlaskForm):
                 (
                     f"{c['name']} - {c['acronym']}"
                     if "acronym" in c and c["acronym"] is not None and "name" in c
-                    else c["name"]
-                    if "name" in c
-                    else "-"
+                    else c.get("name", "-")
                 ),
             )
             for c in get_elu_partners()
@@ -382,9 +379,7 @@ class SubmissionForm(FlaskForm):
                 (
                     f"{c['name']} - {c['acronym']}"
                     if "acronym" in c and c["acronym"] is not None and "name" in c
-                    else c["name"]
-                    if "name" in c
-                    else "-"
+                    else c.get("name", "-")
                 ),
             )
             for c in get_elu_projects()

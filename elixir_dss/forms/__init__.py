@@ -15,6 +15,7 @@ from wtforms import (
 from wtforms.validators import DataRequired, Email, Length, Regexp
 
 from elixir_dss.clients.daisy import get_elu_partners
+from elixir_dss.forms.submission_datasets_forms import DatasetForm
 from elixir_dss.forms.submissions_forms import (
     AttachmentForm,
     ContactForm,
@@ -22,7 +23,6 @@ from elixir_dss.forms.submissions_forms import (
     StudyForm,
     SubmissionForm,
 )
-from elixir_dss.forms.submission_datasets_forms import DatasetForm
 from elixir_dss.models.security import Role
 
 from .validators import OptionalFieldValidator
@@ -167,9 +167,7 @@ class SignupForm(FlaskForm):
                 c["external_id"],
                 f"{c['name']} - {c['acronym']}"
                 if "acronym" in c and c["acronym"] is not None and "name" in c
-                else c["name"]
-                if "name" in c
-                else "-",
+                else c.get("name", "-"),
             )
             for c in get_elu_partners()
         ]
@@ -203,12 +201,12 @@ class CancelSubmissionForm(FlaskForm):
 
 
 __all__ = [
-    "SubmissionForm",
-    "ContactForm",
     "AttachmentForm",
+    "ContactForm",
     "DatasetForm",
-    "StudyForm",
-    "UserForm",
-    "MyProfileForm",
     "MessageForm",
+    "MyProfileForm",
+    "StudyForm",
+    "SubmissionForm",
+    "UserForm",
 ]

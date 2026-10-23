@@ -37,7 +37,7 @@ def schedule_submission_export(
 
 
 def get_submissions_to_export(
-    export_all_submissions: bool = False, submissions_to_export: list[str] = None
+    export_all_submissions: bool = False, submissions_to_export: list[str] | None = None
 ):
     if export_all_submissions:
         submissions = Submission.query.filter_by(

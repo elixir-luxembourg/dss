@@ -12,11 +12,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 
+from elixir_dss import assets, exceptions
 from elixir_dss.clients.lft import LFTHandler
 from elixir_dss.settings import ELIXIR_DSS_ENV
-import elixir_dss.assets as assets
-import elixir_dss.exceptions as exceptions
-
 
 __VERSION__ = "0.4.0-dev"
 
@@ -24,7 +22,7 @@ __VERSION__ = "0.4.0-dev"
 def create_application():
     new_app = Flask(__name__)
     new_app.config.from_object(
-        "elixir_dss.settings.%sConfig" % ELIXIR_DSS_ENV.capitalize()
+        f"elixir_dss.settings.{ELIXIR_DSS_ENV.capitalize()}Config"
     )
     new_app.config["ENV"] = ELIXIR_DSS_ENV
     new_app.jinja_env.add_extension("jinja2.ext.i18n")
@@ -131,11 +129,11 @@ def run_export_submission():
 
 
 # Import controllers and models after all other objects are created to avoid circular imports
-from . import controllers, models  # noqa: E402
+from . import controllers, models
 
 app.register_blueprint(controllers.api_controllers.dss_api, url_prefix="/api/v1")
 
-__all__ = [controllers, assets, app, db, exceptions, oauth, mail, lft]
+__all__ = ["app", "assets", "controllers", "db", "exceptions", "lft", "mail", "oauth"]
 
 if __name__ == "__main__":
     app.run(use_reloader=False)

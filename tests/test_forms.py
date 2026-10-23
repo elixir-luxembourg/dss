@@ -1,7 +1,7 @@
 from werkzeug.datastructures import ImmutableMultiDict
 
 from elixir_dss.forms import SignupForm
-from elixir_dss.forms.submissions_forms import StudyForm, ContactForm
+from elixir_dss.forms.submissions_forms import ContactForm, StudyForm
 from tests import BaseTest
 
 __author__ = "Pinar Alper"

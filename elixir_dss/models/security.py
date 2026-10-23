@@ -49,10 +49,7 @@ class User(UserMixin, db.Model):
             role_names = []
             for role in self.assigned_roles:
                 role_names.append(role.name)
-        if len(set(role_list).intersection(role_names)) > 0:
-            return True
-        else:
-            return False
+        return len(set(role_list).intersection(role_names)) > 0
 
     def is_admin(self):
         return self.has_role_from(["admin"])

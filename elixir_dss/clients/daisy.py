@@ -43,7 +43,7 @@ def get_elu_entities(entity_name: str, fields: str = "external_id,acronym,name")
         return _get_default_elu_entities(entity_name)
 
 
-def get_elu_lcsb_pis(project_id: str = None):
+def get_elu_lcsb_pis(project_id: str | None = None):
     if not project_id or project_id == "None":
         app.logger.warning("Project ID is None")
         return []

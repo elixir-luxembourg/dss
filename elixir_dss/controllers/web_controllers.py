@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 import uuid
-from datetime import date, datetime, UTC, timezone
+from datetime import UTC, date, datetime
 
 from flask import (
     flash,
@@ -20,19 +20,21 @@ from sqlalchemy.exc import OperationalError
 from werkzeug.utils import secure_filename
 from wtforms import FieldList, FormField
 
-from elixir_dss import app, db, lft, login_manager, oauth
+from elixir_dss import app, db, exceptions, forms, lft, login_manager, oauth
 from elixir_dss.clients.daisy import get_elu_lcsb_pis
 from elixir_dss.clients.idservice import IDServiceError, generate_id
-import elixir_dss.exceptions as exceptions
-import elixir_dss.forms as forms
 from elixir_dss.models.security import User, normalize_email
 from elixir_dss.models.services import (
     approve_data,
     approve_metadata,
     assign_role_to_user,
+    cancel_sub,
+    clone_sub,
     create_sub,
     delete_sub,
     get_in_progress_submissions_shared_with_user,
+    invite_recipients,
+    invite_submitters,
     register_new_user,
     reject_data,
     reject_metadata,
@@ -42,28 +44,23 @@ from elixir_dss.models.services import (
     steer_sub,
     update_submission_basic_info,
     update_user_info,
-    clone_sub,
-    cancel_sub,
-    invite_recipients,
-    invite_submitters,
 )
 from elixir_dss.models.submission import (
     Contact,
     EmailNotification,
     Submission,
+    SubmissionAccess,
     SubmissionAttachment,
     SubmissionDataset,
+    SubmissionDatasetCreator,
     SubmissionMessage,
-    SubmissionAccess,
     SubmissionStatusEnum,
     SubmissionStudy,
-    SubmissionDatasetCreator,
     format_local_custodian,
     parse_local_custodian,
 )
 
 from . import protect
-
 
 SUBMISSION_FORM_TEMPLATE = "submission/submission_form.html"
 ERROR_LOG_MSG = "ERROR %s"
@@ -286,7 +283,7 @@ def auth_callback():
         try:
             assign_role_to_user(user, "user")
         except Exception as e:
-            app.logger.warning(f"Could not assign default role: {e}")
+            app.logger.warning(f"Could not assign default role: {e}", exc_info=True)
 
     login_user(user)
     flash("Logged in successfully!", "success")
@@ -307,8 +304,8 @@ def refresh_token():
         )
         _set_token_session(new_token)
         app.logger.debug("OIDC token successfully refreshed.")
-    except Exception as e:
-        app.logger.error(f"Failed to refresh token: {e}")
+    except Exception:
+        app.logger.exception("Failed to refresh token")
         flash("Session expired. Please log in again.", "warning")
         return _clear_session()
 
@@ -692,8 +689,8 @@ def clone_submission(submission_id):
             clone_studies=clone_studies,
             clone_datasets=clone_datasets,
         )
-    except Exception as e:
-        app.logger.error(ERROR_LOG_MSG, e)
+    except Exception:
+        app.logger.exception("Failed to clone submission %s", submission_id)
         flash("Unable to clone submission", "danger")
         return redirect(url_for("list_submissions"))
 
@@ -742,9 +739,9 @@ def cancel_submission(sub_id):
         db.session.commit()
 
         flash(f"Submission {submission.ref_name} successfully cancelled.", "success")
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        app.logger.error(f"cancel submission error: {e}")
+        app.logger.exception("cancel submission error")
         flash("Internal error while cancelling submission.", "danger")
 
     if current_user.is_data_steward():
@@ -761,7 +758,7 @@ def cancel_submission(sub_id):
 
 
 def is_allowed_type(filename):
-    allowed_extensions = set(["txt", "pdf", "png"])
+    allowed_extensions = {"txt", "pdf", "png"}
     return "." in filename and filename.rsplit(".", 1)[1].lower() in allowed_extensions
 
 
@@ -1160,7 +1157,7 @@ def add_submission_message(sub_id):
             posted_form.populate_obj(message_rec)
             message_rec.id = None
             message_rec.sender_user = current_user
-            message_rec.created_on = datetime.now(timezone.utc)
+            message_rec.created_on = datetime.now(UTC)
             db.session.add(message_rec)
             db.session.commit()
             if message_rec.submission.is_in_progress():
@@ -1190,8 +1187,10 @@ def send_notification(notification_id):
         app.logger.info("INFO: Re-Sent email notification with ID: %s", notification_id)
         flash("Notification email sent!", "success")
         return "", 204
-    except Exception as e:
-        app.logger.error("ERROR  while sending notification email %s", e)
+    except Exception:
+        app.logger.exception(
+            "ERROR while sending notification email %s", notification_id
+        )
         flash("An error occurred when sending the notification email", "error")
         return "", 400
 
@@ -1206,7 +1205,7 @@ def list_notifications():
 @app.route("/dataset_link/<int:dataset_id>", methods=["GET"])
 @protect(roles=["user", "data_steward"])
 def dataset_link(dataset_id):
-    if not request.method == "GET":
+    if request.method != "GET":
         return "", 405
 
     if lft.client is None:
@@ -1231,8 +1230,6 @@ def dataset_link(dataset_id):
             f"Created LFT link for dataset {dataset.id}: {link.absolute_url}"
         )
         return render_template("submission/_lft_link_content.html", link=link)
-    except Exception as e:
-        app.logger.error(
-            f"Failed to create LFT link for dataset {dataset.id}: {str(e)}"
-        )
+    except Exception:
+        app.logger.exception(f"Failed to create LFT link for dataset {dataset.id}")
         return render_template("submission/_lft_link_content.html", link=None)
