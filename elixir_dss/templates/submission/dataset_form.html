@@ -20,18 +20,23 @@
 <div class="card border shadow-sm mb-4">
     <div class="card-header bg-white border-bottom">
         <h1 class="h5 mb-0 fw-semibold">
+            {% if read_only %}Dataset {% endif %}
             {% if dataset_form.internal_id.data %}
                 <span class="badge bg-secondary ms-2">{{ dataset_form.internal_id.data }}</span>
-            {% else %}
+            {% elif not read_only %}
             Add New Dataset
             {% endif %}
         </h1>
     </div>
     <div class="card-body p-4">
-        <form method="POST" {% if dataset_form.id.data %}
+        {% if read_only %}
+        <p class="text-muted small mb-4"><i class="bi bi-eye"></i> Read-only view: this dataset can't be edited at this stage.</p>
+        {% endif %}
+        <form method="POST" {% if read_only %}data-read-only="true"{% elif dataset_form.id.data %}
               data-url="{{ url_for('edit_submission_dataset', dataset_id = dataset_form.id.data)}}" {% else %}
               data-url="{{ url_for('add_submission_dataset', sub_id=dataset_form.submission_id.data)}}" {% endif %}>
             {{ dataset_form.hidden_tag() }}
+            <fieldset {% if read_only %}disabled{% endif %}>
 
             <!-- Overview Section -->
             <div class="mb-4">
@@ -57,12 +62,14 @@
 
                 <div data-toggle="fieldset" id="dataset-creators-fieldset">
 
+                    {% if not read_only %}
                     <button type="button"
                             class="btn btn-primary btn-sm mb-3"
                             data-toggle="fieldset-add-row"
                             data-target="#dataset-creators-fieldset">
                         <i class="bi bi-plus-circle"></i> Add Creator
                     </button>
+                    {% endif %}
 
                     <div class="table-responsive">
                         <table class="table table-hover align-top mb-0">
@@ -74,7 +81,7 @@
                                 <th>Institution</th>
                                 <th>Role</th>
                                 <th>ORCID iD</th>
-                                <th class="text-end">Actions</th>
+                                {% if not read_only %}<th class="text-end">Actions</th>{% endif %}
                             </tr>
                             </thead>
                             <tbody>
@@ -91,6 +98,7 @@
                                             <div class="invalid-feedback d-block">{{ error }}</div>
                                         {% endfor %}
                                     </td>
+                                    {% if not read_only %}
                                     <td class="text-end">
                                         <button type="button"
                                                 class="btn btn-danger btn-sm"
@@ -100,6 +108,7 @@
                                             <i class="bi bi-trash-fill"></i>
                                         </button>
                                     </td>
+                                    {% endif %}
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -216,15 +225,22 @@
                     </div>
                 </div>
             </div>
+            </fieldset>
 
             <!-- Form Actions -->
             <div class="d-flex gap-2 mt-4">
+                {% if read_only %}
+                <a href="{{ url_for('view_submission',sub_id=dataset_form.submission_id.data) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to submission
+                </a>
+                {% else %}
                 <button type="submit" class="btn btn-primary" id="submit-btn">
                     <i class="bi bi-check-circle"></i> Save
                 </button>
                 <a href="{{ url_for('view_submission',sub_id=dataset_form.submission_id.data) }}" class="btn btn-outline-secondary">
                     <i class="bi bi-x-circle"></i> Cancel
                 </a>
+                {% endif %}
             </div>
         </form>
     </div>

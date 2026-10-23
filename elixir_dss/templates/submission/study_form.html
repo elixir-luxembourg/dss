@@ -19,14 +19,18 @@
 {% block content %}
 <div class="card border shadow-sm mb-4">
     <div class="card-header bg-white border-bottom">
-        <h1 class="h5 mb-0 fw-semibold">{% if study_form.id.data %}Update {% else %}Add New {% endif %}Study</h1>
+        <h1 class="h5 mb-0 fw-semibold">{% if read_only %}Study{% elif study_form.id.data %}Update Study{% else %}Add New Study{% endif %}</h1>
     </div>
     <div class="card-body p-4">
-        <form method="POST" {% if study_form.id.data %}
+        {% if read_only %}
+        <p class="text-muted small mb-4"><i class="bi bi-eye"></i> Read-only view: this study can't be edited at this stage.</p>
+        {% endif %}
+        <form method="POST" {% if read_only %}data-read-only="true"{% elif study_form.id.data %}
               data-url="{{ url_for('edit_submission_study', study_id = study_form.id.data)}}" {% else %}
               data-url="{{ url_for('add_submission_study', sub_id=study_form.submission_id.data)}}" {% endif %}>
 
             {{ study_form.hidden_tag() }}
+            <fieldset {% if read_only %}disabled{% endif %}>
 
             <fieldset class="mb-4 pb-3 border-bottom">
                 <h2 class="h5 fw-semibold mb-3">Study Overview</h2>
@@ -69,10 +73,12 @@
 
                 <div class="{% if study_form.study_contacts.errors %}is-invalid{% endif %}">
                     <div data-toggle="fieldset" id="study-contacts-fieldset">
+                        {% if not read_only %}
                         <button type="button" class="btn btn-primary btn-sm mb-3" data-toggle="fieldset-add-row"
                                 data-target="#study-contacts-fieldset" aria-label="Add new contact">
                             <i class="bi bi-plus-lg"></i> Add Contact
                         </button>
+                        {% endif %}
 
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
@@ -84,7 +90,7 @@
                                         <th class="fw-semibold" style="min-width: 120px;">Institution</th>
                                         <th class="fw-semibold" style="min-width: 150px;">Role</th>
                                         <th class="fw-semibold text-center" style="width: 80px;">Main</th>
-                                        <th class="fw-semibold text-end" style="width: 80px;">Actions</th>
+                                        {% if not read_only %}<th class="fw-semibold text-end" style="width: 80px;">Actions</th>{% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -96,6 +102,7 @@
                                         <td>{{ fmacros.render_field(contact_form.institution, clazz='form-control-sm') }}</td>
                                         <td>{{ fmacros.render_field(contact_form.category_id, clazz='form-select-sm') }}</td>
                                         <td class="text-center">{{ fmacros.render_field(contact_form.is_main_contact, clazz='form-check-input') }}</td>
+                                        {% if not read_only %}
                                         <td class="text-end">
                                             <button type="button" class="btn btn-danger btn-sm"
                                                     data-toggle="fieldset-remove-row"
@@ -104,6 +111,7 @@
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </td>
+                                        {% endif %}
                                     </tr>
                                     {% if contact_form.errors %}
                                     <tr>
@@ -135,9 +143,16 @@
 
                 {{ fmacros.render_field_with_errors(study_form.contact_remarks) }}
             </fieldset>
+            </fieldset>
 
             <!-- Form Actions -->
             <div class="d-flex gap-2 mt-4">
+                {% if read_only %}
+                <a href="{{ url_for('view_submission',sub_id=study_form.submission_id.data) }}"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to submission
+                </a>
+                {% else %}
                 <button type="submit" class="btn btn-primary" id="submit-btn">
                     <i class="bi bi-check-circle"></i> Save
                 </button>
@@ -145,6 +160,7 @@
                    class="btn btn-outline-secondary">
                     <i class="bi bi-x-circle"></i> Cancel
                 </a>
+                {% endif %}
             </div>
         </form>
     </div>

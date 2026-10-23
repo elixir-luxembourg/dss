@@ -37,8 +37,12 @@
                         {% if study.acronym %}<span class="text-muted small">({{ study.acronym }})</span>{% endif %}
                     </a>
                     {% else %}
-                    <span class="fw-semibold">{{ study.name }}</span>
-                    {% if study.acronym %}<span class="text-muted small">({{ study.acronym }})</span>{% endif %}
+                    <a href="{{ url_for('view_submission_study', study_id=study.id) }}"
+                        class="text-dark text-decoration-none d-inline-flex align-items-center gap-2"
+                        title="View study">
+                        <span class="fw-semibold">{{ study.name }}</span>
+                        {% if study.acronym %}<span class="text-muted small">({{ study.acronym }})</span>{% endif %}
+                    </a>
                     {% endif %}
                 </td>
                 <td class="py-3">

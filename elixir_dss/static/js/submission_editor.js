@@ -152,6 +152,10 @@ $(document).ready(function () {
         });
     });
 
+    // A read-only form: its fieldset is disabled, but select2 only reads each select's own
+    // disabled property, so disable every control before the widgets are bound.
+    $('form[data-read-only] :input').not('[type=hidden]').prop('disabled', true);
+
     bind_widgets();
 
     function updateLocalCustodians(projectId) {
