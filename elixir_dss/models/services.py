@@ -1,23 +1,23 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from threading import Thread
 
 from flask import flash, render_template
 from flask_mail import Message
 from sqlalchemy import and_, select
 
-from elixir_dss import app, db, mail, lft
+from elixir_dss import app, db, lft, mail
 from elixir_dss.exceptions import RecordLifecycleException, RecordNotExistsException
 from elixir_dss.models.security import Role, User, UsersRoles, normalize_email
 from elixir_dss.models.submission import (
+    Contact,
     EmailNotification,
     Submission,
     SubmissionAccess,
+    SubmissionDataset,
     SubmissionMessage,
     SubmissionStatusEnum,
-    Contact,
     SubmissionStudy,
-    SubmissionDataset,
 )
 
 CANNOT_STEER_MSG = "Submission cannot be steered to the next state!"
@@ -40,10 +40,7 @@ def get_access(user_id: str, submission_id: str):
 
 
 def has_access(user_id: str, submission_id: str):
-    if get_access(user_id, submission_id) is not None:
-        return True
-    else:
-        return False
+    return get_access(user_id, submission_id) is not None
 
 
 def _validate_steer(submission, target_state):
@@ -78,7 +75,7 @@ def _apply_steer_side_effects(submission, target_state):
         send_metadata_approval_request_notification(submission)
 
     elif target_state == SubmissionStatusEnum.data_upload:
-        submission.finalised_on = datetime.today()
+        submission.finalised_on = datetime.now(UTC)
         send_submission_steer_step2_notification(submission)
         flash(
             "An upload link will be created once all information provided is checked and where required signatures are received.",
@@ -89,8 +86,10 @@ def _apply_steer_side_effects(submission, target_state):
         if lft.client:
             try:
                 lft.invalidate_links_for_submission(submission.id, delete_share=False)
-            except Exception as e:
-                app.logger.error(f"LFT invalidate failed for ds {submission.id}: {e}")
+            except Exception:
+                app.logger.exception(
+                    f"LFT invalidate failed for submission {submission.id}"
+                )
         send_data_approval_request_notification(submission)
 
     elif target_state == SubmissionStatusEnum.completed:
@@ -128,7 +127,7 @@ def revert_sub(submission_id: str):
 def create_sub(institute_accession: str):
     new_submission = Submission()
     new_submission.institution_accession = institute_accession
-    new_submission.created_on = datetime.today()
+    new_submission.created_on = datetime.now(UTC)
     db.session.add(new_submission)
     db.session.flush()
     new_submission.ref_name = f"ELX_LU_SUB-{new_submission.id}"
@@ -190,7 +189,7 @@ def submitter_emails(submission: Submission):
 def send_submission_steer_step1_notification(submission: Submission):
     recipients = submitter_emails(submission)
     persist_and_send_notification(
-        "Submission [%s] initiated" % submission.ref_name,
+        f"Submission [{submission.ref_name}] initiated",
         "noreply@uni.lu",
         recipients,
         render_template("email/submission_steer1.txt", submission=submission),
@@ -200,8 +199,7 @@ def send_submission_steer_step1_notification(submission: Submission):
 
 def send_submission_steer_step2_notification(submission: Submission):
     persist_and_send_notification(
-        "Submission [%s] steered to Data Upload, needs Upload Instructions"
-        % submission.ref_name,
+        f"Submission [{submission.ref_name}] steered to Data Upload, needs Upload Instructions",
         "noreply@uni.lu",
         app.config.get("DATA_STEWARDS_MAILS"),
         render_template("email/submission_steer2.txt", submission=submission),
@@ -211,8 +209,7 @@ def send_submission_steer_step2_notification(submission: Submission):
 
 def send_submission_steer_step3_notification(submission: Submission):
     persist_and_send_notification(
-        "Submission [%s] steered to Completion, needs Verification"
-        % submission.ref_name,
+        f"Submission [{submission.ref_name}] steered to Completion, needs Verification",
         "noreply@uni.lu",
         app.config.get("DATA_STEWARDS_MAILS"),
         render_template("email/submission_steer3.txt", submission=submission),
@@ -227,7 +224,7 @@ def send_new_message_notification(submission_message: SubmissionMessage):
     recipients = recipients + app.config.get("DATA_STEWARDS_MAILS")
 
     persist_and_send_notification(
-        "Submission [%s] has new message" % submission_message.submission.ref_name,
+        f"Submission [{submission_message.submission.ref_name}] has new message",
         "noreply@uni.lu",
         recipients,
         render_template(
@@ -242,7 +239,7 @@ def send_new_message_notification(submission_message: SubmissionMessage):
 
 def send_metadata_approval_request_notification(submission: Submission):
     persist_and_send_notification(
-        "Submission [%s] ready for metadata approval" % submission.ref_name,
+        f"Submission [{submission.ref_name}] ready for metadata approval",
         "noreply@uni.lu",
         app.config.get("DATA_STEWARDS_MAILS"),
         render_template(
@@ -257,7 +254,7 @@ def send_metadata_approval_request_notification(submission: Submission):
 def send_metadata_approved_notification(submission: Submission, feedback=None):
     recipients = submitter_emails(submission)
     persist_and_send_notification(
-        "Submission [%s] metadata approved" % submission.ref_name,
+        f"Submission [{submission.ref_name}] metadata approved",
         "noreply@uni.lu",
         recipients,
         render_template(
@@ -276,7 +273,7 @@ def send_metadata_approved_notification(submission: Submission, feedback=None):
 def send_metadata_rejected_notification(submission: Submission, feedback):
     recipients = submitter_emails(submission)
     persist_and_send_notification(
-        "Submission [%s] metadata requires changes" % submission.ref_name,
+        f"Submission [{submission.ref_name}] metadata requires changes",
         "noreply@uni.lu",
         recipients,
         render_template(
@@ -294,7 +291,7 @@ def send_metadata_rejected_notification(submission: Submission, feedback):
 
 def send_data_approval_request_notification(submission: Submission):
     persist_and_send_notification(
-        "Submission [%s] ready for data approval" % submission.ref_name,
+        f"Submission [{submission.ref_name}] ready for data approval",
         "noreply@uni.lu",
         app.config.get("DATA_STEWARDS_MAILS"),
         render_template(
@@ -309,7 +306,7 @@ def send_data_approval_request_notification(submission: Submission):
 def send_data_approved_notification(submission: Submission, feedback=None):
     recipients = submitter_emails(submission)
     persist_and_send_notification(
-        "Submission [%s] data upload approved" % submission.ref_name,
+        f"Submission [{submission.ref_name}] data upload approved",
         "noreply@uni.lu",
         recipients,
         render_template(
@@ -328,7 +325,7 @@ def send_data_approved_notification(submission: Submission, feedback=None):
 def send_data_rejected_notification(submission: Submission, feedback):
     recipients = submitter_emails(submission)
     persist_and_send_notification(
-        "Submission [%s] data upload requires changes" % submission.ref_name,
+        f"Submission [{submission.ref_name}] data upload requires changes",
         "noreply@uni.lu",
         recipients,
         render_template(
@@ -354,7 +351,7 @@ def send_invitations(submission: Submission, users: list[User]):
     )
 
     persist_and_send_notification(
-        "Invitation to collaborate on Submission [%s]" % submission.ref_name,
+        f"Invitation to collaborate on Submission [{submission.ref_name}]",
         "noreply@uni.lu",
         recipients,
         render_template(
@@ -385,7 +382,7 @@ def approve_metadata(submission_id, reviewer_id, feedback=None):
         sender_user_id=reviewer_id,
         message_text=message_text,
         message_type="metadata_approval",
-        created_on=datetime.now(timezone.utc),
+        created_on=datetime.now(UTC),
     )
     db.session.add(message)
     db.session.commit()
@@ -406,7 +403,7 @@ def reject_metadata(submission_id, reviewer_id, feedback):
         sender_user_id=reviewer_id,
         message_text=message_text,
         message_type="metadata_rejection",
-        created_on=datetime.now(timezone.utc),
+        created_on=datetime.now(UTC),
     )
     db.session.add(message)
     db.session.commit()
@@ -430,7 +427,7 @@ def approve_data(submission_id, reviewer_id, feedback=None):
         sender_user_id=reviewer_id,
         message_text=message_text,
         message_type="data_approval",
-        created_on=datetime.now(timezone.utc),
+        created_on=datetime.now(UTC),
     )
     db.session.add(message)
     db.session.commit()
@@ -451,7 +448,7 @@ def reject_data(submission_id, reviewer_id, feedback):
         sender_user_id=reviewer_id,
         message_text=message_text,
         message_type="data_rejection",
-        created_on=datetime.now(timezone.utc),
+        created_on=datetime.now(UTC),
     )
     db.session.add(message)
     db.session.commit()
@@ -467,7 +464,7 @@ def persist_and_send_notification(subject, sender, recipients, text_body, html_b
     notification.recipients_json = json.dumps(recipients)
     notification.text_body = text_body
     notification.html_body = html_body
-    notification.created_on = datetime.today()
+    notification.created_on = datetime.now(UTC)
     db.session.add(notification)
     db.session.commit()
     send_email_asynch(notification)
@@ -552,7 +549,7 @@ def update_submission_basic_info(submission: Submission, **kwargs):
                 send_submission_steer_step1_notification(submission)
                 for user_id in newly_shared_user_ids:
                     usr = User.query.filter_by(id=user_id).one_or_none()
-                    flash("Submission shared with %s" % usr.display_name(), "info")
+                    flash(f"Submission shared with {usr.display_name()}", "info")
 
 
 def update_user_info(usr: User, **kwargs):
@@ -685,9 +682,7 @@ def clone_sub(
 
     except Exception as e:
         db.session.rollback()
-        app.logger.error(
-            f"Failed to clone submission {original_submission_id}: {str(e)}"
-        )
+        app.logger.error(f"Failed to clone submission {original_submission_id}: {e!s}")
         raise
 
 
@@ -702,7 +697,7 @@ def send_submission_cancellation_notification(
     recipients = recipients + app.config.get("DATA_STEWARDS_MAILS", [])
 
     persist_and_send_notification(
-        "Submission [%s] has been CANCELLED" % submission.ref_name,
+        f"Submission [{submission.ref_name}] has been CANCELLED",
         "noreply@uni.lu",
         recipients,
         render_template(
@@ -722,14 +717,16 @@ def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
     submission.current_status = SubmissionStatusEnum.cancelled
     submission.cancellation_reason = reason
     submission.cancelled_by_user_id = cancelled_by_user.id
-    submission.finalised_on = datetime.now(timezone.utc)
+    submission.finalised_on = datetime.now(UTC)
 
     # invalidate lft
     if lft.client:
         try:
             lft.invalidate_links_for_submission(submission.id, delete_share=True)
-        except Exception as e:
-            app.logger.error(f"LFT invalidate failed for ds {submission.id}: {e}")
+        except Exception:
+            app.logger.exception(
+                f"LFT invalidate failed for submission {submission.id}"
+            )
 
     db.session.add(submission)
 
@@ -739,7 +736,7 @@ def cancel_sub(submission: Submission, reason: str, cancelled_by_user: User):
         sender_user_id=cancelled_by_user.id,
         message_text=message_text,
         message_type="submission_cancellation",
-        created_on=datetime.now(timezone.utc),
+        created_on=datetime.now(UTC),
     )
     db.session.add(message)
     db.session.commit()
@@ -759,7 +756,7 @@ def send_recipient_invitations(submission: Submission, users: list[User]):
     )
 
     persist_and_send_notification(
-        "Submission [%s] you have been assigned as Recipient" % submission.ref_name,
+        f"Submission [{submission.ref_name}] you have been assigned as Recipient",
         "noreply@uni.lu",
         recipients,
         render_template(

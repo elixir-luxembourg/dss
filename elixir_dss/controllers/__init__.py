@@ -4,6 +4,7 @@ from flask import abort, render_template, request
 from flask_login import current_user, login_required
 
 from elixir_dss import db
+
 from ..models.services import get_access
 from ..models.submission import (
     Submission,
@@ -123,8 +124,8 @@ def _forbidden(message):
     )
 
 
-from . import errors, reporters, web_controllers, api_controllers  # noqa: E402
+from . import api_controllers, errors, reporters, web_controllers
 
 __author__ = "Valentin Grouès, Pinar Alper"
 
-__all__ = [errors, web_controllers, reporters, api_controllers]
+__all__ = ["api_controllers", "errors", "reporters", "web_controllers"]

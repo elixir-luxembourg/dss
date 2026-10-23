@@ -24,10 +24,10 @@ def generate_submission_docx(sub_id):
     context = exporter.export_submission(sub)
     try:
         doc.render(context, app.jinja_env)
-    except Exception:
+    except Exception as e:
         raise ValueError(
             "Rendering of the DOCX report failed. Are you sure all required values are filled in?"
-        )
+        ) from e
     doc_io = io.BytesIO()
     doc.save(doc_io)
     doc_io.seek(0)

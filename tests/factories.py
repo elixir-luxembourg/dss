@@ -1,5 +1,6 @@
-import factory
 from datetime import date
+
+import factory
 from factory.alchemy import SQLAlchemyModelFactory
 
 from elixir_dss import db
@@ -12,9 +13,9 @@ from elixir_dss.models.submission import (
     SubmissionAccess,
     SubmissionAttachment,
     SubmissionDataset,
+    SubmissionDatasetCreator,
     SubmissionStatusEnum,
     SubmissionStudy,
-    SubmissionDatasetCreator,
 )
 
 

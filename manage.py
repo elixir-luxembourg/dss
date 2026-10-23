@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import click
 from flask.cli import FlaskGroup
-from flask_migrate import Migrate, upgrade, downgrade
+from flask_migrate import Migrate, downgrade, upgrade
 
 from elixir_dss import app, db
 from elixir_dss.importer.importer_utils import schedule_submission_export
 from elixir_dss.models.security import Role, User
-from elixir_dss.models.services import assign_role_to_user, register_new_user
 from elixir_dss.models.seed_data import seed_init_data
+from elixir_dss.models.services import assign_role_to_user, register_new_user
 
 migrate_instance = Migrate(app, db)
 

@@ -25,9 +25,8 @@ class SubmissionExporter:
         try:
             buffer = self.export_to_buffer(StringIO())
             print(buffer.getvalue(), file=file_handle)
-        except Exception as e:
-            app.logger.error("Submission export failed")
-            app.logger.error(str(e))
+        except Exception:
+            app.logger.exception("Submission export failed")
             result = False
         app.logger.info(f"Submission export complete see file: {file_handle}")
         return result
@@ -41,7 +40,7 @@ class SubmissionExporter:
             except Exception as e:
                 app.logger.error(f"Export failed for submission {submission_ref_name}")
                 app.logger.error(str(e))
-                raise e
+                raise
             json.dump(
                 {
                     "$schema": "https://git-r3lab.uni.lu/pinar.alper/metadata-tools/raw/master/metadata_tools/resources/elu-dataset.json",
@@ -189,7 +188,7 @@ def _parse_json_string(value: str):
 
     try:
         parsed = json.loads(stripped)
-    except Exception:
+    except json.JSONDecodeError:
         return None
 
     if isinstance(parsed, list):

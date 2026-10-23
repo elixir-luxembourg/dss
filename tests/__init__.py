@@ -6,8 +6,8 @@ os.environ["ELIXIR_DSS_ENV"] = "test"
 
 from elixir_dss import app, db
 from elixir_dss.models.security import User
-from elixir_dss.models.services import assign_role_to_user, register_new_user
 from elixir_dss.models.seed_data import seed_init_data
+from elixir_dss.models.services import assign_role_to_user, register_new_user
 
 __author__ = "Pinar Alper"
 
@@ -40,7 +40,7 @@ class BaseIntegrationTest(BaseTest):
     def login(self, username, password):
         return self.client.post(
             "/login",
-            data=dict(username=username, password=password, remember=True),
+            data={"username": username, "password": password, "remember": True},
             follow_redirects=False,
         )
 

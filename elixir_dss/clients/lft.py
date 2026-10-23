@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from datetime import datetime as dt, timedelta as td
+from datetime import datetime as dt
+from datetime import timedelta as td
 
 from flask import Flask
 
@@ -139,8 +140,8 @@ class LFTHandler:
 
         try:
             self.client.login(self.username, self.password)
-        except Exception as e:
-            self._logger.error(f"LFT login failed: {e}")
+        except Exception:
+            self._logger.exception("LFT login failed")
             return
 
         for ds in datasets:
@@ -167,8 +168,8 @@ class LFTHandler:
                             share_name=ds.internal_id,
                             link=lk.hashid,
                         )
-            except Exception as e:
-                self._logger.error(f"LFT invalidate failed for ds {ds.id}: {e}")
+            except Exception:
+                self._logger.exception(f"LFT invalidate failed for ds {ds.id}")
 
 
 __all__ = ["LFTHandler"]

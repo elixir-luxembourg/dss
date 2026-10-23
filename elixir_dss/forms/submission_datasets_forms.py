@@ -1,33 +1,35 @@
 from flask_wtf import FlaskForm
 from wtforms import (
     BooleanField,
-    SelectField as PlainSelectField,
     DateField,
     EmailField,
+    FieldList,
+    FormField,
     HiddenField,
     IntegerField,
     StringField,
     TextAreaField,
-    FieldList,
-    FormField,
+)
+from wtforms import (
+    SelectField as PlainSelectField,
 )
 from wtforms.validators import (
     DataRequired,
     Email,
     Length,
+    NumberRange,
     Optional,
     Regexp,
-    NumberRange,
     ValidationError,
 )
 from wtforms_components import SelectField, SelectMultipleField
 
 from elixir_dss import app
 from elixir_dss.models.submission import (
+    USE_CONDITION_CHOICES,
     ConsentStatus,
     LegalBasisType,
     SubmissionStudy,
-    USE_CONDITION_CHOICES,
 )
 
 TEXT_FIELD_REGEX = r"^[\w\s,\-.]+$"
@@ -483,9 +485,12 @@ class DatasetForm(FlaskForm):
         ]
 
     def validate_last_update_date(self, field):
-        if self.creation_date.data and field.data:
-            if field.data < self.creation_date.data:
-                raise ValidationError("Last update date must be after creation date.")
+        if (
+            self.creation_date.data
+            and field.data
+            and field.data < self.creation_date.data
+        ):
+            raise ValidationError("Last update date must be after creation date.")
 
     def validate_creators(self, field):
         if not any(

@@ -78,6 +78,7 @@ For production, generate a secure secret key:
 
 ```python
 import os
+
 os.urandom(24)
 ```
 

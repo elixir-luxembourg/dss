@@ -1,6 +1,6 @@
 from functools import wraps
 
-from flask import Blueprint, abort, request, jsonify
+from flask import Blueprint, abort, jsonify, request
 from werkzeug.exceptions import HTTPException
 
 from elixir_dss import app, db
