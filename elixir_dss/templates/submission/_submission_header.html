@@ -20,7 +20,7 @@
             <div class="fw-semibold">{{ macros.entity_name(submission.provider_institute_name(), submission.institution_accession) }}</div>
         </div>
         <div class="col-md-8">
-            <p class="form-label text-muted small mb-1">Submitting user(s)</p>
+            <p class="form-label text-muted small mb-1">Submitters</p>
             <div class="fw-semibold">
                 {% if submission.provider_user_names() %}
                     {{ submission.provider_user_names() | join(', ') }}
@@ -36,7 +36,7 @@
 <div class="border-top pt-4">
     <div class="row g-4">
         <div class="col-md-4">
-            <p class="form-label text-muted small mb-1">Recipient user(s)</p>
+            <p class="form-label text-muted small mb-1">Recipients</p>
             <div class="fw-semibold">
                 {% if submission.local_custodians() %}
                     {{ submission.local_custodians() | join(', ') }}

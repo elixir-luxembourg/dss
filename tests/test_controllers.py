@@ -820,8 +820,8 @@ class ControllersTest(BaseIntegrationTest):
         for label in (
             "Submitting institution",
             "Receiving project",
-            "Submitting user(s)",
-            "Recipient user(s)",
+            "Submitters",
+            "Recipients",
             "Status:",
             "Creation date:",
         ):
