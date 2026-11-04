@@ -73,6 +73,8 @@ $(document).ready(function () {
                 let elem_id = firstInput.id;
                 let elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1')) + 1;
                 row.attr('data-id', elem_num);
+                row.find(".invalid-feedback").remove();
+                row.find(".is-invalid").removeClass("is-invalid");
                 row.find(":input").each(function () {
                     updateFieldsetInputIds(this, elem_num - 1, elem_num);
                 });

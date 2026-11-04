@@ -88,6 +88,17 @@ class SubmissionExporter:
                 "description": normalize(ds.description),
                 "study": normalize(ds.study.name if ds.study else None),
                 "external_id": normalize(ds.external_identifiers),
+                "creators": [
+                    {
+                        "first_name": normalize(c.first_name),
+                        "last_name": normalize(c.last_name),
+                        "email": normalize(c.email),
+                        "institution": normalize(c.institution),
+                        "role": normalize(c.role),
+                        "orcid": normalize(c.orcid),
+                    }
+                    for c in ds.creators
+                ],
                 "gdpr_data_types": normalize(ds.gdpr_data_type_names()),
                 "scientific_data_types": normalize(ds.sci_data_type_names()),
                 "contains_personal_data": normalize(ds.contains_personal_data),

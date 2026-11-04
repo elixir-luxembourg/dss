@@ -1,6 +1,7 @@
 from werkzeug.datastructures import ImmutableMultiDict
 
 from elixir_dss.forms import SignupForm
+from elixir_dss.forms.submission_datasets_forms import DatasetCreatorForm
 from elixir_dss.forms.submissions_forms import ContactForm, StudyForm
 from tests import BaseTest
 
@@ -170,3 +171,47 @@ class ContactFormTest(BaseTest):
             )
             self.assertFalse(form.validate())
             self.assertIn("email", form.errors)
+
+
+class DatasetCreatorFormTest(BaseTest):
+    def _form(self, orcid):
+        return DatasetCreatorForm(
+            ImmutableMultiDict(
+                [
+                    ("first_name", "Josiah"),
+                    ("last_name", "Carberry"),
+                    ("email", "josiah@example.com"),
+                    ("institution", "Brown University"),
+                    ("role", "PI"),
+                    ("orcid", orcid),
+                ]
+            )
+        )
+
+    def test_orcid_optional(self):
+        with self.app.app_context():
+            form = self._form("")
+            self.assertTrue(form.validate(), form.errors)
+
+    def test_orcid_valid(self):
+        with self.app.app_context():
+            for value, expected in (
+                ("0000-0001-9235-8496", "0000-0001-9235-8496"),
+                (" https://orcid.org/0000-0001-9235-8496 ", "0000-0001-9235-8496"),
+                ("orcid.org/0000-0002-1694-233x", "0000-0002-1694-233X"),
+            ):
+                form = self._form(value)
+                self.assertTrue(form.validate(), (value, form.errors))
+                self.assertEqual(form.orcid.data, expected)
+
+    def test_orcid_invalid(self):
+        with self.app.app_context():
+            for value in (
+                "0000-0002-1825-009",
+                "0000000218250097",
+                "0000-0002-1825-0098",  # wrong check digit
+                "https://example.org/0000-0001-9235-8496",
+            ):
+                form = self._form(value)
+                self.assertFalse(form.validate(), value)
+                self.assertIn("orcid", form.errors)
