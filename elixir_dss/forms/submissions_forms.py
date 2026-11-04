@@ -15,7 +15,6 @@ from wtforms.validators import (
     Length,
     NumberRange,
     Optional,
-    Regexp,
 )
 from wtforms_components import SelectField, SelectMultipleField
 
@@ -27,8 +26,6 @@ from elixir_dss.clients.daisy import (
 )
 from elixir_dss.models.services import get_active_users
 from elixir_dss.models.submission import Contact, ContactType, format_local_custodian
-
-from .validators import OptionalFieldValidator
 
 
 class AttachmentForm(FlaskForm):
@@ -42,7 +39,6 @@ class AttachmentForm(FlaskForm):
         description="Please provide a brief description of the document you're uploading.",
         validators=[
             DataRequired(),
-            Regexp(r"^[\w\s]+$", message="Note can only contain letters, ."),
             Length(min=2, max=40, message="Must be 2 to 40 characters long."),
         ],
     )
@@ -349,12 +345,7 @@ class SubmissionForm(FlaskForm):
         "Remarks",
         description="If there is any information about the study you were unable to provide through the form you may specify it here.",
         render_kw={"rows": 2},
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
+        validators=[Length(max=250, message="Must be at most 250 characters long.")],
     )
 
     def __init__(self, *args, **kwargs):

@@ -2,7 +2,12 @@ from werkzeug.datastructures import ImmutableMultiDict
 
 from elixir_dss.forms import SignupForm
 from elixir_dss.forms.submission_datasets_forms import DatasetCreatorForm
-from elixir_dss.forms.submissions_forms import ContactForm, StudyForm
+from elixir_dss.forms.submissions_forms import (
+    AttachmentForm,
+    ContactForm,
+    StudyForm,
+    SubmissionForm,
+)
 from tests import BaseTest
 
 __author__ = "Pinar Alper"
@@ -215,3 +220,52 @@ class DatasetCreatorFormTest(BaseTest):
                 form = self._form(value)
                 self.assertFalse(form.validate(), value)
                 self.assertIn("orcid", form.errors)
+
+
+class FreeTextFieldsTest(BaseTest):
+    """Free-text fields accept punctuation such as apostrophes (issue #188)."""
+
+    TEXT = 'King\'s College (London) & partners: 50% done; see https://example.org/a?b=1 "quoted" <none>!'
+
+    def _assert_field_accepts(self, form, name, value=TEXT):
+        field = getattr(form, name)
+        field.data = value
+        self.assertTrue(field.validate(form), f"{name}: {field.errors}")
+
+    def test_submission_remarks(self):
+        form = SubmissionForm()
+        self._assert_field_accepts(form, "notes")
+        self._assert_field_accepts(form, "notes", "")
+
+    def test_submission_remarks_length_limited(self):
+        form = SubmissionForm()
+        form.notes.data = "x" * 251
+        self.assertFalse(form.notes.validate(form))
+
+    def test_attachment_description(self):
+        form = AttachmentForm()
+        self._assert_field_accepts(form, "note", "Patient's consent form (v2)")
+
+    def test_attachment_description_length_limited(self):
+        form = AttachmentForm()
+        form.note.data = "x" * 41
+        self.assertFalse(form.note.validate(form))
+
+    def test_dataset_creator_institution_and_role(self):
+        form = DatasetCreatorForm()
+        self._assert_field_accepts(form, "institution", "King's College London")
+        self._assert_field_accepts(form, "role", "PI (Principal Investigator)")
+
+    def test_signup_division_and_address(self):
+        form = SignupForm()
+        self._assert_field_accepts(form, "institution_division", "Dept. of Bio/Chem")
+        self._assert_field_accepts(form, "addr_line1", "2, Avenue de l'Université")
+        self._assert_field_accepts(form, "addr_line2", "L-4365 Esch-sur-Alzette (LU)")
+
+    def test_names_still_restricted(self):
+        form = DatasetCreatorForm()
+        form.first_name.data = "<script>"
+        self.assertFalse(form.first_name.validate(form))
+        signup = SignupForm()
+        signup.first_name.data = "Pinar<>"
+        self.assertFalse(signup.first_name.validate(signup))

@@ -107,12 +107,7 @@ class SignupForm(FlaskForm):
     institution_division = StringField(
         "Division/Department",
         description="Your division within the home organisation.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
+        validators=[Length(max=255, message="Must be at most 255 characters long.")],
     )
 
     email = EmailField(
@@ -128,24 +123,14 @@ class SignupForm(FlaskForm):
     addr_line1 = StringField(
         "Address Line 1",
         description="Your postal address.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
+        validators=[Length(max=255, message="Must be at most 255 characters long.")],
         render_kw={"placeholder": "Street Address."},
     )
 
     addr_line2 = StringField(
         "Address Line 2",
         description="Your postal address.",
-        validators=[
-            OptionalFieldValidator(
-                regex_str=r"^[\w\s,\-.]+$",
-                message="Can only contain letters, digits, dash, comma and dot.",
-            )
-        ],
+        validators=[Length(max=255, message="Must be at most 255 characters long.")],
         render_kw={"placeholder": "City, Country, Postal Code."},
     )
 
