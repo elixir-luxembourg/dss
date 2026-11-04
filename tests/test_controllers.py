@@ -271,6 +271,87 @@ class ControllersTest(BaseIntegrationTest):
         self.assertEqual(dataset.internal_id, "TEST_DATASET_ID_001")
         self.assertEqual("Test_Dataset", dataset.title)
 
+    def _dataset_dates_form(self, sub, study, **dates):
+        return {
+            "submission_id": sub.id,
+            "title": "Dated_Dataset",
+            "study_id": study.id,
+            "description": "Description",
+            "data_processing_type": "pseudonymised",
+            "sci_datatypes": ["Whole_genome_sequencing"],
+            "gdpr_datatypes": ["genetic"],
+            "legal_basis_collection_std_code": "61a",
+            "legal_basis_sharing_std_code": "61a",
+            "consent_status_code": "hm",
+            "creators-0-first_name": "John",
+            "creators-0-last_name": "Doe",
+            "creators-0-email": "john@example.com",
+            "creators-0-institution": "Test Uni",
+            "creators-0-role": "Principal Investigator",
+            **dates,
+        }
+
+    def _add_dataset_with_dates(self, ref_name, **dates):
+        self.login("steward1@uni.lu", "steward1")
+        sub = create_sub(ref_name)
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        resp = self.client.post(
+            url_for("add_submission_dataset", sub_id=sub.id),
+            data=self._dataset_dates_form(sub, study, **dates),
+            follow_redirects=True,
+        )
+        self.assert200(resp)
+        return SubmissionDataset.query.filter_by(submission_id=sub.id).one()
+
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
+    def test_add_dataset_dates_left_empty(self):
+        dataset = self._add_dataset_with_dates("ELU_I_239")
+        self.assertIsNone(dataset.creation_date)
+        self.assertIsNone(dataset.last_update_date)
+
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
+    def test_add_dataset_dates_kept_as_posted(self):
+        dataset = self._add_dataset_with_dates(
+            "ELU_I_239", creation_date="2020-01-02", last_update_date="2021-03-04"
+        )
+        self.assertEqual(dataset.creation_date.isoformat(), "2020-01-02")
+        self.assertEqual(dataset.last_update_date.isoformat(), "2021-03-04")
+
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
+    def test_edit_dataset_dates_kept_as_posted(self):
+        self.login("steward1@uni.lu", "steward1")
+        sub = create_sub("ELU_I_240")
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
+        db.session.commit()
+        url = url_for("edit_submission_dataset", dataset_id=dataset.id)
+
+        self.client.post(
+            url,
+            data=self._dataset_dates_form(sub, study, id=dataset.id),
+            follow_redirects=True,
+        )
+        db.session.expire_all()
+        dataset = db.session.get(SubmissionDataset, dataset.id)
+        self.assertIsNone(dataset.creation_date)
+        self.assertIsNone(dataset.last_update_date)
+
+        self.client.post(
+            url,
+            data=self._dataset_dates_form(
+                sub,
+                study,
+                id=dataset.id,
+                creation_date="2020-01-02",
+                last_update_date="2021-03-04",
+            ),
+            follow_redirects=True,
+        )
+        db.session.expire_all()
+        dataset = db.session.get(SubmissionDataset, dataset.id)
+        self.assertEqual(dataset.creation_date.isoformat(), "2020-01-02")
+        self.assertEqual(dataset.last_update_date.isoformat(), "2021-03-04")
+
     def test_delete_submission(self):
         self.login("steward1@uni.lu", "steward1")
 
