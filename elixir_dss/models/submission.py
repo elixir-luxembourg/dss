@@ -93,6 +93,16 @@ class SubmissionAttachment(db.Model):
     note = db.Column(db.String, nullable=False)
     folder_name = db.Column(db.String, nullable=False)
     file_names = db.Column(db.String, nullable=False)
+    # Attachments uploaded before these columns existed have no date or uploader.
+    uploaded_on = db.Column(
+        db.DateTime(timezone=True),
+        nullable=True,
+        default=lambda: datetime.now(UTC),
+    )
+    uploaded_by_user_id = db.Column(
+        db.Integer, db.ForeignKey("users.id"), nullable=True
+    )
+    uploaded_by = db.relationship("User")
 
     def files_urls(self):
         if self.file_names is not None:
