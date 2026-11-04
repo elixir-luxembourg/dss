@@ -809,6 +809,7 @@ def add_submission_attachment(sub_id):
             attachment.note = form.note.data
             attachment.submission_id = form.submission_id.data
             attachment.folder_name = attachments_folder
+            attachment.uploaded_by_user_id = current_user.id
             attachment.file_names = ""
             for file in request_files:
                 secured_file_name = secure_filename(file.filename)

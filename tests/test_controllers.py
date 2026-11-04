@@ -1238,6 +1238,43 @@ class ControllersTest(BaseIntegrationTest):
 
             att = SubmissionAttachment.query.filter_by(submission_id=sub.id).first()
             self.assertIsNotNone(att)
+            steward = User.query.filter_by(email="steward1@uni.lu").first()
+            self.assertIsNotNone(att.uploaded_on)
+            self.assertEqual(att.uploaded_by_user_id, steward.id)
+            page = resp.data.decode()
+            self.assertIn(
+                f'<time datetime="{att.uploaded_on.isoformat()}">'
+                f"{att.uploaded_on.strftime('%b %d, %Y at %I:%M %p')}</time>",
+                page,
+            )
+            self.assertIn(
+                f'<div class="fw-semibold text-dark small attachment-uploader">'
+                f"{steward.display_name()}</div>",
+                page,
+            )
+
+    def test_view_submission_attachment_without_upload_info(self):
+        """Attachments uploaded before the date was recorded show no date line."""
+        self.login("steward1@uni.lu", "steward1")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.data_upload)
+        attachment = SubmissionAttachment(
+            submission_id=sub.id,
+            note="Legacy attachment",
+            folder_name="legacy-folder",
+            file_names="legacy.txt",
+        )
+        db.session.add(attachment)
+        db.session.commit()
+        # the column default fills the date on insert: clear it as the migration leaves old rows
+        attachment.uploaded_on = None
+        db.session.commit()
+        self.assertIsNone(attachment.uploaded_on)
+
+        resp = self.client.get(url_for("view_submission", sub_id=sub.id))
+        self.assert200(resp)
+        page = resp.data.decode()
+        self.assertIn("Legacy attachment", page)
+        self.assertNotIn("<time datetime=", page)
 
     def test_add_attachment_post_bad_type(self):
         self.login("steward1@uni.lu", "steward1")
