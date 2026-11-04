@@ -539,6 +539,29 @@ class ControllersTest(BaseIntegrationTest):
         resp = self.client.get(url_for("view_submission", sub_id=sub.id))
         self.assert200(resp)
 
+    def test_edit_submission_link_shown_only_to_data_stewards(self):
+        submitter = User.query.filter_by(email="submitter1@some.edu").first()
+        for status in (
+            SubmissionStatusEnum.metadata_submission,
+            SubmissionStatusEnum.data_upload,
+        ):
+            sub = SubmissionFactory(current_status=status)
+            update_submission_basic_info(sub, provider_user_ids=[submitter.id])
+            db.session.commit()
+            edit_url = url_for("edit_submission", sub_id=sub.id)
+
+            self.login("submitter1@some.edu", "submitter1")
+            resp = self.client.get(url_for("view_submission", sub_id=sub.id))
+            self.assert200(resp)
+            self.assertNotIn(edit_url, resp.data.decode())
+            self.logout()
+
+            self.login("steward1@uni.lu", "steward1")
+            resp = self.client.get(url_for("view_submission", sub_id=sub.id))
+            self.assert200(resp)
+            self.assertIn(edit_url, resp.data.decode())
+            self.logout()
+
     def test_nonexistent_entity_returns_404(self):
         self.login("steward1@uni.lu", "steward1")
 
