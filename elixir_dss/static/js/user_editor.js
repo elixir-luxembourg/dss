@@ -4,10 +4,12 @@ $(document).ready(function () {
     });
     $('.elx-select').select2({
         theme: 'bootstrap-5',
+        width: '100%',
         search: true
     });
     $('.elx-multi-select').select2({
         theme: 'bootstrap-5',
+        width: '100%',
         columns: 2,
         search: true,
         selectAll: true,

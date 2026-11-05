@@ -61,3 +61,18 @@ class TestGetEluEntities(BaseTest):
         result = get_elu_entities("projects")
 
         self.assertEqual(result, [])
+
+
+def test_demo_partners_are_only_offered_in_development():
+    from elixir_dss.constants import DEMO_PARTNERS
+    from elixir_dss.settings import DevConfig, ProdConfig
+
+    demo_identifiers = {partner["external_id"] for partner in DEMO_PARTNERS}
+    production_identifiers = {
+        partner["external_id"] for partner in ProdConfig.DATA_INIT["partners"]
+    }
+    development_identifiers = {
+        partner["external_id"] for partner in DevConfig.DATA_INIT["partners"]
+    }
+    assert not demo_identifiers & production_identifiers
+    assert demo_identifiers <= development_identifiers

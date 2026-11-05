@@ -232,3 +232,89 @@ CONFIG_DATA = {
         "Results",
     ],
 }
+
+# Extra institutions for local development only (DevConfig), so that the institution
+# select has enough options to offer search. Not real DAISY identifiers: never use them in
+# production, where DAISY provides the partners and CONFIG_DATA is only the fallback.
+DEMO_PARTNERS = [
+    {
+        "external_id": "ELU_I_80",
+        "name": "University of Luxembourg",
+        "geo_category": "National",
+        "sector_category": "PUBLIC",
+        "is_clinical": False,
+        "acronym": "UL",
+    },
+    {
+        "external_id": "ELU_I_81",
+        "name": "Luxembourg Institute of Science and Technology",
+        "geo_category": "National",
+        "sector_category": "PUBLIC",
+        "is_clinical": False,
+        "acronym": "LIST",
+    },
+    {
+        "external_id": "ELU_I_82",
+        "name": "Laboratoire National de Santé",
+        "geo_category": "National",
+        "sector_category": "PUBLIC",
+        "is_clinical": True,
+        "acronym": "LNS",
+    },
+    {
+        "external_id": "ELU_I_83",
+        "name": "Hôpitaux Robert Schuman",
+        "geo_category": "National",
+        "sector_category": "PRIVATE",
+        "is_clinical": True,
+        "acronym": "HRS",
+    },
+    {
+        "external_id": "ELU_I_84",
+        "name": "Centre Hospitalier Emile Mayrisch",
+        "geo_category": "National",
+        "sector_category": "PUBLIC",
+        "is_clinical": True,
+        "acronym": "CHEM",
+    },
+    {
+        "external_id": "ELU_I_85",
+        "name": "Centre Hospitalier du Nord",
+        "geo_category": "National",
+        "sector_category": "PUBLIC",
+        "is_clinical": True,
+        "acronym": "CHdN",
+    },
+    {
+        "external_id": "ELU_I_86",
+        "name": "Luxembourg Institute of Socio-Economic Research",
+        "geo_category": "National",
+        "sector_category": "PUBLIC",
+        "is_clinical": False,
+        "acronym": "LISER",
+    },
+    {
+        "external_id": "ELU_I_87",
+        "name": "European Molecular Biology Laboratory",
+        "geo_category": "International",
+        "sector_category": "PUBLIC",
+        "is_clinical": False,
+        "acronym": "EMBL",
+    },
+    {
+        "external_id": "ELU_I_88",
+        "name": "Karolinska Institutet",
+        "geo_category": "International",
+        "sector_category": "PUBLIC",
+        "is_clinical": False,
+        "acronym": "KI",
+    },
+    {
+        "external_id": "ELU_I_89",
+        "name": "University of Tübingen",
+        "geo_category": "International",
+        "sector_category": "PUBLIC",
+        "is_clinical": False,
+        "acronym": "UT",
+    },
+]

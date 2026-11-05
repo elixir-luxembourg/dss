@@ -3,7 +3,7 @@ from typing import ClassVar
 
 from dotenv import load_dotenv
 
-from elixir_dss.constants import CONFIG_DATA
+from elixir_dss.constants import CONFIG_DATA, DEMO_PARTNERS
 
 # Load environment variables at module import
 load_dotenv()
@@ -141,6 +141,10 @@ class ProdConfig(Config):
 class DevConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = True
+    DATA_INIT: ClassVar[dict] = {
+        **CONFIG_DATA,
+        "partners": CONFIG_DATA["partners"] + DEMO_PARTNERS,
+    }
 
     # Flask-Mail config (inherits from Config, can override via env vars)
     MAIL_SERVER = os.environ.get("MAIL_SERVER")
