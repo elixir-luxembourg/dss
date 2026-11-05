@@ -117,6 +117,8 @@ class Config:
         "CACHE_DEFAULT_TIMEOUT": 300,
     }
 
+    # False: datasets get a random local ID instead of calling the ID service (development only)
+    IDSERVICE_USE = os.environ.get("IDSERVICE_USE", "true").lower() == "true"
     IDSERVICE_ENDPOINT = os.environ.get("IDSERVICE_ENDPOINT")
 
     SERVICE_API_KEY = os.environ.get("SERVICE_API_KEY")

@@ -1,3 +1,5 @@
+import secrets
+
 import requests
 
 from elixir_dss import app
@@ -8,6 +10,10 @@ class IDServiceError(Exception):
 
 
 def generate_id(title: str) -> str:
+    if not app.config.get("IDSERVICE_USE", True):
+        # development without the ID service: a random local identifier
+        return f"LOCAL-{secrets.token_hex(6).upper()}"
+
     if not app.config.get("IDSERVICE_ENDPOINT"):
         raise IDServiceError("ID Service endpoint is not configured")
 

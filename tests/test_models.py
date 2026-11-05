@@ -1096,6 +1096,21 @@ class ModelPersistenceTest(BaseTest):
         finally:
             app.config["IDSERVICE_ENDPOINT"] = original
 
+    def test_generate_id_without_idservice(self):
+        """IDSERVICE_USE False gives a local ID without calling the service."""
+        original = app.config.get("IDSERVICE_USE")
+        try:
+            app.config["IDSERVICE_USE"] = False
+            with patch("elixir_dss.clients.idservice.requests.post") as mock_post:
+                first = generate_id("test")
+                second = generate_id("test")
+            mock_post.assert_not_called()
+            self.assertTrue(first.startswith("LOCAL-"))
+            self.assertLessEqual(len(first), 20)
+            self.assertNotEqual(first, second)
+        finally:
+            app.config["IDSERVICE_USE"] = original
+
     def test_get_elu_entities_no_daisy(self):
         """Cover daisy.py get_elu_entities when DAISY_USE is False."""
         original = app.config.get("DAISY_USE")
