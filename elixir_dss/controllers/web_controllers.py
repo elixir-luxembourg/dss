@@ -1041,6 +1041,29 @@ def delete_submission_dataset(dataset_id):
     return redirect(url_for("view_submission", sub_id=dataset.submission_id))
 
 
+@app.route("/submission_dataset_duplicate/<int:dataset_id>", methods=["POST"])
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
+)
+def duplicate_submission_dataset(dataset_id):
+    dataset = db.get_or_404(SubmissionDataset, dataset_id)
+    try:
+        copy = dataset.clone(title=f"{dataset.title} (copy)")
+    except IDServiceError:
+        flash(
+            "Failed to duplicate dataset: ID generation service is unavailable. Please try again later.",
+            "danger",
+        )
+        return redirect(url_for("view_submission", sub_id=dataset.submission_id))
+    db.session.add(copy)
+    db.session.commit()
+    flash(
+        f'Dataset duplicated and saved as "{copy.title}". You can edit the copy below.',
+        "success",
+    )
+    return redirect(url_for("edit_submission_dataset", dataset_id=copy.id))
+
+
 """----------------------------------------------------"""
 """AJAX Endpoints for managing a Submission's Studies."""
 """----------------------------------------------------"""
@@ -1157,6 +1180,27 @@ def delete_submission_study(study_id):
     db.session.commit()
     flash("Study deleted", "success")
     return redirect(url_for("view_submission", sub_id=study.submission_id))
+
+
+@app.route("/submission_study_duplicate/<int:study_id>", methods=["POST"])
+@protect(
+    roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
+)
+def duplicate_submission_study(study_id):
+    study = db.get_or_404(SubmissionStudy, study_id)
+    copy = study.clone(submission_id=study.submission_id, name=f"{study.name} (copy)")
+    db.session.add(copy)
+    db.session.flush()
+    for contact in study.study_contacts:
+        db.session.add(
+            contact.clone(submission_id=contact.submission_id, study_id=copy.id)
+        )
+    db.session.commit()
+    flash(
+        f'Study duplicated and saved as "{copy.name}". You can edit the copy below.',
+        "success",
+    )
+    return redirect(url_for("edit_submission_study", study_id=copy.id))
 
 
 """----------------------------------------------------"""
