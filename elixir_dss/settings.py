@@ -185,6 +185,7 @@ class TestConfig(Config):
     LFT_LINKS_BASE_URL = "https://lft.example.com/links/"
     LFT_LINK_VALIDITY_DAYS = 7
 
+    IDSERVICE_USE = True
     IDSERVICE_ENDPOINT = "https://test-idservice.com/v1/api/id"
 
     SERVICE_API_KEY = "test-secret-key"
