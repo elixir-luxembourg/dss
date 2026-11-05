@@ -209,6 +209,11 @@ $(document).ready(function () {
     toggleNotesField('use_restriction_project', 'use_restriction_project_notes');
     toggleNotesField('use_restriction_research_use', 'use_restriction_research_use_notes');
     toggleNotesField('access_form_required', 'access_form_notes');
+    // The reminder to upload the form template only applies once the form is required.
+    const accessFormRequired = $('#access_form_required');
+    accessFormRequired.on('change', function () {
+        $('#access-form-warning').toggleClass('d-none', this.value !== 'yes');
+    });
     toggleNotesField('restriction_pub', 'restriction_pub_notes');
     toggleNotesField('restriction_rtn', 'restriction_rtn_notes');
     toggleNotesField('restriction_us', 'restriction_us_notes');

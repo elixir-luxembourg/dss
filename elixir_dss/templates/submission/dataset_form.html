@@ -179,8 +179,9 @@
                 {{ fmacros.render_field_with_errors(dataset_form.access_form_required, clazz="elx-select") }}
                 {{ fmacros.render_field_with_errors(dataset_form.access_form_notes) }}
 
-                <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                {# Not an .alert: main.js fades every .alert out after a few seconds, and d-flex would keep its space. #}
+                <div id="access-form-warning" class="bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded p-3 d-flex align-items-start gap-2 mb-3{% if dataset_form.access_form_required.data != 'yes' %} d-none{% endif %}">
+                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0" aria-hidden="true"></i>
                     <div>If an access request form is needed, please make sure you upload the form template as an attachment to this submission.</div>
                 </div>
 

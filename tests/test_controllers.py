@@ -988,6 +988,25 @@ class ControllersTest(BaseIntegrationTest):
         )
         self.assert200(resp)
 
+    def test_edit_submission_dataset_access_form_warning(self):
+        # The reminder to upload the access request form only shows once it is required.
+        self.login("submitter1@some.edu", "submitter1")
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
+        hidden = 'id="access-form-warning" class="bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded p-3 d-flex align-items-start gap-2 mb-3 d-none"'
+        shown = 'id="access-form-warning" class="bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded p-3 d-flex align-items-start gap-2 mb-3"'
+        for answer, expected in ((None, hidden), ("no", hidden), ("yes", shown)):
+            dataset.access_form_required = answer
+            db.session.commit()
+            resp = self.client.get(
+                url_for("edit_submission_dataset", dataset_id=dataset.id)
+            )
+            self.assert200(resp)
+            self.assertIn(expected, resp.get_data(as_text=True), answer)
+
     @patch("elixir_dss.models.services.send_metadata_approved_notification")
     def test_approve_metadata(self, _mock_notif):
         self.login("steward1@uni.lu", "steward1")
