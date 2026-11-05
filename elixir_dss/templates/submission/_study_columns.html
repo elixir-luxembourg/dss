@@ -77,6 +77,14 @@
                             class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Edit study">
                             <i class="bi bi-pencil"></i>
                         </a>
+                        <form method="POST" action="{{ url_for('duplicate_submission_study', study_id=study.id) }}"
+                            class="d-inline m-0">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip"
+                                title="Duplicate study" aria-label="Duplicate study">
+                                <i class="bi bi-files"></i>
+                            </button>
+                        </form>
                         <a href="{{ url_for('delete_submission_study', study_id=study.id) }}"
                             class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Delete study"
                             onclick="return confirm('Are you sure you want to delete this study?');">
