@@ -14,6 +14,7 @@ from elixir_dss.exceptions import RecordLifecycleException, RecordNotExistsExcep
 from elixir_dss.importer.submission_exporter import (
     SubmissionExporter,
     _parse_json_string,
+    gdpr_data_type_labels,
     normalize,
 )
 from elixir_dss.models.security import Role, User
@@ -438,6 +439,39 @@ class ModelPersistenceTest(BaseTest):
         }
 
         self.assertSetEqual(set(dataset.keys()), expected_dataset_keys)
+
+    def test_export_gdpr_data_types(self):
+        """Codes in the JSON export (DAISY), labels when asked for (DOCX)."""
+        submission_rec = create_sub("ELU_I_5")
+        study_rec = SubmissionStudyFactory(submission_id=submission_rec.id)
+        SubmissionDatasetFactory(
+            submission_id=submission_rec.id,
+            study_id=study_rec.id,
+            gdpr_datatypes_json=json.dumps(["standard", "ethnic"]),
+        )
+        exporter = SubmissionExporter()
+
+        exp = exporter.export_submission(submission_rec)
+        dataset = exp["studies"][0]["datasets"][0]
+        self.assertEqual(dataset["gdpr_data_types"], "standard, ethnic")
+
+        exp = exporter.export_submission(submission_rec, gdpr_labels=True)
+        dataset = exp["studies"][0]["datasets"][0]
+        self.assertEqual(
+            dataset["gdpr_data_types"],
+            "Standard personal data, Racial or ethnic origin",
+        )
+
+    def test_gdpr_data_type_labels(self):
+        self.assertEqual(
+            gdpr_data_type_labels(["health", "criminal", "unknown"]),
+            [
+                "Data concerning health",
+                "Data relating to criminal convictions and offences",
+                "unknown",
+            ],
+        )
+        self.assertEqual(gdpr_data_type_labels([]), [])
 
     def test_export_use_conditions(self):
         submission_rec = create_sub("ELU_I_5")

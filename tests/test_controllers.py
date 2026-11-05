@@ -828,6 +828,28 @@ class ControllersTest(BaseIntegrationTest):
         mock_doc.render.assert_called_once()
         mock_doc.save.assert_called_once()
 
+    @patch("elixir_dss.controllers.reporters.DocxTemplate")
+    def test_generate_submission_docx_gdpr_labels(self, mock_docx_cls):
+        """The DOCX shows the GDPR data types' labels, not their codes (#238)."""
+        self.login("steward1@uni.lu", "steward1")
+        sub = create_sub("ELU_I_9")
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        SubmissionDatasetFactory(
+            submission_id=sub.id,
+            study_id=study.id,
+            gdpr_datatypes_json='["standard", "ethnic", "health"]',
+        )
+        mock_doc = MagicMock()
+        mock_docx_cls.return_value = mock_doc
+
+        resp = self.client.get(url_for("generate_submission_docx", sub_id=sub.id))
+        self.assert200(resp)
+        context = mock_doc.render.call_args[0][0]
+        self.assertEqual(
+            context["studies"][0]["datasets"][0]["gdpr_data_types"],
+            "Standard personal data, Racial or ethnic origin, Data concerning health",
+        )
+
     @pytest.mark.usefixtures("mock_idservice_requests_post")
     def test_clone_submission(self):
         self.login("steward1@uni.lu", "steward1")
