@@ -7,10 +7,10 @@ Deployment using systemd and nginx on Rocky Linux 8
 ```bash
 sudo dnf update -y
 sudo dnf module reset -y nodejs
-sudo dnf module enable -y nodejs:22
+sudo dnf module enable -y nodejs:24
 sudo dnf install -y python3.12 python3.12-pip nginx git nodejs npm
 sudo dnf groupinstall -y "Development Tools"
-node --version   # v22.x: the CSS build needs Node 20.19 or later
+node --version   # v24.x: select2 needs Node 24 or later
 ```
 
 On a server that already has an older Node, enabling the new stream doesn't upgrade the installed packages:
@@ -18,7 +18,7 @@ switch them over with
 
 ```bash
 sudo dnf module reset -y nodejs
-sudo dnf module enable -y nodejs:22
+sudo dnf module enable -y nodejs:24
 sudo dnf distro-sync -y nodejs npm
 node --version
 ```
