@@ -684,7 +684,7 @@ class ControllersTest(BaseIntegrationTest):
 
         with self.client.session_transaction() as sess:
             sess["oidc_id_token"] = "fake-token"
-        resp = self.logout()
+        resp = self.client.get(url_for("logout"))
 
         self.assertEqual(resp.status_code, 302)
         self.assertIn("/kc/logout", resp.location)
