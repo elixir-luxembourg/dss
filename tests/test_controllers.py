@@ -2306,3 +2306,133 @@ class RecipientAccessTest(BaseIntegrationTest):
                 EmailNotification.subject.contains("assigned as Recipient")
             ).one_or_none()
         )
+
+
+class ReadOnlyMetadataTest(BaseIntegrationTest):
+    def _make_submission(self, status=SubmissionStatusEnum.metadata_approval):
+        sub = SubmissionFactory(current_status=status)
+        submitter = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[submitter.id])
+        study = SubmissionStudyFactory(
+            submission_id=sub.id,
+            name="Read-only study",
+            study_contacts=[ContactFactory()],
+        )
+        dataset = SubmissionDatasetFactory(
+            submission_id=sub.id,
+            study_id=study.id,
+            title="Read-only dataset",
+            sci_datatypes_json='["Whole_genome_sequencing"]',
+        )
+        db.session.commit()
+        return sub, study, dataset
+
+    def _assert_read_only_form(self, resp, title):
+        self.assert200(resp)
+        data = resp.data.decode("utf-8")
+        self.assertIn(title, data)
+        self.assertIn('data-read-only="true"', data)
+        self.assertIn("<fieldset disabled>", data)
+        self.assertNotIn('id="submit-btn"', data)
+        self.assertNotIn('data-toggle="fieldset-add-row"', data)
+        self.assertNotIn('data-toggle="fieldset-remove-row"', data)
+
+    def test_steward_views_metadata_read_only_during_review(self):
+        _sub, study, dataset = self._make_submission()
+        self.login("steward1@uni.lu", "steward1")
+
+        self._assert_read_only_form(
+            self.client.get(url_for("view_submission_study", study_id=study.id)),
+            "Read-only study",
+        )
+        self._assert_read_only_form(
+            self.client.get(url_for("view_submission_dataset", dataset_id=dataset.id)),
+            "Read-only dataset",
+        )
+
+    def test_submission_page_links_rows_to_read_only_views(self):
+        sub, study, dataset = self._make_submission()
+        self.login("steward1@uni.lu", "steward1")
+
+        data = self.client.get(url_for("view_submission", sub_id=sub.id)).data.decode()
+        self.assertIn(
+            f'href="{url_for("view_submission_study", study_id=study.id)}"', data
+        )
+        self.assertIn(
+            f'href="{url_for("view_submission_dataset", dataset_id=dataset.id)}"', data
+        )
+        self.assertNotIn(
+            f'href="{url_for("edit_submission_study", study_id=study.id)}"', data
+        )
+        self.assertNotIn(
+            f'href="{url_for("edit_submission_dataset", dataset_id=dataset.id)}"', data
+        )
+
+    def test_submission_page_keeps_edit_links_during_metadata_entry(self):
+        sub, study, dataset = self._make_submission(
+            SubmissionStatusEnum.metadata_submission
+        )
+        self.login("submitter1@some.edu", "submitter1")
+
+        data = self.client.get(url_for("view_submission", sub_id=sub.id)).data.decode()
+        self.assertIn(
+            f'href="{url_for("edit_submission_study", study_id=study.id)}"', data
+        )
+        self.assertIn(
+            f'href="{url_for("edit_submission_dataset", dataset_id=dataset.id)}"', data
+        )
+        self.assertNotIn(
+            f'href="{url_for("view_submission_study", study_id=study.id)}"', data
+        )
+
+    def test_submitter_and_recipient_view_read_only_after_metadata_entry(self):
+        sub, study, dataset = self._make_submission(SubmissionStatusEnum.completed)
+        recipient = User.query.filter_by(email="submitter2@some.edu").first()
+        db.session.add(
+            SubmissionAccess(
+                submission_id=sub.id,
+                user_id=recipient.id,
+                role=SubmissionAccess.ROLE_RECIPIENT,
+                access_granted_on=datetime.now(),
+            )
+        )
+        db.session.commit()
+
+        for email, password in (
+            ("submitter1@some.edu", "submitter1"),
+            ("submitter2@some.edu", "submitter2"),
+        ):
+            with self.subTest(user=email):
+                self.login(email, password)
+                self._assert_read_only_form(
+                    self.client.get(
+                        url_for("view_submission_study", study_id=study.id)
+                    ),
+                    "Read-only study",
+                )
+                self._assert_read_only_form(
+                    self.client.get(
+                        url_for("view_submission_dataset", dataset_id=dataset.id)
+                    ),
+                    "Read-only dataset",
+                )
+                self.logout()
+
+    def test_read_only_views_refuse_users_without_access_and_writes(self):
+        _sub, study, dataset = self._make_submission()
+        self.login("submitter2@some.edu", "submitter2")
+        self.assert404(
+            self.client.get(url_for("view_submission_study", study_id=study.id))
+        )
+        self.assert404(
+            self.client.get(url_for("view_submission_dataset", dataset_id=dataset.id))
+        )
+
+        self.logout()
+        self.login("steward1@uni.lu", "steward1")
+        self.assert405(
+            self.client.post(url_for("view_submission_study", study_id=study.id))
+        )
+        self.assert405(
+            self.client.post(url_for("view_submission_dataset", dataset_id=dataset.id))
+        )

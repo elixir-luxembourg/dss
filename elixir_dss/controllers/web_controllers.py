@@ -935,6 +935,32 @@ def add_submission_dataset(sub_id):
             ), 400
 
 
+def _dataset_form_for(dataset):
+    result_form = forms.DatasetForm(obj=dataset)
+    if dataset.sci_datatypes_json:
+        result_form.sci_datatypes.data = json.loads(dataset.sci_datatypes_json)
+    if dataset.gdpr_datatypes_json:
+        result_form.gdpr_datatypes.data = json.loads(dataset.gdpr_datatypes_json)
+    if dataset.data_standards_json:
+        result_form.data_standards.data = json.loads(dataset.data_standards_json)
+    if dataset.file_types_json:
+        result_form.file_types.data = json.loads(dataset.file_types_json)
+    if dataset.sample_types_json:
+        result_form.sample_types.data = json.loads(dataset.sample_types_json)
+    return result_form
+
+
+@app.route("/submission_dataset/<int:dataset_id>/view", methods=["GET"])
+@protect(roles=["user", "data_steward"], recipient_allowed=True)
+def view_submission_dataset(dataset_id):
+    dataset = db.get_or_404(SubmissionDataset, dataset_id)
+    return render_template(
+        "submission/dataset_form.html",
+        dataset_form=_dataset_form_for(dataset),
+        read_only=True,
+    )
+
+
 @app.route("/submission_dataset/<int:dataset_id>", methods=["GET", "POST"])
 @protect(
     roles=["user", "data_steward"], states=[SubmissionStatusEnum.metadata_submission]
@@ -942,21 +968,9 @@ def add_submission_dataset(sub_id):
 def edit_submission_dataset(dataset_id):
     if request.method == "GET":
         dataset = db.get_or_404(SubmissionDataset, dataset_id)
-        result_form = forms.DatasetForm(obj=dataset)
-        if dataset.sci_datatypes_json:
-            result_form.sci_datatypes.data = json.loads(dataset.sci_datatypes_json)
-        if dataset.gdpr_datatypes_json:
-            result_form.gdpr_datatypes.data = json.loads(dataset.gdpr_datatypes_json)
-        if dataset.data_standards_json:
-            result_form.data_standards.data = json.loads(dataset.data_standards_json)
-        if dataset.file_types_json:
-            result_form.file_types.data = json.loads(dataset.file_types_json)
-        if dataset.sample_types_json:
-            result_form.sample_types.data = json.loads(dataset.sample_types_json)
-
         return render_template(
             "submission/dataset_form.html",
-            dataset_form=result_form,
+            dataset_form=_dataset_form_for(dataset),
         ), 200
     elif request.method == "POST":
         dataset = db.get_or_404(SubmissionDataset, dataset_id)
@@ -1076,6 +1090,17 @@ def add_submission_study(sub_id):
 
     flash("Study added", "success")
     return redirect(url_for("view_submission", sub_id=study_rec.submission_id))
+
+
+@app.route("/submission_study/<int:study_id>/view", methods=["GET"])
+@protect(roles=["user", "data_steward"], recipient_allowed=True)
+def view_submission_study(study_id):
+    study_rec = db.get_or_404(SubmissionStudy, study_id)
+    result_form = forms.StudyForm(obj=study_rec)
+    _load_study_json_to_form(study_rec, result_form)
+    return render_template(
+        "submission/study_form.html", study_form=result_form, read_only=True
+    )
 
 
 @app.route("/submission_study/<int:study_id>", methods=["GET", "POST"])
