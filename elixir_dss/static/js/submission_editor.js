@@ -36,17 +36,22 @@ $(document).ajaxStart(function () {
 $(document).ready(function () {
 
     let VALIDATION_ERROR = "BAD REQUEST";
+    // Single selects get a search box once they list this many options
+    // (institutions, studies); short ones such as Yes / No stay without.
+    let SELECT_SEARCH_THRESHOLD = 10;
 
     function bind_widgets() {
         $(".elx-date").datepicker({dateFormat: 'dd/mm/yy'});
 
         $('.elx-select').select2({
             theme: 'bootstrap-5',
-            minimumResultsForSearch: -1
+            width: '100%',
+            minimumResultsForSearch: SELECT_SEARCH_THRESHOLD
         });
 
         $('.elx-multi-select').select2({
             theme: 'bootstrap-5',
+            width: '100%',
             columns: 2,
             search: true,
             selectAll: true
@@ -277,7 +282,8 @@ $(document).ready(function () {
     $('#submission_create_modal').on('shown.bs.modal', function () {
         $(this).find('.elx-select').select2({
             theme: 'bootstrap-5',
-            minimumResultsForSearch: -1,
+            width: '100%',
+            minimumResultsForSearch: SELECT_SEARCH_THRESHOLD,
             dropdownParent: $('#submission_create_modal')
         });
     });
