@@ -80,6 +80,18 @@
                                    title="Edit dataset">
                                     <i class="bi bi-pencil"></i>
                                 </a>
+                                <form method="POST"
+                                      action="{{ url_for('duplicate_submission_dataset', dataset_id=dataset.id) }}"
+                                      class="d-inline m-0">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            data-bs-toggle="tooltip"
+                                            title="Duplicate dataset"
+                                            aria-label="Duplicate dataset">
+                                        <i class="bi bi-files"></i>
+                                    </button>
+                                </form>
                                 <a href="{{ url_for('delete_submission_dataset', dataset_id=dataset.id) }}"
                                    class="btn btn-sm btn-outline-danger"
                                    data-bs-toggle="tooltip"
