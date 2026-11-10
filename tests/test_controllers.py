@@ -990,6 +990,47 @@ class ControllersTest(BaseIntegrationTest):
         self.assertIn("Receiving project:", cells)
         self.assertNotIn("ELU_P_1", cells)
 
+    def test_view_submission_shows_remarks(self):
+        self.login("steward1@uni.lu", "steward1")
+        submission = create_sub("ELU_I_9")
+        submission.notes = "Cohort from the 2019 pilot\nSecond batch follows"
+        db.session.commit()
+
+        response = self.client.get(url_for("view_submission", sub_id=submission.id))
+
+        self.assert200(response)
+        page = response.data.decode()
+        self.assertIn("Remarks", page)
+        self.assertIn("Cohort from the 2019 pilot\nSecond batch follows", page)
+        self.assertEqual(page.count("Cohort from the 2019 pilot"), 1)
+
+    def test_view_submission_shows_remarks_in_summary_card_at_every_step(self):
+        self.login("steward1@uni.lu", "steward1")
+        for status in [
+            SubmissionStatusEnum.draft,
+            SubmissionStatusEnum.metadata_submission,
+            SubmissionStatusEnum.data_upload,
+            SubmissionStatusEnum.completed,
+        ]:
+            with self.subTest(status=status):
+                submission = SubmissionFactory(current_status=status)
+                submission.notes = f"Remarks at {status.value}"
+                db.session.commit()
+
+                response = self.client.get(
+                    url_for("view_submission", sub_id=submission.id)
+                )
+
+                self.assert200(response)
+                page = response.data.decode()
+                self.assertEqual(page.count(f"Remarks at {status.value}"), 1)
+                # The summary card at the top lists the remarks before its
+                # "Submitting institution:" line.
+                self.assertLess(
+                    page.index(f"Remarks at {status.value}"),
+                    page.index("Submitting institution:"),
+                )
+
     def test_edit_submission_dataset_get(self):
         self.login("submitter1@some.edu", "submitter1")
         sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
