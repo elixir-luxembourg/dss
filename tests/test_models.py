@@ -1429,6 +1429,23 @@ class ModelPersistenceTest(BaseTest):
             invited_user = User.query.filter_by(email="newinvitee@example.com").first()
             self.assertIsNotNone(invited_user)
 
+    def test_notification_email_shows_png_logo(self):
+        """Mail clients like Gmail and Outlook don't display SVG images."""
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        contact = ContactFactory(
+            submission_id=sub.id, send_invite=True, email="logo@example.com"
+        )
+        db.session.commit()
+
+        with patch(
+            "elixir_dss.models.services.persist_and_send_notification"
+        ) as mock_persist:
+            invite_submitters(sub, [contact])
+            html_email = mock_persist.call_args.args[4]
+            self.assertIn("/static/public/images/UNI_Logo_LCSB_color.png", html_email)
+            self.assertIn('alt="University of Luxembourg and LCSB"', html_email)
+            self.assertNotIn(".svg", html_email)
+
     def test_clone_sub_with_contacts(self):
         """Cover clone_sub contact cloning."""
         sub = create_sub("ELU_I_77")
