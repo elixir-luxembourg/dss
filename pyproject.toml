@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "elixir-dss"
-version = "0.4.0-dev"
+version = "1.7.0-dev"
 description = "Elixir-LU Data Submission System (DSS)"
 authors = [
     {name = "Valentin Grouès", email = "valentin.groues@uni.lu"}

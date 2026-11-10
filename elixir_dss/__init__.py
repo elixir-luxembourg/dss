@@ -16,7 +16,7 @@ from elixir_dss import assets, exceptions
 from elixir_dss.clients.lft import LFTHandler
 from elixir_dss.settings import ELIXIR_DSS_ENV
 
-__VERSION__ = "0.4.0-dev"
+__VERSION__ = "1.7.0-dev"
 
 
 def create_application():
