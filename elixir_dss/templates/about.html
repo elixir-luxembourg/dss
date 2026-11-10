@@ -200,7 +200,9 @@
     <div class="container mb-5">
         <h2 class="h3 fw-bold mb-3">Version</h2>
         <p class="text-secondary mb-0" id="release-version">
-           <strong>{{ version }}</strong>{% if commit %}, commit <code>{{ commit }}</code>{% endif %}
+           <strong>{{ version }}</strong>{% if commit %}, commit <a href="https://github.com/elixir-luxembourg/dss/commit/{{ commit }}"
+               target="_blank" rel="noopener"
+               aria-label="Commit {{ commit }} on GitHub (opens in a new tab)"><code>{{ commit }}</code></a>{% endif %}
         </p>
     </div>
 
