@@ -2,7 +2,7 @@ import io
 import json
 import os
 import tempfile
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from unittest.mock import MagicMock, call, patch
 
 import docx
@@ -2516,3 +2516,244 @@ class ReadOnlyMetadataTest(BaseIntegrationTest):
         self.assert405(
             self.client.post(url_for("view_submission_dataset", dataset_id=dataset.id))
         )
+
+
+class DuplicateStudyDatasetTest(BaseIntegrationTest):
+    def _submitter_submission(self, status=SubmissionStatusEnum.metadata_submission):
+        self.login("submitter1@some.edu", "submitter1")
+        sub = SubmissionFactory(current_status=status)
+        user = User.query.filter_by(email="submitter1@some.edu").first()
+        update_submission_basic_info(sub, provider_user_ids=[user.id])
+        return sub
+
+    def test_duplicate_study_copies_it_with_its_contacts(self):
+        sub = self._submitter_submission()
+        study = SubmissionStudyFactory(
+            submission_id=sub.id,
+            name="Cohort A",
+            study_contacts=[ContactFactory(first_name="Ada"), ContactFactory()],
+        )
+        db.session.commit()
+
+        resp = self.client.post(
+            url_for("duplicate_submission_study", study_id=study.id)
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        db.session.expire_all()
+        studies = SubmissionStudy.query.filter_by(submission_id=sub.id).all()
+        self.assertEqual(len(studies), 2)
+        copy = next(s for s in studies if s.id != study.id)
+        self.assertIn(url_for("edit_submission_study", study_id=copy.id), resp.location)
+        self.assertEqual(copy.name, "Cohort A (copy)")
+        self.assertEqual(copy.description, study.description)
+        self.assertEqual(copy.species_json, study.species_json)
+        self.assertEqual(
+            sorted(c.first_name for c in copy.study_contacts),
+            sorted(c.first_name for c in study.study_contacts),
+        )
+        self.assertEqual(
+            len(db.session.get(SubmissionStudy, study.id).study_contacts), 2
+        )
+        self.assertEqual(db.session.get(SubmissionStudy, study.id).name, "Cohort A")
+
+    @pytest.mark.usefixtures("mock_idservice_requests_post")
+    def test_duplicate_dataset_copies_it_with_a_new_internal_id(self):
+        sub = self._submitter_submission()
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(
+            submission_id=sub.id,
+            study_id=study.id,
+            title="Genomes",
+            internal_id="ORIGINAL_ID",
+            use_restriction_project=True,
+            restriction_pub=True,
+            restriction_pub_notes="Acknowledge the cohort",
+            creation_date=date(2024, 1, 2),
+            last_update_date=date(2024, 3, 4),
+        )
+        creator_names = [c.first_name for c in dataset.creators]
+
+        resp = self.client.post(
+            url_for("duplicate_submission_dataset", dataset_id=dataset.id)
+        )
+
+        self.assertEqual(resp.status_code, 302)
+        db.session.expire_all()
+        datasets = SubmissionDataset.query.filter_by(submission_id=sub.id).all()
+        self.assertEqual(len(datasets), 2)
+        copy = next(d for d in datasets if d.id != dataset.id)
+        self.assertIn(
+            url_for("edit_submission_dataset", dataset_id=copy.id), resp.location
+        )
+        self.assertEqual(copy.title, "Genomes (copy)")
+        with self.client.session_transaction() as session:
+            self.assertIn(
+                (
+                    "success",
+                    (
+                        'Dataset duplicated and saved as "Genomes (copy)". '
+                        "You can edit the copy below."
+                    ),
+                ),
+                session["_flashes"],
+            )
+        self.assertEqual(copy.internal_id, "TEST_DATASET_ID_001")
+        self.assertEqual(copy.study_id, study.id)
+        self.assertTrue(copy.use_restriction_project)
+        self.assertTrue(copy.restriction_pub)
+        self.assertEqual(copy.restriction_pub_notes, "Acknowledge the cohort")
+        self.assertEqual(copy.gdpr_datatypes_json, dataset.gdpr_datatypes_json)
+        self.assertEqual([c.first_name for c in copy.creators], creator_names)
+        self.assertEqual(copy.creation_date, dataset.creation_date)
+        self.assertEqual(copy.last_update_date, dataset.last_update_date)
+        original = db.session.get(SubmissionDataset, dataset.id)
+        self.assertEqual(original.internal_id, "ORIGINAL_ID")
+        self.assertEqual(len(original.creators), len(creator_names))
+
+    @patch("elixir_dss.models.submission.generate_id")
+    def test_duplicate_dataset_idservice_error(self, mock_gen):
+        mock_gen.side_effect = IDServiceError("ID service down")
+        sub = self._submitter_submission()
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
+
+        resp = self.client.post(
+            url_for("duplicate_submission_dataset", dataset_id=dataset.id),
+            follow_redirects=True,
+        )
+
+        self.assert200(resp)
+        self.assertIn("ID generation service is unavailable", resp.data.decode())
+        self.assertEqual(
+            SubmissionDataset.query.filter_by(submission_id=sub.id).count(), 1
+        )
+
+    def test_duplicate_blocked_outside_metadata_submission(self):
+        sub = self._submitter_submission(status=SubmissionStatusEnum.data_upload)
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
+
+        self.assert403(
+            self.client.post(url_for("duplicate_submission_study", study_id=study.id))
+        )
+        self.assert403(
+            self.client.post(
+                url_for("duplicate_submission_dataset", dataset_id=dataset.id)
+            )
+        )
+        self.assertEqual(
+            SubmissionStudy.query.filter_by(submission_id=sub.id).count(), 1
+        )
+        self.assertEqual(
+            SubmissionDataset.query.filter_by(submission_id=sub.id).count(), 1
+        )
+
+    def test_duplicate_blocked_for_recipient(self):
+        sub = SubmissionFactory(current_status=SubmissionStatusEnum.metadata_submission)
+        recipient = User.query.filter_by(email="submitter2@some.edu").first()
+        db.session.add(
+            SubmissionAccess(
+                submission_id=sub.id,
+                user_id=recipient.id,
+                role=SubmissionAccess.ROLE_RECIPIENT,
+                access_granted_on=datetime.now(),
+            )
+        )
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
+        self.login("submitter2@some.edu", "submitter2")
+
+        self.assert403(
+            self.client.post(url_for("duplicate_submission_study", study_id=study.id))
+        )
+        self.assert403(
+            self.client.post(
+                url_for("duplicate_submission_dataset", dataset_id=dataset.id)
+            )
+        )
+
+    def test_duplicate_needs_post(self):
+        sub = self._submitter_submission()
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        self.assertEqual(
+            self.client.get(
+                url_for("duplicate_submission_study", study_id=study.id)
+            ).status_code,
+            405,
+        )
+
+    def test_view_submission_shows_duplicate_buttons(self):
+        sub = self._submitter_submission()
+        study = SubmissionStudyFactory(submission_id=sub.id)
+        dataset = SubmissionDatasetFactory(submission_id=sub.id, study_id=study.id)
+
+        page = self.client.get(url_for("view_submission", sub_id=sub.id)).data.decode()
+
+        self.assertIn(url_for("duplicate_submission_study", study_id=study.id), page)
+        self.assertIn(
+            url_for("duplicate_submission_dataset", dataset_id=dataset.id), page
+        )
+
+    @patch("elixir_dss.models.submission.generate_id")
+    def test_duplicate_offered_and_allowed_exactly_where_add_is(self, mock_gen):
+        mock_gen.side_effect = (f"COPY_{number}" for number in range(100))
+        steward = ("steward1@uni.lu", "steward1")
+        submitter = ("submitter1@some.edu", "submitter1")
+        recipient = ("submitter2@some.edu", "submitter2")
+        cases = [
+            (who, status)
+            for who in (steward, submitter, recipient)
+            for status in (
+                SubmissionStatusEnum.metadata_submission,
+                SubmissionStatusEnum.metadata_approval,
+                SubmissionStatusEnum.data_upload,
+                SubmissionStatusEnum.cancelled,
+            )
+        ]
+        for (email, password), status in cases:
+            with self.subTest(user=email, status=status.name):
+                sub = SubmissionFactory(current_status=status)
+                provider = User.query.filter_by(email=submitter[0]).first()
+                update_submission_basic_info(sub, provider_user_ids=[provider.id])
+                db.session.add(
+                    SubmissionAccess(
+                        submission_id=sub.id,
+                        user_id=User.query.filter_by(email=recipient[0]).first().id,
+                        role=SubmissionAccess.ROLE_RECIPIENT,
+                        access_granted_on=datetime.now(),
+                    )
+                )
+                study = SubmissionStudyFactory(submission_id=sub.id)
+                dataset = SubmissionDatasetFactory(
+                    submission_id=sub.id, study_id=study.id
+                )
+                db.session.commit()
+                self.client.get(url_for("logout"))
+                self.login(email, password)
+
+                page = self.client.get(
+                    url_for("view_submission", sub_id=sub.id)
+                ).data.decode()
+                for add_endpoint, duplicate_url in (
+                    (
+                        "add_submission_study",
+                        url_for("duplicate_submission_study", study_id=study.id),
+                    ),
+                    (
+                        "add_submission_dataset",
+                        url_for("duplicate_submission_dataset", dataset_id=dataset.id),
+                    ),
+                ):
+                    add_url = url_for(add_endpoint, sub_id=sub.id)
+                    self.assertEqual(duplicate_url in page, add_url in page)
+                    add_allowed = (
+                        self.client.post(
+                            add_url, data={"submission_id": sub.id}
+                        ).status_code
+                        != 403
+                    )
+                    duplicate_allowed = (
+                        self.client.post(duplicate_url).status_code != 403
+                    )
+                    self.assertEqual(duplicate_allowed, add_allowed)
