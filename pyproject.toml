@@ -41,7 +41,6 @@ dependencies = [
     "schedule==1.2.2",
     "wtforms==3.3.2",
     "docxtpl==0.20.2",
-    "celery==5.7.0",
     "markupsafe==3.0.4",
     "itsdangerous==2.2.0",
     "email_validator==2.3.0",
