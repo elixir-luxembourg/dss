@@ -1,5 +1,19 @@
 # Getting Started
 
+## Video Tutorial
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe
+    src="https://player.vimeo.com/video/1191817703"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+    allow="autoplay; fullscreen; picture-in-picture"
+    allowfullscreen
+    title="DSS Tutorial">
+  </iframe>
+</div>
+
+---
+
 ## Accessing the System
 
 DSS is a web application. Access it via your browser at the URL provided by your institution.
